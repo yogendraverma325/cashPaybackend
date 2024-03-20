@@ -6,6 +6,7 @@ import CostCenter from '../api/model/CostCenterMaster.js';
 import Designation from '../api/model/DesignationMaster.js';
 import Grade from '../api/model/GradeMaster.js';
 import JobLevel from '../api/model/JobLevelMaster.js';
+import Role from '../api/model/RoleMaster.js';
 
 const sequelize = new Sequelize('hrms', 'root', '{Manish@876452}', {
     port: "3306",
@@ -43,7 +44,11 @@ db.costCenterMaster = CostCenter(sequelize, Sequelize)
 db.designationMaster = Designation(sequelize, Sequelize)
 db.gradeMaster = Grade(sequelize, Sequelize)
 db.jobLevelMaster = JobLevel(sequelize, Sequelize)
+db.roleMaster = Role(sequelize, Sequelize)
 
 db.employeeMaster.hasMany(db.employeeMaster, { foreignKey: 'manager', sourceKey: 'id', as: 'reportie' })
+db.employeeMaster.hasOne(db.employeeMaster, { foreignKey: 'id', sourceKey: 'manager', as: 'managerData' })
+db.employeeMaster.hasOne(db.roleMaster, { foreignKey: 'role_id', sourceKey: 'role_id' })
+db.employeeMaster.hasOne(db.designationMaster, { foreignKey: 'designationId', sourceKey: 'designation_id' })
 
 export default db;

@@ -9,16 +9,55 @@ class MasterController {
             const manager = req.query.manager
 
             const reportie = await db.employeeMaster.findOne({
-                where: {
-                    id: (manager) ? manager : null
-                },
-                attributes: { exclude: ['password'] },
+                where: Object.assign(
+                    (manager) ? {
+                        id: manager
+                    } : {
+                        manager: null
+                    }
+                ),
+                attributes: { exclude: ['password', 'role_id', 'designation_id'] },
                 include: [
+                    {
+                        model: db.employeeMaster,
+                        required: false,
+                        attributes: ['name'],
+                        as: 'managerData',
+                        include: [
+                            {
+                                model: db.roleMaster,
+                                required: false,
+                            },
+                            {
+                                model: db.designationMaster,
+                                required: false,
+                                attributes: ['designationId', 'name']
+                            },]
+                    },
+                    {
+                        model: db.roleMaster,
+                        required: true,
+                        attributes: ['name']
+                    },
+                    {
+                        model: db.designationMaster,
+                        required: true,
+                        attributes: ['designationId', 'name']
+                    },
                     {
                         model: db.employeeMaster,
                         as: 'reportie',
                         required: false,
-                        attributes: { exclude: ['password'] },
+                        attributes: { exclude: ['password', 'role_id', 'designation_id'] },
+                        include: [{
+                            model: db.roleMaster,
+                            required: true,
+                        },
+                        {
+                            model: db.designationMaster,
+                            required: true,
+                            attributes: ['designationId', 'name']
+                        }]
 
                     }]
             })
@@ -186,7 +225,7 @@ class MasterController {
                 status: 500
             })
         }
-    } 
+    }
 }
 
 export default new MasterController()

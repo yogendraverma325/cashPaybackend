@@ -1,9 +1,11 @@
-const  msg = function (res, data) {
+// import constant from '../constant/messages.json'
+
+const msg = function (res, data) {
     switch (data.status) {
         case 200:
 
             res.status(data.status).json({
-                statusCode:  "10000",
+                statusCode: "10000",
                 status: true,
                 token: data.token,
                 message: data.msg,
@@ -27,7 +29,7 @@ const  msg = function (res, data) {
                 statusCode: 204,
                 status: false,
                 message: data.msg,
-                data:  data.data,
+                data: data.data,
             });
             break;
 
@@ -36,6 +38,24 @@ const  msg = function (res, data) {
                 statusCode: 400,
                 status: false,
                 message: data.msg || 'Bad request',
+            });
+
+            break;
+
+        case 401:
+            res.status(data.status).json({
+                statusCode: 401,
+                status: false,
+                message: data.msg || 'Unauthorized Request',
+            });
+
+            break;
+
+        case 403:
+            res.status(data.status).json({
+                statusCode: 403,
+                status: false,
+                message: data.msg,
             });
 
             break;
@@ -53,16 +73,16 @@ const  msg = function (res, data) {
             res.status(data.status).json({
                 statusCode: 422,
                 status: false,
-                message: data.msg,
+                message: data.msg || "Unprocessable Entity",
             });
 
             break;
 
-        case 401:
+        case 429:
             res.status(data.status).json({
-                statusCode: 401,
+                statusCode: 429,
                 status: false,
-                message: data.msg || 'Unauthorized Request',
+                message: data.msg || "Too Many Requests",
             });
 
             break;
@@ -71,7 +91,7 @@ const  msg = function (res, data) {
             res.status(data.status).json({
                 statusCode: 500,
                 status: false,
-                message: data.msg || 'Something Went Wrong',
+                message: data.msg || constant.message.SOMETHING_WENT_WRONG,
             });
 
             break;

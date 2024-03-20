@@ -4,13 +4,12 @@ import swaggerUi from 'swagger-ui-express';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import cors from 'cors';
-// import { Sequelize } from 'sequelize';
+import respHelper from '../helper/respHelper.js'
 import * as http from 'http';
 import '../config/db.config.js';
 
 import logger from '../helper/logger.js';
 import rootpath from '../helper/rootPath.js';
-import path from 'path';
 
 class ExpressServer {
   constructor() {
@@ -78,12 +77,16 @@ class ExpressServer {
 
   handleError() {
     this.app.use((req, res, next) => {
-      res.status(404).json({ error: 'Not Found' });
+      return respHelper(res, {
+        status: 404
+      })
     });
 
     this.app.use((err, req, res, next) => {
       logger.error(err.stack);
-      res.status(500).json({ error: 'Internal Server Error' });
+      return respHelper(res, {
+        status: 500
+      })
     });
 
     return this;

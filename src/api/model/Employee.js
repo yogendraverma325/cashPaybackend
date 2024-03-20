@@ -20,7 +20,13 @@ export default (sequelize, Sequelize) => {
         password: {
             type: Sequelize.STRING(255)
         },
-        manager:{
+        manager: {
+            type: Sequelize.INTEGER,
+        },
+        role_id: {
+            type: Sequelize.INTEGER,
+        },
+        designation_id: {
             type: Sequelize.INTEGER,
         }
     })
