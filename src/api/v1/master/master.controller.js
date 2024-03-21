@@ -226,6 +226,103 @@ class MasterController {
             })
         }
     }
+
+    async functionalArea(req, res) {
+        try {
+
+            const limit = req.query.limit * 1 || 10
+            const pageNo = req.query.page * 1 || 1;
+            const offset = (pageNo - 1) * limit;
+
+            const functionalAreaData = await db.functionalAreaMaster.findAll({
+                limit,
+                offset
+            })
+
+            return respHelper(res, {
+                status: 200,
+                data: functionalAreaData
+            })
+        } catch (error) {
+            console.log(error)
+            return respHelper(res, {
+                status: 500
+            })
+        }
+    }
+
+    async state(req, res) {
+        try {
+
+            const limit = req.query.limit * 1 || 10
+            const pageNo = req.query.page * 1 || 1;
+            const offset = (pageNo - 1) * limit;
+
+            const stateCode = req.query.stateCode
+            const stateName = req.query.stateName
+            const countryId = req.query.countryId
+            const regionId = req.query.regionId
+
+            const stateData = await db.stateMaster.findAll({
+                limit,
+                offset,
+                where: Object.assign(
+                    (stateCode) ? {
+                        stateCode
+                    } : {},
+                    (stateName) ? {
+                        stateName
+                    } : {},
+                    (countryId) ? {
+                        countryId
+                    } : {},
+                    (regionId) ? {
+                        regionId
+                    } : {}
+                )
+            })
+
+            return respHelper(res, {
+                status: 200,
+                data: stateData
+            })
+        } catch (error) {
+            console.log(error)
+            return respHelper(res, {
+                status: 500
+            })
+        }
+    }
+
+    async region(req, res) {
+        try {
+
+            const limit = req.query.limit * 1 || 10
+            const pageNo = req.query.page * 1 || 1;
+            const offset = (pageNo - 1) * limit;
+            const countryId = req.query.country
+
+            const regionData = await db.regionMaster.findAll({
+                limit,
+                offset,
+                where: Object.assign(
+                    (countryId) ? {
+                        countryId
+                    } : {}
+                )
+            })
+
+            return respHelper(res, {
+                status: 200,
+                data: regionData
+            })
+        } catch (error) {
+            console.log(error)
+            return respHelper(res, {
+                status: 500
+            })
+        }
+    }
 }
 
 export default new MasterController()

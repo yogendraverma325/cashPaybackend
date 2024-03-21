@@ -91,7 +91,7 @@ const msg = function (res, data) {
             res.status(data.status).json({
                 statusCode: 500,
                 status: false,
-                message: data.msg || constant.message.SOMETHING_WENT_WRONG,
+                message: data.msg || 'Something Went Wrong',
             });
 
             break;

@@ -10,3 +10,6 @@ export default Express
     .get("/designation", masterController.designation)
     .get("/grade", masterController.grade)
     .get("/jobLevel", masterController.jobLevel)
+    .get("/functionalArea", masterController.functionalArea)
+    .get("/state", masterController.state)
+    .get("/region", masterController.region)
