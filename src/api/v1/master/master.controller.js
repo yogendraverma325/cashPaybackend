@@ -323,6 +323,300 @@ class MasterController {
             })
         }
     }
+
+    async city(req, res) {
+        try {
+
+            const limit = req.query.limit * 1 || 10
+            const pageNo = req.query.page * 1 || 1;
+            const offset = (pageNo - 1) * limit;
+            const stateId = req.query.stateId
+
+            const cityData = await db.cityMaster.findAll({
+                limit,
+                offset,
+                where: Object.assign(
+                    (stateId) ? {
+                        stateId
+                    } : {}
+                )
+            })
+
+            return respHelper(res, {
+                status: 200,
+                data: cityData
+            })
+        } catch (error) {
+            console.log(error)
+            return respHelper(res, {
+                status: 500
+            })
+        }
+    }
+
+    async companyLocation(req, res) {
+        try {
+
+            const limit = req.query.limit * 1 || 10
+            const pageNo = req.query.page * 1 || 1;
+            const offset = (pageNo - 1) * limit;
+
+            const companyLocationData = await db.companyLocationMaster.findAll({
+                limit,
+                offset,
+            })
+
+            return respHelper(res, {
+                status: 200,
+                data: companyLocationData
+            })
+        } catch (error) {
+            console.log(error)
+            return respHelper(res, {
+                status: 500
+            })
+        }
+    }
+
+    async company(req, res) {
+        try {
+
+            const limit = req.query.limit * 1 || 10
+            const pageNo = req.query.page * 1 || 1;
+            const offset = (pageNo - 1) * limit;
+
+            const companyData = await db.companyMaster.findAll({
+                limit,
+                offset,
+            })
+
+            return respHelper(res, {
+                status: 200,
+                data: companyData
+            })
+        } catch (error) {
+            console.log(error)
+            return respHelper(res, {
+                status: 500
+            })
+        }
+    }
+
+    async companyType(req, res) {
+        try {
+
+            const limit = req.query.limit * 1 || 10
+            const pageNo = req.query.page * 1 || 1;
+            const offset = (pageNo - 1) * limit;
+
+            const companyTypeData = await db.companyTypeMaster.findAll({
+                limit,
+                offset,
+            })
+
+            return respHelper(res, {
+                status: 200,
+                data: companyTypeData
+            })
+        } catch (error) {
+            console.log(error)
+            return respHelper(res, {
+                status: 500
+            })
+        }
+    }
+
+    async country(req, res) {
+        try {
+
+            const limit = req.query.limit * 1 || 10
+            const pageNo = req.query.page * 1 || 1;
+            const offset = (pageNo - 1) * limit;
+
+            const countryData = await db.countryMaster.findAll({
+                limit,
+                offset,
+            })
+
+            return respHelper(res, {
+                status: 200,
+                data: countryData
+            })
+        } catch (error) {
+            console.log(error)
+            return respHelper(res, {
+                status: 500
+            })
+        }
+    }
+
+    async currency(req, res) {
+        try {
+
+            const limit = req.query.limit * 1 || 10
+            const pageNo = req.query.page * 1 || 1;
+            const offset = (pageNo - 1) * limit;
+
+            const currencyData = await db.currencyMaster.findAll({
+                limit,
+                offset,
+            })
+
+            return respHelper(res, {
+                status: 200,
+                data: currencyData
+            })
+        } catch (error) {
+            console.log(error)
+            return respHelper(res, {
+                status: 500
+            })
+        }
+    }
+
+    async department(req, res) {
+        try {
+
+            const limit = req.query.limit * 1 || 10
+            const pageNo = req.query.page * 1 || 1;
+            const offset = (pageNo - 1) * limit;
+
+            const departmentData = await db.departmentMaster.findAll({
+                limit,
+                offset,
+            })
+
+            return respHelper(res, {
+                status: 200,
+                data: departmentData
+            })
+        } catch (error) {
+            console.log(error)
+            return respHelper(res, {
+                status: 500
+            })
+        }
+    }
+
+    async district(req, res) {
+        try {
+
+            const limit = req.query.limit * 1 || 10
+            const pageNo = req.query.page * 1 || 1;
+            const offset = (pageNo - 1) * limit;
+
+            const districtData = await db.districtMaster.findAll({
+                limit,
+                offset,
+            })
+
+            return respHelper(res, {
+                status: 200,
+                data: districtData
+            })
+        } catch (error) {
+            console.log(error)
+            return respHelper(res, {
+                status: 500
+            })
+        }
+    }
+
+    async employeeType(req, res) {
+        try {
+
+            const limit = req.query.limit * 1 || 10
+            const pageNo = req.query.page * 1 || 1;
+            const offset = (pageNo - 1) * limit;
+
+            const employeeTypeData = await db.employeeTypeMaster.findAll({
+                limit,
+                offset,
+            })
+
+            return respHelper(res, {
+                status: 200,
+                data: employeeTypeData
+            })
+        } catch (error) {
+            console.log(error)
+            return respHelper(res, {
+                status: 500
+            })
+        }
+    }
+
+    async industry(req, res) {
+        try {
+
+            const limit = req.query.limit * 1 || 10
+            const pageNo = req.query.page * 1 || 1;
+            const offset = (pageNo - 1) * limit;
+
+            const industryData = await db.industryMaster.findAll({
+                limit,
+                offset,
+            })
+
+            return respHelper(res, {
+                status: 200,
+                data: industryData
+            })
+        } catch (error) {
+            console.log(error)
+            return respHelper(res, {
+                status: 500
+            })
+        }
+    }
+
+    async pincode(req, res) {
+        try {
+
+            const limit = req.query.limit * 1 || 10
+            const pageNo = req.query.page * 1 || 1;
+            const offset = (pageNo - 1) * limit;
+
+            const pinCodeData = await db.pinCodeMaster.findAll({
+                limit,
+                offset,
+            })
+
+            return respHelper(res, {
+                status: 200,
+                data: pinCodeData
+            })
+        } catch (error) {
+            console.log(error)
+            return respHelper(res, {
+                status: 500
+            })
+        }
+    }
+
+    async timeZone(req, res) {
+        try {
+
+            const limit = req.query.limit * 1 || 10
+            const pageNo = req.query.page * 1 || 1;
+            const offset = (pageNo - 1) * limit;
+
+            const timeZoneData = await db.timeZoneMaster.findAll({
+                limit,
+                offset,
+            })
+
+            return respHelper(res, {
+                status: 200,
+                data: timeZoneData
+            })
+        } catch (error) {
+            console.log(error)
+            return respHelper(res, {
+                status: 500
+            })
+        }
+    }
 }
 
 export default new MasterController()
