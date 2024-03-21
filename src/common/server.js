@@ -25,6 +25,9 @@ class ExpressServer {
     //   preflightContinue: true,
     // }));
     this.app.use(cors())
+    this.app.get("/", (req, res) => {
+      res.send("App is Running")
+    })
   }
 
   router(routes) {
