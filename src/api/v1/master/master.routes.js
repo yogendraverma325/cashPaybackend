@@ -3,6 +3,7 @@ import masterController from './master.controller.js'
 
 export default Express
     .Router()
+    .get("/employee", masterController.employee)
     .get("/reporties", masterController.reporties)
     .get("/band", masterController.band)
     .get("/bu", masterController.bu)

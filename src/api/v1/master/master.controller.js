@@ -1,7 +1,46 @@
+import { Op } from "sequelize";
 import db from "../../../config/db.config.js";
 import respHelper from '../../../helper/respHelper.js'
 
 class MasterController {
+
+    async employee(req, res) {
+        try {
+
+            const limit = req.query.limit * 1 || 10
+            const pageNo = req.query.page * 1 || 1;
+            const offset = (pageNo - 1) * limit;
+            const search = req.query.search
+
+            const employeeData = await db.employeeMaster.findAll({
+                limit,
+                offset,
+                where: Object.assign(
+                    (search) ? {
+                        [Op.or]: [{
+                            name: {
+                                [Op.like]: `%${search}%`
+                            }
+                        }, {
+                            email: {
+                                [Op.like]: `%${search}%`
+                            }
+                        }]
+                    } : {}
+                )
+            })
+
+            return respHelper(res, {
+                status: 200,
+                data: employeeData
+            })
+        } catch (error) {
+            console.log(error)
+            return respHelper(res, {
+                status: 500
+            })
+        }
+    }
 
     async reporties(req, res) {
         try {
