@@ -21,8 +21,10 @@ import District from '../api/model/DistrictMaster.js';
 import EmployeeType from '../api/model/EmployeeTypeMaster.js';
 import Industry from '../api/model/industryMaster.js';
 import PinCode from '../api/model/PinCodeMaster.js';
-import TimeZone from '../api/model/TimeZoneMaster.js';
+import TimeZone from '../api/model/TimezoneMaster.js';
 
+
+console.log("dbconfig",process.env.DBNAME)
 const sequelize = new Sequelize('hrms', 'root', '{Manish@876452}', {
     port: "3306",
     host: 'localhost',
