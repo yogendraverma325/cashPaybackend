@@ -10,7 +10,7 @@ import '../config/db.config.js';
 
 import logger from '../helper/logger.js';
 import rootpath from '../helper/rootPath.js';
-
+console.log("server",process.env.DBNAME)
 class ExpressServer {
   constructor() {
     this.app = new Express();

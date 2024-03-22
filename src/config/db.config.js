@@ -22,6 +22,8 @@ import EmployeeType from '../api/model/EmployeeTypeMaster.js';
 import Industry from '../api/model/industryMaster.js';
 import PinCode from '../api/model/PinCodeMaster.js';
 import TimeZone from '../api/model/Timezone.js';
+console.log("db", process.env.DBNAME)
+
 
 const sequelize = new Sequelize('hrms', 'root', '{Manish@876452}', {
     port: "3306",
