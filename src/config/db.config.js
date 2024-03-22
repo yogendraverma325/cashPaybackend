@@ -1,5 +1,5 @@
 import Sequelize from 'sequelize';
-import Employee from '../api/model/employee.js';
+import Employee from '../api/model/Employee.js';
 import Band from '../api/model/BandMaster.js';
 import Bu from '../api/model/BuMaster.js';
 import CostCenter from '../api/model/CostCenterMaster.js';
@@ -21,7 +21,7 @@ import District from '../api/model/DistrictMaster.js';
 import EmployeeType from '../api/model/EmployeeTypeMaster.js';
 import Industry from '../api/model/industryMaster.js';
 import PinCode from '../api/model/PinCodeMaster.js';
-import TimeZone from '../api/model/TimezoneMaster.js';
+import TimeZone from '../api/model/TimeZoneMaster.js';
 
 const sequelize = new Sequelize('hrms', 'root', '{Manish@876452}', {
     port: "3306",
