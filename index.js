@@ -1,4 +1,2 @@
-
-// import { config as dotenvConfig } from 'dotenv'
-// dotenvConfig();
+import 'dotenv/config.js'
 import './src/index.js'
