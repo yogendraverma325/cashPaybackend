@@ -1,3 +1,6 @@
 node_modules/
 logs/
 .env
+uploads/
+docs/
+package-lock.json

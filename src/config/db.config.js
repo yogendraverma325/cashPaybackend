@@ -23,10 +23,10 @@ import Industry from '../api/model/industryMaster.js';
 import PinCode from '../api/model/PinCodeMaster.js';
 import TimeZone from '../api/model/Timezone.js';
 
-const sequelize = new Sequelize('hrms', 'root', '{Manish@876452}', {
-    port: "3306",
-    host: 'localhost',
-    dialect: 'mysql',
+const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {
+    port: process.env.DB_PORT,
+    host: process.env.DB_HOST,
+    dialect: process.env.DB_DIALECT,
     define: {
         charset: 'utf8',
         collate: 'utf8_general_ci',
@@ -44,7 +44,7 @@ const sequelize = new Sequelize('hrms', 'root', '{Manish@876452}', {
 });
 
 sequelize.authenticate().then(() => {
-    console.log(`DB Connection Success`)
+    console.log(`DB Connection Success --> ${process.env.DB_NAME} (${process.env.DB_USER})`)
 }).catch((error) => {
     console.log(`DB Connection Failed --> {(${error.name})<<--->>(${error.message})}`)
 })

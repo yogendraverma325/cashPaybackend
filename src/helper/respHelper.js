@@ -5,7 +5,7 @@ const msg = function (res, data) {
         case 200:
 
             res.status(data.status).json({
-                statusCode: "10000",
+                statusCode: 200,
                 status: true,
                 token: data.token,
                 message: data.msg,

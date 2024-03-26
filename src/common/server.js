@@ -5,11 +5,14 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import cors from 'cors';
 import respHelper from '../helper/respHelper.js'
+import helper from '../helper/helper.js';
 import * as http from 'http';
 import '../config/db.config.js';
 
 import logger from '../helper/logger.js';
 import rootpath from '../helper/rootPath.js';
+
+helper.checkFolder()
 
 class ExpressServer {
   constructor() {

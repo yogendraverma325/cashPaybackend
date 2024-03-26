@@ -1,16 +1,25 @@
 import jwt from "jsonwebtoken";
+import fs from 'fs'
 
 const generateSessionToken = async data => {
-    const token = jwt.sign(data, "7858tn8yf8nt7y8r88n4c8nc"
-
-        //     {
-        //     expiresIn: (data.source === 1) ? process.env.ENCRYPTION_EXPIRY_MOBILE : process.env.ENCRYPTION_EXPIRY,
-        // }
-
-    );
+    const token = jwt.sign(data, process.env.JWT_KEY, {
+        expiresIn: process.env.JWT_EXPIRY,
+    });
     return token;
 };
 
+const checkFolder = async () => {
+    const folder = ['uploads', 'docs']
+    for (const iterator of folder) {
+        let dir = iterator;
+        if (!dir) dir = path.resolve(iterator);
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir);
+        }
+    }
+}
+
 export default {
-    generateSessionToken
+    generateSessionToken,
+    checkFolder
 }
