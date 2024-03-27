@@ -23,6 +23,8 @@ import EmployeeType from '../api/model/EmployeeTypeMaster.js';
 import Industry from '../api/model/industryMaster.js';
 import PinCode from '../api/model/PinCodeMaster.js';
 import TimeZone from '../api/model/Timezone.js';
+import GroupCompany from '../api/model/GroupCompany.js';
+import BuMapping from '../api/model/bumapping.js';
 
 const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {
     port: process.env.DB_PORT,
@@ -78,10 +80,13 @@ db.employeeTypeMaster = EmployeeType(sequelize, Sequelize)
 db.industryMaster = Industry(sequelize, Sequelize)
 db.pinCodeMaster = PinCode(sequelize, Sequelize)
 db.timeZoneMaster = TimeZone(sequelize, Sequelize)
+db.groupCompanyMaster = GroupCompany(sequelize, Sequelize)
+db.buMapping = BuMapping(sequelize, Sequelize)
 
 db.employeeMaster.hasMany(db.employeeMaster, { foreignKey: 'manager', sourceKey: 'id', as: 'reportie' })
 db.employeeMaster.hasOne(db.employeeMaster, { foreignKey: 'id', sourceKey: 'manager', as: 'managerData' })
 db.employeeMaster.hasOne(db.roleMaster, { foreignKey: 'role_id', sourceKey: 'role_id' })
 db.employeeMaster.hasOne(db.designationMaster, { foreignKey: 'designationId', sourceKey: 'designation_id' })
+db.buMapping.hasOne(db.buMaster, { foreignKey: 'buId', sourceKey: 'buId' })
 
 export default db;

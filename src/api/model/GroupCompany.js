@@ -1,15 +1,27 @@
 export default (sequelize, Sequelize) => {
-    const gradeMaster = sequelize.define("grademaster", {
-        gradeId: {
+    const groupCompanyMaster = sequelize.define("groupcompanymaster", {
+        groupId: {
             type: Sequelize.INTEGER,
             primaryKey: true,
             autoIncrement: true
         },
-        gradeName: {
+        groupCode: {
             type: Sequelize.STRING
         },
-        gradeCode: {
+        groupName: {
             type: Sequelize.STRING
+        },
+        groupShortName: {
+            type: Sequelize.STRING
+        },
+        groupLogo: {
+            type: Sequelize.STRING
+        },
+        siteURL: {
+            type: Sequelize.STRING
+        },
+        dateOfIncorporation: {
+            type: Sequelize.DATE
         },
         createdAt: {
             type: Sequelize.DATE
@@ -27,5 +39,5 @@ export default (sequelize, Sequelize) => {
             type: Sequelize.BOOLEAN
         }
     })
-    return gradeMaster
+    return groupCompanyMaster
 }

@@ -27,3 +27,4 @@ export default Express
     .get("/industry", masterController.industry)
     .get("/pincode", masterController.pincode)
     .get("/timezone", masterController.timeZone)
+    .get("/groupCompany", masterController.groupCompany)

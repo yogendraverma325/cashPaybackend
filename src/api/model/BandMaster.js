@@ -1,4 +1,3 @@
-
 export default (sequelize, Sequelize) => {
     const bandMaster = sequelize.define("bandmaster", {
         bandId: {
