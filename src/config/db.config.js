@@ -24,7 +24,7 @@ import Industry from '../api/model/industryMaster.js';
 import PinCode from '../api/model/PinCodeMaster.js';
 import TimeZone from '../api/model/Timezone.js';
 import GroupCompany from '../api/model/GroupCompany.js';
-import BuMapping from '../api/model/bumapping.js';
+import BuMapping from '../api/model/BuMapping.js';
 
 const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {
     port: process.env.DB_PORT,
