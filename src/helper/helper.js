@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import fs from 'fs'
 
-const generateSessionToken = async data => {
+const generateJwtToken = async data => {
     const token = jwt.sign(data, process.env.JWT_KEY, {
         expiresIn: process.env.JWT_EXPIRY,
     });
@@ -19,7 +19,12 @@ const checkFolder = async () => {
     }
 }
 
+const checkActiveUser = async (data) => {
+    return true
+}
+
 export default {
-    generateSessionToken,
-    checkFolder
+    generateJwtToken,
+    checkFolder,
+    checkActiveUser
 }

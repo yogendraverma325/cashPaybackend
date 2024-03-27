@@ -8,11 +8,8 @@ import masterRoutes from './api/v1/master/master.routes.js';
  * @param {any} app
  */
 export default function routes(app) {
-    // Common routes
     app.use('/api/admin', adminRoutes)
     app.use("/api/auth", authRoutes)
     app.use("/api/master", masterRoutes)
     return app;
 }
-
-// export default routes;

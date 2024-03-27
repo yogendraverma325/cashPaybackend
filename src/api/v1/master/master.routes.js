@@ -1,5 +1,6 @@
 import Express from 'express';
 import masterController from './master.controller.js'
+import authentication from '../../../middleware/authentication.js';
 
 export default Express
     .Router()

@@ -1,4 +1,5 @@
 import Sequelize from 'sequelize';
+import logger from '../helper/logger.js';
 import Employee from '../api/model/Employee.js';
 import Band from '../api/model/BandMaster.js';
 import Bu from '../api/model/BuMaster.js';
@@ -44,8 +45,10 @@ const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, proces
 });
 
 sequelize.authenticate().then(() => {
+    logger.info(`DB Connection Success --> ${process.env.DB_NAME} (${process.env.DB_USER})`)
     console.log(`DB Connection Success --> ${process.env.DB_NAME} (${process.env.DB_USER})`)
 }).catch((error) => {
+    logger.error(`DB Connection Failed --> ${error}`)
     console.log(`DB Connection Failed --> {(${error.name})<<--->>(${error.message})}`)
 })
 

@@ -1,7 +1,8 @@
 import validator from '../../../helper/validator.js';
 import db from '../../../config/db.config.js'
 import helper from '../../../helper/helper.js';
-
+import respHelper from '../../../helper/respHelper.js'
+import constant from '../../../constant/messages.js'
 import bcrypt from 'bcrypt';
 
 class AuthController {
@@ -9,8 +10,10 @@ class AuthController {
     /**
      * @swagger
      * /api/auth/login:
-     *   get:
+     *   post:
      *     summary: Returns a hello message
+     *     tags:
+     *       - Auth
      *     responses:
      *       200:
      *         description: Successful response with a hello message
@@ -23,14 +26,19 @@ class AuthController {
             const existUser = await db.employeeMaster.findOne({ raw: true, where: { email: result.email } });
 
             if (!existUser) {
-                return res.status(404).json({ msg: "user doesn't exist" })
+                return respHelper(res, {
+                    status: 404,
+                    msg: constant.USER_NOT_EXIST,
+                })
             }
 
             const comparePass = await bcrypt.compare(result.password, existUser.password);
-
+            delete existUser.password
             if (!comparePass) {
-
-                return res.status(404).json({ msg: "Invalid Credentials!" })
+                return respHelper(res, {
+                    status: 404,
+                    msg: constant.INVALID_CREDENTIALS,
+                })
             }
 
             const payload = {
@@ -40,11 +48,11 @@ class AuthController {
                 },
             };
 
-            const token = await helper.generateSessionToken(payload);
+            const token = await helper.generateJwtToken(payload);
 
-            return res.status(200).json({
-                statusCode: "10000",
-                message: "Login Success",
+            return respHelper(res, {
+                status: 200,
+                msg: constant.LOGIN_SUCCESS,
                 data: {
                     emp: existUser,
                     tokens: {
@@ -56,9 +64,14 @@ class AuthController {
         } catch (error) {
             console.log(error)
             if (error.isJoi === true) {
-                res.status(422).json({ message: error.details[0].message })
+                return respHelper(res, {
+                    status: 422,
+                    msg: error.details[0].message,
+                })
             }
-            res.status(500).json({ message: 'Something Went Wrong' })
+            return respHelper(res, {
+                status: 500
+            })
         }
     }
 }

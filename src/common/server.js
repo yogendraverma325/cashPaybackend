@@ -6,11 +6,11 @@ import morgan from 'morgan';
 import cors from 'cors';
 import respHelper from '../helper/respHelper.js'
 import helper from '../helper/helper.js';
-import * as http from 'http';
-import '../config/db.config.js';
-
 import logger from '../helper/logger.js';
 import rootpath from '../helper/rootPath.js';
+import * as http from 'http';
+import '../config/db.config.js';
+import '../config/redisDb.config.js';
 
 helper.checkFolder()
 
@@ -31,6 +31,10 @@ class ExpressServer {
     this.app.get("/", (req, res) => {
       res.send("App is Running")
     })
+    this.app.use((req, res, next) => {
+      //Global Middleware for Every Request
+      next()
+    })
   }
 
   router(routes) {
@@ -44,9 +48,9 @@ class ExpressServer {
       definition: {
         openapi: '3.0.0',
         info: {
-          title: 'Project DataLocker',
+          title: 'HRMS',
           version: '1.0.0',
-          description: 'API documentation for datalocker app',
+          description: 'API documentation for HRMS application',
         },
         servers: [
           {
@@ -54,8 +58,8 @@ class ExpressServer {
             description: 'Local server',
           },
           {
-            url: `https://temsproject.teamcomputers.com/datalocker-devapi`,
-            description: 'dev server',
+            url: `https://teamsproject.teamcomputers.com/hrms-dev/api`,
+            description: 'Dev server',
           },
         ],
         components: {
@@ -100,8 +104,8 @@ class ExpressServer {
 
   listen(port) {
     const server = http.createServer(this.app).listen(port, () => {
-      console.log(`secure app is listening @port ${port}`);
-      logger.info(`secure app is listening @port ${port}`);
+      console.log(`App is listening @port ${port}`);
+      logger.info(`App is listening @port ${port}`);
     });
     server.timeout = 50000;
     return this.app;
