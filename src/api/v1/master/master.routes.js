@@ -1,5 +1,6 @@
 import Express from 'express';
 import masterController from './master.controller.js'
+import authentication from '../../../middleware/authentication.js';
 
 export default Express
     .Router()
@@ -26,3 +27,4 @@ export default Express
     .get("/industry", masterController.industry)
     .get("/pincode", masterController.pincode)
     .get("/timezone", masterController.timeZone)
+    .get("/groupCompany", masterController.groupCompany)

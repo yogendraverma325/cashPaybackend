@@ -14,28 +14,25 @@ const customTimestamp = () => {
   return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
 };
 
-// Define the logger configuration
 const logger = winston.createLogger({
   level: 'info',
   format: winston.format.combine(
-    winston.format.timestamp({format: customTimestamp}),
+    winston.format.timestamp({ format: customTimestamp }),
     winston.format.simple()
   ),
   transports: [
-    new winston.transports.Console(),
     new DailyRotateFile({
-      filename: 'logs/error-%DATE%.log',
+      filename: 'logs/%DATE%/error-%DATE%.log',
       datePattern: 'DD-MM-YYYY',
       zippedArchive: true,
       level: 'error',
     }),
     new DailyRotateFile({
-      filename: 'logs/combined-%DATE%.log',
+      filename: 'logs/%DATE%/combined-%DATE%.log',
       datePattern: 'DD-MM-YYYY',
       zippedArchive: true,
     }),
   ],
 });
 
-// Export the logger instance
 export default logger;

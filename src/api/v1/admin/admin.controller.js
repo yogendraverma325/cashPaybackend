@@ -1,7 +1,4 @@
 import formidable from 'formidable';
-import jwt from 'jsonwebtoken';
-
-import bcrypt from 'bcrypt';
 // import sequelize from '../../../config/db.config.js';
 import validator from '../../../helper/validator.js';
 import logger from '../../../helper/logger.js'
@@ -14,6 +11,8 @@ class checkRoute {
      * /api/admin/check:
      *   get:
      *     summary: Returns a hello message
+     *     tags:
+     *        - Admin
      *     responses:
      *       200:
      *         description: Successful response with a hello message

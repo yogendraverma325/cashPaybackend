@@ -423,10 +423,15 @@ class MasterController {
             const limit = req.query.limit * 1 || 10
             const pageNo = req.query.page * 1 || 1;
             const offset = (pageNo - 1) * limit;
+            const groupId = req.query.groupId
 
             const companyData = await db.companyMaster.findAll({
                 limit,
                 offset,
+                where: Object.assign(
+                    (groupId) ? { groupId } : {}
+                ),
+                attributes:["companyId","companyName","companyCode"]
             })
 
             return respHelper(res, {
@@ -656,6 +661,32 @@ class MasterController {
             })
         }
     }
+
+    async groupCompany(req, res) {
+        try {
+
+            const limit = req.query.limit * 1 || 10
+            const pageNo = req.query.page * 1 || 1;
+            const offset = (pageNo - 1) * limit;
+
+            const groupCompanyData = await db.groupCompanyMaster.findAll({
+                limit,
+                offset,
+                attributes: ["groupId", "groupCode", "groupName"]
+            })
+
+            return respHelper(res, {
+                status: 200,
+                data: groupCompanyData
+            })
+        } catch (error) {
+            console.log(error)
+            return respHelper(res, {
+                status: 500
+            })
+        }
+    }
+
 }
 
 export default new MasterController()

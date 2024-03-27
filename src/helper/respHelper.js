@@ -1,9 +1,8 @@
-// import constant from '../constant/messages.json'
+import constant from '../constant/messages.js'
 
 const msg = function (res, data) {
     switch (data.status) {
         case 200:
-
             res.status(data.status).json({
                 statusCode: 200,
                 status: true,
@@ -14,7 +13,6 @@ const msg = function (res, data) {
             break;
 
         case 201:
-
             res.status(data.status).json({
                 statusCode: 201,
                 status: true,
@@ -37,7 +35,7 @@ const msg = function (res, data) {
             res.status(data.status).json({
                 statusCode: 400,
                 status: false,
-                message: data.msg || 'Bad request',
+                message: data.msg || constant.BAD_REQUEST,
             });
 
             break;
@@ -46,7 +44,7 @@ const msg = function (res, data) {
             res.status(data.status).json({
                 statusCode: 401,
                 status: false,
-                message: data.msg || 'Unauthorized Request',
+                message: data.msg || constant.UNAUTHORIZED_ACCESS,
             });
 
             break;
@@ -64,7 +62,7 @@ const msg = function (res, data) {
             res.status(data.status).json({
                 statusCode: 404,
                 status: false,
-                message: data.msg || 'Not Found',
+                message: data.msg || constant.NOT_FOUND,
             });
 
             break;
@@ -73,7 +71,7 @@ const msg = function (res, data) {
             res.status(data.status).json({
                 statusCode: 422,
                 status: false,
-                message: data.msg || "Unprocessable Entity",
+                message: data.msg || constant.UNPROCESSABLE_ENTITY,
             });
 
             break;
@@ -82,7 +80,7 @@ const msg = function (res, data) {
             res.status(data.status).json({
                 statusCode: 429,
                 status: false,
-                message: data.msg || "Too Many Requests",
+                message: data.msg || constant.TOO_MANY_REQUESTS,
             });
 
             break;
@@ -91,7 +89,7 @@ const msg = function (res, data) {
             res.status(data.status).json({
                 statusCode: 500,
                 status: false,
-                message: data.msg || 'Something Went Wrong',
+                message: data.msg || constant.SOMETHING_WENT_WRONG,
             });
 
             break;
