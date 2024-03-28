@@ -23,7 +23,7 @@ export default (sequelize, Sequelize) => {
         createdBy: {
             type: Sequelize.INTEGER,
         },
-        updatedAt: {
+        updatedBy: {
             type: Sequelize.INTEGER,
         },
         updatedAt: {
