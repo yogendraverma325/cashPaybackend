@@ -25,13 +25,6 @@ class Authentication {
                         });
                     }
 
-                    if (err instanceof jwt.JsonWebTokenError) {
-                        return respHelper(res, {
-                            status: 401,
-                            msg: constant.INVALID_TOKEN,
-                        });
-                    }
-
                     return respHelper(res, {
                         status: 401,
                         msg: constant.INVALID_AUTH,

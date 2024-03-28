@@ -20,6 +20,15 @@ export default (sequelize, Sequelize) => {
         password: {
             type: Sequelize.STRING(255)
         },
+        officeMobileNumber: {
+            type: Sequelize.STRING(45)
+        },
+        personalMobileNumber: {
+            type: Sequelize.STRING(45)
+        },
+        dateOfJoining: {
+            type: Sequelize.DATE
+        },
         manager: {
             type: Sequelize.INTEGER,
         },
@@ -28,7 +37,19 @@ export default (sequelize, Sequelize) => {
         },
         designation_id: {
             type: Sequelize.INTEGER,
-        }
+        },
+        functionalAreaId: {
+            type: Sequelize.INTEGER,
+        },
+        buId: {
+            type: Sequelize.INTEGER,
+        },
+        departmentId: {
+            type: Sequelize.INTEGER,
+        },
+        companyId: {
+            type: Sequelize.INTEGER,
+        },
     })
     return employeeMaster
 }

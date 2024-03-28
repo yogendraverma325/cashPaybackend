@@ -88,5 +88,10 @@ db.employeeMaster.hasOne(db.employeeMaster, { foreignKey: 'id', sourceKey: 'mana
 db.employeeMaster.hasOne(db.roleMaster, { foreignKey: 'role_id', sourceKey: 'role_id' })
 db.employeeMaster.hasOne(db.designationMaster, { foreignKey: 'designationId', sourceKey: 'designation_id' })
 db.buMapping.hasOne(db.buMaster, { foreignKey: 'buId', sourceKey: 'buId' })
+db.employeeMaster.hasOne(db.functionalAreaMaster, { foreignKey: 'functionalAreaId', sourceKey: 'functionalAreaId' })
+db.employeeMaster.hasOne(db.buMaster, { foreignKey: 'buId', sourceKey: 'buId' })
+db.employeeMaster.hasOne(db.departmentMaster, { foreignKey: 'departmentId', sourceKey: 'departmentId' })
+db.employeeMaster.hasOne(db.companyMaster, { foreignKey: 'companyId', sourceKey: 'companyId' })
+db.companyMaster.hasOne(db.groupCompanyMaster, { foreignKey: 'groupId', sourceKey: 'groupId' })
 
 export default db;
