@@ -92,6 +92,60 @@ class UserController {
         }
     }
 
+    async personalDetails(req, res) {
+        try {
+            const user = req.query.user
+
+            const personalData = await db.employeeMaster.findOne({
+                where: {
+                    id: (user) ? user : req.userId
+                },
+                attributes: { exclude: ['password', 'role_id', 'designation_id'] },
+                include: [{
+                    model: db.biographicalDetails,
+                    attributes: { exclude: ['createdAt', 'createdBy', 'updatedBy', 'updatedAt', 'isActive'] },
+                },
+                {
+                    model: db.jobDetails,
+                    attributes: { exclude: ['createdAt', 'createdBy', 'updatedBy', 'updatedAt', 'isActive'] },
+                },
+                {
+                    model: db.emergencyDetails,
+                    attributes: { exclude: ['createdAt', 'createdBy', 'updatedBy', 'updatedAt', 'isActive'] },
+                },
+                {
+                    model: db.familyDetails,
+                    attributes: { exclude: ['createdAt', 'createdBy', 'updatedBy', 'updatedAt'] },
+                },
+                {
+                    model: db.educationDetails,
+                    attributes: { exclude: ['createdAt', 'createdBy', 'updatedBy', 'updatedAt', 'isActive'] },
+                    include: [{
+                        model: db.degreeMaster
+                    }]
+                },
+                {
+                    model: db.paymentDetails,
+                    attributes: { exclude: ['createdAt', 'createdBy', 'updatedBy', 'updatedAt', 'isActive'] },
+                },
+                {
+                    model: db.vaccinationDetails,
+                    attributes: { exclude: ['createdAt', 'createdBy', 'updatedBy', 'updatedAt', 'isActive'] },
+                }]
+            })
+
+            return respHelper(res, {
+                status: 200,
+                data: personalData
+            })
+
+        } catch (error) {
+            console.log(error)
+            return respHelper(res, {
+                status: 500
+            })
+        }
+    }
 }
 
 export default new UserController()
