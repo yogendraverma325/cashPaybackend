@@ -25,6 +25,12 @@ import PinCode from '../api/model/PinCodeMaster.js';
 import TimeZone from '../api/model/Timezone.js';
 import GroupCompany from '../api/model/GroupCompany.js';
 import BuMapping from '../api/model/BuMapping.js';
+import EmployeeBiographicalDetails from '../api/model/EmployeeBiographicalDetails.js';
+import EmployeeJobDetails from '../api/model/EmployeeJobDetails.js';
+import EmployeeEmergencyContact from '../api/model/EmployeeEmergencyContact.js';
+import EmployeeFamilyDetails from '../api/model/EmployeeFamilyDetails.js';
+import DegreeMaster from '../api/model/DegreeMaster.js';
+import EmployeeEducationDetails from '../api/model/EmployeeEducationDetails.js';
 
 const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {
     port: process.env.DB_PORT,
@@ -82,6 +88,12 @@ db.pinCodeMaster = PinCode(sequelize, Sequelize)
 db.timeZoneMaster = TimeZone(sequelize, Sequelize)
 db.groupCompanyMaster = GroupCompany(sequelize, Sequelize)
 db.buMapping = BuMapping(sequelize, Sequelize)
+db.biographicalDetails = EmployeeBiographicalDetails(sequelize, Sequelize)
+db.jobDetails = EmployeeJobDetails(sequelize, Sequelize)
+db.emergencyDetails = EmployeeEmergencyContact(sequelize, Sequelize)
+db.familyDetails = EmployeeFamilyDetails(sequelize, Sequelize)
+db.degreeMaster = DegreeMaster(sequelize, Sequelize)
+db.educationDetails = EmployeeEducationDetails(sequelize, Sequelize)
 
 db.employeeMaster.hasMany(db.employeeMaster, { foreignKey: 'manager', sourceKey: 'id', as: 'reportie' })
 db.employeeMaster.hasOne(db.employeeMaster, { foreignKey: 'id', sourceKey: 'manager', as: 'managerData' })
@@ -93,5 +105,11 @@ db.employeeMaster.hasOne(db.buMaster, { foreignKey: 'buId', sourceKey: 'buId' })
 db.employeeMaster.hasOne(db.departmentMaster, { foreignKey: 'departmentId', sourceKey: 'departmentId' })
 db.employeeMaster.hasOne(db.companyMaster, { foreignKey: 'companyId', sourceKey: 'companyId' })
 db.companyMaster.hasOne(db.groupCompanyMaster, { foreignKey: 'groupId', sourceKey: 'groupId' })
+db.employeeMaster.hasOne(db.biographicalDetails, { foreignKey: 'userId', sourceKey: 'id' })
+db.employeeMaster.hasOne(db.jobDetails, { foreignKey: 'userId', sourceKey: 'id' })
+db.employeeMaster.hasOne(db.emergencyDetails, { foreignKey: 'userId', sourceKey: 'id' })
+db.employeeMaster.hasMany(db.familyDetails, { foreignKey: 'EmployeeId', sourceKey: 'id' })
+db.employeeMaster.hasMany(db.educationDetails, { foreignKey: 'userId', sourceKey: 'id' })
+db.educationDetails.hasOne(db.degreeMaster, { foreignKey: 'degreeId', sourceKey: 'educationDegree' })
 
 export default db;

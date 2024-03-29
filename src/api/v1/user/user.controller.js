@@ -92,6 +92,54 @@ class UserController {
         }
     }
 
+    async personalDetails(req, res) {
+        try {
+            const personalData = await db.employeeMaster.findOne({
+                where: {
+                    id: req.userId
+                },
+                attributes: { exclude: ['password', 'role_id', 'designation_id'] },
+                include: [{
+                    model: db.biographicalDetails,
+                    required: true,
+                    attributes: { exclude: ['createdAt', 'createdBy', 'updatedBy', 'updatedAt', 'isActive'] },
+                },
+                {
+                    model: db.jobDetails,
+                    required: true,
+                    attributes: { exclude: ['createdAt', 'createdBy', 'updatedBy', 'updatedAt', 'isActive'] },
+                },
+                {
+                    model: db.emergencyDetails,
+                    required: true,
+                    attributes: { exclude: ['createdAt', 'createdBy', 'updatedBy', 'updatedAt', 'isActive'] },
+                },
+                {
+                    model: db.familyDetails,
+                    required: true,
+                    attributes: { exclude: ['createdAt', 'createdBy', 'updatedBy', 'updatedAt'] },
+                },
+                {
+                    model: db.educationDetails,
+                    attributes: { exclude: ['createdAt', 'createdBy', 'updatedBy', 'updatedAt', 'isActive'] },
+                    include: [{
+                        model: db.degreeMaster
+                    }]
+                }]
+            })
+
+            return respHelper(res, {
+                status: 200,
+                data: personalData
+            })
+
+        } catch (error) {
+            console.log(error)
+            return respHelper(res, {
+                status: 500
+            })
+        }
+    }
 }
 
 export default new UserController()

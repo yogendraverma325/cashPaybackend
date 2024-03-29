@@ -5,6 +5,9 @@ export default (sequelize, Sequelize) => {
             primaryKey: true,
             autoIncrement: true
         },
+        empCode: {
+            type: Sequelize.STRING(255)
+        },
         name: {
             type: Sequelize.STRING(255)
         },
@@ -25,9 +28,6 @@ export default (sequelize, Sequelize) => {
         },
         personalMobileNumber: {
             type: Sequelize.STRING(45)
-        },
-        dateOfJoining: {
-            type: Sequelize.DATE
         },
         manager: {
             type: Sequelize.INTEGER,
