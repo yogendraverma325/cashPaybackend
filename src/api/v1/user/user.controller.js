@@ -94,29 +94,27 @@ class UserController {
 
     async personalDetails(req, res) {
         try {
+            const user = req.query.user
+
             const personalData = await db.employeeMaster.findOne({
                 where: {
-                    id: req.userId
+                    id: (user) ? user : req.userId
                 },
                 attributes: { exclude: ['password', 'role_id', 'designation_id'] },
                 include: [{
                     model: db.biographicalDetails,
-                    required: true,
                     attributes: { exclude: ['createdAt', 'createdBy', 'updatedBy', 'updatedAt', 'isActive'] },
                 },
                 {
                     model: db.jobDetails,
-                    required: true,
                     attributes: { exclude: ['createdAt', 'createdBy', 'updatedBy', 'updatedAt', 'isActive'] },
                 },
                 {
                     model: db.emergencyDetails,
-                    required: true,
                     attributes: { exclude: ['createdAt', 'createdBy', 'updatedBy', 'updatedAt', 'isActive'] },
                 },
                 {
                     model: db.familyDetails,
-                    required: true,
                     attributes: { exclude: ['createdAt', 'createdBy', 'updatedBy', 'updatedAt'] },
                 },
                 {
@@ -125,6 +123,14 @@ class UserController {
                     include: [{
                         model: db.degreeMaster
                     }]
+                },
+                {
+                    model: db.paymentDetails,
+                    attributes: { exclude: ['createdAt', 'createdBy', 'updatedBy', 'updatedAt', 'isActive'] },
+                },
+                {
+                    model: db.vaccinationDetails,
+                    attributes: { exclude: ['createdAt', 'createdBy', 'updatedBy', 'updatedAt', 'isActive'] },
                 }]
             })
 

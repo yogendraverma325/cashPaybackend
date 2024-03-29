@@ -31,6 +31,9 @@ import EmployeeEmergencyContact from '../api/model/EmployeeEmergencyContact.js';
 import EmployeeFamilyDetails from '../api/model/EmployeeFamilyDetails.js';
 import DegreeMaster from '../api/model/DegreeMaster.js';
 import EmployeeEducationDetails from '../api/model/EmployeeEducationDetails.js';
+import EmployeePaymentDetails from '../api/model/EmployeePaymentDetails.js';
+import EmployeeVaccinationDetails from '../api/model/EmployeeVaccinationDetails.js';
+
 
 const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {
     port: process.env.DB_PORT,
@@ -94,6 +97,8 @@ db.emergencyDetails = EmployeeEmergencyContact(sequelize, Sequelize)
 db.familyDetails = EmployeeFamilyDetails(sequelize, Sequelize)
 db.degreeMaster = DegreeMaster(sequelize, Sequelize)
 db.educationDetails = EmployeeEducationDetails(sequelize, Sequelize)
+db.paymentDetails = EmployeePaymentDetails(sequelize, Sequelize)
+db.vaccinationDetails = EmployeeVaccinationDetails(sequelize, Sequelize)
 
 db.employeeMaster.hasMany(db.employeeMaster, { foreignKey: 'manager', sourceKey: 'id', as: 'reportie' })
 db.employeeMaster.hasOne(db.employeeMaster, { foreignKey: 'id', sourceKey: 'manager', as: 'managerData' })
@@ -110,6 +115,8 @@ db.employeeMaster.hasOne(db.jobDetails, { foreignKey: 'userId', sourceKey: 'id' 
 db.employeeMaster.hasOne(db.emergencyDetails, { foreignKey: 'userId', sourceKey: 'id' })
 db.employeeMaster.hasMany(db.familyDetails, { foreignKey: 'EmployeeId', sourceKey: 'id' })
 db.employeeMaster.hasMany(db.educationDetails, { foreignKey: 'userId', sourceKey: 'id' })
+db.employeeMaster.hasOne(db.paymentDetails, { foreignKey: 'userId', sourceKey: 'id' })
+db.employeeMaster.hasOne(db.vaccinationDetails, { foreignKey: 'userId', sourceKey: 'id' })
 db.educationDetails.hasOne(db.degreeMaster, { foreignKey: 'degreeId', sourceKey: 'educationDegree' })
 
 export default db;
