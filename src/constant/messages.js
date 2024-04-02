@@ -11,7 +11,8 @@ const message = {
     "INVALID_TOKEN": "Invalid Token",
     "SESSION_EXPIRED": "Session Expired, Please Login Again!",
     "INVALID_CREDENTIALS": "Invalid Credentials!",
-    "LOGIN_SUCCESS": "Login Success"
+    "LOGIN_SUCCESS": "Login Success",
+    "ALREADY_EXISTS": "Already Exists"
 }
 
 export default message

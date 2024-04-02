@@ -20,6 +20,9 @@ export default (sequelize, Sequelize) => {
         lastName: {
             type: Sequelize.STRING(255)
         },
+        profileImage: {
+            type: Sequelize.STRING(255)
+        },
         password: {
             type: Sequelize.STRING(255)
         },
