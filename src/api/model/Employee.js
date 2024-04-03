@@ -53,6 +53,9 @@ export default (sequelize, Sequelize) => {
         companyId: {
             type: Sequelize.INTEGER,
         },
+        lastLogin: {
+            type: Sequelize.DATE
+        }
     })
     return employeeMaster
 }

@@ -4,6 +4,7 @@ import helper from '../../../helper/helper.js';
 import respHelper from '../../../helper/respHelper.js'
 import constant from '../../../constant/messages.js'
 import bcrypt from 'bcrypt';
+import moment from 'moment';
 
 class AuthController {
 
@@ -46,6 +47,10 @@ class AuthController {
                     msg: constant.INVALID_CREDENTIALS,
                 })
             }
+
+            await db.employeeMaster.update({ lastLogin: moment() }, {
+                where: { id: existUser.id, }
+            })
 
             const payload = {
                 user: {
