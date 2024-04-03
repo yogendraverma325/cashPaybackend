@@ -23,7 +23,13 @@ class AuthController {
         try {
 
             const result = await validator.loginSchema.validateAsync(req.body);
-            const existUser = await db.employeeMaster.findOne({ raw: true, where: { email: result.email } });
+            const existUser = await db.employeeMaster.findOne({
+                raw: true,
+                where: { empCode: result.tmc },
+                include: [{
+                    model: db.roleMaster,
+                }]
+            });
 
             if (!existUser) {
                 return respHelper(res, {
@@ -45,6 +51,7 @@ class AuthController {
                 user: {
                     id: existUser.id,
                     name: existUser.name,
+                    role: existUser['role.name']
                 },
             };
 

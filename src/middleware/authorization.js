@@ -1,4 +1,5 @@
-import respHelper from '../helper/respHelper';
+import respHelper from '../helper/respHelper.js';
+import constant from '../constant/messages.js'
 
 const restrictTo =
     (...roles) =>
@@ -6,6 +7,7 @@ const restrictTo =
             !roles.includes(req.userRole)
                 ? respHelper(res, {
                     status: 403,
+                    msg: constant.UNAUTHORIZED_ACCESS
                 })
                 : next();
         };

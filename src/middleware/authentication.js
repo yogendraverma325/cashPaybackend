@@ -40,6 +40,7 @@ class Authentication {
                 const token = await helper.generateJwtToken({ user: decoded.user });
 
                 req.userId = decoded.user.id;
+                req.userRole = decoded.user.role
                 req.sessionToken = token;
                 next();
             },

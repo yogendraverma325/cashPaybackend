@@ -5,9 +5,11 @@ class UserController {
 
     async profileDetails(req, res) {
         try {
+            const user = req.query.user
+
             const profileData = await db.employeeMaster.findOne({
                 where: {
-                    id: req.userId
+                    id: (user) ? user : req.userId
                 },
                 attributes: { exclude: ['password', 'role_id', 'designation_id'] },
                 include: [

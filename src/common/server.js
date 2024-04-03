@@ -8,6 +8,7 @@ import respHelper from '../helper/respHelper.js'
 import helper from '../helper/helper.js';
 import logger from '../helper/logger.js';
 import rootpath from '../helper/rootPath.js';
+import path from 'path';
 import * as http from 'http';
 import '../config/db.config.js';
 import '../config/redisDb.config.js';
@@ -31,6 +32,9 @@ class ExpressServer {
     this.app.get("/", (req, res) => {
       res.send("App is Running")
     })
+    this.app.get('/api/uploads/:user/:fileName', (req, res) => {
+      res.sendFile(path.join(rootpath, `../uploads/${req.params.user}/${req.params.fileName}`,));
+    });
     this.app.use((req, res, next) => {
       //Global Middleware for Every Request
       next()
