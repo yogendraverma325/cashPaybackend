@@ -30,7 +30,8 @@ class AuthController {
                     model: db.roleMaster,
                 },
                 {
-                    model: db.designationMaster
+                    model: db.designationMaster,
+                    attributes: ['designationId', 'name']
                 }]
             });
 
