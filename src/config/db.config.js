@@ -118,5 +118,6 @@ db.employeeMaster.hasMany(db.educationDetails, { foreignKey: 'userId', sourceKey
 db.employeeMaster.hasOne(db.paymentDetails, { foreignKey: 'userId', sourceKey: 'id' })
 db.employeeMaster.hasOne(db.vaccinationDetails, { foreignKey: 'userId', sourceKey: 'id' })
 db.educationDetails.hasOne(db.degreeMaster, { foreignKey: 'degreeId', sourceKey: 'educationDegree' })
+db.buMaster.hasOne(db.companyMaster, { foreignKey: 'companyId', sourceKey: 'companyId' })
 
 export default db;
