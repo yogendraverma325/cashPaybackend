@@ -14,6 +14,9 @@ export default (sequelize, Sequelize) => {
         parentBuId: {
             type: Sequelize.INTEGER,
         },
+        companyId: {
+            type: Sequelize.INTEGER
+        },
         createdAt: {
             type: Sequelize.DATE
         },
