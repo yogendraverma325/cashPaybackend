@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import fs from 'fs'
 import path from "path";
+import db from '../config/db.config.js'
 
 const generateJwtToken = async data => {
     const token = jwt.sign(data, process.env.JWT_KEY, {
@@ -24,7 +25,7 @@ const fileUpload = (base64String, fileName, filepath) => {
 };
 
 const checkFolder = async () => {
-    const folder = ['uploads', 'docs']
+    const folder = ['uploads']
     for (const iterator of folder) {
         let dir = iterator;
         if (!dir) dir = path.resolve(iterator);
@@ -35,7 +36,13 @@ const checkFolder = async () => {
 }
 
 const checkActiveUser = async (data) => {
-    return true
+    const existUser = await db.employeeMaster.findOne({
+        raw: true,
+        where: {
+            id: data
+        }
+    })
+    return (existUser) ? true : false
 }
 
 export default {

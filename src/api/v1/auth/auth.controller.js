@@ -43,13 +43,15 @@ class AuthController {
             }
 
             const comparePass = await bcrypt.compare(result.password, existUser.password);
-            delete existUser.password
+
             if (!comparePass) {
                 return respHelper(res, {
                     status: 404,
                     msg: constant.INVALID_CREDENTIALS,
                 })
             }
+
+            delete existUser.dataValues.password
 
             await db.employeeMaster.update({ lastLogin: moment() }, {
                 where: { id: existUser.id, }

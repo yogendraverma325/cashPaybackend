@@ -149,13 +149,18 @@ class MasterController {
     async bu(req, res) {
         try {
 
-            const limit = req.query.limit * 1 || 10
+            const limit = req.query.limit * 1 || null
             const pageNo = req.query.page * 1 || 1;
             const offset = (pageNo - 1) * limit;
+            const companyId = req.query.companyId
 
             const buData = await db.buMaster.findAll({
                 limit,
-                offset
+                offset,
+                where: {
+                    companyId
+                },
+                order:[['buName',"asc"]]
             })
 
             return respHelper(res, {
@@ -431,7 +436,7 @@ class MasterController {
                 where: Object.assign(
                     (groupId) ? { groupId } : {}
                 ),
-                attributes:["companyId","companyName","companyCode"]
+                attributes: ["companyId", "companyName", "companyCode"]
             })
 
             return respHelper(res, {
