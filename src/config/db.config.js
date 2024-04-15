@@ -25,6 +25,7 @@ import PinCode from '../api/model/PinCodeMaster.js';
 import TimeZone from '../api/model/Timezone.js';
 import GroupCompany from '../api/model/GroupCompany.js';
 import BuMapping from '../api/model/BuMapping.js';
+import SbuMapping from '../api/model/SbuMapping.js';
 import EmployeeBiographicalDetails from '../api/model/EmployeeBiographicalDetails.js';
 import EmployeeJobDetails from '../api/model/EmployeeJobDetails.js';
 import EmployeeEmergencyContact from '../api/model/EmployeeEmergencyContact.js';
@@ -91,6 +92,7 @@ db.pinCodeMaster = PinCode(sequelize, Sequelize)
 db.timeZoneMaster = TimeZone(sequelize, Sequelize)
 db.groupCompanyMaster = GroupCompany(sequelize, Sequelize)
 db.buMapping = BuMapping(sequelize, Sequelize)
+db.sbuMapping = SbuMapping(sequelize, Sequelize)
 db.biographicalDetails = EmployeeBiographicalDetails(sequelize, Sequelize)
 db.jobDetails = EmployeeJobDetails(sequelize, Sequelize)
 db.emergencyDetails = EmployeeEmergencyContact(sequelize, Sequelize)
@@ -118,5 +120,6 @@ db.employeeMaster.hasMany(db.educationDetails, { foreignKey: 'userId', sourceKey
 db.employeeMaster.hasOne(db.paymentDetails, { foreignKey: 'userId', sourceKey: 'id' })
 db.employeeMaster.hasOne(db.vaccinationDetails, { foreignKey: 'userId', sourceKey: 'id' })
 db.educationDetails.hasOne(db.degreeMaster, { foreignKey: 'degreeId', sourceKey: 'educationDegree' })
+db.sbuMapping.hasOne(db.buMaster, { foreignKey: 'buId', sourceKey: 'sbuId' })
 
 export default db;

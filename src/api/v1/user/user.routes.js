@@ -9,3 +9,4 @@ export default Express
     .get("/groupCompany", authentication.authenticate, userController.groupCompany)
     .get("/company", authentication.authenticate, userController.company)
     .get("/bu", authentication.authenticate, userController.bu)
+    .get("/sbu", authentication.authenticate, userController.sbu)
