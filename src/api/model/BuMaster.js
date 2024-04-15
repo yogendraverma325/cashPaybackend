@@ -11,12 +11,6 @@ export default (sequelize, Sequelize) => {
         buCode: {
             type: Sequelize.STRING,
         },
-        parentBuId: {
-            type: Sequelize.INTEGER,
-        },
-        companyId: {
-            type: Sequelize.INTEGER
-        },
         createdAt: {
             type: Sequelize.DATE
         },
@@ -32,7 +26,6 @@ export default (sequelize, Sequelize) => {
         isActive: {
             type: Sequelize.BOOLEAN
         }
-
     })
     return buMaster
 }
