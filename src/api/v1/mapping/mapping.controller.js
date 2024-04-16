@@ -132,6 +132,65 @@ class MappingController {
         }
     }
 
+    async department(req, res) {
+        try {
+            const sbuMappingId = req.query.sbuMappingId
+
+            const departmentData = await db.departmentMapping.findAll({
+                where: {
+                    sbuMappingId
+                },
+                include: [{
+                    model: db.departmentMaster,
+                    where: {
+                        isActive: 1
+                    },
+                    attributes: ['departmentCode', 'departmentName']
+                }]
+            })
+
+            return respHelper(res, {
+                status: 200,
+                data: departmentData
+            })
+
+        } catch (error) {
+            console.log(error)
+            return respHelper(res, {
+                status: 500
+            })
+        }
+    }
+
+    async functionalArea(req, res) {
+        try {
+            const departmentMappingId = req.query.departmentMappingId
+
+            const functionalAreaData = await db.functionalAreaMapping.findAll({
+                where: {
+                    departmentMappingId
+                },
+                include: [{
+                    model: db.functionalAreaMaster,
+                    where: {
+                        isActive: 1
+                    },
+                    attributes: ['functionalAreaName', 'functionalAreaCode']
+                }]
+            })
+
+            return respHelper(res, {
+                status: 200,
+                data: functionalAreaData
+            })
+
+        } catch (error) {
+            console.log(error)
+            return respHelper(res, {
+                status: 500
+            })
+        }
+    }
 }
 
 export default new MappingController()
