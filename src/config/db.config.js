@@ -34,7 +34,8 @@ import DegreeMaster from '../api/model/DegreeMaster.js';
 import EmployeeEducationDetails from '../api/model/EmployeeEducationDetails.js';
 import EmployeePaymentDetails from '../api/model/EmployeePaymentDetails.js';
 import EmployeeVaccinationDetails from '../api/model/EmployeeVaccinationDetails.js';
-
+import DepartmentMapping from '../api/model/DepartmentMapping.js';
+import FunctionalAreaMapping from '../api/model/FunctionalAreaMapping.js';
 
 const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {
     port: process.env.DB_PORT,
@@ -101,6 +102,8 @@ db.degreeMaster = DegreeMaster(sequelize, Sequelize)
 db.educationDetails = EmployeeEducationDetails(sequelize, Sequelize)
 db.paymentDetails = EmployeePaymentDetails(sequelize, Sequelize)
 db.vaccinationDetails = EmployeeVaccinationDetails(sequelize, Sequelize)
+db.departmentMapping = DepartmentMapping(sequelize, Sequelize)
+db.functionalAreaMapping = FunctionalAreaMapping(sequelize, Sequelize)
 
 db.employeeMaster.hasMany(db.employeeMaster, { foreignKey: 'manager', sourceKey: 'id', as: 'reportie' })
 db.employeeMaster.hasOne(db.employeeMaster, { foreignKey: 'id', sourceKey: 'manager', as: 'managerData' })
@@ -121,5 +124,7 @@ db.employeeMaster.hasOne(db.paymentDetails, { foreignKey: 'userId', sourceKey: '
 db.employeeMaster.hasOne(db.vaccinationDetails, { foreignKey: 'userId', sourceKey: 'id' })
 db.educationDetails.hasOne(db.degreeMaster, { foreignKey: 'degreeId', sourceKey: 'educationDegree' })
 db.sbuMapping.hasOne(db.buMaster, { foreignKey: 'buId', sourceKey: 'sbuId' })
+db.departmentMapping.hasOne(db.departmentMaster, { foreignKey: 'departmentId', sourceKey: 'departmentId' })
+db.functionalAreaMapping.hasOne(db.functionalAreaMaster, { foreignKey: 'functionalAreaId', sourceKey: 'functionalAreaId' })
 
 export default db;
