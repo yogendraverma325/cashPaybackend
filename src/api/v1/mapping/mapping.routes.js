@@ -8,3 +8,5 @@ export default Express
     .get("/company", authentication.authenticate, mappingController.company)
     .get("/bu", authentication.authenticate, mappingController.bu)
     .get("/sbu", authentication.authenticate, mappingController.sbu)
+    .get("/department", authentication.authenticate, mappingController.department)
+    .get('/functionalArea', authentication.authenticate, mappingController.functionalArea)
