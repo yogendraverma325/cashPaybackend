@@ -5,6 +5,7 @@ import respHelper from '../../../helper/respHelper.js'
 import constant from '../../../constant/messages.js'
 import bcrypt from 'bcrypt';
 import moment from 'moment';
+import fs from 'fs'
 
 class AuthController {
 
