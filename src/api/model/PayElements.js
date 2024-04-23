@@ -12,7 +12,7 @@ export default (sequelize, Sequelize) => {
             type: Sequelize.INTEGER
         },
         payElementAmount: {
-            type: Sequelize.STRING
+            type: Sequelize.DECIMAL(10, 2)
         },
         payElementEffectiveFrom: {
             type: Sequelize.DATE
