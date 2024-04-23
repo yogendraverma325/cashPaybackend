@@ -139,6 +139,15 @@ class MappingController {
                 }]
             })
 
+            for (const iterator of buData) {
+                const existDepartment = await db.departmentMapping.findAll({
+                    where: {
+                        sbuMappingId: iterator.dataValues.sbuMappingId
+                    }
+                })
+                iterator.dataValues['existDepartment'] = existDepartment.length != 0 ? true : false
+            }
+
             return respHelper(res, {
                 status: 200,
                 data: buData
@@ -167,6 +176,15 @@ class MappingController {
                     attributes: ['departmentCode', 'departmentName']
                 }]
             })
+
+            for (const iterator of departmentData) {
+                const existFunctionalArea = await db.functionalAreaMapping.findAll({
+                    where: {
+                        departmentMappingId: iterator.dataValues.departmentMappingId
+                    }
+                })
+                iterator.dataValues['existFunctionalArea'] = existFunctionalArea.length != 0 ? true : false
+            }
 
             return respHelper(res, {
                 status: 200,
