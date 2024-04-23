@@ -39,6 +39,15 @@ class MappingController {
                 attributes: ["companyId", "companyName", "companyCode"]
             })
 
+            for (const iterator of companyData) {
+                const existBu = await db.buMapping.findAll({
+                    where: {
+                        companyId: iterator.dataValues.companyId
+                    }
+                })
+                iterator.dataValues['existBu'] = existBu.length != 0 ? true : false
+            }
+
             return respHelper(res, {
                 status: 200,
                 data: companyData
@@ -74,6 +83,16 @@ class MappingController {
                     attributes: ['buName', 'buCode']
                 }]
             })
+
+            for (const iterator of buData) {
+                const existSbu = await db.sbuMapping.findAll({
+                    where: {
+                        companyId,
+                        buId: iterator.dataValues.buId
+                    }
+                })
+                iterator.dataValues['existSbu'] = existSbu.length != 0 ? true : false
+            }
 
             return respHelper(res, {
                 status: 200,
