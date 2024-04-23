@@ -1,4 +1,3 @@
-import formidable from 'formidable';
 import db from '../../../config/db.config.js';
 import validator from '../../../helper/validator.js';
 import logger from '../../../helper/logger.js'
