@@ -4,6 +4,7 @@ import masterRoutes from './api/v1/master/master.routes.js';
 import mappingRoutes from './api/v1/mapping/mapping.routes.js';
 import userRoutes from './api/v1/user/user.routes.js';
 import authentication from './middleware/authentication.js';
+import paymentRoutes from './api/v1/payments/payment.routes.js';
 
 /**
  * @export
@@ -15,5 +16,7 @@ export default function routes(app) {
     app.use("/api/master", authentication.authenticate, masterRoutes)
     app.use("/api/mapping", mappingRoutes)
     app.use("/api/user", userRoutes)
+    app.use("/api/payment", paymentRoutes)
+    
     return app;
 }
