@@ -38,6 +38,8 @@ import DepartmentMapping from '../api/model/DepartmentMapping.js';
 import FunctionalAreaMapping from '../api/model/FunctionalAreaMapping.js';
 import SalaryComponent from '../api/model/SalaryComponent.js';
 import PayElements from '../api/model/PayElements.js';
+import PaySlip from '../api/model/PaySlip.js';
+import PaySlipComponent from '../api/model/PaySlipComponent.js';
 
 const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {
     port: process.env.DB_PORT,
@@ -108,6 +110,8 @@ db.departmentMapping = DepartmentMapping(sequelize, Sequelize)
 db.functionalAreaMapping = FunctionalAreaMapping(sequelize, Sequelize)
 db.salaryComponent = SalaryComponent(sequelize, Sequelize)
 db.payElements = PayElements(sequelize, Sequelize)
+db.paySlips = PaySlip(sequelize, Sequelize)
+db.paySlipComponent = PaySlipComponent(sequelize, Sequelize)
 
 db.employeeMaster.hasMany(db.employeeMaster, { foreignKey: 'manager', sourceKey: 'id', as: 'reportie' })
 db.employeeMaster.hasOne(db.employeeMaster, { foreignKey: 'id', sourceKey: 'manager', as: 'managerData' })
@@ -132,6 +136,9 @@ db.departmentMapping.hasOne(db.departmentMaster, { foreignKey: 'departmentId', s
 db.functionalAreaMapping.hasOne(db.functionalAreaMaster, { foreignKey: 'functionalAreaId', sourceKey: 'functionalAreaId' })
 db.payElements.hasOne(db.salaryComponent, { foreignKey: 'salaryComponentAutoId', sourceKey: 'salaryComponentAutoId' })
 db.payElements.hasOne(db.employeeMaster, { foreignKey: 'id', sourceKey: 'EmployeeId' })
-db.employeeMaster.hasMany(db.payElements, { foreignKey: 'EmployeeId', sourceKey: 'id' })
+db.paySlips.hasOne(db.employeeMaster, { foreignKey: 'id', sourceKey: 'EmployeeId' })
+db.paySlipComponent.hasOne(db.employeeMaster, { foreignKey: 'id', sourceKey: 'EmployeeId' })
+db.paySlipComponent.hasOne(db.salaryComponent, { foreignKey: 'salaryComponentAutoId', sourceKey: 'salaryComponentAutoId' })
+db.paySlips.hasMany(db.paySlipComponent, { foreignKey: 'paySlipAutoId', sourceKey: 'paySlipAutoId' })
 
 export default db;
