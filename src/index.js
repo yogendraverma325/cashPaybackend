@@ -80,16 +80,18 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 io.on('connection', socket => {
     console.log('Client Socket Connected');
-    // socket.on('new-user-joined', name => {
-    //   users[socket.id] = name;
-    //   socket.broadcast.emit('user-joined', name);
-    // });
+    // console.log(socket)
+    socket.on('new-user-joined', name => {
+        //   users[socket.id] = name;
+
+        socket.broadcast.emit('user-joined', name);
+    });
 
     socket.on('disconnect', () => {
         console.log('Client Socket Disconnected');
     });
 
-    // socket.emit('test', 'Socket Connected With Server');
+    socket.emit('test', 'Socket Connected With Server');
 });
 
 export default Server

@@ -27,6 +27,49 @@ class PaymentController {
             })
         }
     }
+
+    async paySlips(req, res) {
+        try {
+
+            const paySlip = await db.paySlips.findOne({
+                where: {
+                    EmployeeId: req.userId,
+                },
+                attributes: { exclude: ['createdAt', 'createdBy'] },
+                include: [
+                    {
+                        model: db.employeeMaster,
+                        attributes: ['name', 'empCode', 'email', 'designation_id', 'departmentId'],
+                        include: [{
+                            model: db.departmentMaster,
+                            required: true,
+                            attributes: ["departmentCode", "departmentName"]
+                        },
+                        {
+                            model: db.designationMaster,
+                            required: false,
+                            attributes: ['name']
+                        }
+                        ]
+                    },
+                    {
+                        model: db.paySlipComponent,
+                        attributes: { exclude: ['createdAt', 'createdBy', 'updatedBy', 'updatedAt', 'isActive'] },
+                    }]
+            })
+
+            return respHelper(res, {
+                status: 200,
+                data: paySlip
+            })
+
+        } catch (error) {
+            console.log(error)
+            return respHelper(res, {
+                status: 500
+            })
+        }
+    }
 }
 
 export default new PaymentController();
