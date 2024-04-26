@@ -5,3 +5,4 @@ import authentication from '../../../middleware/authentication.js';
 export default Express
     .Router()
     .get('/payElements', authentication.authenticate, paymentController.payElements)
+    .get("/paySlip", authentication.authenticate, paymentController.paySlips)

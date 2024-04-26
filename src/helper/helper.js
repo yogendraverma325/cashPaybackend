@@ -2,6 +2,7 @@ import jwt from "jsonwebtoken";
 import fs from 'fs'
 import path from "path";
 import db from '../config/db.config.js'
+import sendGrid from "@sendgrid/mail";
 
 const generateJwtToken = async data => {
     const token = jwt.sign(data, process.env.JWT_KEY, {
@@ -45,9 +46,26 @@ const checkActiveUser = async (data) => {
     return (existUser) ? true : false
 }
 
+const mailService = async (data) => {
+    sendGrid.setApiKey(process.env.SENDGRID_API_KEY)
+    const msg = {
+        to: data.to,
+        from: process.env.SENDER_MAIL,
+        subject: data.subject,
+        text: data.text,
+        html: data.html,
+        cc: data.cc
+    }
+    let result = await sendGrid.sendMultiple(msg)
+    return result
+};
+
+
+
 export default {
     generateJwtToken,
     checkFolder,
     checkActiveUser,
-    fileUpload
+    fileUpload,
+    mailService
 }
