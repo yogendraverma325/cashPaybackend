@@ -40,6 +40,7 @@ class PaymentController {
                     EmployeeId: (user) ? user : req.userId,
                     paySlipFinancialYear: financialYear
                 },
+                order: [['createdAt', 'desc']],
                 attributes: { exclude: ['createdAt', 'createdBy'] },
                 include: [
                     {
