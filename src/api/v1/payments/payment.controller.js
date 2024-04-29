@@ -4,10 +4,11 @@ import respHelper from '../../../helper/respHelper.js'
 class PaymentController {
     async payElements(req, res) {
         try {
+            const user = req.query.user
 
             const payElementsData = await db.payElements.findAll({
                 where: {
-                    EmployeeId: req.userId,
+                    EmployeeId: (user) ? user : req.userId
                 },
                 attributes: { exclude: ['createdAt', 'createdBy', 'updatedBy', 'updatedAt', 'isActive'] },
                 include: [{
@@ -30,10 +31,11 @@ class PaymentController {
 
     async paySlips(req, res) {
         try {
+            const user = req.query.user
 
             const paySlip = await db.paySlips.findOne({
                 where: {
-                    EmployeeId: req.userId,
+                    EmployeeId: (user) ? user : req.userId
                 },
                 attributes: { exclude: ['createdAt', 'createdBy'] },
                 include: [
