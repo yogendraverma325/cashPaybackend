@@ -33,7 +33,7 @@ class PaymentController {
         try {
             const user = req.query.user
 
-            const paySlip = await db.paySlips.findOne({
+            const paySlip = await db.paySlips.findAll({
                 where: {
                     EmployeeId: (user) ? user : req.userId
                 },
