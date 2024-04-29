@@ -42,26 +42,29 @@ class PaymentController {
                 },
                 order: [['createdAt', 'desc']],
                 attributes: { exclude: ['createdAt', 'createdBy'] },
-                include: [
-                    {
-                        model: db.employeeMaster,
-                        attributes: ['name', 'empCode', 'email', 'designation_id', 'departmentId'],
-                        include: [{
-                            model: db.departmentMaster,
-                            required: true,
-                            attributes: ["departmentCode", "departmentName"]
-                        },
-                        {
-                            model: db.designationMaster,
-                            required: false,
-                            attributes: ['name']
-                        }
-                        ]
+                include: [{
+                    model: db.employeeMaster,
+                    attributes: ['name', 'empCode', 'email', 'designation_id', 'departmentId'],
+                    include: [{
+                        model: db.departmentMaster,
+                        required: true,
+                        attributes: ["departmentCode", "departmentName"]
                     },
                     {
-                        model: db.paySlipComponent,
-                        attributes: { exclude: ['createdAt', 'createdBy', 'updatedBy', 'updatedAt', 'isActive'] },
-                    }]
+                        model: db.designationMaster,
+                        required: false,
+                        attributes: ['name']
+                    },
+                    {
+                        model: db.jobDetails,
+                        attributes: ['dateOfJoining']
+                    }
+                    ]
+                },
+                {
+                    model: db.paySlipComponent,
+                    attributes: { exclude: ['createdAt', 'createdBy', 'updatedBy', 'updatedAt', 'isActive'] },
+                }]
             })
 
             return respHelper(res, {
