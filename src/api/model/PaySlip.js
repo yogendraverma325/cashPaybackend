@@ -30,13 +30,19 @@ export default (sequelize, Sequelize) => {
             type: Sequelize.INTEGER
         },
         paySlipGrossEarning: {
-            type: Sequelize.INTEGER
+            type: Sequelize.DECIMAL(10, 2)
         },
         paySlipTotalPay: {
-            type: Sequelize.INTEGER
+            type: Sequelize.DECIMAL(10, 2)
         },
         paySlipNetPay: {
-            type: Sequelize.INTEGER
+            type: Sequelize.DECIMAL(10, 2)
+        },
+        paySlipTotalDeduction: {
+            type: Sequelize.DECIMAL(10, 2)
+        },
+        paySlipTDS: {
+            type: Sequelize.DECIMAL(10, 2)
         },
         createdBy: {
             type: Sequelize.INTEGER
