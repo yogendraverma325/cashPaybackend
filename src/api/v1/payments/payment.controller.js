@@ -32,10 +32,13 @@ class PaymentController {
     async paySlips(req, res) {
         try {
             const user = req.query.user
+            const financialYear = req.query.financialYear
 
             const paySlip = await db.paySlips.findAll({
-                where: {
-                    EmployeeId: (user) ? user : req.userId
+                where:
+                {
+                    EmployeeId: (user) ? user : req.userId,
+                    paySlipFinancialYear: financialYear
                 },
                 attributes: { exclude: ['createdAt', 'createdBy'] },
                 include: [

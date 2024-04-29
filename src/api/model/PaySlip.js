@@ -14,6 +14,9 @@ export default (sequelize, Sequelize) => {
         paySlipYear: {
             type: Sequelize.INTEGER
         },
+        paySlipFinancialYear: {
+            type: Sequelize.STRING
+        },
         paySlipDuration: {
             type: Sequelize.STRING
         },
