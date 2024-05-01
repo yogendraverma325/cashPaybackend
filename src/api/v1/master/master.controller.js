@@ -12,7 +12,7 @@ class MasterController {
             const offset = (pageNo - 1) * limit;
             const search = req.query.search
 
-            const employeeData = await db.employeeMaster.findAll({
+            const employeeData = await db.employeeMaster.findAndCountAll({
                 limit,
                 offset,
                 where: Object.assign(
@@ -129,7 +129,7 @@ class MasterController {
             const pageNo = req.query.page * 1 || 1;
             const offset = (pageNo - 1) * limit;
 
-            const bandData = await db.bandMaster.findAll({
+            const bandData = await db.bandMaster.findAndCountAll({
                 limit,
                 offset
             })
@@ -154,13 +154,13 @@ class MasterController {
             const offset = (pageNo - 1) * limit;
             const companyId = req.query.companyId
 
-            const buData = await db.buMaster.findAll({
+            const buData = await db.buMaster.findAndCountAll({
                 limit,
                 offset,
                 where: {
                     companyId
                 },
-                order:[['buName',"asc"]]
+                order: [['buName', "asc"]]
             })
 
             return respHelper(res, {
@@ -182,7 +182,7 @@ class MasterController {
             const pageNo = req.query.page * 1 || 1;
             const offset = (pageNo - 1) * limit;
 
-            const costCenterData = await db.costCenterMaster.findAll({
+            const costCenterData = await db.costCenterMaster.findAndCountAll({
                 limit,
                 offset
             })
@@ -206,7 +206,7 @@ class MasterController {
             const pageNo = req.query.page * 1 || 1;
             const offset = (pageNo - 1) * limit;
 
-            const designationData = await db.designationMaster.findAll({
+            const designationData = await db.designationMaster.findAndCountAll({
                 limit,
                 offset
             })
@@ -230,7 +230,7 @@ class MasterController {
             const pageNo = req.query.page * 1 || 1;
             const offset = (pageNo - 1) * limit;
 
-            const gradeData = await db.gradeMaster.findAll({
+            const gradeData = await db.gradeMaster.findAndCountAll({
                 limit,
                 offset
             })
@@ -254,7 +254,7 @@ class MasterController {
             const pageNo = req.query.page * 1 || 1;
             const offset = (pageNo - 1) * limit;
 
-            const jobLevelData = await db.jobLevelMaster.findAll({
+            const jobLevelData = await db.jobLevelMaster.findAndCountAll({
                 limit,
                 offset
             })
@@ -278,7 +278,7 @@ class MasterController {
             const pageNo = req.query.page * 1 || 1;
             const offset = (pageNo - 1) * limit;
 
-            const functionalAreaData = await db.functionalAreaMaster.findAll({
+            const functionalAreaData = await db.functionalAreaMaster.findAndCountAll({
                 limit,
                 offset
             })
@@ -307,7 +307,7 @@ class MasterController {
             const countryId = req.query.countryId
             const regionId = req.query.regionId
 
-            const stateData = await db.stateMaster.findAll({
+            const stateData = await db.stateMaster.findAndCountAll({
                 limit,
                 offset,
                 where: Object.assign(
@@ -346,7 +346,7 @@ class MasterController {
             const offset = (pageNo - 1) * limit;
             const countryId = req.query.country
 
-            const regionData = await db.regionMaster.findAll({
+            const regionData = await db.regionMaster.findAndCountAll({
                 limit,
                 offset,
                 where: Object.assign(
@@ -376,7 +376,7 @@ class MasterController {
             const offset = (pageNo - 1) * limit;
             const stateId = req.query.stateId
 
-            const cityData = await db.cityMaster.findAll({
+            const cityData = await db.cityMaster.findAndCountAll({
                 limit,
                 offset,
                 where: Object.assign(
@@ -405,7 +405,7 @@ class MasterController {
             const pageNo = req.query.page * 1 || 1;
             const offset = (pageNo - 1) * limit;
 
-            const companyLocationData = await db.companyLocationMaster.findAll({
+            const companyLocationData = await db.companyLocationMaster.findAndCountAll({
                 limit,
                 offset,
             })
@@ -430,7 +430,7 @@ class MasterController {
             const offset = (pageNo - 1) * limit;
             const groupId = req.query.groupId
 
-            const companyData = await db.companyMaster.findAll({
+            const companyData = await db.companyMaster.findAndCountAll({
                 limit,
                 offset,
                 where: Object.assign(
@@ -458,7 +458,7 @@ class MasterController {
             const pageNo = req.query.page * 1 || 1;
             const offset = (pageNo - 1) * limit;
 
-            const companyTypeData = await db.companyTypeMaster.findAll({
+            const companyTypeData = await db.companyTypeMaster.findAndCountAll({
                 limit,
                 offset,
             })
@@ -482,7 +482,7 @@ class MasterController {
             const pageNo = req.query.page * 1 || 1;
             const offset = (pageNo - 1) * limit;
 
-            const countryData = await db.countryMaster.findAll({
+            const countryData = await db.countryMaster.findAndCountAll({
                 limit,
                 offset,
             })
@@ -506,7 +506,7 @@ class MasterController {
             const pageNo = req.query.page * 1 || 1;
             const offset = (pageNo - 1) * limit;
 
-            const currencyData = await db.currencyMaster.findAll({
+            const currencyData = await db.currencyMaster.findAndCountAll({
                 limit,
                 offset,
             })
@@ -530,7 +530,7 @@ class MasterController {
             const pageNo = req.query.page * 1 || 1;
             const offset = (pageNo - 1) * limit;
 
-            const departmentData = await db.departmentMaster.findAll({
+            const departmentData = await db.departmentMaster.findAndCountAll({
                 limit,
                 offset,
             })
@@ -554,7 +554,7 @@ class MasterController {
             const pageNo = req.query.page * 1 || 1;
             const offset = (pageNo - 1) * limit;
 
-            const districtData = await db.districtMaster.findAll({
+            const districtData = await db.districtMaster.findAndCountAll({
                 limit,
                 offset,
             })
@@ -578,7 +578,7 @@ class MasterController {
             const pageNo = req.query.page * 1 || 1;
             const offset = (pageNo - 1) * limit;
 
-            const employeeTypeData = await db.employeeTypeMaster.findAll({
+            const employeeTypeData = await db.employeeTypeMaster.findAndCountAll({
                 limit,
                 offset,
             })
@@ -602,7 +602,7 @@ class MasterController {
             const pageNo = req.query.page * 1 || 1;
             const offset = (pageNo - 1) * limit;
 
-            const industryData = await db.industryMaster.findAll({
+            const industryData = await db.industryMaster.findAndCountAll({
                 limit,
                 offset,
             })
@@ -626,7 +626,7 @@ class MasterController {
             const pageNo = req.query.page * 1 || 1;
             const offset = (pageNo - 1) * limit;
 
-            const pinCodeData = await db.pinCodeMaster.findAll({
+            const pinCodeData = await db.pinCodeMaster.findAndCountAll({
                 limit,
                 offset,
             })
@@ -650,7 +650,7 @@ class MasterController {
             const pageNo = req.query.page * 1 || 1;
             const offset = (pageNo - 1) * limit;
 
-            const timeZoneData = await db.timeZoneMaster.findAll({
+            const timeZoneData = await db.timeZoneMaster.findAndCountAll({
                 limit,
                 offset,
             })
@@ -674,7 +674,7 @@ class MasterController {
             const pageNo = req.query.page * 1 || 1;
             const offset = (pageNo - 1) * limit;
 
-            const groupCompanyData = await db.groupCompanyMaster.findAll({
+            const groupCompanyData = await db.groupCompanyMaster.findAndCountAll({
                 limit,
                 offset,
                 attributes: ["groupId", "groupCode", "groupName"]
