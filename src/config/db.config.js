@@ -40,6 +40,7 @@ import SalaryComponent from '../api/model/SalaryComponent.js';
 import PayElements from '../api/model/PayElements.js';
 import PaySlip from '../api/model/PaySlip.js';
 import PaySlipComponent from '../api/model/PaySlipComponent.js';
+import PayPackage from '../api/model/PayPackage.js';
 
 const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {
     port: process.env.DB_PORT,
@@ -112,6 +113,7 @@ db.salaryComponent = SalaryComponent(sequelize, Sequelize)
 db.payElements = PayElements(sequelize, Sequelize)
 db.paySlips = PaySlip(sequelize, Sequelize)
 db.paySlipComponent = PaySlipComponent(sequelize, Sequelize)
+db.payPackage = PayPackage(sequelize, Sequelize)
 
 db.employeeMaster.hasMany(db.employeeMaster, { foreignKey: 'manager', sourceKey: 'id', as: 'reportie' })
 db.employeeMaster.hasOne(db.employeeMaster, { foreignKey: 'id', sourceKey: 'manager', as: 'managerData' })
