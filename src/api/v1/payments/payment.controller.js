@@ -79,6 +79,55 @@ class PaymentController {
             })
         }
     }
+
+    async payPackage(req, res) {
+        try {
+
+            const payPackage = await db.payPackage.findAll({
+                order: [['createdAt', 'desc']],
+                attributes: { exclude: ['createdAt', 'createdBy', 'updatedBy', 'updatedAt', 'isActive'] },
+            })
+
+            return respHelper(res, {
+                status: 200,
+                data: payPackage
+            })
+
+        } catch (error) {
+            console.log(error)
+            return respHelper(res, {
+                status: 500
+            })
+        }
+    }
+
+    async ctcProration(req, res) {
+        try {
+            const payPackageAutoId = req.query.payPackageAutoId
+
+            const payElements = await db.payElements.findAll({
+                where: {
+                    payPackageAutoId
+                },
+                include: [{
+                    model: db.salaryComponent,
+                    attributes: { exclude: ['createdAt', 'createdBy', 'updatedBy', 'updatedAt', 'isActive'] },
+                }],
+                attributes: { exclude: ['createdAt', 'createdBy', 'updatedBy', 'updatedAt', 'isActive'] },
+            })
+
+            return respHelper(res, {
+                status: 200,
+                data: payElements
+            })
+
+        } catch (error) {
+            console.log(error)
+            return respHelper(res, {
+                status: 500
+            })
+        }
+    }
 }
 
 export default new PaymentController();
