@@ -11,6 +11,9 @@ export default (sequelize, Sequelize) => {
         salaryComponentAutoId: {
             type: Sequelize.INTEGER
         },
+        payPackageAutoId: {
+            type: Sequelize.INTEGER
+        },
         payElementAmount: {
             type: Sequelize.DECIMAL(10, 2)
         },
