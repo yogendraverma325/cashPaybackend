@@ -8,6 +8,9 @@ export default (sequelize, Sequelize) => {
         EmployeeId: {
             type: Sequelize.INTEGER,
         },
+        payPackageFinancialYear: {
+            type: Sequelize.STRING
+        },
         payPackageEffectiveDate: {
             type: Sequelize.DATE
         },
