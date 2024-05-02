@@ -5,6 +5,9 @@ export default (sequelize, Sequelize) => {
             primaryKey: true,
             autoIncrement: true
         },
+        EmployeeId: {
+            type: Sequelize.INTEGER,
+        },
         payPackageEffectiveDate: {
             type: Sequelize.DATE
         },
