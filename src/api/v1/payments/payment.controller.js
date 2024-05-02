@@ -83,10 +83,12 @@ class PaymentController {
     async payPackage(req, res) {
         try {
             const user = req.query.user
+            const financialYear = req.query.financialYear
 
             const payPackage = await db.payPackage.findAll({
                 where: {
                     EmployeeId: (user) ? user : req.userId,
+                    payPackageFinancialYear: financialYear
                 },
                 order: [['createdAt', 'desc']],
                 attributes: { exclude: ['createdAt', 'createdBy', 'updatedBy', 'updatedAt', 'isActive'] },
