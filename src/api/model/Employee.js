@@ -20,6 +20,21 @@ export default (sequelize, Sequelize) => {
         lastName: {
             type: Sequelize.STRING(255)
         },
+        panNo: {
+            type: Sequelize.STRING(255)
+        },
+        esicNo: {
+            type: Sequelize.STRING(255)
+        },
+        uanNo: {
+            type: Sequelize.STRING(255)
+        },
+        pfNo: {
+            type: Sequelize.STRING(255)
+        },
+        employeeType: {
+            type: Sequelize.STRING(255)
+        },
         profileImage: {
             type: Sequelize.STRING(255)
         },
