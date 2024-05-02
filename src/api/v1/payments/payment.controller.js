@@ -44,7 +44,7 @@ class PaymentController {
                 attributes: { exclude: ['createdAt', 'createdBy'] },
                 include: [{
                     model: db.employeeMaster,
-                    attributes: ['name', 'empCode', 'email', 'designation_id', 'departmentId'],
+                    attributes: ['name', 'empCode', 'email', 'designation_id', 'departmentId', 'panNo', 'esicNo', 'uanNo', 'pfNo', 'employeeType'],
                     include: [{
                         model: db.departmentMaster,
                         required: true,
