@@ -27,7 +27,12 @@ class MasterController {
                             }
                         }]
                     } : {}
-                )
+                ),
+                attributes: ['id', 'empCode', 'name', 'email', 'firstName', 'lastName'],
+                include: [{
+                    model: db.designationMaster,
+                    attributes: ['name']
+                }]
             })
 
             return respHelper(res, {
