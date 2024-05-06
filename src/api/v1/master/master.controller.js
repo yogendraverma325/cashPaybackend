@@ -18,6 +18,10 @@ class MasterController {
                 where: Object.assign(
                     (search) ? {
                         [Op.or]: [{
+                            empCode: {
+                                [Op.like]: `%${search}%`
+                            }
+                        }, {
                             name: {
                                 [Op.like]: `%${search}%`
                             }
@@ -28,7 +32,7 @@ class MasterController {
                         }]
                     } : {}
                 ),
-                attributes: ['id', 'empCode', 'name', 'email', 'firstName', 'lastName'],
+                attributes: ['id', 'empCode', 'name', 'email', 'firstName', 'lastName', 'officeMobileNumber'],
                 include: [{
                     model: db.designationMaster,
                     attributes: ['name']
