@@ -1,8 +1,11 @@
 import jwt from "jsonwebtoken";
 import fs from 'fs'
 import path from "path";
+import moment from "moment";
 import db from '../config/db.config.js'
 import sendGrid from "@sendgrid/mail";
+// import attendanceController from "../api/v1/attendance/attendance.controller.js";
+import cron from 'node-cron'
 
 const generateJwtToken = async data => {
     const token = jwt.sign(data, process.env.JWT_KEY, {
@@ -60,6 +63,22 @@ const mailService = async (data) => {
     return result
 };
 
+const timeDifference = async (start, end) => {
+    let startTime = moment(start, "HH:mm:ss");
+    let endTime = moment(end, "HH:mm:ss");
+
+    let hours = moment.utc(endTime.diff(startTime)).format("HH");
+    let minutes = moment.utc(endTime.diff(startTime)).format("mm");
+    let sec = moment.utc(endTime.diff(startTime)).format("ss");
+    const time = [hours, minutes, sec].join(":");
+    return time;
+};
+
+const updateAttendance = () => {
+    cron.schedule("* * * * *", async () => {
+        console.log('hello')
+    });
+};
 
 
 export default {
@@ -67,5 +86,7 @@ export default {
     checkFolder,
     checkActiveUser,
     fileUpload,
-    mailService
+    mailService,
+    timeDifference,
+    updateAttendance
 }
