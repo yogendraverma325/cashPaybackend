@@ -41,6 +41,8 @@ import PayElements from '../api/model/PayElements.js';
 import PaySlip from '../api/model/PaySlip.js';
 import PaySlipComponent from '../api/model/PaySlipComponent.js';
 import PayPackage from '../api/model/PayPackage.js';
+import ShiftMaster from '../api/model/ShiftMaster.js';
+import AttendanceMaster from '../api/model/AttendanceMaster.js';
 
 const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {
     port: process.env.DB_PORT,
@@ -114,6 +116,8 @@ db.payElements = PayElements(sequelize, Sequelize)
 db.paySlips = PaySlip(sequelize, Sequelize)
 db.paySlipComponent = PaySlipComponent(sequelize, Sequelize)
 db.payPackage = PayPackage(sequelize, Sequelize)
+db.shiftMaster = ShiftMaster(sequelize, Sequelize)
+db.attendanceMaster = AttendanceMaster(sequelize, Sequelize)
 
 db.employeeMaster.hasMany(db.employeeMaster, { foreignKey: 'manager', sourceKey: 'id', as: 'reportie' })
 db.employeeMaster.hasOne(db.employeeMaster, { foreignKey: 'id', sourceKey: 'manager', as: 'managerData' })
@@ -128,6 +132,7 @@ db.companyMaster.hasOne(db.groupCompanyMaster, { foreignKey: 'groupId', sourceKe
 db.employeeMaster.hasOne(db.biographicalDetails, { foreignKey: 'userId', sourceKey: 'id' })
 db.employeeMaster.hasOne(db.jobDetails, { foreignKey: 'userId', sourceKey: 'id' })
 db.employeeMaster.hasOne(db.emergencyDetails, { foreignKey: 'userId', sourceKey: 'id' })
+db.employeeMaster.hasOne(db.shiftMaster, { foreignKey: 'shiftId', sourceKey: 'shiftId' })
 db.employeeMaster.hasMany(db.familyDetails, { foreignKey: 'EmployeeId', sourceKey: 'id' })
 db.employeeMaster.hasMany(db.educationDetails, { foreignKey: 'userId', sourceKey: 'id' })
 db.employeeMaster.hasOne(db.paymentDetails, { foreignKey: 'userId', sourceKey: 'id' })
