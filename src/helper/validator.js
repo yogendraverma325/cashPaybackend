@@ -21,7 +21,16 @@ const userCreationSchema = Joi.object({
     image: Joi.string()
 })
 
+const attendanceSchema = Joi.object({
+    locationType: Joi.string().trim().max(250).label("Location Type"),
+    remark: Joi.string().trim().max(250).label("Remark"),
+    location: Joi.string().trim().label("Location"),
+    latitude: Joi.string().trim().label("Latitude"),
+    longitude: Joi.string().trim().label("Longitude"),
+})
+
 export default {
     loginSchema,
-    userCreationSchema
+    userCreationSchema,
+    attendanceSchema
 }

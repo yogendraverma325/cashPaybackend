@@ -13,11 +13,15 @@ import logger from './helper/logger.js';
 import respHelper from './helper/respHelper.js'
 import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express'
+import helper from './helper/helper.js';
 
 app.use(helmet());
 app.use(morgan('dev'));
 app.use(cors())
 app.use('/api', routes)
+
+helper.checkFolder()
+// helper.updateAttendance()
 
 app.get("/api", (req, res) => {
     res.send("App is Running")
