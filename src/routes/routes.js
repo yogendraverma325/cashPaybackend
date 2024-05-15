@@ -7,9 +7,11 @@ import userRoutes from '../api/v1/user/user.routes.js';
 import authentication from '../middleware/authentication.js';
 import paymentRoutes from '../api/v1/payments/payment.routes.js';
 import attendanceRoutes from '../api/v1/attendance/attendance.routes.js';
+import masterExportRoutes from '../api/v1/master/export.routes.js'
 
 const router = express.Router()
 
+router.use("/export", masterExportRoutes)
 router.use('/admin', authentication.authenticate, adminRoutes)
 router.use("/auth", authRoutes)
 router.use("/master", authentication.authenticate, masterRoutes)
@@ -17,5 +19,7 @@ router.use("/mapping", mappingRoutes)
 router.use("/user", userRoutes)
 router.use("/payment", paymentRoutes)
 router.use("/attendance", authentication.authenticate, attendanceRoutes)
+
+
 
 export default router
