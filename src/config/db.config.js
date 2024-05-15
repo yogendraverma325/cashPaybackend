@@ -41,6 +41,7 @@ import PayElements from '../api/model/PayElements.js';
 import PaySlip from '../api/model/PaySlip.js';
 import PaySlipComponent from '../api/model/PaySlipComponent.js';
 import PayPackage from '../api/model/PayPackage.js';
+import SbuMaster from '../api/model/sbumaster.js';
 
 const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {
     port: process.env.DB_PORT,
@@ -114,6 +115,8 @@ db.payElements = PayElements(sequelize, Sequelize)
 db.paySlips = PaySlip(sequelize, Sequelize)
 db.paySlipComponent = PaySlipComponent(sequelize, Sequelize)
 db.payPackage = PayPackage(sequelize, Sequelize)
+db.sbuMaster = SbuMaster(sequelize, Sequelize)
+
 
 db.employeeMaster.hasMany(db.employeeMaster, { foreignKey: 'manager', sourceKey: 'id', as: 'reportie' })
 db.employeeMaster.hasOne(db.employeeMaster, { foreignKey: 'id', sourceKey: 'manager', as: 'managerData' })
@@ -142,5 +145,7 @@ db.paySlips.hasOne(db.employeeMaster, { foreignKey: 'id', sourceKey: 'EmployeeId
 db.paySlipComponent.hasOne(db.employeeMaster, { foreignKey: 'id', sourceKey: 'EmployeeId' })
 db.paySlipComponent.hasOne(db.salaryComponent, { foreignKey: 'salaryComponentAutoId', sourceKey: 'salaryComponentAutoId' })
 db.paySlips.hasMany(db.paySlipComponent, { foreignKey: 'paySlipAutoId', sourceKey: 'paySlipAutoId' })
+db.buMaster.hasOne(db.sbuMapping, {foreignKey:'buId',sourceKey:'buId'})
+db.sbuMapping.hasOne(db.sbuMaster,{foreignKey:'id',sourceKey:'sbuId'})
 
 export default db;

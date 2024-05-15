@@ -1,21 +1,22 @@
-import { Op } from "sequelize";
+import { Op, where } from "sequelize";
 import db from "../../../config/db.config.js";
 import respHelper from '../../../helper/respHelper.js'
+import client from "../../../config/redisDb.config.js";
 
 class MasterController {
-
+    
     async employee(req, res) {
         try {
 
+            const {search,department,designation,buSearch,sbuSearch,areaSearch} = req.query
             const limit = req.query.limit * 1 || 10
             const pageNo = req.query.page * 1 || 1;
             const offset = (pageNo - 1) * limit;
-            const search = req.query.search
 
             const employeeData = await db.employeeMaster.findAndCountAll({
                 limit,
                 offset,
-                where: Object.assign(
+                where: Object.assign(    
                     (search) ? {
                         [Op.or]: [{
                             empCode: {
@@ -32,10 +33,38 @@ class MasterController {
                         }]
                     } : {}
                 ),
-                attributes: ['id', 'empCode', 'name', 'email', 'firstName', 'lastName', 'officeMobileNumber'],
+                attributes: ['id', 'empCode', 'name', 'email', 'firstName', 'lastName', 'officeMobileNumber','buId'],
                 include: [{
                     model: db.designationMaster,
-                    attributes: ['name']
+                    attributes: ['name'],
+                    where:{ ...(designation && { name:{[Op.like]: `%${designation}%`} })}
+                },
+                {
+                    model: db.functionalAreaMaster,
+                    attributes: ['functionalAreaName'],
+                    where:{ ...(areaSearch && { functionalAreaName:{[Op.like]: `%${areaSearch}%`} })}
+                },
+                {
+                    model: db.departmentMaster,
+                    attributes: ['departmentName'],
+                    where:{ ...(department && { departmentName: {[Op.like]: `%${department}%`}})}
+                },
+                {
+                    model: db.buMaster,
+                    attributes: ['buName'],
+                    where:{ ...(buSearch && { buName:{[Op.like]: `%${buSearch}%`} })},
+                    required:true,
+                    include:[{
+                        model: db.sbuMapping,
+                        attributes: ['sbuId'],
+                        required:true,
+                        include:[{
+                            model: db.sbuMaster,
+                            attributes:['id','sbuname'],
+                            where:{ ...(sbuSearch && { sbuname:{[Op.like]: `%${sbuSearch}%`} })},
+                            required:true,   
+                        }]
+                    }]
                 }]
             })
 
@@ -167,7 +196,7 @@ class MasterController {
                 limit,
                 offset,
                 where: {
-                    companyId
+                    buId: companyId
                 },
                 order: [['buName', "asc"]]
             })
