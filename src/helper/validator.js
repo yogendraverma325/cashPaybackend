@@ -29,8 +29,20 @@ const attendanceSchema = Joi.object({
     longitude: Joi.string().trim().label("Longitude"),
 })
 
+const regularizeRequest = Joi.object({
+    fromDate: Joi.string().trim().label("From Date"),
+    toDate: Joi.string().trim().label("To Date"),
+    locationType: Joi.string(),
+    punchInTime: Joi.string(),
+    punchOutTime: Joi.string(),
+    reason: Joi.string(),
+    attendanceAutoId: Joi.number(),
+    remark: Joi.string(),
+})
+
 export default {
     loginSchema,
     userCreationSchema,
-    attendanceSchema
+    attendanceSchema,
+    regularizeRequest
 }
