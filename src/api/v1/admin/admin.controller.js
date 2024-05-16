@@ -13,7 +13,7 @@ class AdminController {
      * @swagger
      * /api/admin/addEmployee:
      *   post:
-     *     summary: Returns a hello message
+     *     summary:
      *     tags:
      *        - Admin
      *     responses:

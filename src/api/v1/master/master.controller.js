@@ -5,6 +5,67 @@ import client from "../../../config/redisDb.config.js";
 
 class MasterController {
 
+ /**
+ * @swagger
+ * /api/master/employee:
+ *   get:
+ *     summary: Get employee details
+ *     description: Retrieve employee details based on search criteria
+ *     tags:
+ *        - Master
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *         description:
+ *         required: false
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *         description:
+ *         required: false
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Search query
+ *         required: false
+ *       - in: query
+ *         name: department
+ *         schema:
+ *           type: string
+ *         description: Department filter
+ *         required: false
+ *       - in: query
+ *         name: designation
+ *         schema:
+ *           type: string
+ *         description: Designation filter
+ *         required: false
+ *       - in: query
+ *         name: buSearch
+ *         schema:
+ *           type: string
+ *         description: Business unit search
+ *         required: false
+ *       - in: query
+ *         name: sbuSearch
+ *         schema:
+ *           type: string
+ *         description: Sub-business unit search
+ *         required: false
+ *       - in: query
+ *         name: areaSearch
+ *         schema:
+ *           type: string
+ *         description: Area search
+ *         required: false
+ *     responses:
+ *       '200':
+ *         description: A successful response
+ */
     async employee(req, res) {
         try {
 

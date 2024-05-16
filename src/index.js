@@ -63,16 +63,16 @@ const swaggerOptions = {
         ],
         components: {
             securitySchemes: {
-                bearerAuth: {
-                    type: 'http',
-                    scheme: 'bearer',
-                    bearerFormat: 'JWT',
+                accessTokenAuth: {
+                    type: "apiKey",
+                    in: "header",
+                    name: "accessToken",
                 },
             },
         },
         security: [
             {
-                bearerAuth: [],
+                accessTokenAuth: [],
             },
         ],
     },
