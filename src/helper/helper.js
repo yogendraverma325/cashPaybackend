@@ -4,7 +4,7 @@ import path from "path";
 import moment from "moment";
 import db from '../config/db.config.js'
 import sendGrid from "@sendgrid/mail";
-// import attendanceController from "../api/v1/attendance/attendance.controller.js";
+import attendanceController from "../api/v1/attendance/attendance.controller.js";
 import cron from 'node-cron'
 
 const generateJwtToken = async data => {
@@ -76,7 +76,7 @@ const timeDifference = async (start, end) => {
 
 const updateAttendance = () => {
     cron.schedule("* * * * *", async () => {
-        console.log('hello')
+        await attendanceController.updateAttendance()
     });
 };
 
