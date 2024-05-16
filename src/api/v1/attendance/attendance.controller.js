@@ -5,7 +5,7 @@ import message from '../../../constant/messages.js'
 import validator from '../../../helper/validator.js'
 import helper from '../../../helper/helper.js'
 import eventEmitter from "../../../services/eventService.js";
-import { Op, literal } from 'sequelize'
+import { Op } from 'sequelize'
 
 class AttendanceController {
 
@@ -254,10 +254,25 @@ class AttendanceController {
     async attendanceList(req, res) {
         try {
             const user = req.query.user
+            const year = req.query.year
+            const month = req.query.month
+
+            if (!year || !month) {
+                return respHelper(res, {
+                    status: 400,
+                    msg: 'Please Fill Month and Year'
+                })
+            }
 
             const attendanceData = await db.attendanceMaster.findAndCountAll({
                 where: {
-                    employeeId: (user) ? user : req.userId
+                    employeeId: (user) ? user : req.userId,
+                    attendanceDate: {
+                        [Op.and]: [
+                            { [Op.gte]: `${year}-${month}-01` },
+                            { [Op.lte]: `${year}-${month}-31` }
+                        ]
+                    }
                 },
                 attributes: { exclude: ['createdBy', 'createdAt', 'updatedBy', 'updatedAt'] },
             })
@@ -267,6 +282,7 @@ class AttendanceController {
                 data: attendanceData
             })
         } catch (error) {
+            console.log(error)
             return respHelper(res, {
                 status: 500
             })
