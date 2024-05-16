@@ -218,13 +218,13 @@ class AttendanceController {
                 createdAt: moment()
             })
 
-            // eventEmitter.emit('regularizeRequestMail', JSON.stringify({
-            //     requesterName: attendanceData.dataValues.attendancemaster.employee.name,
-            //     attendenceDate: result.fromDate,
-            //     managerName: attendanceData.dataValues.attendancemaster.employee.managerData.name,
-            //     managerEmail: 'manishmaurya@teamcomputers.com'
-            //     // managerEmail: attendanceData.dataValues.attendancemaster.employee.managerData.email
-            // }));
+            eventEmitter.emit('regularizeRequestMail', JSON.stringify({
+                requesterName: attendanceData.dataValues.attendancemaster.employee.name,
+                attendenceDate: result.fromDate,
+                managerName: attendanceData.dataValues.attendancemaster.employee.managerData.name,
+                managerEmail: 'manishmaurya@teamcomputers.com'
+                // managerEmail: attendanceData.dataValues.attendancemaster.employee.managerData.email
+            }));
 
             await db.attendanceMaster.update({ attendanceRegularizeCount: (!attendanceData) ? 1 : attendanceData.dataValues.attendancemaster.attendanceRegularizeCount + 1 }, {
                 where: {

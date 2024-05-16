@@ -1,4 +1,5 @@
-import { EventEmitter } from 'node:events';
+// import { EventEmitter } from 'node:events';
+import { EventEmitter } from 'events';
 import getAllListeners from "../helper/mailHelper.js"
 
 const eventEmitter = new EventEmitter();
