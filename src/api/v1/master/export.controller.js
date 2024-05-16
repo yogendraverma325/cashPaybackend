@@ -3,7 +3,6 @@ import db from "../../../config/db.config.js";
 import respHelper from '../../../helper/respHelper.js'
 import xlsx from "json-as-xlsx"
 import fs from "fs"
-import path from "path"
 import client from "../../../config/redisDb.config.js";
 
 async function getDataFromCache(key) {
