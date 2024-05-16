@@ -44,7 +44,7 @@ import PayPackage from '../api/model/PayPackage.js';
 import ShiftMaster from '../api/model/ShiftMaster.js';
 import AttendanceMaster from '../api/model/AttendanceMaster.js';
 import RegularizationMaster from '../api/model/RegularizationMaster.js';
-import SbuMaster from '../api/model/sbumaster.js';
+import SbuMaster from '../api/model/SbuMaster.js';
 
 const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {
     port: process.env.DB_PORT,
