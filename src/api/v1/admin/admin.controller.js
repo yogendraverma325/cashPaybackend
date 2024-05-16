@@ -9,18 +9,6 @@ import bcrypt from 'bcrypt'
 
 class AdminController {
 
-    /**
-     * @swagger
-     * /api/admin/addEmployee:
-     *   post:
-     *     summary:
-     *     tags:
-     *        - Admin
-     *     responses:
-     *       200:
-     *         description: Successful response with a hello message
-     */
-
     async addEmployee(req, res) {
         try {
             const result = await validator.userCreationSchema.validateAsync(req.body)

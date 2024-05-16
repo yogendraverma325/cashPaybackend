@@ -1,45 +1,51 @@
-import respHelper from '../../../helper/respHelper.js'
-import db from '../../../config/db.config.js'
-import moment from 'moment'
-import message from '../../../constant/messages.js'
-import validator from '../../../helper/validator.js'
-import helper from '../../../helper/helper.js'
+import respHelper from "../../../helper/respHelper.js";
+import db from "../../../config/db.config.js";
+import moment from "moment";
+import message from "../../../constant/messages.js";
+import validator from "../../../helper/validator.js";
+import helper from "../../../helper/helper.js";
 import eventEmitter from "../../../services/eventService.js";
-import { Op } from 'sequelize'
+import { Op } from "sequelize";
 
 class AttendanceController {
-
     async attendance(req, res) {
         try {
-
-            const result = await validator.attendanceSchema.validateAsync(req.body)
-            const currentDate = moment()
+            const result = await validator.attendanceSchema.validateAsync(req.body);
+            const currentDate = moment();
 
             const existEmployee = await db.employeeMaster.findOne({
                 where: {
                     id: req.userId,
                 },
-                attributes: ['empCode', 'name', 'email', 'shiftId'],
-                include: [{
-                    model: db.shiftMaster,
-                    attributes: ['shiftName', 'shiftStartTime', 'shiftEndTime', 'shiftFlexiStartTime', 'shiftFlexiEndTime']
-                }]
-            })
+                attributes: ["empCode", "name", "email", "shiftId"],
+                include: [
+                    {
+                        model: db.shiftMaster,
+                        attributes: [
+                            "shiftName",
+                            "shiftStartTime",
+                            "shiftEndTime",
+                            "shiftFlexiStartTime",
+                            "shiftFlexiEndTime",
+                        ],
+                    },
+                ],
+            });
 
             if (!existEmployee) {
                 return respHelper(res, {
                     status: 404,
-                    msg: message.USER_NOT_EXIST
-                })
+                    msg: message.USER_NOT_EXIST,
+                });
             }
 
             const checkAttendance = await db.attendanceMaster.findOne({
                 raw: true,
                 where: {
                     employeeId: req.userId,
-                    attendanceDate: currentDate.format("YYYY-MM-DD")
-                }
-            })
+                    attendanceDate: currentDate.format("YYYY-MM-DD"),
+                },
+            });
 
             if (!checkAttendance) {
                 // const punchInStartTime = moment(existEmployee.shiftsmaster.dataValues.shiftStartTime, 'HH:mm')
@@ -61,128 +67,145 @@ class AttendanceController {
                     attendancePunchInLatitude: result.latitude,
                     attendancePunchInLongitude: result.longitude,
                     createdBy: req.userId,
-                    createdAt: currentDate
-                })
+                    createdAt: currentDate,
+                });
 
                 return respHelper(res, {
                     status: 200,
-                    msg: message.PUNCH_IN_SUCCESS
-                })
+                    msg: message.PUNCH_IN_SUCCESS,
+                });
             } else {
-
-                await db.attendanceMaster.update({
-                    attendancePunchOutTime: currentDate.format("HH:mm:ss"),
-                    attendanceShiftEndDate: currentDate.format("YYYY-MM-DD"),
-                    attendancePunchOutLocationType: result.locationType,
-                    attendanceStatus: "Punch Out",
-                    attendancePunchOutRemark: result.remark,
-                    attendanceLocationType: result.locationType,
-                    attendanceWorkingTime: await helper.timeDifference(checkAttendance.attendancePunchInTime, currentDate.format("HH:mm")),
-                    attendancePunchOutLocation: result.location,
-                    attendancePunchOutLatitude: result.latitude,
-                    attendancePunchOutLongitude: result.longitude,
-                }, {
-                    where: {
-                        attendanceDate: currentDate.format("YYYY-MM-DD"),
-                        employeeId: req.userId,
+                await db.attendanceMaster.update(
+                    {
+                        attendancePunchOutTime: currentDate.format("HH:mm:ss"),
+                        attendanceShiftEndDate: currentDate.format("YYYY-MM-DD"),
+                        attendancePunchOutLocationType: result.locationType,
+                        attendanceStatus: "Punch Out",
+                        attendancePunchOutRemark: result.remark,
+                        attendanceLocationType: result.locationType,
+                        attendanceWorkingTime: await helper.timeDifference(
+                            checkAttendance.attendancePunchInTime,
+                            currentDate.format("HH:mm")
+                        ),
+                        attendancePunchOutLocation: result.location,
+                        attendancePunchOutLatitude: result.latitude,
+                        attendancePunchOutLongitude: result.longitude,
+                    },
+                    {
+                        where: {
+                            attendanceDate: currentDate.format("YYYY-MM-DD"),
+                            employeeId: req.userId,
+                        },
                     }
-                })
+                );
 
                 return respHelper(res, {
                     status: 200,
-                    msg: message.PUNCH_OUT_SUCCESS
-                })
+                    msg: message.PUNCH_OUT_SUCCESS,
+                });
             }
-
         } catch (error) {
-            console.log(error)
+            console.log(error);
             if (error.isJoi === true) {
                 return respHelper(res, {
                     status: 422,
-                    msg: error.details[0].message
-                })
+                    msg: error.details[0].message,
+                });
             }
             return respHelper(res, {
-                status: 500
-            })
+                status: 500,
+            });
         }
     }
 
     async updateAttendance() {
         const existEmployees = await db.employeeMaster.findAll({
-            attributes: ['id', 'empCode', 'name', 'email', 'shiftId'],
-            include: [{
-                model: db.shiftMaster,
-                attributes: ['shiftName', 'shiftStartTime', 'shiftEndTime', 'shiftFlexiStartTime', 'shiftFlexiEndTime']
-            }]
-        })
+            attributes: ["id", "empCode", "name", "email", "shiftId"],
+            include: [
+                {
+                    model: db.shiftMaster,
+                    attributes: [
+                        "shiftName",
+                        "shiftStartTime",
+                        "shiftEndTime",
+                        "shiftFlexiStartTime",
+                        "shiftFlexiEndTime",
+                    ],
+                },
+            ],
+        });
 
         for (const iterator of existEmployees) {
-
             const existAttendance = await db.attendanceMaster.findOne({
                 where: {
-                    attendanceDate: moment().subtract(1, 'day').format("YYYY-MM-DD"),
+                    attendanceDate: moment().subtract(1, "day").format("YYYY-MM-DD"),
                     employeeId: iterator.dataValues.id,
-                }
-            })
+                },
+            });
 
             if (!existAttendance) {
-
                 await db.attendanceMaster.create({
-                    attendanceDate: moment().subtract(1, 'day').format("YYYY-MM-DD"),
+                    attendanceDate: moment().subtract(1, "day").format("YYYY-MM-DD"),
                     employeeId: iterator.dataValues.id,
                     attendanceShiftId: iterator.dataValues.shiftId,
                     attendancePresentStatus: "Absent",
-                })
-
+                });
             } else {
-
-                await db.attendanceMaster.update({
-                    attendancePresentStatus: (existAttendance.dataValues.attendanceStatus === 'Punch In') ? "Single Punch Absent" : "Absent",
-                }, {
-                    where: {
-                        attendanceDate: moment().subtract(1, 'day').format("YYYY-MM-DD"),
-                        employeeId: iterator.dataValues.id,
+                await db.attendanceMaster.update(
+                    {
+                        attendancePresentStatus:
+                            existAttendance.dataValues.attendanceStatus === "Punch In"
+                                ? "Single Punch Absent"
+                                : "Absent",
+                    },
+                    {
+                        where: {
+                            attendanceDate: moment().subtract(1, "day").format("YYYY-MM-DD"),
+                            employeeId: iterator.dataValues.id,
+                        },
                     }
-                })
-
+                );
             }
         }
     }
 
     async regularizeRequest(req, res) {
         try {
-            const result = await validator.regularizeRequest.validateAsync(req.body)
+            const result = await validator.regularizeRequest.validateAsync(req.body);
 
             if (moment().isBefore(result.fromDate)) {
                 return respHelper(res, {
                     status: 400,
-                    msg: message.ATTENDANCE_DATE_CANNOT_AFTER_TODAY
-                })
+                    msg: message.ATTENDANCE_DATE_CANNOT_AFTER_TODAY,
+                });
             }
 
             const attendanceData = await db.regularizationMaster.findOne({
                 where: {
                     attendanceAutoId: result.attendanceAutoId,
                 },
-                attributes: ['regularizeStatus'],
+                attributes: ["regularizeStatus"],
                 limit: 1,
                 order: [["createdAt", "DESC"]],
-                include: [{
-                    model: db.attendanceMaster,
-                    attributes: ['attendanceRegularizeCount'],
-                    include: {
-                        model: db.employeeMaster,
-                        attributes: ['name', 'email'],
-                        include: [{
+                include: [
+                    {
+                        model: db.attendanceMaster,
+                        attributes: ["attendanceRegularizeCount"],
+                        include: {
                             model: db.employeeMaster,
-                            required: false,
-                            as: 'managerData',
-                            attributes: ['name', 'email'],
-                        }]
-                    }
-                }]
-            })
+                            attributes: ["name", "email"],
+                            include: [
+                                {
+                                    model: db.employeeMaster,
+                                    required: false,
+                                    as: "managerData",
+                                    attributes: ["name", "email"],
+                                },
+                            ],
+                        },
+                    },
+                ],
+            });
 
             // if (!attendanceData) {
             //     return respHelper(res, {
@@ -191,18 +214,26 @@ class AttendanceController {
             //     })
             // }
 
-            if (attendanceData && attendanceData.dataValues.attendancemaster.attendanceRegularizeCount >= 3) {
+            if (
+                attendanceData &&
+                attendanceData.dataValues.attendancemaster.attendanceRegularizeCount >=
+                3
+            ) {
                 return respHelper(res, {
                     status: 400,
-                    msg: message.MAXIMUM_REGULARIZATION_LIMIT
-                })
+                    msg: message.MAXIMUM_REGULARIZATION_LIMIT,
+                });
             }
 
-            if (attendanceData && attendanceData.dataValues.attendancemaster.attendanceRegularizeCount >= 3) {
+            if (
+                attendanceData &&
+                attendanceData.dataValues.attendancemaster.attendanceRegularizeCount >=
+                3
+            ) {
                 return respHelper(res, {
                     status: 400,
-                    msg: message.MAXIMUM_REGULARIZATION_LIMIT
-                })
+                    msg: message.MAXIMUM_REGULARIZATION_LIMIT,
+                });
             }
 
             await db.regularizationMaster.create({
@@ -213,10 +244,10 @@ class AttendanceController {
                 regularizePunchInTime: result.punchInTime,
                 regularizePunchOutTime: result.punchOutTime,
                 regularizeReason: result.reason,
-                regularizeStatus: 'Pending',
+                regularizeStatus: "Pending",
                 createdBy: req.userId,
-                createdAt: moment()
-            })
+                createdAt: moment(),
+            });
 
             // eventEmitter.emit('regularizeRequestMail', JSON.stringify({
             //     requesterName: attendanceData.dataValues.attendancemaster.employee.name,
@@ -226,68 +257,77 @@ class AttendanceController {
             //     // managerEmail: attendanceData.dataValues.attendancemaster.employee.managerData.email
             // }));
 
-            await db.attendanceMaster.update({ attendanceRegularizeCount: (!attendanceData) ? 1 : attendanceData.dataValues.attendancemaster.attendanceRegularizeCount + 1 }, {
-                where: {
-                    attendanceAutoId: result.attendanceAutoId
+            await db.attendanceMaster.update(
+                {
+                    attendanceRegularizeCount: !attendanceData
+                        ? 1
+                        : attendanceData.dataValues.attendancemaster
+                            .attendanceRegularizeCount + 1,
+                },
+                {
+                    where: {
+                        attendanceAutoId: result.attendanceAutoId,
+                    },
                 }
-            })
+            );
 
             return respHelper(res, {
                 status: 200,
                 msg: message.REGULARIZE_REQUEST_SUCCESSFULL,
-            })
-
+            });
         } catch (error) {
-            console.log(error)
+            console.log(error);
             if (error.isJoi === true) {
                 return respHelper(res, {
                     status: 422,
-                    msg: error.details[0].message
-                })
+                    msg: error.details[0].message,
+                });
             }
             return respHelper(res, {
-                status: 500
-            })
+                status: 500,
+            });
         }
     }
 
     async attendanceList(req, res) {
         try {
-            const user = req.query.user
-            const year = req.query.year
-            const month = req.query.month
+            const user = req.query.user;
+            const year = req.query.year;
+            const month = req.query.month;
 
             if (!year || !month) {
                 return respHelper(res, {
                     status: 400,
-                    msg: 'Please Fill Month and Year'
-                })
+                    msg: "Please Fill Month and Year",
+                });
             }
 
             const attendanceData = await db.attendanceMaster.findAndCountAll({
                 where: {
-                    employeeId: (user) ? user : req.userId,
+                    employeeId: user ? user : req.userId,
                     attendanceDate: {
                         [Op.and]: [
                             { [Op.gte]: `${year}-${month}-01` },
-                            { [Op.lte]: `${year}-${month}-31` }
-                        ]
-                    }
+                            { [Op.lte]: `${year}-${month}-31` },
+                        ],
+                    },
                 },
-                attributes: { exclude: ['createdBy', 'createdAt', 'updatedBy', 'updatedAt'] },
-            })
+                attributes: {
+                    exclude: ["createdBy", "createdAt", "updatedBy", "updatedAt"],
+                },
+            });
 
             return respHelper(res, {
                 status: 200,
-                data: attendanceData
-            })
+                data: attendanceData,
+            });
         } catch (error) {
-            console.log(error)
+            console.log(error);
             return respHelper(res, {
-                status: 500
-            })
+                status: 500,
+            });
         }
     }
 }
 
-export default new AttendanceController()
+export default new AttendanceController();
