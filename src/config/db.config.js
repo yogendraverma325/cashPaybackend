@@ -43,6 +43,8 @@ import PaySlipComponent from '../api/model/PaySlipComponent.js';
 import PayPackage from '../api/model/PayPackage.js';
 import ShiftMaster from '../api/model/ShiftMaster.js';
 import AttendanceMaster from '../api/model/AttendanceMaster.js';
+import RegularizationMaster from '../api/model/RegularizationMaster.js';
+import SbuMaster from '../api/model/sbumaster.js';
 
 const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {
     port: process.env.DB_PORT,
@@ -118,6 +120,9 @@ db.paySlipComponent = PaySlipComponent(sequelize, Sequelize)
 db.payPackage = PayPackage(sequelize, Sequelize)
 db.shiftMaster = ShiftMaster(sequelize, Sequelize)
 db.attendanceMaster = AttendanceMaster(sequelize, Sequelize)
+db.regularizationMaster = RegularizationMaster(sequelize, Sequelize)
+db.sbuMaster = SbuMaster(sequelize, Sequelize)
+
 
 db.employeeMaster.hasMany(db.employeeMaster, { foreignKey: 'manager', sourceKey: 'id', as: 'reportie' })
 db.employeeMaster.hasOne(db.employeeMaster, { foreignKey: 'id', sourceKey: 'manager', as: 'managerData' })
@@ -147,5 +152,11 @@ db.paySlips.hasOne(db.employeeMaster, { foreignKey: 'id', sourceKey: 'EmployeeId
 db.paySlipComponent.hasOne(db.employeeMaster, { foreignKey: 'id', sourceKey: 'EmployeeId' })
 db.paySlipComponent.hasOne(db.salaryComponent, { foreignKey: 'salaryComponentAutoId', sourceKey: 'salaryComponentAutoId' })
 db.paySlips.hasMany(db.paySlipComponent, { foreignKey: 'paySlipAutoId', sourceKey: 'paySlipAutoId' })
+db.attendanceMaster.hasOne(db.employeeMaster, { foreignKey: 'id', sourceKey: 'employeeId' })
+db.attendanceMaster.hasOne(db.shiftMaster, { foreignKey: 'shiftId', sourceKey: 'attendanceShiftId' })
+db.regularizationMaster.hasOne(db.attendanceMaster, { foreignKey: 'attendanceAutoId', sourceKey: 'attendanceAutoId' })
+db.attendanceMaster.hasMany(db.regularizationMaster, { foreignKey: 'attendanceAutoId', sourceKey: 'attendanceAutoId', as: 'latest_Regularization_Request' })
+db.buMaster.hasOne(db.sbuMapping, { foreignKey: 'buId', sourceKey: 'buId' })
+db.sbuMapping.hasOne(db.sbuMaster, { foreignKey: 'id', sourceKey: 'sbuId' })
 
 export default db;

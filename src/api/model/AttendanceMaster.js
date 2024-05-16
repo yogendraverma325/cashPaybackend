@@ -11,7 +11,13 @@ export default (sequelize, Sequelize) => {
         attendanceShiftId: {
             type: Sequelize.INTEGER,
         },
-        attandanceDate: {
+        attendanceDate: {
+            type: Sequelize.DATE
+        },
+        attandanceShiftStartDate: {
+            type: Sequelize.DATE
+        },
+        attendanceShiftEndDate: {
             type: Sequelize.DATE
         },
         attendancePunchInTime: {
@@ -26,7 +32,10 @@ export default (sequelize, Sequelize) => {
         attendancePunchOutRemark: {
             type: Sequelize.STRING,
         },
-        attendanceLocationType: {
+        attendancePunchInLocationType: {
+            type: Sequelize.STRING,
+        },
+        attendancePunchOutLocationType: {
             type: Sequelize.STRING,
         },
         attendanceStatus: {
@@ -79,6 +88,7 @@ export default (sequelize, Sequelize) => {
         },
         attendanceRegularizeCount: {
             type: Sequelize.INTEGER,
+            default: 0
         },
         createdBy: {
             type: Sequelize.INTEGER,
