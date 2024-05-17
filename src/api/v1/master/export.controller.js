@@ -10,11 +10,11 @@ async function getDataFromCache(key) {
 }
 
 class MasterController {
- 
+
     async employee(req, res) {
         try {
             const { search, department, designation, buSearch, sbuSearch, areaSearch } = req.query;
-    
+
             const employeeData = await db.employeeMaster.findAndCountAll({
                 attributes: ['id', 'empCode', 'name', 'email', 'firstName', 'lastName', 'officeMobileNumber', 'buId'],
                 where: Object.assign(
@@ -70,7 +70,7 @@ class MasterController {
                     }
                 ]
             });
-    
+
             const arr = await Promise.all(employeeData.rows.map(async (ele) => {
                 return {
                     id: ele.dataValues.id || "",
@@ -90,26 +90,26 @@ class MasterController {
             }));
 
             let educationDetails = []
-             employeeData.rows.forEach(employee => {
+            employeeData.rows.forEach(employee => {
                 employee.employeeeducationdetails.forEach(education => {
                     // Extract only the required fields
                     const extractedEducation = {
                         userId: education.userId ? education.userId : "",
-                        name:employee.firstName + " " + employee.lastName,
-                        empCode:employee.empCode ? employee.empCode:"",
+                        name: employee.firstName + " " + employee.lastName,
+                        empCode: employee.empCode ? employee.empCode : "",
                         educationId: education.educationId ? education.educationId : "",
                         educationDegree: education.educationDegree ? education.educationDegree : "",
-                        educationSpecialisation: education.educationSpecialisation ? education.educationSpecialisation:"",
+                        educationSpecialisation: education.educationSpecialisation ? education.educationSpecialisation : "",
                         educationStartDate: education.educationStartDate ? education.educationStartDate : "",
-                        educationCompletionDate: education.educationCompletionDate ?  education.educationCompletionDate :"",
-                        educationInstitute: education.educationInstitute ? education.educationInstitute :"",
-                        educationRemark: education.educationRemark ? education.educationRemark: ""
+                        educationCompletionDate: education.educationCompletionDate ? education.educationCompletionDate : "",
+                        educationInstitute: education.educationInstitute ? education.educationInstitute : "",
+                        educationRemark: education.educationRemark ? education.educationRemark : ""
                     };
                     // Push the extracted education details object into the educationDetails array
                     educationDetails.push(extractedEducation);
                 });
             });
-    
+            console.log(arr)
             if (arr.length > 0) {
                 const dt = new Date();
                 const sheetName = "uploads/temp/dataSheet" //+ dt.getTime();
@@ -120,7 +120,7 @@ class MasterController {
                     }
                     console.log('File created successfully!');
                 });
-    
+
                 const data = [
                     {
                         sheet: "Employee",
@@ -149,7 +149,7 @@ class MasterController {
                         content: educationDetails
                     }
                 ];
-    
+
                 const settings = {
                     fileName: sheetName,
                     extraLength: 3,
@@ -157,12 +157,18 @@ class MasterController {
                     writeOptions: {},
                     RTL: false,
                 };
-    
+
                 xlsx(data, settings, () => {
                     return res.download(sheetName + ".xlsx");
                 });
             }
-        } catch (error){
+            else {
+                return respHelper(res, {
+                    status: 404,
+                    msg: "No data found"
+                })
+            }
+        } catch (error) {
             console.log(error)
             return respHelper(res, {
                 status: 500

@@ -6,3 +6,4 @@ export default Express
     .post('/markAttendance', attendanceController.attendance)
     .post("/regularizeRequest", attendanceController.regularizeRequest)
     .get("/attendanceList", attendanceController.attendanceList)
+    .post("/approveRegularizationRequest",attendanceController.approveRegularizationRequest)

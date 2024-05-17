@@ -26,6 +26,8 @@ export const swaggerOptions = {
             },
         },
         paths: {
+
+            // Auth APIs
             '/api/auth/login': {
                 post: {
                     summary: 'Login',
@@ -40,16 +42,16 @@ export const swaggerOptions = {
                                     properties: {
                                         tmc: {
                                             type: 'string',
-                                            example: '15368',
-                                            description: 'Description of Field 1',
+                                            example: '',
+                                            description: "User's TMC"
                                         },
                                         password: {
                                             type: 'string',
                                             example: 'test1234',
-                                            description: 'Description of Field 2',
+                                            description: 'Password',
                                         },
                                     },
-                                    required: ['field1'],
+                                    required: ['tmc', 'password'],
                                 },
                             },
                         },
@@ -61,6 +63,8 @@ export const swaggerOptions = {
                     },
                 },
             },
+
+            // Master APIs
             '/api/master/employee': {
                 get: {
                     summary: 'Employee List',
@@ -74,6 +78,105 @@ export const swaggerOptions = {
                     responses: {
                         '200': {
                             description: 'Success',
+                        },
+                    },
+                },
+            },
+
+            // Attendance APIs
+            '/api/attendance/markAttendance': {
+                post: {
+                    summary: 'Mark Attendance',
+                    tags: ["Attendance"],
+                    description: 'Using this API user Can Mark Their Attendance',
+                    security: [
+                        {
+                            accessTokenAuth: [],
+                        },
+                    ],
+                    requestBody: {
+                        required: true,
+                        content: {
+                            'application/json': {
+                                schema: {
+                                    type: 'object',
+                                    properties: {
+                                        locationType: {
+                                            type: 'string',
+                                            example: '',
+                                            description: 'Punch In/Out Location Type',
+                                        },
+                                        remark: {
+                                            type: 'string',
+                                            example: '',
+                                            description: 'Punch In/Out Remark (Optional)',
+                                        },
+                                        location: {
+                                            type: 'string',
+                                            example: '',
+                                            description: 'Punch In/Out Location (Address)',
+                                        },
+                                        latitude: {
+                                            type: 'string',
+                                            example: '',
+                                            description: "Punch In/Out Location's Latitude",
+                                        },
+                                        longitude: {
+                                            type: 'string',
+                                            example: '',
+                                            description: "Punch In/Out Location's Longitude",
+                                        },
+                                    },
+                                    required: ['locationType', 'location', 'latitude', 'longitude'],
+                                },
+                            },
+                        },
+                    },
+                    responses: {
+                        '200': {
+                            description: 'Success',
+                        },
+                        '500': {
+                            description: 'Error',
+                        },
+                    },
+                },
+            },
+            "/api/attendance/attendanceList": {
+                get: {
+                    summary: "Get Attendance List",
+                    tags: ["Attendance"],
+                    security: [
+                        {
+                            accessTokenAuth: [],
+                        },
+                    ],
+                    parameters: [
+                        {
+                            name: "year",
+                            in: "query",
+                            required: true,
+                            schema: {
+                                type: "string",
+                                example: "2024"
+                            }
+                        },
+                        {
+                            name: "month",
+                            in: "query",
+                            required: true,
+                            schema: {
+                                type: "string",
+                                example: "05"
+                            }
+                        }
+                    ],
+                    responses: {
+                        '200': {
+                            description: 'Success',
+                        },
+                        '500': {
+                            description: 'Error',
                         },
                     },
                 },
