@@ -13,6 +13,7 @@ import logger from './helper/logger.js';
 import respHelper from './helper/respHelper.js'
 import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express'
+import { swaggerOptions } from './swagger/swaggerDefinition.js';
 import helper from './helper/helper.js';
 
 app.use(helmet());
@@ -41,43 +42,6 @@ app.use((err, req, res, next) => {
         status: 500
     })
 });
-
-
-const swaggerOptions = {
-    definition: {
-        openapi: '3.0.0',
-        info: {
-            title: 'HRMS',
-            version: '1.0.0',
-            description: 'API documentation for HRMS application',
-        },
-        servers: [
-            {
-                url: `http://localhost:${process.env.PORT}`,
-                description: 'Local server',
-            },
-            {
-                url: `https://teamsproject.teamcomputers.com/hrms-dev/api`,
-                description: 'Dev server',
-            },
-        ],
-        components: {
-            securitySchemes: {
-                bearerAuth: {
-                    type: 'http',
-                    scheme: 'bearer',
-                    bearerFormat: 'JWT',
-                },
-            },
-        },
-        security: [
-            {
-                bearerAuth: [],
-            },
-        ],
-    },
-    apis: [`${rootpath}/api/v1/**/*.js`]
-};
 
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
