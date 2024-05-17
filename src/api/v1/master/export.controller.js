@@ -51,18 +51,18 @@ class MasterController {
                         model: db.buMaster,
                         attributes: ['buName'],
                         where: { ...(buSearch && { buName: { [Op.like]: `%${buSearch}%` } }) },
-                        required: true,
+                        // required: true,
                         include: [
                             {
                                 model: db.sbuMapping,
                                 attributes: ['sbuId'],
-                                required: true,
+                                // required: true,
                                 include: [
                                     {
                                         model: db.sbuMaster,
                                         attributes: ['id', 'sbuname'],
                                         where: { ...(sbuSearch && { sbuname: { [Op.like]: `%${sbuSearch}%` } }) },
-                                        required: true,
+                                        // required: true,
                                     }
                                 ]
                             }
@@ -109,7 +109,7 @@ class MasterController {
                     educationDetails.push(extractedEducation);
                 });
             });
-            console.log(arr)
+
             if (arr.length > 0) {
                 const dt = new Date();
                 const sheetName = "uploads/temp/dataSheet" //+ dt.getTime();
@@ -161,12 +161,6 @@ class MasterController {
                 xlsx(data, settings, () => {
                     return res.download(sheetName + ".xlsx");
                 });
-            }
-            else {
-                return respHelper(res, {
-                    status: 404,
-                    msg: "No data found"
-                })
             }
         } catch (error) {
             console.log(error)
