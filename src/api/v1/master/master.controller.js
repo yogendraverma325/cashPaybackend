@@ -111,16 +111,24 @@ class MasterController {
                     where: { ...(department && { departmentName: { [Op.like]: `%${department}%` } }) }
                 },
                 {
+                    model: db.educationDetails,
+                    //attributes:['empCode','educationDegree','educationSpecialisation','educationInstitute','educationRemark','educationStartDate','educationCompletionDate']
+                },
+                {
                     model: db.buMaster,
                     attributes: ['buName'],
                     where: { ...(buSearch && { buName: { [Op.like]: `%${buSearch}%` } }) },
+                    required:buSearch ? true:false,
                     include: [{
                         model: db.sbuMapping,
                         attributes: ['sbuId'],
+                        required:buSearch ? true:false,
                         include: [{
                             model: db.sbuMaster,
                             attributes: ['id', 'sbuname'],
                             where: { ...(sbuSearch && { sbuname: { [Op.like]: `%${sbuSearch}%` } }) },
+                            required:sbuSearch ? true:false,
+
                         }]
                     }]
                 }]
