@@ -1,4 +1,4 @@
-import { Op, where } from "sequelize";
+import { Op } from "sequelize";
 import db from "../../../config/db.config.js";
 import respHelper from '../../../helper/respHelper.js'
 import xlsx from "json-as-xlsx"
@@ -8,7 +8,6 @@ import client from "../../../config/redisDb.config.js";
 async function getDataFromCache(key) {
     return client.lRange(key, 0, -1);
 }
-
 
 class MasterController {
  
@@ -126,7 +125,6 @@ class MasterController {
                     {
                         sheet: "Employee",
                         columns: [
-                            { label: "user Id", value: "id" },
                             { label: "Employee Code", value: "empCode" },
                             { label: "Email", value: "email" },
                             { label: "First Name", value: "firstName" },
@@ -145,7 +143,6 @@ class MasterController {
                         columns: [
                             { label: "Employee Code", value: "empCode" },
                             { label: "Name", value: "name" },
-                            { label: "user Id", value: "userId" },
                             { label: "Education Specialisation", value: "educationSpecialisation" },
                             { label: "Education Institute", value: "educationInstitute" }
                         ],
@@ -174,94 +171,94 @@ class MasterController {
     }
 
     async employeeRedis(req, res) {
-        
+
         try {
-            const {search,department,designation,buSearch,sbuSearch,areaSearch} = req.query
+            const { search, department, designation, buSearch, sbuSearch, areaSearch } = req.query
             const limit = req.query.limit * 1 || 10
             const pageNo = req.query.page * 1 || 1;
             const offset = (pageNo - 1) * limit;
             const cacheKey = `employeeList:${pageNo}`;
 
-            var employeeData=[];
+            var employeeData = [];
             await client.get("employeeList")
-            .then(async(data) => {
-                if (data) {
-                  employeeData = JSON.parse(data);
-                  console.log('Array of objects fetched Redis successfully.');
-                  return respHelper(res, {
-                    status: 200,
-                    data: employeeData
+                .then(async (data) => {
+                    if (data) {
+                        employeeData = JSON.parse(data);
+                        console.log('Array of objects fetched Redis successfully.');
+                        return respHelper(res, {
+                            status: 200,
+                            data: employeeData
+                        })
+                    } else {
+                        employeeData = await db.employeeMaster.findAndCountAll({
+                            limit,
+                            offset,
+                            where: Object.assign(
+                                (search) ? {
+                                    [Op.or]: [{
+                                        empCode: {
+                                            [Op.like]: `%${search}%`
+                                        }
+                                    }, {
+                                        name: {
+                                            [Op.like]: `%${search}%`
+                                        }
+                                    }, {
+                                        email: {
+                                            [Op.like]: `%${search}%`
+                                        }
+                                    }]
+                                } : {}
+                            ),
+                            attributes: ['id', 'empCode', 'name', 'email', 'firstName', 'lastName', 'officeMobileNumber', 'buId'],
+                            include: [{
+                                model: db.designationMaster,
+                                attributes: ['name'],
+                                where: { ...(designation && { name: { [Op.like]: `%${designation}%` } }) }
+                            },
+                            {
+                                model: db.functionalAreaMaster,
+                                attributes: ['functionalAreaName'],
+                                where: { ...(areaSearch && { functionalAreaName: { [Op.like]: `%${areaSearch}%` } }) }
+                            },
+                            {
+                                model: db.departmentMaster,
+                                attributes: ['departmentName'],
+                                where: { ...(department && { departmentName: { [Op.like]: `%${department}%` } }) }
+                            },
+                            {
+                                model: db.buMaster,
+                                attributes: ['buName'],
+                                where: { ...(buSearch && { buName: { [Op.like]: `%${buSearch}%` } }) },
+                                required: true,
+                                include: [{
+                                    model: db.sbuMapping,
+                                    attributes: ['sbuId'],
+                                    required: true,
+                                    include: [{
+                                        model: db.sbuMaster,
+                                        attributes: ['id', 'sbuname'],
+                                        where: { ...(sbuSearch && { sbuname: { [Op.like]: `%${sbuSearch}%` } }) },
+                                        required: true,
+                                    }]
+                                }]
+                            }]
+                        })
+                        const employeeJson = JSON.stringify(employeeData);
+                        client.setEx('employeeList', 10, employeeJson)
+                            .then(() => {
+                                console.log('Array of objects stored in Redis successfully.');
+                            })
+                            .catch((err) => {
+                                console.error('Error storing array of objects in Redis:', err);
+                            })
+                        return respHelper(res, {
+                            status: 200,
+                            data: employeeData
+                        })
+                    }
                 })
-                } else {
-                employeeData = await db.employeeMaster.findAndCountAll({
-                limit,
-                offset,
-                where: Object.assign(    
-                    (search) ? {
-                        [Op.or]: [{
-                            empCode: {
-                                [Op.like]: `%${search}%`
-                            }
-                        }, {
-                            name: {
-                                [Op.like]: `%${search}%`
-                            }
-                        }, {
-                            email: {
-                                [Op.like]: `%${search}%`
-                            }
-                        }]
-                    } : {}
-                ),
-                attributes: ['id', 'empCode', 'name', 'email', 'firstName', 'lastName', 'officeMobileNumber','buId'],
-                include: [{
-                    model: db.designationMaster,
-                    attributes: ['name'],
-                    where:{ ...(designation && { name:{[Op.like]: `%${designation}%`} })}
-                },
-                {
-                    model: db.functionalAreaMaster,
-                    attributes: ['functionalAreaName'],
-                    where:{ ...(areaSearch && { functionalAreaName:{[Op.like]: `%${areaSearch}%`} })}
-                },
-                {
-                    model: db.departmentMaster,
-                    attributes: ['departmentName'],
-                    where:{ ...(department && { departmentName: {[Op.like]: `%${department}%`}})}
-                },
-                {
-                    model: db.buMaster,
-                    attributes: ['buName'],
-                    where:{ ...(buSearch && { buName:{[Op.like]: `%${buSearch}%`} })},
-                    required:true,
-                    include:[{
-                        model: db.sbuMapping,
-                        attributes: ['sbuId'],
-                        required:true,
-                        include:[{
-                            model: db.sbuMaster,
-                            attributes:['id','sbuname'],
-                            where:{ ...(sbuSearch && { sbuname:{[Op.like]: `%${sbuSearch}%`} })},
-                            required:true,   
-                        }]
-                    }]
-                }]
-                })
-                const employeeJson = JSON.stringify(employeeData);
-                client.setEx('employeeList',10,employeeJson)
-                .then(() => {
-                    console.log('Array of objects stored in Redis successfully.');
-                  })
-                  .catch((err) => {
-                    console.error('Error storing array of objects in Redis:', err);
-                  })
-                return respHelper(res, {
-                    status: 200,
-                    data: employeeData
-                })
-                }
-              })
-           
+
         } catch (error) {
             console.log(error)
             return respHelper(res, {
