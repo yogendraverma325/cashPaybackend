@@ -87,8 +87,7 @@ class MappingController {
             for (const iterator of buData) {
                 const existSbu = await db.sbuMapping.findAll({
                     where: {
-                        companyId,
-                        buId: iterator.dataValues.buId
+                        buMappingId: iterator.dataValues.buMappingId
                     }
                 })
                 iterator.dataValues['existSbu'] = existSbu.length != 0 ? true : false
@@ -108,9 +107,9 @@ class MappingController {
 
     async sbu(req, res) {
         try {
-            const buId = req.query.buId
+            const buMappingId = req.query.buMappingId
 
-            if (!buId) {
+            if (!buMappingId) {
                 return respHelper(res, {
                     status: 404,
                     msg: "Bu ID required"
@@ -119,7 +118,7 @@ class MappingController {
 
             const buData = await db.sbuMapping.findAll({
                 where: {
-                    buId
+                    buMappingId
                 },
                 include: [{
                     model: db.sbuMaster,

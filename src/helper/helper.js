@@ -7,6 +7,7 @@ import sendGrid from "@sendgrid/mail";
 import attendanceController from "../api/v1/attendance/attendance.controller.js";
 import cron from 'node-cron'
 
+
 const generateJwtToken = async data => {
     const token = jwt.sign(data, process.env.JWT_KEY, {
         expiresIn: process.env.JWT_EXPIRY,

@@ -8,7 +8,7 @@ export default (sequelize, Sequelize) => {
         sbuId: {
             type: Sequelize.INTEGER
         },
-        buId: {
+        buMappingId: {
             type: Sequelize.INTEGER
         }
     })

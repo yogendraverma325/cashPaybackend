@@ -3,6 +3,7 @@ import db from "../../../config/db.config.js";
 import respHelper from "../../../helper/respHelper.js";
 import client from "../../../config/redisDb.config.js";
 
+
 class MasterController {
     async employee(req, res) {
         try {
@@ -19,6 +20,7 @@ class MasterController {
             const offset = (pageNo - 1) * limit;
 
             const employeeData = await db.employeeMaster.findAndCountAll({
+                order: [["id", "desc"]],
                 limit,
                 offset,
                 where: Object.assign(
@@ -45,44 +47,55 @@ class MasterController {
                         : {}
                 ),
                 attributes: ['id', 'empCode', 'name', 'email', 'firstName', 'lastName', 'officeMobileNumber', 'buId'],
-                include: [{
+                include: [
+                    {
                     model: db.designationMaster,
                     attributes: ['name'],
+                    required: !!designation,
                     where: { ...(designation && { name: { [Op.like]: `%${designation}%` } }) }
                 },
                 {
                     model: db.functionalAreaMaster,
                     attributes: ['functionalAreaName'],
+                    required: !!areaSearch,
                     where: { ...(areaSearch && { functionalAreaName: { [Op.like]: `%${areaSearch}%` } }) }
                 },
                 {
                     model: db.departmentMaster,
                     attributes: ['departmentName'],
+                    required: !!department,
                     where: { ...(department && { departmentName: { [Op.like]: `%${department}%` } }) }
                 },
                 {
                     model: db.educationDetails,
-                    //attributes:['empCode','educationDegree','educationSpecialisation','educationInstitute','educationRemark','educationStartDate','educationCompletionDate']
+                    attributes:['educationDegree','educationSpecialisation','educationInstitute','educationRemark','educationStartDate','educationCompletionDate']
+                },
+                {
+                    model: db.employeeMaster,
+                    required: false,
+                    attributes: ["name"],
+                    as: "managerData",
                 },
                 {
                     model: db.buMaster,
                     attributes: ['buName'],
                     where: { ...(buSearch && { buName: { [Op.like]: `%${buSearch}%` } }) },
-                    required:buSearch ? true:false,
+                    required: !!sbuSearch,
                     include: [{
                         model: db.sbuMapping,
                         attributes: ['sbuId'],
-                        required:buSearch ? true:false,
+                        required:sbuSearch ? true:false,
                         include: [{
                             model: db.sbuMaster,
                             attributes: ['id', 'sbuname'],
                             where: { ...(sbuSearch && { sbuname: { [Op.like]: `%${sbuSearch}%` } }) },
-                            required:sbuSearch ? true:false,
+                            required: !!sbuSearch
 
                         }]
                     }]
-                }]
-            })
+                }
+            ]
+        })
 
             return respHelper(res, {
                 status: 200,
