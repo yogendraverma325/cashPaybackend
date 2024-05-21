@@ -1,95 +1,137 @@
-import { Op } from "sequelize";
+import { Op, where } from "sequelize";
 import db from "../../../config/db.config.js";
 import respHelper from '../../../helper/respHelper.js'
 import xlsx from "json-as-xlsx"
 import fs from "fs"
 import client from "../../../config/redisDb.config.js";
+import pkg from 'xlsx';
+import bcrypt from 'bcrypt'
+
+//const {readFile} = pkg
+import helper from '../../../helper/helper.js';
+//const XLSX = require('xlsx');
 
 async function getDataFromCache(key) {
     return client.lRange(key, 0, -1);
 }
 
 class MasterController {
+
+    /***********************************export data********************************************************/
     async employee(req, res) {
         try {
-            const { search, department, designation, buSearch, sbuSearch, areaSearch } = req.query
+            const { search, department, designation, buSearch, sbuSearch, areaSearch } = req.query;
 
             const employeeData = await db.employeeMaster.findAndCountAll({
-                attributes: ['id', 'empCode', 'name', 'email', 'firstName', 'lastName', 'officeMobileNumber', 'buId'],
+                attributes: ['id', 'empCode', 'name', 'email', 'firstName', 'lastName', 'officeMobileNumber', 'buId', 'personalMobileNumber'],
                 where: Object.assign(
                     (search) ? {
-                        [Op.or]: [{
-                            empCode: {
-                                [Op.like]: `%${search}%`
-                            }
-                        }, {
-                            name: {
-                                [Op.like]: `%${search}%`
-                            }
-                        }, {
-                            email: {
-                                [Op.like]: `%${search}%`
-                            }
-                        }]
+                        [Op.or]: [
+                            { empCode: { [Op.like]: `%${search}%` } },
+                            { name: { [Op.like]: `%${search}%` } },
+                            { email: { [Op.like]: `%${search}%` } }
+                        ]
                     } : {}
                 ),
-                include: [{
-                    model: db.designationMaster,
-                    attributes: ['name'],
-                    where: { ...(designation && { name: { [Op.like]: `%${designation}%` } }) }
-                },
-                {
-                    model: db.functionalAreaMaster,
-                    attributes: ['functionalAreaName'],
-                    where: { ...(areaSearch && { functionalAreaName: { [Op.like]: `%${areaSearch}%` } }) }
-                },
-                {
-                    model: db.departmentMaster,
-                    attributes: ['departmentName'],
-                    where: { ...(department && { departmentName: { [Op.like]: `%${department}%` } }) }
-                },
-                {
-                    model: db.buMaster,
-                    attributes: ['buName'],
-                    where: { ...(buSearch && { buName: { [Op.like]: `%${buSearch}%` } }) },
-                    required: true,
-                    include: [{
-                        model: db.sbuMapping,
-                        attributes: ['sbuId'],
-                        required: true,
-                        include: [{
-                            model: db.sbuMaster,
-                            attributes: ['id', 'sbuname'],
-                            where: { ...(sbuSearch && { sbuname: { [Op.like]: `%${sbuSearch}%` } }) },
-                            required: true,
-                        }]
-                    }]
-                }]
-            })
-            var arr = []
-            await Promise.all(
-                employeeData.rows.map(async (ele) => {
-                    let data = {
-                        "id": ele.dataValues.id ? ele.dataValues.id : "",
-                        "empCode": ele.dataValues.empCode ? ele.dataValues.empCode : "",
-                        "name": ele.dataValues.name ? ele.dataValues.name : "",
-                        "email": ele.dataValues.email ? ele.dataValues.email : "",
-                        "firstName": ele.dataValues.firstName ? ele.dataValues.firstName : "",
-                        "lastName": ele.dataValues.lastName ? ele.dataValues.lastName : "",
-                        "officeMobileNumber": ele.dataValues.officeMobileNumber ? ele.dataValues.officeMobileNumber : "",
-                        "buId": ele.dataValues.buId ? ele.dataValues.buId : "",
-                        "designation_name": ele.dataValues.designationmaster.name ? ele.dataValues.designationmaster.name : "",
-                        "functional_area_name": ele.dataValues.functionalareamaster.functionalAreaName ? ele.dataValues.functionalareamaster.functionalAreaName : "",
-                        "department_name": ele.dataValues.departmentmaster.departmentName ? ele.dataValues.departmentmaster.departmentName : "",
-                        "bu_name": ele.dataValues.bumaster.buName ? ele.dataValues.bumaster.buName : "",
-                        "sub_bu_name": ele.dataValues.bumaster.sbumapping.sbumaster.sbuname ? ele.dataValues.bumaster.sbumapping.sbumaster.sbuname : ""
+                include: [
+                    {
+                        model: db.designationMaster,
+                        attributes: ['name'],
+                        where: { ...(designation && { name: { [Op.like]: `%${designation}%` } }) },
+                        required: !!designation,
+                    },
+                    {
+                        model: db.functionalAreaMaster,
+                        attributes: ['functionalAreaName'],
+                        where: { ...(areaSearch && { functionalAreaName: { [Op.like]: `%${areaSearch}%` } }) },
+                        required: !!areaSearch,
+                    },
+                    {
+                        model: db.departmentMaster,
+                        attributes: ['departmentName'],
+                        where: { ...(department && { departmentName: { [Op.like]: `%${department}%` } }) },
+                        required: !!department,
+
+                    },
+                    {
+                        model: db.educationDetails,
+                        attributes: ['educationDegree', 'educationSpecialisation', 'educationInstitute', 'educationRemark', 'educationStartDate', 'educationCompletionDate']
+                    },
+                    {
+                        model: db.employeeMaster,
+                        required: false,
+                        attributes: ["id", "name"],
+                        as: "managerData",
+                    },
+                    {
+                        model: db.buMaster,
+                        attributes: ['buName'],
+                        where: { ...(buSearch && { buName: { [Op.like]: `%${buSearch}%` } }) },
+                        required: !!sbuSearch,
+                        include: [
+                            {
+                                model: db.sbuMapping,
+                                attributes: ['sbuId'],
+                                required: sbuSearch ? true : false,
+                                include: [
+                                    {
+                                        model: db.sbuMaster,
+                                        attributes: ['id', 'sbuname'],
+                                        where: { ...(sbuSearch && { sbuname: { [Op.like]: `%${sbuSearch}%` } }) },
+                                        required: !!sbuSearch
+                                    }
+                                ]
+                            }
+                        ]
                     }
-                    arr.push(data)
-                }))
+                ]
+            });
+
+            const arr = await Promise.all(employeeData.rows.map(async (ele) => {
+                return {
+                    id: ele.dataValues.id || "",
+                    empCode: ele.dataValues.empCode || "",
+                    name: ele.dataValues.name || "",
+                    email: ele.dataValues.email || "",
+                    firstName: ele.dataValues.firstName || "",
+                    lastName: ele.dataValues.lastName || "",
+                    officeMobileNumber: ele.dataValues.officeMobileNumber || "",
+                    personalMobileNumber: ele.dataValues.personalMobileNumber || "",
+                    manager_id: ele.dataValues.managerData ? ele.dataValues.managerData.id : "",
+                    manager_name: ele.dataValues.managerData ? ele.dataValues.managerData.name : "",
+                    buId: ele.dataValues.buId || "",
+                    designation_name: ele.dataValues.designationmaster?.name || "",
+                    functional_area_name: ele.dataValues.functionalareamaster?.functionalAreaName || "",
+                    department_name: ele.dataValues.departmentmaster?.departmentName || "",
+                    bu_name: ele.dataValues.bumaster?.buName || "",
+                    sub_bu_name: ele.dataValues.bumaster?.sbumapping?.sbumaster?.sbuname || ""
+                };
+            }));
+
+            let educationDetails = []
+            employeeData.rows.forEach(employee => {
+                employee.employeeeducationdetails.forEach(education => {
+                    // Extract only the required fields
+                    const extractedEducation = {
+                        userId: education.userId ? education.userId : "",
+                        name: employee.firstName + " " + employee.lastName,
+                        empCode: employee.empCode ? employee.empCode : "",
+                        educationId: education.educationId ? education.educationId : "",
+                        educationDegree: education.educationDegree ? education.educationDegree : "",
+                        educationSpecialisation: education.educationSpecialisation ? education.educationSpecialisation : "",
+                        educationStartDate: education.educationStartDate ? education.educationStartDate : "",
+                        educationCompletionDate: education.educationCompletionDate ? education.educationCompletionDate : "",
+                        educationInstitute: education.educationInstitute ? education.educationInstitute : "",
+                        educationRemark: education.educationRemark ? education.educationRemark : ""
+                    };
+                    // Push the extracted education details object into the educationDetails array
+                    educationDetails.push(extractedEducation);
+                });
+            });
 
             if (arr.length > 0) {
-                let dt = new Date()
-                let sheetName = "uploads/temp/dataSheet" //+dt.getTime();
+                const dt = new Date();
+                const sheetName = "uploads/temp/dataSheet" //+ dt.getTime();
                 fs.writeFileSync(sheetName + ".xlsx", "", { flag: 'a+' }, (err) => {
                     if (err) {
                         console.error('Error writing file:', err);
@@ -97,37 +139,50 @@ class MasterController {
                     }
                     console.log('File created successfully!');
                 });
-                let data = [
+
+                const data = [
                     {
-                        sheet: "dataSheet",
+                        sheet: "Employee",
                         columns: [
-                            { label: "id", value: "id" }, // Top level data
-                            { label: "empCode", value: "empCode" }, // Custom format
-                            { label: "email", value: "email" },
-                            { label: "firstName", value: "firstName" },
-                            { label: "lastName", value: "lastName" },
-                            { label: "officeMobileNumber", value: "officeMobileNumber" },
-                            { label: "designation_name", value: "designation_name" },
-                            { label: "functional_area_name", value: "functional_area_name" },
-                            { label: "department_name", value: "department_name" },
-                            { label: "bu_name", value: "bu_name" },
-                            { label: "sub_bu_name", value: "sub_bu_name" },
+                            { label: "Employee_Code", value: "empCode" },
+                            { label: "Email", value: "email" },
+                            { label: "First_Name", value: "firstName" },
+                            { label: "Last_Name", value: "lastName" },
+                            { label: "Office_Mobile_Number", value: "officeMobileNumber" },
+                            { label: "Personal_Mobile_Number", value: "personalMobileNumber" },
+                            { label: "Manager_Id", value: "manager_id" },
+                            { label: "Manager_Name", value: "manager_name" },
+                            { label: "Designation_Name", value: "designation_name" },
+                            { label: "Department_Name", value: "department_name" },
+                            { label: "Functional_Area_Name", value: "functional_area_name" },
+                            { label: "Bu_Name", value: "bu_name" },
+                            { label: "Sub_Bu_Name", value: "sub_bu_name" },
                         ],
                         content: arr
+                    },
+                    {
+                        sheet: "Education",
+                        columns: [
+                            { label: "Employee_Code", value: "empCode" },
+                            { label: "Name", value: "name" },
+                            { label: "Education_Specialisation", value: "educationSpecialisation" },
+                            { label: "Education_Institute", value: "educationInstitute" }
+                        ],
+                        content: educationDetails
                     }
-                ]
+                ];
 
-                let settings = {
-                    fileName: sheetName, // Name of the resulting spreadsheet
-                    extraLength: 3, // A bigger number means that columns will be wider
-                    writeMode: "writeFile", // The available parameters are 'WriteFile' and 'write'. This setting is optional. Useful in such cases https://docs.sheetjs.com/docs/solutions/output#example-remote-file
-                    writeOptions: {}, // Style options from https://docs.sheetjs.com/docs/api/write-options
-                    RTL: false, // Display the columns from right-to-left (the default value is false)
-                }
+                const settings = {
+                    fileName: sheetName,
+                    extraLength: 3,
+                    writeMode: "writeFile",
+                    writeOptions: {},
+                    RTL: false,
+                };
+
                 xlsx(data, settings, () => {
-                    return res.download(sheetName + ".xlsx")
-                })
-
+                    return res.download(sheetName + ".xlsx");
+                });
             }
         } catch (error) {
             console.log(error)
@@ -137,6 +192,150 @@ class MasterController {
         }
     }
 
+    async employeeMissedData(req, res) {
+        try {
+            const { arrMissingData } = req.body
+            const dt = new Date();
+            const sheetName = "uploads/temp/dataSheetMissed" //+ dt.getTime();
+            fs.writeFileSync(sheetName + ".xlsx", "", { flag: 'a+' }, (err) => {
+                if (err) {
+                    console.error('Error writing file:', err);
+                    return;
+                }
+                console.log('File created successfully!');
+            });
+            const data = [
+                {
+                    sheet: "Employee",
+                    columns: [
+                        { label: "Employee_Code", value: "Employee_Code" },
+                        { label: "Email", value: "Email" },
+                        { label: "First_Name", value: "First_Name" },
+                        { label: "Last_Name", value: "Last_Name" },
+                        { label: "Office_Mobile_Number", value: "Office_Mobile_Number" },
+                        { label: "Personal_Mobile_Number", value: "Personal_Mobile_Number" },
+                        { label: "Manager_Id", value: "Manager_Id" },
+                        { label: "Manager_Name", value: "manager_name" },
+                        { label: "Designation_Name", value: "Designation_Name" },
+                        { label: "Department_Name", value: "Department_Name" },
+                        { label: "Functional_Area_Name", value: "Functional_Area_Name" },
+                        { label: "Bu_Name", value: "Bu_Name" },
+                        { label: "Sub_Bu_Name", value: "Sub_Bu_Name" },
+                    ],
+                    content: arrMissingData
+                },
+            ]
+
+            const settings = {
+                fileName: sheetName,
+                extraLength: 3,
+                writeMode: "writeFile",
+                writeOptions: {},
+                RTL: false,
+            };
+
+            xlsx(data, settings, () => {
+                return res.download(sheetName + ".xlsx");
+            });
+        } catch (error) {
+            console.log(error);
+            return respHelper(res, {
+                status: 500
+            });
+        }
+    }
+
+    /************************************import data****************************************************/
+
+    async employeeImport(req, res) {
+        const transaction = await db.sequelize.transaction(); // Start the transaction
+        try {
+            // Read Excel file
+            const workbookEmployee = pkg.readFile(req.file.path);
+            const sheetNameEmployee = workbookEmployee.SheetNames[0];
+            const sheetToImportEmployee = pkg.utils.sheet_to_json(workbookEmployee.Sheets[sheetNameEmployee]);
+
+            let arrPoper = []
+            let arrMissingData = []
+            // Insert data into the database
+            for (const row of sheetToImportEmployee) {
+
+                if (row.Employee_Code && row.Manager_Name && row.Designation_Name && row.Department_Name && row.Functional_Area_Name && row.Bu_Name) {
+                    let manager_id = await db.employeeMaster.findOne({ where: { name: row.Manager_Name } })
+                    let department_id = await db.departmentMaster.findOne({ where: { departmentName: row.Department_Name } })
+                    let designation_id = await db.designationMaster.findOne({ where: { name: row.Designation_Name } })
+                    let function_area_id = await db.functionalAreaMaster.findOne({ where: { functionalAreaName: row.Functional_Area_Name } })
+                    let bu_id = await db.buMaster.findOne({ where: { buName: row.Bu_Name } })
+                    let sub_bu_id = await db.sbuMaster.findOne({ where: { sbuname: row.Sub_Bu_Name } })
+
+                    if (manager_id && department_id && designation_id && function_area_id && bu_id) {
+                        const existUser = await db.employeeMaster.findOne({
+                            where: {
+                                [Op.or]: [
+                                    { email: row.Email },
+                                    { officeMobileNumber: row.Office_Mobile_Number }
+                                ]
+                            },
+                            transaction // Add transaction object here
+                        });
+                        if (existUser) {
+                            console.log("already exists")
+                            arrMissingData.push(row)
+                        } else {
+                            const maxCode = await db.employeeMaster.max('empCode', { transaction });
+                            const salt = await bcrypt.genSalt(10);
+
+                            let data = {
+                                name: (row.First_Name ? row.First_Name : "") + " " + (row.Last_Name ? row.Last_Name : ""),
+                                firstName: row.First_Name ? row.First_Name : "",
+                                lastName: row.Last_Name ? row.Last_Name : "",
+                                password: await bcrypt.hash('test1234', salt),
+                                officeMobileNumber: row.Office_Mobile_Number ? row.Office_Mobile_Number : "",
+                                personalMobileNumber: row.Personal_Mobile_Number ? row.Personal_Mobile_Number : "",
+                                role_id: 3,
+                                empCode: parseInt(maxCode) + 1,
+                                manager: manager_id.dataValues.id, //row.Manager_Id ? row.Manager_Id : 31,
+                                email: row.Email ? row.Email : "",
+                                departmentId: department_id.dataValues.departmentId,
+                                designation_id: designation_id.dataValues.designationId,
+                                functionalAreaId: function_area_id.dataValues.functionalAreaId,
+                                buId: bu_id.dataValues.buId
+                            };
+
+                            await db.employeeMaster.create(data, { transaction }); // Add transaction object here
+                        }
+                    }
+                    else {
+                        console.log("eeeeeeeeeee")
+                        arrMissingData.push(row)
+                    }
+                }
+                else {
+                    console.log("in else condition row.Manager_Name")
+                    arrMissingData.push(row)
+                }
+
+            }
+            await transaction.commit(); // Commit the transaction    
+            return respHelper(res, {
+                status: 200,
+                msg: "File Uploaded Successfully",
+                data: {
+                    arrPoper: arrPoper,
+                    arrMissingData: arrMissingData
+                }
+            });
+        } catch (error) {
+            await transaction.rollback(); // Rollback the transaction in case of an error
+            console.log(error);
+            return respHelper(res, {
+                status: 500
+            });
+        }
+    }
+
+
+    /*************************************redis**********************************************************/
     async employeeRedis(req, res) {
 
         try {

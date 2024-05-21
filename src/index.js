@@ -44,7 +44,7 @@ app.use((err, req, res, next) => {
 });
 
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use('/api/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 io.on('connection', socket => {
     console.log('Client Socket Connected');

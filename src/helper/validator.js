@@ -40,9 +40,16 @@ const regularizeRequest = Joi.object({
     remark: Joi.string(),
 })
 
+const approveRegularizationRequestSchema = Joi.object({
+    regularizeId: Joi.number(),
+    remark: Joi.string().trim().max(250),
+    status: Joi.number().valid(0, 1)
+})
+
 export default {
     loginSchema,
     userCreationSchema,
     attendanceSchema,
-    regularizeRequest
+    regularizeRequest,
+    approveRegularizationRequestSchema
 }
