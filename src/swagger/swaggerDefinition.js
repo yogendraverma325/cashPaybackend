@@ -26,7 +26,6 @@ export const swaggerOptions = {
             },
         },
         paths: {
-
             // Auth APIs
             '/api/auth/login': {
                 post: {
@@ -82,16 +81,6 @@ export const swaggerOptions = {
                         },
                     ],
                     parameters: [
-                        {
-                            name: 'accessToken',
-                            in: 'header',
-                            required: true,
-                            description: 'Access token for authentication',
-                            schema: {
-                                type: 'string',
-                                example: 'yourAccessTokenHere',
-                            },
-                        },
                         {
                             name: 'search',
                             in: 'query',
@@ -184,16 +173,6 @@ export const swaggerOptions = {
                     ],
                     parameters: [
                         {
-                            name: 'accessToken',
-                            in: 'header',
-                            required: true,
-                            description: 'Access token for authentication',
-                            schema: {
-                                type: 'string',
-                                example: 'yourAccessTokenHere',
-                            },
-                        },
-                        {
                             name: 'companyId',
                             in: 'query',
                             required: true,
@@ -222,16 +201,6 @@ export const swaggerOptions = {
                         },
                     ],
                     parameters: [
-                        {
-                            name: 'accessToken',
-                            in: 'header',
-                            required: true,
-                            description: 'Access token for authentication',
-                            schema: {
-                                type: 'string',
-                                example: 'yourAccessTokenHere',
-                            },
-                        },
                     ],
                     responses: {
                         '200': {
@@ -329,6 +298,126 @@ export const swaggerOptions = {
                             }
                         }
                     ],
+                    responses: {
+                        '200': {
+                            description: 'Success',
+                        },
+                        '500': {
+                            description: 'Error',
+                        },
+                    },
+                },
+            },
+            '/api/attendance/regularizeRequest': {
+                post: {
+                    summary: 'Initiate Regularize Request',
+                    tags: ["Attendance"],
+                    description: 'To Initiate the Regularization Request',
+                    security: [
+                        {
+                            accessTokenAuth: [],
+                        },
+                    ],
+                    requestBody: {
+                        required: true,
+                        content: {
+                            'application/json': {
+                                schema: {
+                                    type: 'object',
+                                    properties: {
+                                        fromDate: {
+                                            type: 'string',
+                                            example: '',
+                                            description: 'From Date (YYYY-MM-DD)',
+                                        },
+                                        toDate: {
+                                            type: 'string',
+                                            example: '',
+                                            description: 'To Date (YYYY-MM-DD)',
+                                        },
+                                        attendanceAutoId: {
+                                            type: 'number',
+                                            example: '',
+                                            description: 'Attendance Auto ID from Attendance List',
+                                        },
+                                        locationType: {
+                                            type: 'string',
+                                            example: '',
+                                            description: "Location Type like as (Home, Office)",
+                                        },
+                                        punchInTime: {
+                                            type: 'string',
+                                            example: '',
+                                            description: "Punch In time (HH:mm:ss) 24 HR format",
+                                        },
+                                        punchOutTime: {
+                                            type: 'string',
+                                            example: '',
+                                            description: "Punch In time (HH:mm:ss) 24 HR format",
+                                        },
+                                        reason: {
+                                            type: 'string',
+                                            example: '',
+                                            description: "Reason of Attendance Regularization",
+                                        },
+                                        remark: {
+                                            type: 'string',
+                                            example: '',
+                                            description: "User's Remark for Attendance Regularization",
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    responses: {
+                        '200': {
+                            description: 'Success',
+                        },
+                        '500': {
+                            description: 'Error',
+                        },
+                    },
+                },
+            },
+
+            '/api/attendance/approveRegularizationRequest': {
+                post: {
+                    summary: 'Approve or Reject Regularization Request',
+                    tags: ["Attendance"],
+                    description: 'Manager Can Approve and Reject the Request',
+                    security: [
+                        {
+                            accessTokenAuth: [],
+                        },
+                    ],
+                    requestBody: {
+                        required: true,
+                        content: {
+                            'application/json': {
+                                schema: {
+                                    type: 'object',
+                                    properties: {
+                                        regularizeId: {
+                                            type: 'number',
+                                            example: '',
+                                            description: 'Id of Regulariation List',
+                                        },
+                                        remark: {
+                                            type: 'string',
+                                            example: '',
+                                            description: "Manager's Remark",
+                                        },
+                                        status: {
+                                            type: 'number',
+                                            example: '',
+                                            description: 'This is the Status of the Action\n Approve =1 \n Reject =0',
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
                     responses: {
                         '200': {
                             description: 'Success',
