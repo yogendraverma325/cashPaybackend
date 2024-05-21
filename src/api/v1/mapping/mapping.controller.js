@@ -108,15 +108,7 @@ class MappingController {
 
     async sbu(req, res) {
         try {
-            const companyId = req.query.companyId
             const buId = req.query.buId
-
-            if (!companyId) {
-                return respHelper(res, {
-                    status: 404,
-                    msg: "Company ID required"
-                })
-            }
 
             if (!buId) {
                 return respHelper(res, {
@@ -127,15 +119,14 @@ class MappingController {
 
             const buData = await db.sbuMapping.findAll({
                 where: {
-                    companyId,
                     buId
                 },
                 include: [{
-                    model: db.buMaster,
+                    model: db.sbuMaster,
                     where: {
                         isActive: 1
                     },
-                    attributes: ['buName', 'buCode']
+                    attributes: ['sbuName']
                 }]
             })
 

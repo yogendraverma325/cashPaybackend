@@ -10,10 +10,7 @@ export default (sequelize, Sequelize) => {
         },
         buId: {
             type: Sequelize.INTEGER
-        },
-        companyId: {
-            type: Sequelize.INTEGER
-        },
+        }
     })
     return sbuMapping
 }
