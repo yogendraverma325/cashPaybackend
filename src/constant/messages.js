@@ -19,7 +19,8 @@ const message = {
     "MAXIMUM_REGULARIZATION_LIMIT": "You have reached maximum regularization limit.",
     "ATTENDANCE_DATE_CANNOT_AFTER_TODAY": "Attendance date cannot be after today.",
     "REGULARIZE_REQUEST_SUCCESSFULL": "Regularization Requested Successfully.",
-    "REGULARIZATION_ACTION": "Regularization Request <status>"
+    "REGULARIZATION_ACTION": "Regularization Request <status>",
+    "ALREADY_REQUESTED": "<module> Already Requested."
 }
 
 export default message
