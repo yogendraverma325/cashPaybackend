@@ -60,6 +60,7 @@ class AttendanceController {
                     attendanceShiftId: existEmployee.dataValues.shiftId,
                     attendancePunchInTime: currentDate.format("HH:mm:ss"),
                     attendanceStatus: "Punch In",
+                    attendanceLateBy: await helper.calculateLateBy(currentDate.format("HH:mm:ss"), existEmployee.shiftsmaster.dataValues.shiftFlexiStartTime),
                     attendancePresentStatus: "Present",
                     attendancePunchInRemark: result.remark,
                     attendancePunchInLocationType: result.locationType,
@@ -294,6 +295,9 @@ class AttendanceController {
             const year = req.query.year;
             const month = req.query.month;
 
+            let averageWorkingTime = []
+            let calculateLateTime = []
+
             if (!year || !month) {
                 return respHelper(res, {
                     status: 400,
@@ -307,7 +311,7 @@ class AttendanceController {
                     attendanceDate: {
                         [Op.and]: [
                             { [Op.gte]: `${year}-${month}-01` },
-                            { [Op.lte]: `${year}-${month}-31` },
+                            { [Op.lte]: `${year}-${month}-${moment(`${year}-${month}`, "YYYY-MM").daysInMonth()}` },
                         ],
                     },
                 },
@@ -316,9 +320,24 @@ class AttendanceController {
                 },
             });
 
+            for (const iterator of attendanceData.rows) {
+                if (iterator.dataValues.attendanceWorkingTime) {
+                    averageWorkingTime.push(iterator.dataValues.attendanceWorkingTime)
+                }
+                if (iterator.dataValues.attendanceLateBy && iterator.dataValues.attendanceLateBy != '00:00:00') {
+                    calculateLateTime.push(iterator.dataValues.attendanceLateBy)
+                }
+            }
+
             return respHelper(res, {
                 status: 200,
-                data: attendanceData,
+                data: {
+                    statics: {
+                        lateTime: helper.calculateTime(calculateLateTime),
+                        averageWorkingTime: helper.calculateAverageHours(averageWorkingTime),
+                    },
+                    attendanceData
+                }
             });
         } catch (error) {
             console.log(error);
