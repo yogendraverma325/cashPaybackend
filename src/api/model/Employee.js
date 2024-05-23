@@ -62,6 +62,9 @@ export default (sequelize, Sequelize) => {
         buId: {
             type: Sequelize.INTEGER,
         },
+        sbuId: {
+            type: Sequelize.INTEGER,
+        },
         shiftId: {
             type: Sequelize.INTEGER,
         },

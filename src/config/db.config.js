@@ -45,6 +45,7 @@ import ShiftMaster from '../api/model/ShiftMaster.js';
 import AttendanceMaster from '../api/model/AttendanceMaster.js';
 import RegularizationMaster from '../api/model/RegularizationMaster.js';
 import SbuMaster from '../api/model/SbuMaster.js';
+import BusinessLogic from '../api/model/BusinessLogic.js';
 
 const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {
     port: process.env.DB_PORT,
@@ -122,6 +123,7 @@ db.shiftMaster = ShiftMaster(sequelize, Sequelize)
 db.attendanceMaster = AttendanceMaster(sequelize, Sequelize)
 db.regularizationMaster = RegularizationMaster(sequelize, Sequelize)
 db.sbuMaster = SbuMaster(sequelize, Sequelize)
+db.BusinessLogic = BusinessLogic(sequelize, Sequelize)
 
 
 db.employeeMaster.hasMany(db.employeeMaster, { foreignKey: 'manager', sourceKey: 'id', as: 'reportie' })
@@ -131,6 +133,7 @@ db.employeeMaster.hasOne(db.designationMaster, { foreignKey: 'designationId', so
 db.buMapping.hasOne(db.buMaster, { foreignKey: 'buId', sourceKey: 'buId' })
 db.employeeMaster.hasOne(db.functionalAreaMaster, { foreignKey: 'functionalAreaId', sourceKey: 'functionalAreaId' })
 db.employeeMaster.hasOne(db.buMaster, { foreignKey: 'buId', sourceKey: 'buId' })
+db.employeeMaster.hasOne(db.sbuMaster, { foreignKey: 'sbuId', sourceKey: 'sbuId' })
 db.employeeMaster.hasOne(db.departmentMaster, { foreignKey: 'departmentId', sourceKey: 'departmentId' })
 db.employeeMaster.hasOne(db.companyMaster, { foreignKey: 'companyId', sourceKey: 'companyId' })
 db.companyMaster.hasOne(db.groupCompanyMaster, { foreignKey: 'groupId', sourceKey: 'groupId' })
@@ -143,7 +146,7 @@ db.employeeMaster.hasMany(db.educationDetails, { foreignKey: 'userId', sourceKey
 db.employeeMaster.hasOne(db.paymentDetails, { foreignKey: 'userId', sourceKey: 'id' })
 db.employeeMaster.hasOne(db.vaccinationDetails, { foreignKey: 'userId', sourceKey: 'id' })
 db.educationDetails.hasOne(db.degreeMaster, { foreignKey: 'degreeId', sourceKey: 'educationDegree' })
-db.sbuMapping.hasOne(db.buMaster, { foreignKey: 'buId', sourceKey: 'sbuId' })
+db.sbuMapping.hasOne(db.sbuMaster, { foreignKey: 'sbuId', sourceKey: 'sbuId' })
 db.departmentMapping.hasOne(db.departmentMaster, { foreignKey: 'departmentId', sourceKey: 'departmentId' })
 db.functionalAreaMapping.hasOne(db.functionalAreaMaster, { foreignKey: 'functionalAreaId', sourceKey: 'functionalAreaId' })
 db.payElements.hasOne(db.salaryComponent, { foreignKey: 'salaryComponentAutoId', sourceKey: 'salaryComponentAutoId' })
@@ -156,7 +159,5 @@ db.attendanceMaster.hasOne(db.employeeMaster, { foreignKey: 'id', sourceKey: 'em
 db.attendanceMaster.hasOne(db.shiftMaster, { foreignKey: 'shiftId', sourceKey: 'attendanceShiftId' })
 db.regularizationMaster.hasOne(db.attendanceMaster, { foreignKey: 'attendanceAutoId', sourceKey: 'attendanceAutoId' })
 db.attendanceMaster.hasMany(db.regularizationMaster, { foreignKey: 'attendanceAutoId', sourceKey: 'attendanceAutoId', as: 'latest_Regularization_Request' })
-db.buMaster.hasOne(db.sbuMapping, { foreignKey: 'buId', sourceKey: 'buId' })
-db.sbuMapping.hasOne(db.sbuMaster, { foreignKey: 'id', sourceKey: 'sbuId' })
 
 export default db;
