@@ -1,0 +1,58 @@
+------------------------------------------------------- 21-05-2024 (Manish Maurya)--------------------------------------------------------------
+
+ALTER TABLE `hrms`.`attendancemaster` 
+DROP COLUMN `attendanceRegularizeManagerRemark`,
+DROP COLUMN `attendanceRegularizeUserRemark`,
+DROP COLUMN `attendanceRegularizeReason`,
+DROP COLUMN `attendanceRegularizePunchOutTime`,
+DROP COLUMN `attendanceRegularizePunchInTime`,
+ADD COLUMN `attendanceRegularizeId` INT NULL AFTER `attendanceShiftId`,
+ADD COLUMN `attendanceLateBy` TIME NULL DEFAULT NULL AFTER `attendancePunchOutTime`;
+
+------------------------------------------------------ 20-05-2024 (Manish Maurya)--------------------------------------------------------------
+
+ALTER TABLE `hrms`.`sbumaster` 
+ADD COLUMN `createdBy` INT NULL AFTER `sbuname`,
+ADD COLUMN `createdAt` DATETIME NULL AFTER `createdBy`,
+ADD COLUMN `updatedBy` INT NULL AFTER `createdAt`,
+ADD COLUMN `updatedAt` DATETIME NULL AFTER `updatedBy`,
+ADD COLUMN `isActive` TINYINT NULL AFTER `updatedAt`,
+CHANGE COLUMN `id` `sbuId` INT NOT NULL AUTO_INCREMENT ;
+
+ALTER TABLE `hrms`.`sbumaster` 
+CHANGE COLUMN `sbuname` `sbuName` VARCHAR(45) NOT NULL ;
+
+
+ALTER TABLE `hrms`.`sbumapping` 
+CHANGE COLUMN `buId` `buMappingId` INT NULL DEFAULT NULL ;
+
+CREATE TABLE regularization (
+    regularizeId INT PRIMARY KEY,
+    attendanceAutoId INT,
+    regularizePunchInDate DATE,
+    regularizePunchOutDate DATE,
+    regularizeUserRemark VARCHAR(255),
+    regularizeMailSentDate DATETIME,
+    regularizeMailSentId VARCHAR(255),
+    regularizePunchInTime TIME,
+    regularizePunchOutTime TIME,
+    regularizeReason VARCHAR(255),
+    regularizeStatus VARCHAR(50),
+    regularizeManagerRemark VARCHAR(255),
+    createdBy INT,
+    createdAt DATETIME,
+    updatedBy INT,
+    updatedAt DATETIME
+);
+
+ALTER TABLE `hrms`.`attendancemaster` 
+ADD COLUMN `attendanceShiftEndDate` DATE NULL DEFAULT NULL AFTER `attandanceShiftStartDate`,
+ADD COLUMN `attendancePunchOutLocationType` VARCHAR(50) NULL DEFAULT NULL AFTER `attendancePunchInLocationType`,
+CHANGE COLUMN `attandanceDate` `attandanceShiftStartDate` DATE NULL DEFAULT NULL ,
+CHANGE COLUMN `attendanceLocationType` `attendancePunchInLocationType` VARCHAR(50) NULL DEFAULT NULL ;
+
+
+ALTER TABLE `hrms`.`attendancemaster` 
+ADD COLUMN `attendanceDate` DATE NULL DEFAULT NULL AFTER `attendanceShiftId`;
+
+

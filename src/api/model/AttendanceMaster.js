@@ -11,6 +11,9 @@ export default (sequelize, Sequelize) => {
         attendanceShiftId: {
             type: Sequelize.INTEGER,
         },
+        attendanceRegularizeId: {
+            type: Sequelize.INTEGER,
+        },
         attendanceDate: {
             type: Sequelize.DATE
         },
@@ -24,6 +27,9 @@ export default (sequelize, Sequelize) => {
             type: Sequelize.STRING,
         },
         attendancePunchOutTime: {
+            type: Sequelize.STRING,
+        },
+        attendanceLateBy: {
             type: Sequelize.STRING,
         },
         attendancePunchInRemark: {
@@ -42,12 +48,6 @@ export default (sequelize, Sequelize) => {
             type: Sequelize.STRING,
         },
         attendancePresentStatus: {
-            type: Sequelize.STRING,
-        },
-        attendanceRegularizePunchInTime: {
-            type: Sequelize.STRING,
-        },
-        attendanceRegularizePunchOutTime: {
             type: Sequelize.STRING,
         },
         attendanceRegularizeStatus: {
@@ -75,15 +75,6 @@ export default (sequelize, Sequelize) => {
             type: Sequelize.STRING
         },
         attendanceWorkingTime: {
-            type: Sequelize.STRING,
-        },
-        attendanceRegularizeReason: {
-            type: Sequelize.STRING,
-        },
-        attendanceRegularizeUserRemark: {
-            type: Sequelize.STRING,
-        },
-        attendanceRegularizeManagerRemark: {
             type: Sequelize.STRING,
         },
         attendanceRegularizeCount: {

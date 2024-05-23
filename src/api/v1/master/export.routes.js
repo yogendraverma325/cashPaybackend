@@ -13,6 +13,6 @@ export default Express
     .Router()
     .get("/employee", rateLimit.limiter, masterExportController.employee)
     .get("/employeeRedis", masterExportController.employeeRedis)
-    .get("/employeeImport",upload.single('excelFile'), masterExportController.employeeImport)
+    .get("/employeeImport", upload.single('excelFile'), masterExportController.employeeImport)
     .post("/employeeMissedData", masterExportController.employeeMissedData)
 

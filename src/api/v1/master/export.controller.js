@@ -16,14 +16,14 @@ async function getDataFromCache(key) {
 }
 
 class MasterController {
- 
+
     /***********************************export data********************************************************/
     async employee(req, res) {
         try {
             const { search, department, designation, buSearch, sbuSearch, areaSearch } = req.query;
-    
+
             const employeeData = await db.employeeMaster.findAndCountAll({
-                attributes: ['id', 'empCode', 'name', 'email', 'firstName', 'lastName', 'officeMobileNumber', 'buId','personalMobileNumber'],
+                attributes: ['id', 'empCode', 'name', 'email', 'firstName', 'lastName', 'officeMobileNumber', 'buId', 'personalMobileNumber'],
                 where: Object.assign(
                     (search) ? {
                         [Op.or]: [
@@ -55,12 +55,12 @@ class MasterController {
                     },
                     {
                         model: db.educationDetails,
-                        attributes:['educationDegree','educationSpecialisation','educationInstitute','educationRemark','educationStartDate','educationCompletionDate']
+                        attributes: ['educationDegree', 'educationSpecialisation', 'educationInstitute', 'educationRemark', 'educationStartDate', 'educationCompletionDate']
                     },
                     {
                         model: db.employeeMaster,
                         required: false,
-                        attributes: ["id","name"],
+                        attributes: ["id", "name"],
                         as: "managerData",
                     },
                     {
@@ -77,7 +77,7 @@ class MasterController {
                     }
                 ]
             });
-    
+
             const arr = await Promise.all(employeeData.rows.map(async (ele) => {
                 return {
                     id: ele.dataValues.id || "",
@@ -88,8 +88,8 @@ class MasterController {
                     lastName: ele.dataValues.lastName || "",
                     officeMobileNumber: ele.dataValues.officeMobileNumber || "",
                     personalMobileNumber: ele.dataValues.personalMobileNumber || "",
-                    manager_id:ele.dataValues.managerData? ele.dataValues.managerData.id :"",
-                    manager_name:ele.dataValues.managerData? ele.dataValues.managerData.name :"",
+                    manager_id: ele.dataValues.managerData ? ele.dataValues.managerData.id : "",
+                    manager_name: ele.dataValues.managerData ? ele.dataValues.managerData.name : "",
                     buId: ele.dataValues.buId || "",
                     designation_name: ele.dataValues.designationmaster?.name || "",
                     functional_area_name: ele.dataValues.functionalareamaster?.functionalAreaName || "",
@@ -100,26 +100,26 @@ class MasterController {
             }));
 
             let educationDetails = []
-             employeeData.rows.forEach(employee => {
+            employeeData.rows.forEach(employee => {
                 employee.employeeeducationdetails.forEach(education => {
                     // Extract only the required fields
                     const extractedEducation = {
                         userId: education.userId ? education.userId : "",
-                        name:employee.firstName + " " + employee.lastName,
-                        empCode:employee.empCode ? employee.empCode:"",
+                        name: employee.firstName + " " + employee.lastName,
+                        empCode: employee.empCode ? employee.empCode : "",
                         educationId: education.educationId ? education.educationId : "",
                         educationDegree: education.educationDegree ? education.educationDegree : "",
-                        educationSpecialisation: education.educationSpecialisation ? education.educationSpecialisation:"",
+                        educationSpecialisation: education.educationSpecialisation ? education.educationSpecialisation : "",
                         educationStartDate: education.educationStartDate ? education.educationStartDate : "",
-                        educationCompletionDate: education.educationCompletionDate ?  education.educationCompletionDate :"",
-                        educationInstitute: education.educationInstitute ? education.educationInstitute :"",
-                        educationRemark: education.educationRemark ? education.educationRemark: ""
+                        educationCompletionDate: education.educationCompletionDate ? education.educationCompletionDate : "",
+                        educationInstitute: education.educationInstitute ? education.educationInstitute : "",
+                        educationRemark: education.educationRemark ? education.educationRemark : ""
                     };
                     // Push the extracted education details object into the educationDetails array
                     educationDetails.push(extractedEducation);
                 });
             });
-    
+
             if (arr.length > 0) {
                 const dt = new Date();
                 const sheetName = "uploads/temp/dataSheet" //+ dt.getTime();
@@ -130,7 +130,7 @@ class MasterController {
                     }
                     console.log('File created successfully!');
                 });
-    
+
                 const data = [
                     {
                         sheet: "Employee",
@@ -162,7 +162,7 @@ class MasterController {
                         content: educationDetails
                     }
                 ];
-    
+
                 const settings = {
                     fileName: sheetName,
                     extraLength: 3,
@@ -170,12 +170,12 @@ class MasterController {
                     writeOptions: {},
                     RTL: false,
                 };
-    
+
                 xlsx(data, settings, () => {
                     return res.download(sheetName + ".xlsx");
                 });
             }
-        } catch (error){
+        } catch (error) {
             console.log(error)
             return respHelper(res, {
                 status: 500
@@ -183,7 +183,7 @@ class MasterController {
         }
     }
 
-    async employeeMissedData(req,res){
+    async employeeMissedData(req, res) {
         try {
             const { arrMissingData } = req.body
             const dt = new Date();
@@ -237,7 +237,7 @@ class MasterController {
     }
 
     /************************************import data****************************************************/
-    
+
     async employeeImport(req, res) {
         const transaction = await db.sequelize.transaction(); // Start the transaction
         try {
@@ -245,19 +245,19 @@ class MasterController {
             const workbookEmployee = pkg.readFile(req.file.path);
             const sheetNameEmployee = workbookEmployee.SheetNames[0];
             const sheetToImportEmployee = pkg.utils.sheet_to_json(workbookEmployee.Sheets[sheetNameEmployee]);
-           
-            let arrPoper = [] 
+
+            let arrPoper = []
             let arrMissingData = []
             // Insert data into the database
             for (const row of sheetToImportEmployee) {
 
-                if(row.Employee_Code && row.Manager_Name && row.Designation_Name && row.Department_Name && row.Functional_Area_Name && row.Bu_Name){
-                    let manager_id = await db.employeeMaster.findOne({where:{name:row.Manager_Name}})
-                    let department_id = await db.departmentMaster.findOne({where:{departmentName:row.Department_Name}})
-                    let designation_id = await db.designationMaster.findOne({where:{name:row.Designation_Name}})
-                    let function_area_id = await db.functionalAreaMaster.findOne({where:{functionalAreaName:row.Functional_Area_Name}})
-                    let bu_id = await db.buMaster.findOne({where:{buName:row.Bu_Name}})
-                    let sub_bu_id = await db.sbuMaster.findOne({where:{sbuname:row.Sub_Bu_Name}})
+                if (row.Employee_Code && row.Manager_Name && row.Designation_Name && row.Department_Name && row.Functional_Area_Name && row.Bu_Name) {
+                    let manager_id = await db.employeeMaster.findOne({ where: { name: row.Manager_Name } })
+                    let department_id = await db.departmentMaster.findOne({ where: { departmentName: row.Department_Name } })
+                    let designation_id = await db.designationMaster.findOne({ where: { name: row.Designation_Name } })
+                    let function_area_id = await db.functionalAreaMaster.findOne({ where: { functionalAreaName: row.Functional_Area_Name } })
+                    let bu_id = await db.buMaster.findOne({ where: { buName: row.Bu_Name } })
+                    let sub_bu_id = await db.sbuMaster.findOne({ where: { sbuname: row.Sub_Bu_Name } })
 
                 if(manager_id && department_id && designation_id && function_area_id && bu_id && sub_bu_id){
                     const existUser = await db.employeeMaster.findOne({
@@ -297,26 +297,22 @@ class MasterController {
                      await db.employeeMaster.create(data, { transaction }); // Add transaction object here
                   } 
                 }
-                else{
-                    console.log("eeeeeeeeeee")
+                else {
+                    console.log("in else condition row.Manager_Name")
                     arrMissingData.push(row)
                 }
+
             }
-            else{
-                console.log("in else condition row.Manager_Name")
-                arrMissingData.push(row)
-            }
-               
-        }
-        await transaction.commit(); // Commit the transaction    
-        return respHelper(res, {
-            status: 200,
-            msg: "File Uploaded Successfully",
-            data:{
-                arrPoper:arrPoper,
-                arrMissingData:arrMissingData
-            }
-        });
+            await transaction.commit(); // Commit the transaction    
+            return respHelper(res, {
+                status: 200,
+                msg: "File Uploaded Successfully",
+                data: {
+                    arrPoper: arrPoper,
+                    arrMissingData: arrMissingData
+                }
+            });
+         }
         } catch (error) {
             await transaction.rollback(); // Rollback the transaction in case of an error
             console.log(error);
@@ -325,7 +321,7 @@ class MasterController {
             });
         }
     }
-    
+
 
     /*************************************redis**********************************************************/
     async employeeRedis(req, res) {

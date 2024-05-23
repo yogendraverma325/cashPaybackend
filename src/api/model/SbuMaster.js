@@ -5,7 +5,7 @@ export default (sequelize, Sequelize) => {
             primaryKey: true,
             autoIncrement: true
         },
-        sbuname: {
+        sbuName: {
             type: Sequelize.STRING,
         },
         createdAt: {
