@@ -67,22 +67,13 @@ class MasterController {
                         model: db.buMaster,
                         attributes: ['buName'],
                         where: { ...(buSearch && { buName: { [Op.like]: `%${buSearch}%` } }) },
-                        required: !!sbuSearch,
-                        include: [
-                            {
-                                model: db.sbuMapping,
-                                attributes: ['sbuId'],
-                                required:sbuSearch ? true:false,
-                                include: [
-                                    {
-                                        model: db.sbuMaster,
-                                        attributes: ['id', 'sbuname'],
-                                        where: { ...(sbuSearch && { sbuname: { [Op.like]: `%${sbuSearch}%` } }) },
-                                        required: !!sbuSearch
-                                    }
-                                ]
-                            }
-                        ]
+                        required: !!buSearch
+                    },
+                    {
+                        model: db.sbuMaster,
+                        attributes: ['sbuname'],
+                        where: { ...(sbuSearch && { sbuname: { [Op.like]: `%${sbuSearch}%` } }) },
+                        required: !!sbuSearch
                     }
                 ]
             });
@@ -104,7 +95,7 @@ class MasterController {
                     functional_area_name: ele.dataValues.functionalareamaster?.functionalAreaName || "",
                     department_name: ele.dataValues.departmentmaster?.departmentName || "",
                     bu_name: ele.dataValues.bumaster?.buName || "",
-                    sub_bu_name: ele.dataValues.bumaster?.sbumapping?.sbumaster?.sbuname || ""
+                    sub_bu_name: ele.dataValues.sbumaster?.sbuname || ""
                 };
             }));
 
@@ -268,7 +259,7 @@ class MasterController {
                     let bu_id = await db.buMaster.findOne({where:{buName:row.Bu_Name}})
                     let sub_bu_id = await db.sbuMaster.findOne({where:{sbuname:row.Sub_Bu_Name}})
 
-                if(manager_id && department_id && designation_id && function_area_id && bu_id){
+                if(manager_id && department_id && designation_id && function_area_id && bu_id && sub_bu_id){
                     const existUser = await db.employeeMaster.findOne({
                         where: {
                             [Op.or]: [
@@ -299,7 +290,8 @@ class MasterController {
                         departmentId: department_id.dataValues.departmentId,
                         designation_id:designation_id.dataValues.designationId,
                         functionalAreaId:function_area_id.dataValues.functionalAreaId,
-                        buId:bu_id.dataValues.buId
+                        buId:bu_id.dataValues.buId,
+                        sbuId:sub_bu_id.dataValues.sbuId
                      };
                    
                      await db.employeeMaster.create(data, { transaction }); // Add transaction object here
