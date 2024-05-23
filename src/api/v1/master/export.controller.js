@@ -67,22 +67,13 @@ class MasterController {
                         model: db.buMaster,
                         attributes: ['buName'],
                         where: { ...(buSearch && { buName: { [Op.like]: `%${buSearch}%` } }) },
-                        required: !!sbuSearch,
-                        include: [
-                            {
-                                model: db.sbuMapping,
-                                attributes: ['sbuId'],
-                                required: sbuSearch ? true : false,
-                                include: [
-                                    {
-                                        model: db.sbuMaster,
-                                        attributes: ['id', 'sbuname'],
-                                        where: { ...(sbuSearch && { sbuname: { [Op.like]: `%${sbuSearch}%` } }) },
-                                        required: !!sbuSearch
-                                    }
-                                ]
-                            }
-                        ]
+                        required: !!buSearch
+                    },
+                    {
+                        model: db.sbuMaster,
+                        attributes: ['sbuname'],
+                        where: { ...(sbuSearch && { sbuname: { [Op.like]: `%${sbuSearch}%` } }) },
+                        required: !!sbuSearch
                     }
                 ]
             });
@@ -104,7 +95,7 @@ class MasterController {
                     functional_area_name: ele.dataValues.functionalareamaster?.functionalAreaName || "",
                     department_name: ele.dataValues.departmentmaster?.departmentName || "",
                     bu_name: ele.dataValues.bumaster?.buName || "",
-                    sub_bu_name: ele.dataValues.bumaster?.sbumapping?.sbumaster?.sbuname || ""
+                    sub_bu_name: ele.dataValues.sbumaster?.sbuname || ""
                 };
             }));
 
@@ -268,47 +259,43 @@ class MasterController {
                     let bu_id = await db.buMaster.findOne({ where: { buName: row.Bu_Name } })
                     let sub_bu_id = await db.sbuMaster.findOne({ where: { sbuname: row.Sub_Bu_Name } })
 
-                    if (manager_id && department_id && designation_id && function_area_id && bu_id) {
-                        const existUser = await db.employeeMaster.findOne({
-                            where: {
-                                [Op.or]: [
-                                    { email: row.Email },
-                                    { officeMobileNumber: row.Office_Mobile_Number }
-                                ]
-                            },
-                            transaction // Add transaction object here
-                        });
-                        if (existUser) {
-                            console.log("already exists")
-                            arrMissingData.push(row)
-                        } else {
-                            const maxCode = await db.employeeMaster.max('empCode', { transaction });
-                            const salt = await bcrypt.genSalt(10);
-
-                            let data = {
-                                name: (row.First_Name ? row.First_Name : "") + " " + (row.Last_Name ? row.Last_Name : ""),
-                                firstName: row.First_Name ? row.First_Name : "",
-                                lastName: row.Last_Name ? row.Last_Name : "",
-                                password: await bcrypt.hash('test1234', salt),
-                                officeMobileNumber: row.Office_Mobile_Number ? row.Office_Mobile_Number : "",
-                                personalMobileNumber: row.Personal_Mobile_Number ? row.Personal_Mobile_Number : "",
-                                role_id: 3,
-                                empCode: parseInt(maxCode) + 1,
-                                manager: manager_id.dataValues.id, //row.Manager_Id ? row.Manager_Id : 31,
-                                email: row.Email ? row.Email : "",
-                                departmentId: department_id.dataValues.departmentId,
-                                designation_id: designation_id.dataValues.designationId,
-                                functionalAreaId: function_area_id.dataValues.functionalAreaId,
-                                buId: bu_id.dataValues.buId
-                            };
-
-                            await db.employeeMaster.create(data, { transaction }); // Add transaction object here
-                        }
-                    }
-                    else {
-                        console.log("eeeeeeeeeee")
+                if(manager_id && department_id && designation_id && function_area_id && bu_id && sub_bu_id){
+                    const existUser = await db.employeeMaster.findOne({
+                        where: {
+                            [Op.or]: [
+                                { email: row.Email },
+                                { officeMobileNumber: row.Office_Mobile_Number }
+                            ]
+                        },
+                        transaction // Add transaction object here
+                });
+                  if (existUser) {
+                        console.log("already exists")
                         arrMissingData.push(row)
-                    }
+                  }else{
+                        const maxCode = await db.employeeMaster.max('empCode', { transaction });
+                        const salt = await bcrypt.genSalt(10);
+                    
+                    let data = {
+                        name: (row.First_Name ? row.First_Name : "") + " " + (row.Last_Name ? row.Last_Name : ""),
+                        firstName: row.First_Name ? row.First_Name : "",
+                        lastName: row.Last_Name ? row.Last_Name : "",
+                        password: await bcrypt.hash('test1234', salt),
+                        officeMobileNumber: row.Office_Mobile_Number ? row.Office_Mobile_Number : "",
+                        personalMobileNumber: row.Personal_Mobile_Number ? row.Personal_Mobile_Number : "",
+                        role_id: 3,
+                        empCode: parseInt(maxCode) + 1,
+                        manager: manager_id.dataValues.id, //row.Manager_Id ? row.Manager_Id : 31,
+                        email: row.Email ? row.Email : "",
+                        departmentId: department_id.dataValues.departmentId,
+                        designation_id:designation_id.dataValues.designationId,
+                        functionalAreaId:function_area_id.dataValues.functionalAreaId,
+                        buId:bu_id.dataValues.buId,
+                        sbuId:sub_bu_id.dataValues.sbuId
+                     };
+                   
+                     await db.employeeMaster.create(data, { transaction }); // Add transaction object here
+                  } 
                 }
                 else {
                     console.log("in else condition row.Manager_Name")
@@ -325,6 +312,7 @@ class MasterController {
                     arrMissingData: arrMissingData
                 }
             });
+         }
         } catch (error) {
             await transaction.rollback(); // Rollback the transaction in case of an error
             console.log(error);

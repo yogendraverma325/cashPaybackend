@@ -28,6 +28,10 @@ app.get("/api", (req, res) => {
     res.send("App is Running")
 })
 
+const swaggerSpec = swaggerJsdoc(swaggerOptions);
+app.use('/api/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+
 app.get('/api/uploads/:user/:fileName', (req, res) => {
     res.sendFile(path.join(rootpath, `../uploads/${req.params.user}/${req.params.fileName}`,));
 });
@@ -42,9 +46,6 @@ app.use((err, req, res, next) => {
         status: 500
     })
 });
-
-const swaggerSpec = swaggerJsdoc(swaggerOptions);
-app.use('/api/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 io.on('connection', socket => {
     console.log('Client Socket Connected');

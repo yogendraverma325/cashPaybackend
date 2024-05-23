@@ -11,7 +11,7 @@ const message = {
     "INVALID_TOKEN": "Invalid Token.",
     "SESSION_EXPIRED": "Session Expired, Please Login Again!",
     "INVALID_CREDENTIALS": "Invalid Credentials!",
-    "LOGIN_SUCCESS": "Login Success.",
+    "LOGIN_SUCCESS": "Login Successfully.",
     "ALREADY_EXISTS": "Already Exists.",
     "PUNCH_IN_SUCCESS": "Punch In Success.",
     "PUNCH_OUT_SUCCESS": "Punch Out Success.",
@@ -19,7 +19,8 @@ const message = {
     "MAXIMUM_REGULARIZATION_LIMIT": "You have reached maximum regularization limit.",
     "ATTENDANCE_DATE_CANNOT_AFTER_TODAY": "Attendance date cannot be after today.",
     "REGULARIZE_REQUEST_SUCCESSFULL": "Regularization Requested Successfully.",
-    "REGULARIZATION_ACTION": "Regularization Request <status>"
+    "REGULARIZATION_ACTION": "Regularization Request <status>",
+    "ALREADY_REQUESTED": "<module> Already Requested."
 }
 
 export default message

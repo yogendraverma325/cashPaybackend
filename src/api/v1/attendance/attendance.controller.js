@@ -60,6 +60,7 @@ class AttendanceController {
                     attendanceShiftId: existEmployee.dataValues.shiftId,
                     attendancePunchInTime: currentDate.format("HH:mm:ss"),
                     attendanceStatus: "Punch In",
+                    attendanceLateBy: await helper.calculateLateBy(currentDate.format("HH:mm:ss"), existEmployee.shiftsmaster.dataValues.shiftFlexiStartTime),
                     attendancePresentStatus: "Present",
                     attendancePunchInRemark: result.remark,
                     attendancePunchInLocationType: result.locationType,
@@ -180,55 +181,51 @@ class AttendanceController {
                 });
             }
 
-            const attendanceData = await db.regularizationMaster.findOne({
+            let attendanceData = await db.attendanceMaster.findOne({
                 where: {
                     attendanceAutoId: result.attendanceAutoId,
                 },
-                attributes: ["regularizeStatus"],
-                limit: 1,
-                order: [["createdAt", "DESC"]],
+                attributes: ["attendanceRegularizeCount"],
                 include: [
                     {
-                        model: db.attendanceMaster,
-                        attributes: ["attendanceRegularizeCount"],
-                        include: {
-                            model: db.employeeMaster,
-                            attributes: ["name", "email"],
-                            include: [
-                                {
-                                    model: db.employeeMaster,
-                                    required: false,
-                                    as: "managerData",
-                                    attributes: ["name", "email"],
-                                },
-                            ],
-                        },
+                        model: db.regularizationMaster,
+                        as: "latest_Regularization_Request",
+                        limit: 1,
+                        order: [["createdAt", "desc"]],
+                        attributes: ["regularizeStatus"],
+                    },
+                    {
+                        model: db.employeeMaster,
+                        attributes: ["name", "email"],
+                        include: [
+                            {
+                                model: db.employeeMaster,
+                                required: false,
+                                as: "managerData",
+                                attributes: ["name", "email"],
+                            },
+                        ],
                     },
                 ],
             });
 
-            // if (!attendanceData) {
-            //     return respHelper(res, {
-            //         status: 404,
-            //         msg: message.ATTENDANCE_NOT_AVAILABLE
-            //     })
-            // }
+            if (!attendanceData) {
+                return respHelper(res, {
+                    status: 404,
+                    msg: message.ATTENDANCE_NOT_AVAILABLE,
+                });
+            }
 
-            if (
-                attendanceData &&
-                attendanceData.dataValues.attendancemaster.attendanceRegularizeCount >=
-                3
-            ) {
+            if (attendanceData.dataValues.latest_Regularization_Request[0].regularizeStatus === "Pending") {
                 return respHelper(res, {
                     status: 400,
-                    msg: message.MAXIMUM_REGULARIZATION_LIMIT,
+                    msg: message.ALREADY_REQUESTED.replace('<module>', 'Regularization'),
                 });
             }
 
             if (
                 attendanceData &&
-                attendanceData.dataValues.attendancemaster.attendanceRegularizeCount >=
-                3
+                attendanceData.dataValues.attendanceRegularizeCount >= 3
             ) {
                 return respHelper(res, {
                     status: 400,
@@ -249,21 +246,23 @@ class AttendanceController {
                 createdAt: moment(),
             });
 
-            // eventEmitter.emit('regularizeRequestMail', JSON.stringify({
-            //     requesterName: attendanceData.dataValues.attendancemaster.employee.name,
-            //     attendenceDate: result.fromDate,
-            //     managerName: attendanceData.dataValues.attendancemaster.employee.managerData.name,
-            //     managerEmail: 'manishmaurya@teamcomputers.com'
-            //     // managerEmail: attendanceData.dataValues.attendancemaster.employee.managerData.email
-            // }));
+            eventEmitter.emit(
+                "regularizeRequestMail",
+                JSON.stringify({
+                    requesterName: attendanceData.dataValues.employee.name,
+                    attendenceDate: result.fromDate,
+                    managerName: attendanceData.dataValues.employee.managerData.name,
+                    // managerEmail: attendanceData.dataValues.employee.managerData.email
+                    managerEmail: attendanceData.dataValues.employee.email,
+                })
+            );
 
             await db.attendanceMaster.update(
                 {
                     attendanceRegularizeCount: !attendanceData
                         ? 1
-                        : attendanceData.dataValues.attendancemaster
-                            .attendanceRegularizeCount + 1,
-                    attendanceRegularizeStatus: "Pending"
+                        : attendanceData.dataValues.attendanceRegularizeCount + 1,
+                    attendanceRegularizeStatus: "Pending",
                 },
                 {
                     where: {
@@ -296,6 +295,9 @@ class AttendanceController {
             const year = req.query.year;
             const month = req.query.month;
 
+            let averageWorkingTime = []
+            let calculateLateTime = []
+
             if (!year || !month) {
                 return respHelper(res, {
                     status: 400,
@@ -309,7 +311,7 @@ class AttendanceController {
                     attendanceDate: {
                         [Op.and]: [
                             { [Op.gte]: `${year}-${month}-01` },
-                            { [Op.lte]: `${year}-${month}-31` },
+                            { [Op.lte]: `${year}-${month}-${moment(`${year}-${month}`, "YYYY-MM").daysInMonth()}` },
                         ],
                     },
                 },
@@ -318,9 +320,24 @@ class AttendanceController {
                 },
             });
 
+            for (const iterator of attendanceData.rows) {
+                if (iterator.dataValues.attendanceWorkingTime) {
+                    averageWorkingTime.push(iterator.dataValues.attendanceWorkingTime)
+                }
+                if (iterator.dataValues.attendanceLateBy && iterator.dataValues.attendanceLateBy != '00:00:00') {
+                    calculateLateTime.push(iterator.dataValues.attendanceLateBy)
+                }
+            }
+
             return respHelper(res, {
                 status: 200,
-                data: attendanceData,
+                data: {
+                    statics: {
+                        lateTime: helper.calculateTime(calculateLateTime),
+                        averageWorkingTime: helper.calculateAverageHours(averageWorkingTime),
+                    },
+                    attendanceData
+                }
             });
         } catch (error) {
             console.log(error);
@@ -332,57 +349,74 @@ class AttendanceController {
 
     async approveRegularizationRequest(req, res) {
         try {
-
-            const result = await validator.approveRegularizationRequestSchema.validateAsync(req.body)
+            const result =
+                await validator.approveRegularizationRequestSchema.validateAsync(
+                    req.body
+                );
 
             const regularizeData = await db.regularizationMaster.findOne({
                 raw: true,
                 where: {
-                    regularizeId: result.regularizeId
-                }
-            })
+                    regularizeId: result.regularizeId,
+                },
+            });
 
-            await db.regularizationMaster.update({
-                regularizeManagerRemark: result.remark,
-                regularizeStatus: (result.status) ? "Approved" : "Rejected"
-            }, {
-                where: {
-                    regularizeId: result.regularizeId
+            await db.regularizationMaster.update(
+                {
+                    regularizeManagerRemark: result.remark,
+                    regularizeStatus: result.status ? "Approved" : "Rejected",
+                },
+                {
+                    where: {
+                        regularizeId: result.regularizeId,
+                    },
                 }
-            })
+            );
 
             if (result.status) {
-                await db.attendanceMaster.update({
-                    attendanceDate: regularizeData.regularizePunchInDate,
-                    attendanceWorkingTime: await helper.timeDifference(regularizeData.regularizePunchInTime, regularizeData.regularizePunchOutTime),
-                    attandanceShiftStartDate: regularizeData.regularizePunchInDate,
-                    attendanceShiftEndDate: regularizeData.regularizePunchOutDate,
-                    attendancePunchInTime: regularizeData.regularizePunchInTime,
-                    attendancePunchOutTime: regularizeData.regularizePunchOutTime,
-                    attendanceRegularizeUserRemark: regularizeData.regularizeUserRemark,
-                    attendanceRegularizeManagerRemark: regularizeData.regularizeManagerRemark,
-                    attendanceRegularizeReason: regularizeData.regularizeReason,
-                    attendanceRegularizeStatus: "Approved"
-                }, {
-                    where: {
-                        attendanceAutoId: regularizeData.attendanceAutoId
+                await db.attendanceMaster.update(
+                    {
+                        attendanceDate: regularizeData.regularizePunchInDate,
+                        attendanceWorkingTime: await helper.timeDifference(
+                            regularizeData.regularizePunchInTime,
+                            regularizeData.regularizePunchOutTime
+                        ),
+                        attandanceShiftStartDate: regularizeData.regularizePunchInDate,
+                        attendanceShiftEndDate: regularizeData.regularizePunchOutDate,
+                        attendancePunchInTime: regularizeData.regularizePunchInTime,
+                        attendancePunchOutTime: regularizeData.regularizePunchOutTime,
+                        attendanceRegularizeUserRemark: regularizeData.regularizeUserRemark,
+                        attendanceRegularizeManagerRemark:
+                            regularizeData.regularizeManagerRemark,
+                        attendanceRegularizeReason: regularizeData.regularizeReason,
+                        attendanceRegularizeStatus: "Approved",
+                    },
+                    {
+                        where: {
+                            attendanceAutoId: regularizeData.attendanceAutoId,
+                        },
                     }
-                })
+                );
             } else {
-                await db.attendanceMaster.update({
-                    attendanceRegularizeStatus: "Rejected"
-                }, {
-                    where: {
-                        attendanceAutoId: regularizeData.attendanceAutoId
+                await db.attendanceMaster.update(
+                    {
+                        attendanceRegularizeStatus: "Rejected",
+                    },
+                    {
+                        where: {
+                            attendanceAutoId: regularizeData.attendanceAutoId,
+                        },
                     }
-                })
+                );
             }
 
             return respHelper(res, {
                 status: 200,
-                msg: message.REGULARIZATION_ACTION.replace('<status>', (result.status) ? "Approved." : 'Rejected.')
+                msg: message.REGULARIZATION_ACTION.replace(
+                    "<status>",
+                    result.status ? "Approved." : "Rejected."
+                ),
             });
-
         } catch (error) {
             console.log(error);
             if (error.isJoi === true) {

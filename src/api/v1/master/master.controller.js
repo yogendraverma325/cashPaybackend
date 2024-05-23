@@ -46,7 +46,7 @@ class MasterController {
                         }
                         : {}
                 ),
-                attributes: ['id', 'empCode', 'name', 'email', 'firstName', 'lastName', 'officeMobileNumber', 'buId'],
+                attributes: ['id', 'empCode', 'name', 'email', 'firstName', 'lastName', 'officeMobileNumber', 'buId','sbuId'],
                 include: [
                     {
                     model: db.designationMaster,
@@ -80,19 +80,13 @@ class MasterController {
                     model: db.buMaster,
                     attributes: ['buName'],
                     where: { ...(buSearch && { buName: { [Op.like]: `%${buSearch}%` } }) },
-                    required: !!sbuSearch,
-                    include: [{
-                        model: db.sbuMapping,
-                        attributes: ['sbuId'],
-                        required:sbuSearch ? true:false,
-                        include: [{
-                            model: db.sbuMaster,
-                            attributes: ['id', 'sbuname'],
-                            where: { ...(sbuSearch && { sbuname: { [Op.like]: `%${sbuSearch}%` } }) },
-                            required: !!sbuSearch
-
-                        }]
-                    }]
+                    required: !!buSearch
+                },
+                {
+                    model: db.sbuMaster,
+                    attributes: ['sbuname'],
+                    where: { ...(sbuSearch && { sbuname: { [Op.like]: `%${sbuSearch}%` } }) },
+                    required: !!sbuSearch
                 }
             ]
         })

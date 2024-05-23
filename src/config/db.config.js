@@ -133,6 +133,7 @@ db.employeeMaster.hasOne(db.designationMaster, { foreignKey: 'designationId', so
 db.buMapping.hasOne(db.buMaster, { foreignKey: 'buId', sourceKey: 'buId' })
 db.employeeMaster.hasOne(db.functionalAreaMaster, { foreignKey: 'functionalAreaId', sourceKey: 'functionalAreaId' })
 db.employeeMaster.hasOne(db.buMaster, { foreignKey: 'buId', sourceKey: 'buId' })
+db.employeeMaster.hasOne(db.sbuMaster, { foreignKey: 'sbuId', sourceKey: 'sbuId' })
 db.employeeMaster.hasOne(db.departmentMaster, { foreignKey: 'departmentId', sourceKey: 'departmentId' })
 db.employeeMaster.hasOne(db.companyMaster, { foreignKey: 'companyId', sourceKey: 'companyId' })
 db.companyMaster.hasOne(db.groupCompanyMaster, { foreignKey: 'groupId', sourceKey: 'groupId' })
