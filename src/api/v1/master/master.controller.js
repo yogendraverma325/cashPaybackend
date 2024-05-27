@@ -5,7 +5,7 @@ import client from "../../../config/redisDb.config.js";
 
 class MasterController {
   async employee(req, res) {
-    try {
+    try { 
       const {
         search,
         department,
