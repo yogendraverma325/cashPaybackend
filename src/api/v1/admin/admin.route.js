@@ -5,3 +5,4 @@ import authorization from '../../../middleware/authorization.js';
 export default Express
     .Router()
     .post("/addEmployee", authorization('ADMIN'), adminController.addEmployee)
+    .put("/updateBiographicalDetails", authorization('ADMIN'), adminController.updateBiographicalDetails)
