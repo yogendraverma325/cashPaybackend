@@ -46,6 +46,7 @@ import AttendanceMaster from '../api/model/AttendanceMaster.js';
 import RegularizationMaster from '../api/model/RegularizationMaster.js';
 import SbuMaster from '../api/model/SbuMaster.js';
 import BusinessLogic from '../api/model/BusinessLogic.js';
+import DashboardCard from '../api/model/DashboardCard.js'
 
 const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {
     port: process.env.DB_PORT,
@@ -124,6 +125,8 @@ db.attendanceMaster = AttendanceMaster(sequelize, Sequelize)
 db.regularizationMaster = RegularizationMaster(sequelize, Sequelize)
 db.sbuMaster = SbuMaster(sequelize, Sequelize)
 db.BusinessLogic = BusinessLogic(sequelize, Sequelize)
+db.DashboardCard = DashboardCard(sequelize,Sequelize)
+
 
 
 db.employeeMaster.hasMany(db.employeeMaster, { foreignKey: 'manager', sourceKey: 'id', as: 'reportie' })

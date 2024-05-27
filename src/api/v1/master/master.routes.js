@@ -28,3 +28,4 @@ export default Express
     .get("/pincode", masterController.pincode)
     .get("/timezone", masterController.timeZone)
     .get("/groupCompany", masterController.groupCompany)
+    .get("/dashboardCard", masterController.dashboardCard)
