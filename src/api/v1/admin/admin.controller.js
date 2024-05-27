@@ -63,22 +63,22 @@ class AdminController {
 
   async updateBiographicalDetails(req, res) {
     try {
-        const { employeeId, maritalStatus, mobileAccess, laptopSystem, backgroundVerification, gender, dateOfBirth } = req.body
-       
-        const updateObj = {
-            ...(maritalStatus && { maritalStatus }),
-            ...(mobileAccess && { mobileAccess }),
-            ...(laptopSystem && { laptopSystem:laptopSystem.toLowerCase().replace(/(?<= )[^\s]|^./g, a => a.toUpperCase()) }),
-            ...(backgroundVerification && { backgroundVerification }),
-            ...(gender && { gender}),
-            ...(dateOfBirth && { dateOfBirth })   
-        }
-        await db.biographicalDetails.update(updateObj, { where: { userId: employeeId } })
-        return respHelper(res, {
-            status: 200,
-            msg: constant.UPDATE_SUCCESS,
-            data:updateObj
-          });
+      const { employeeId, maritalStatus, mobileAccess, laptopSystem, backgroundVerification, gender, dateOfBirth } = req.body
+
+      const updateObj = {
+        ...(maritalStatus && { maritalStatus }),
+        ...(mobileAccess && { mobileAccess }),
+        ...(laptopSystem && { laptopSystem: laptopSystem.toLowerCase().replace(/(?<= )[^\s]|^./g, a => a.toUpperCase()) }),
+        ...(backgroundVerification && { backgroundVerification }),
+        ...(gender && { gender }),
+        ...(dateOfBirth && { dateOfBirth })
+      }
+      await db.biographicalDetails.update(updateObj, { where: { userId: employeeId } })
+      return respHelper(res, {
+        status: 200,
+        msg: constant.UPDATE_SUCCESS,
+        data: updateObj
+      });
     } catch (error) {
       console.log(error);
       return respHelper(res, {

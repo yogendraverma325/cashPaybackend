@@ -1,4 +1,4 @@
-import { Op, where } from "sequelize";
+import { Op } from "sequelize";
 import db from "../../../config/db.config.js";
 import respHelper from "../../../helper/respHelper.js";
 import client from "../../../config/redisDb.config.js";
