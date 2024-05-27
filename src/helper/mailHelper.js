@@ -6,6 +6,10 @@ export default function getAllListeners(eventEmitter) {
     eventEmitter.on('regularizeRequestMail', async (input) => {
         await regularizationRequestMail(input);
     });
+
+    eventEmitter.on('resetPasswordMail', async (input) => {
+        await resetPasswordMail(input);
+    });
 }
 
 async function regularizationRequestMail(input) {
@@ -16,6 +20,22 @@ async function regularizationRequestMail(input) {
             subject: `Regularization Request`,
             html: await emailTemplate.regularizationRequestMail(userData)
         })
+    } catch (error) {
+        console.log(error)
+        logger.error(error)
+    }
+}
+
+async function resetPasswordMail(input) {
+    try {
+        const userData = JSON.parse(input)
+        await helper.mailService({
+            to: userData.email,
+            subject: `Reset Password`,
+            html: await emailTemplate.resetPasswordMail(userData)
+        })
+
+
     } catch (error) {
         console.log(error)
         logger.error(error)

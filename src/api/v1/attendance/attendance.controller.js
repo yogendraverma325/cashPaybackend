@@ -119,57 +119,6 @@ class AttendanceController {
         }
     }
 
-    async updateAttendance() {
-        const existEmployees = await db.employeeMaster.findAll({
-            attributes: ["id", "empCode", "name", "email", "shiftId"],
-            include: [
-                {
-                    model: db.shiftMaster,
-                    attributes: [
-                        "shiftName",
-                        "shiftStartTime",
-                        "shiftEndTime",
-                        "shiftFlexiStartTime",
-                        "shiftFlexiEndTime",
-                    ],
-                },
-            ],
-        });
-
-        for (const iterator of existEmployees) {
-            const existAttendance = await db.attendanceMaster.findOne({
-                where: {
-                    attendanceDate: moment().subtract(1, "day").format("YYYY-MM-DD"),
-                    employeeId: iterator.dataValues.id,
-                },
-            });
-
-            if (!existAttendance) {
-                await db.attendanceMaster.create({
-                    attendanceDate: moment().subtract(1, "day").format("YYYY-MM-DD"),
-                    employeeId: iterator.dataValues.id,
-                    attendanceShiftId: iterator.dataValues.shiftId,
-                    attendancePresentStatus: "Absent",
-                });
-            } else {
-                await db.attendanceMaster.update(
-                    {
-                        attendancePresentStatus:
-                            existAttendance.dataValues.attendanceStatus === "Punch In"
-                                ? "Single Punch Absent"
-                                : "Absent",
-                    },
-                    {
-                        where: {
-                            attendanceDate: moment().subtract(1, "day").format("YYYY-MM-DD"),
-                            employeeId: iterator.dataValues.id,
-                        },
-                    }
-                );
-            }
-        }
-    }
-
     async regularizeRequest(req, res) {
         try {
             const result = await validator.regularizeRequest.validateAsync(req.body);
@@ -425,6 +374,48 @@ class AttendanceController {
                     msg: error.details[0].message,
                 });
             }
+            return respHelper(res, {
+                status: 500,
+            });
+        }
+    }
+
+    async regularizeRequestList(req, res) {
+        try {
+
+            const query = req.query.listFor
+
+            const regularizeList = await db.regularizationMaster.findAll({
+                where: Object.assign(
+                    (query === 'raisedByMe') ? {
+                        createdBy: req.userId
+                    } : {
+                        regularizeManagerId: req.userId
+                    },
+
+                    {
+                        regularizeStatus: 'Pending'
+                    },
+                ),
+                attributes: { exclude: ["createdBy", "createdAt", "updatedBy", "updatedAt"], },
+                include: [{
+                    model: db.attendanceMaster,
+                    attributes: { exclude: ["createdBy", "createdAt", "updatedBy", "updatedAt"], },
+                    include: [
+                        {
+                            model: db.employeeMaster,
+                            attributes: ['name']
+                        }]
+                }]
+
+            })
+
+            return respHelper(res, {
+                status: 200,
+                data: regularizeList
+            });
+
+        } catch (error) {
             return respHelper(res, {
                 status: 500,
             });
