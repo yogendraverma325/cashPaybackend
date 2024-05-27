@@ -12,6 +12,7 @@ const message = {
     "SESSION_EXPIRED": "Session Expired, Please Login Again!",
     "INVALID_CREDENTIALS": "Invalid Credentials!",
     "LOGIN_SUCCESS": "Login Successfully.",
+    "UPDATE_SUCCESS": "Updated Successfully.",
     "ALREADY_EXISTS": "Already Exists.",
     "PUNCH_IN_SUCCESS": "Punch In Success.",
     "PUNCH_OUT_SUCCESS": "Punch Out Success.",
