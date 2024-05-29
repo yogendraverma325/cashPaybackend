@@ -4,9 +4,7 @@ import path from "path";
 import moment from "moment";
 import db from '../config/db.config.js'
 import sendGrid from "@sendgrid/mail";
-import attendanceController from "../api/v1/attendance/attendance.controller.js";
-import cron from 'node-cron'
-
+import bcrypt from "bcrypt";
 
 const generateJwtToken = async data => {
     const token = jwt.sign(data, process.env.JWT_KEY, {
@@ -75,12 +73,6 @@ const timeDifference = async (start, end) => {
     return time;
 };
 
-const updateAttendance = () => {
-    cron.schedule("* * * * *", async () => {
-        await attendanceController.updateAttendance()
-    });
-};
-
 const calculateLateBy = async (actualTime, scheduleTime) => {
     let actualMoment = moment(actualTime, 'HH:mm:ss');
     let scheduledTime = moment(scheduleTime, 'HH:mm:ss');
@@ -146,6 +138,22 @@ const calculateAverageHours = (workingHours) => {
     }).format('HH:mm:ss');
 }
 
+const generateRandomPassword = async () => {
+    let length = 8,
+        charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
+        retVal = '';
+    for (let i = 0, n = charset.length; i < length; ++i) {
+        retVal += charset.charAt(Math.floor(Math.random() * n));
+    }
+    return retVal;
+};
+
+const encryptPassword = async data => {
+    const salt = await bcrypt.genSalt(10);
+    const hashPassword = await bcrypt.hash(data, salt);
+    return hashPassword;
+};
+
 export default {
     generateJwtToken,
     checkFolder,
@@ -153,8 +161,9 @@ export default {
     fileUpload,
     mailService,
     timeDifference,
-    updateAttendance,
     calculateLateBy,
     calculateTime,
-    calculateAverageHours
+    calculateAverageHours,
+    generateRandomPassword,
+    encryptPassword
 }

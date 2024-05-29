@@ -47,6 +47,12 @@ export default (sequelize, Sequelize) => {
         personalMobileNumber: {
             type: Sequelize.STRING(45)
         },
+        wrongPasswordCount: {
+            type: Sequelize.INTEGER,
+        },
+        accountRecoveryTime: {
+            type: Sequelize.DATE
+        },
         manager: {
             type: Sequelize.INTEGER,
         },

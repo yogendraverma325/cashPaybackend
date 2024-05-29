@@ -20,8 +20,8 @@ export default (sequelize, Sequelize) => {
         regularizeMailSentDate: {
             type: Sequelize.DATE
         },
-        regularizeMailSentId: {
-            type: Sequelize.STRING
+        regularizeManagerId: {
+            type: Sequelize.INTEGER
         },
         regularizePunchInTime: {
             type: Sequelize.TIME

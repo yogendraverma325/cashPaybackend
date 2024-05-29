@@ -46,10 +46,15 @@ const approveRegularizationRequestSchema = Joi.object({
     status: Joi.number().valid(0, 1)
 })
 
+const unlockAccountSchema = Joi.object({
+    employeeCode: Joi.string().trim().required().label("Employee Code")
+})
+
 export default {
     loginSchema,
     userCreationSchema,
     attendanceSchema,
     regularizeRequest,
-    approveRegularizationRequestSchema
+    approveRegularizationRequestSchema,
+    unlockAccountSchema
 }

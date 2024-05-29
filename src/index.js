@@ -1,5 +1,6 @@
 import './config/db.config.js'
 import './config/redisDb.config.js'
+import './services/cronService.js';
 import routes from './routes/routes.js';
 import Server from './common/server.js';
 import app from './common/app.js';
@@ -22,7 +23,6 @@ app.use(cors())
 app.use('/api', routes)
 
 helper.checkFolder()
-// helper.updateAttendance()
 
 app.get("/api", (req, res) => {
     res.send("App is Running")

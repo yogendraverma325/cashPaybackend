@@ -4,6 +4,7 @@ import logger from "../../../helper/logger.js";
 import helper from "../../../helper/helper.js";
 import respHelper from "../../../helper/respHelper.js";
 import constant from "../../../constant/messages.js";
+import eventEmitter from "../../../services/eventService.js";
 import bcrypt from "bcrypt";
 
 class AdminController {
@@ -81,6 +82,89 @@ class AdminController {
       });
     } catch (error) {
       console.log(error);
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+
+  async unlockAccount(req, res) {
+    try {
+
+      const result = await validator.unlockAccountSchema.validateAsync(req.body)
+
+      await db.employeeMaster.update({
+        wrongPasswordCount: 0,
+        accountRecoveryTime: null
+      }, {
+        where: {
+          empCode: result.employeeCode
+        }
+      })
+
+      return respHelper(res, {
+        status: 200,
+        msg: constant.ACCOUNT_UNLOCKED
+      });
+
+    } catch (error) {
+      console.log(error);
+      if (error.isJoi === true) {
+        return respHelper(res, {
+          status: 422,
+          msg: error.details[0].message,
+        });
+      }
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+
+  async resetPassword(req, res) {
+    try {
+
+      const result = await validator.unlockAccountSchema.validateAsync(req.body)
+
+      const existUser = await db.employeeMaster.findOne({
+        raw: true,
+        where: {
+          empCode: result.employeeCode
+        }
+      })
+
+      const newPassword = await helper.generateRandomPassword()
+
+      const encryptedPassword = await helper.encryptPassword(newPassword)
+
+      await db.employeeMaster.update({
+        password: encryptedPassword
+      }, {
+        where: {
+          empCode: result.employeeCode
+        }
+      })
+
+      eventEmitter.emit(
+        "resetPasswordMail",
+        JSON.stringify({
+          password: newPassword,
+          email: existUser.email,
+        })
+      );
+
+      return respHelper(res, {
+        status: 200,
+      });
+
+    } catch (error) {
+      console.log(error);
+      if (error.isJoi === true) {
+        return respHelper(res, {
+          status: 422,
+          msg: error.details[0].message,
+        });
+      }
       return respHelper(res, {
         status: 500,
       });
