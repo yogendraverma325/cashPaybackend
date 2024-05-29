@@ -31,12 +31,38 @@ class AuthController {
         });
       }
 
+      if (existUser.dataValues.wrongPasswordCount === parseInt(process.env.WRONG_PASSWORD_LIMIT)) {
+        return respHelper(res, {
+          status: 404,
+          msg: constant.ACCOUNT_LOCKED,
+        });
+      }
+
       const comparePass = await bcrypt.compare(
         result.password,
         existUser.password
       );
 
       if (!comparePass) {
+        await db.employeeMaster.update(
+          Object.assign(
+            { wrongPasswordCount: existUser.dataValues.wrongPasswordCount + 1 },
+            (existUser.dataValues.wrongPasswordCount === 2) ? {
+              accountRecoveryTime: moment().add(24, 'hours')
+            } : null
+          ), {
+          where: {
+            id: existUser.dataValues.id
+          }
+        })
+
+        if (existUser.dataValues.wrongPasswordCount === (parseInt(process.env.WRONG_PASSWORD_LIMIT) - 1)) {
+          return respHelper(res, {
+            status: 404,
+            msg: constant.REACHED_WRONG_PASSWORD_LIMIT,
+          });
+        }
+
         return respHelper(res, {
           status: 404,
           msg: constant.INVALID_CREDENTIALS,
@@ -46,9 +72,9 @@ class AuthController {
       delete existUser.dataValues.password;
 
       await db.employeeMaster.update(
-        { lastLogin: moment() },
+        { lastLogin: moment(), wrongPasswordCount: 0 },
         {
-          where: { id: existUser.id },
+          where: { id: existUser.dataValues.id },
         }
       );
 
