@@ -24,7 +24,9 @@ const message = {
     "ALREADY_REQUESTED": "<module> Already Requested.",
     "ACCOUNT_LOCKED": "Your account has been locked, Please Contact to admin to recover your account.",
     "REACHED_WRONG_PASSWORD_LIMIT": "Your account has been locked, Please Contact to admin to recover your account.",
-    "ACCOUNT_UNLOCKED": "Account Unlocked"
+    "ACCOUNT_UNLOCKED": "Account Unlocked",
+    "REGULARIZE_REQUEST_NOT_FOUND": "Regularize Request Not Found.",
+    "REGULARIZE_REQUEST_REVOKED": "Regularization Request Revoked.",
 }
 
 export default message

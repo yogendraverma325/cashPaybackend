@@ -151,7 +151,7 @@ class AttendanceController {
                                 model: db.employeeMaster,
                                 required: false,
                                 as: "managerData",
-                                attributes: ["name", "email"],
+                                attributes: ['id', "name", "email"],
                             },
                         ],
                     },
@@ -165,7 +165,7 @@ class AttendanceController {
                 });
             }
 
-            if (attendanceData.dataValues.latest_Regularization_Request[0].regularizeStatus === "Pending") {
+            if (attendanceData.dataValues.latest_Regularization_Request.length != 0 && attendanceData.dataValues.latest_Regularization_Request[0].regularizeStatus === "Pending") {
                 return respHelper(res, {
                     status: 400,
                     msg: message.ALREADY_REQUESTED.replace('<module>', 'Regularization'),
@@ -187,6 +187,7 @@ class AttendanceController {
                 regularizePunchInDate: result.fromDate,
                 regularizePunchOutDate: result.toDate,
                 regularizeUserRemark: result.remark,
+                regularizeManagerId: attendanceData.dataValues.employee.managerData.id,
                 regularizePunchInTime: result.punchInTime,
                 regularizePunchOutTime: result.punchOutTime,
                 regularizeReason: result.reason,
@@ -416,6 +417,93 @@ class AttendanceController {
             });
 
         } catch (error) {
+            return respHelper(res, {
+                status: 500,
+            });
+        }
+    }
+
+    async revokeRegularizeRequest(req, res) {
+        try {
+
+            const regularizeId = req.query.reqularizeId
+
+            const regularizeData = await db.regularizationMaster.findOne({
+                where: {
+                    regularizeId
+                },
+                include: [{
+                    model: db.attendanceMaster,
+                    attributes: ['attendanceAutoId', 'attendanceDate'],
+                    include: [{
+                        model: db.employeeMaster,
+                        attributes: ['empCode', 'name', 'email'],
+                        include: [{
+                            model: db.employeeMaster,
+                            as: 'managerData',
+                            attributes: ['empCode', 'name', 'email'],
+                        }]
+                    }]
+                }]
+            })
+
+            if (!regularizeData) {
+                return respHelper(res, {
+                    status: 404,
+                    msg: message.REGULARIZE_REQUEST_NOT_FOUND
+                });
+            }
+
+            console.log({
+                name: `${regularizeData.dataValues.attendancemaster.employee.name} (${regularizeData.dataValues.attendancemaster.employee.empCode})`,
+                email: regularizeData.dataValues.attendancemaster.employee.email,
+                attendanceDate: moment(regularizeData.dataValues.attendancemaster.attendanceDate).format("MMMM DD, YYYY"),
+                managerName: `${regularizeData.dataValues.attendancemaster.employee.managerData.name} (${regularizeData.dataValues.attendancemaster.employee.managerData.empCode})`,
+                // email: regularizeData.dataValues.attendancemaster.employee.managerData.email
+            })
+
+            await db.regularizationMaster.update({
+                regularizeStatus: 'Revoked'
+            },
+                {
+                    where: {
+                        regularizeId
+                    }
+                }
+            )
+
+            await db.attendanceMaster.update({
+                attendanceRegularizeStatus: 'Revoked'
+            }, {
+                where: {
+                    attendanceAutoId: regularizeData.dataValues.attendancemaster.attendanceAutoId
+                }
+            })
+
+            eventEmitter.emit(
+                "revokeRegularizationMail",
+                JSON.stringify({
+                    name: `${regularizeData.dataValues.attendancemaster.employee.name} (${regularizeData.dataValues.attendancemaster.employee.empCode})`,
+                    email: regularizeData.dataValues.attendancemaster.employee.email,
+                    attendanceDate: moment(regularizeData.dataValues.attendancemaster.attendanceDate).format("MMMM DD, YYYY"),
+                    managerName: `${regularizeData.dataValues.attendancemaster.employee.managerData.name} (${regularizeData.dataValues.attendancemaster.employee.managerData.empCode})`,
+                    // email: regularizeData.dataValues.attendancemaster.employee.managerData.email
+                })
+            );
+
+            return respHelper(res, {
+                status: 200,
+                msg: message.REGULARIZE_REQUEST_REVOKED
+            });
+
+        } catch (error) {
+            console.log(error);
+            if (error.isJoi === true) {
+                return respHelper(res, {
+                    status: 422,
+                    msg: error.details[0].message,
+                });
+            }
             return respHelper(res, {
                 status: 500,
             });

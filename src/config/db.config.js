@@ -128,7 +128,6 @@ db.BusinessLogic = BusinessLogic(sequelize, Sequelize)
 db.DashboardCard = DashboardCard(sequelize,Sequelize)
 
 
-
 db.employeeMaster.hasMany(db.employeeMaster, { foreignKey: 'manager', sourceKey: 'id', as: 'reportie' })
 db.employeeMaster.hasOne(db.employeeMaster, { foreignKey: 'id', sourceKey: 'manager', as: 'managerData' })
 db.employeeMaster.hasOne(db.roleMaster, { foreignKey: 'role_id', sourceKey: 'role_id' })

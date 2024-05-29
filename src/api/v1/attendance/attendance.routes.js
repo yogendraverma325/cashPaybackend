@@ -8,3 +8,4 @@ export default Express
     .get("/attendanceList", attendanceController.attendanceList)
     .post("/approveRegularizationRequest", attendanceController.approveRegularizationRequest)
     .get("/regularizeRequestList", attendanceController.regularizeRequestList)
+    .put("/revokeRegularizeRequest", attendanceController.revokeRegularizeRequest)

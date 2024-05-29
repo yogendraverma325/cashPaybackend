@@ -6,6 +6,7 @@ import cronController from '../api/v1/cron/cron.controller.js';
 // await cronController.updateAttendance()
 // });
 
+//If user is inactive this cron will 
 cron.schedule("* * * * *", async () => {
     cronController.updateActiveStatus()
 });
