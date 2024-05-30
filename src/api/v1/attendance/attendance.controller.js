@@ -393,19 +393,18 @@ class AttendanceController {
                     } : {
                         regularizeManagerId: req.userId
                     },
-
                     {
                         regularizeStatus: 'Pending'
                     },
                 ),
-                attributes: { exclude: ["createdBy", "createdAt", "updatedBy", "updatedAt"], },
+                attributes: { exclude: ["createdBy", "updatedBy", "updatedAt"], },
                 include: [{
                     model: db.attendanceMaster,
                     attributes: { exclude: ["createdBy", "createdAt", "updatedBy", "updatedAt"], },
                     include: [
                         {
                             model: db.employeeMaster,
-                            attributes: ['name']
+                            attributes: ['empCode', 'name']
                         }]
                 }]
 
