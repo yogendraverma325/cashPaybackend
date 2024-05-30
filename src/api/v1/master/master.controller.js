@@ -5,7 +5,7 @@ import client from "../../../config/redisDb.config.js";
 
 class MasterController {
   async employee(req, res) {
-    try { 
+    try {
       const {
         search,
         department,
@@ -18,11 +18,9 @@ class MasterController {
       const pageNo = req.query.page * 1 || 1;
       const offset = (pageNo - 1) * limit;
 
-      const cacheKey = `employeeList:${pageNo}:${limit}:${search || ""}:${
-        department || ""
-      }:${designation || ""}:${buSearch || ""}:${sbuSearch || ""}:${
-        areaSearch || ""
-      }`;
+      const cacheKey = `employeeList:${pageNo}:${limit}:${search || ""}:${department || ""
+        }:${designation || ""}:${buSearch || ""}:${sbuSearch || ""}:${areaSearch || ""
+        }`;
 
       let employeeData = [];
       await client.get(cacheKey).then(async (data) => {
@@ -41,24 +39,24 @@ class MasterController {
             where: Object.assign(
               search
                 ? {
-                    [Op.or]: [
-                      {
-                        empCode: {
-                          [Op.like]: `%${search}%`,
-                        },
+                  [Op.or]: [
+                    {
+                      empCode: {
+                        [Op.like]: `%${search}%`,
                       },
-                      {
-                        name: {
-                          [Op.like]: `%${search}%`,
-                        },
+                    },
+                    {
+                      name: {
+                        [Op.like]: `%${search}%`,
                       },
-                      {
-                        email: {
-                          [Op.like]: `%${search}%`,
-                        },
+                    },
+                    {
+                      email: {
+                        [Op.like]: `%${search}%`,
                       },
-                    ],
-                  }
+                    },
+                  ],
+                }
                 : {}
             ),
             attributes: [
@@ -167,11 +165,11 @@ class MasterController {
         where: Object.assign(
           manager
             ? {
-                id: manager,
-              }
+              id: manager,
+            }
             : {
-                manager: null,
-              }
+              manager: null,
+            }
         ),
         attributes: { exclude: ["password", "role_id", "designation_id"] },
         include: [
@@ -426,23 +424,23 @@ class MasterController {
         where: Object.assign(
           stateCode
             ? {
-                stateCode,
-              }
+              stateCode,
+            }
             : {},
           stateName
             ? {
-                stateName,
-              }
+              stateName,
+            }
             : {},
           countryId
             ? {
-                countryId,
-              }
+              countryId,
+            }
             : {},
           regionId
             ? {
-                regionId,
-              }
+              regionId,
+            }
             : {}
         ),
       });
@@ -472,8 +470,8 @@ class MasterController {
         where: Object.assign(
           countryId
             ? {
-                countryId,
-              }
+              countryId,
+            }
             : {}
         ),
       });
@@ -503,8 +501,8 @@ class MasterController {
         where: Object.assign(
           stateId
             ? {
-                stateId,
-              }
+              stateId,
+            }
             : {}
         ),
       });
@@ -804,36 +802,37 @@ class MasterController {
 
   async dashboardCard(req, res) {
     try {
-      var dashboardData = [];
-      await client.get("dashboardCard").then(async (data) => {
+      const mobile = parseInt(req.query.mobile)
+      const redisKey = (mobile) ? 'dashboardCardMobile' : 'dashboardCardWeb'
+      let dashboardData = [];
+
+      await client.get(redisKey).then(async (data) => {
         if (data) {
           dashboardData = JSON.parse(data);
-          console.log("Array of objects fetched Redis successfully.");
+
           return respHelper(res, {
             status: 200,
             data: dashboardData,
           });
+
         } else {
+
           dashboardData = await db.DashboardCard.findAndCountAll({
             where: {
               isActive: 1,
             },
-            order: [["position", "asc"]],
+            order: (mobile) ? [["mobilePosition", "asc"]] : [["webPosition", "asc"]],
+            attributes: (mobile) ? ['cardId', 'cardName', 'mobileUrl', 'mobileLightFontColor', 'mobileIcon', 'mobileLightBackgroundColor', 'mobilePosition', 'mobileDarkFontColor', 'mobileDarkBackgroundColor'] : ['cardId', 'cardName', 'webUrl', 'webFontColor', 'webIcon', 'webPosition']
           });
 
           const dashboardJson = JSON.stringify(dashboardData);
-          client
-            .setEx("dashboardCard", parseInt(process.env.TTL), dashboardJson)
-            .then(() => {
-              console.log("Array of objects stored in Redis successfully.");
-            })
-            .catch((err) => {
-              console.error("Error storing array of objects in Redis:", err);
-            });
+          client.setEx(redisKey, parseInt(process.env.TTL), dashboardJson)
+
           return respHelper(res, {
             status: 200,
             data: dashboardData,
           });
+
         }
       });
     } catch (error) {
