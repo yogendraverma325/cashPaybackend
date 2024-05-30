@@ -63,38 +63,7 @@ class AdminController {
     }
   }
 
-  async updateBiographicalDetails(req, res) {
-    try {
-      req.body.updatedBy = req.userId
-      await commonController.updateBiographicalDetails(req,res)
-    } catch (error) {
-      console.log(error);
-      return respHelper(res, {
-        status: 500,
-      });
-    }
-  }
 
-  async insertOrUpdatePaymentDetails(req, res){
-    try {  
-        req.body.updatedBy = req.userId
-        await commonController.insertOrUpdatePaymentDetails(req,res)
-    } catch (error) {
-      console.log(error);
-      return respHelper(res, {
-        status: 500,
-      });
-    }
-  };
-
-  async updateFamilyMembers(req, res){
-    try {  
-        req.body.updatedBy = req.userId
-        await commonController.updateFamilyMembers(req,res)
-    } catch (error) {
-      console.log(error);
-    }
-  }
   async unlockAccount(req, res) {
     try {
 

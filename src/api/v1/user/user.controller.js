@@ -150,52 +150,16 @@ class UserController {
         }
     }
 
-    async updateBiographicalDetails(req, res) {
+    async dashboardCard(req, res) {
         try {
-          req.body.updatedBy = req.userId;
-          await commonController.updateBiographicalDetails(req,res)
+            await commonController.dashboardCard(req, res)
         } catch (error) {
-          console.log(error);
-          return respHelper(res, {
-            status: 500,
-          });
+            console.log(error);
+            return respHelper(res, {
+                status: 500,
+            });
         }
-      }
-
-      async insertOrUpdatePaymentDetails(req, res) {
-        try {
-          req.body.updatedBy = req.userId;
-          await commonController.insertOrUpdatePaymentDetails(req,res)
-        } catch (error) {
-          console.log(error);
-          return respHelper(res, {
-            status: 500,
-          });
-        }
-      }
-
-      async updateFamilyMembers(req, res) {
-        try {
-          req.body.updatedBy = req.userId;
-          await commonController.updateFamilyMembers(req,res)
-        } catch (error) {
-          console.log(error);
-          return respHelper(res, {
-            status: 500,
-          });
-        }
-      }
-
-      async dashboardCard(req, res){
-        try {  
-          await commonController.dashboardCard(req,res)
-        } catch (error) {
-          console.log(error);
-          return respHelper(res, {
-            status: 500,
-          });
-        }
-      };
+    };
 }
 
 export default new UserController()

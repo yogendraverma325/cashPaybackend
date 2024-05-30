@@ -8,37 +8,6 @@ export default (sequelize, Sequelize) => {
         cardName: {
             type: Sequelize.STRING(45)
         },
-<<<<<<< HEAD
-        urlWeb: {
-            type: Sequelize.STRING,
-        },
-        urlApp: {
-            type: Sequelize.STRING,
-        },
-        fontColorWeb: {
-            type: Sequelize.STRING,
-        },
-        fontColorApp: {
-            type: Sequelize.STRING,
-        },
-        positionWeb: {
-            type: Sequelize.INTEGER,
-        },
-        positionApp: {
-            type: Sequelize.INTEGER,
-        },
-        iconWeb: {
-            type: Sequelize.STRING,
-        },
-        iconApp: {
-            type: Sequelize.STRING,
-        },
-        backgroundColorWeb:{
-            type: Sequelize.STRING,
-        },
-        backgroundColorApp:{
-            type: Sequelize.STRING,
-=======
         webUrl: {
             type: Sequelize.STRING(255)
         },
@@ -74,7 +43,6 @@ export default (sequelize, Sequelize) => {
         },
         mobileDarkBackgroundColor: {
             type: Sequelize.STRING(255)
->>>>>>> 2fc9269e68be4cbd35c08f2b1e5e16bcb7542f48
         },
         createdAt: {
             type: Sequelize.DATE(3)

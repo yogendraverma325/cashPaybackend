@@ -4,8 +4,8 @@ import logger from "../../../helper/logger.js";
 import helper from "../../../helper/helper.js";
 import respHelper from "../../../helper/respHelper.js";
 import constant from "../../../constant/messages.js";
-import bcrypt from "bcrypt";
 import client from "../../../config/redisDb.config.js";
+import moment from "moment";
 
 class commonController {
   async updateBiographicalDetails(req, res) {
@@ -20,6 +20,7 @@ class commonController {
         dateOfBirth,
         updatedBy,
       } = req.body;
+
       const updateObj = {
         ...(maritalStatus && { maritalStatus }),
         ...(mobileAccess && { mobileAccess }),
@@ -31,7 +32,8 @@ class commonController {
         ...(backgroundVerification && { backgroundVerification }),
         ...(gender && { gender }),
         ...(dateOfBirth && { dateOfBirth }),
-        ...(updatedBy && { updatedBy }),
+        ...(updatedBy && { updatedBy: req.userId }),
+        updatedAt: moment()
       };
       await db.biographicalDetails.update(updateObj, {
         where: { userId: userId ? userId : req.userId },
@@ -85,7 +87,7 @@ class commonController {
   async updateFamilyMembers(req, res) {
     try {
       const existingFamilyDetails = await db.familyDetails.findOne({
-        where: { relationWithEmp:req.body.relationWithEmp,EmployeeId: req.body.userId ? req.body.userId : req.userId },
+        where: { relationWithEmp: req.body.relationWithEmp, EmployeeId: req.body.userId ? req.body.userId : req.userId },
       });
       if (existingFamilyDetails) {
         await existingFamilyDetails.update(req.body);
@@ -121,7 +123,7 @@ class commonController {
       //for key 0 using for web and 1 for app
       var dashboardData = [];
       let cacheKey = req.params.for == 0 ? "dashboardCardWeb" : "dashboardCardApp";
-      console.log("cacheKey",cacheKey)
+      console.log("cacheKey", cacheKey)
       await client.get(cacheKey).then(async (data) => {
         if (data) {
           console.log("i am in data if")
@@ -134,8 +136,8 @@ class commonController {
         } else {
           console.log("i am in data else")
           const whereConditon = {
-            ...(req.params.for == 0 && { isActiveWeb: 1}),
-            ...(req.params.for == 1 && { isActiveApp: 1}),
+            ...(req.params.for == 0 && { isActiveWeb: 1 }),
+            ...(req.params.for == 1 && { isActiveApp: 1 }),
           }
           let orderFor = req.params.for == 0 ? [["positionWeb", "asc"]] : [["positionApp", "desc"]]
           dashboardData = await db.DashboardCard.findAndCountAll({

@@ -8,7 +8,6 @@ import authentication from '../middleware/authentication.js';
 import paymentRoutes from '../api/v1/payments/payment.routes.js';
 import attendanceRoutes from '../api/v1/attendance/attendance.routes.js';
 import masterExportRoutes from '../api/v1/master/export.routes.js'
-//import commonRoutes from '../api/v1/common/'
 import rateLimit from '../middleware/rateLimit.js';
 
 const router = express.Router()
@@ -21,7 +20,6 @@ router.use("/mapping", mappingRoutes)
 router.use("/user", userRoutes)
 router.use("/payment", paymentRoutes)
 router.use("/attendance", authentication.authenticate, attendanceRoutes)
-//router.use("/common",commonRoutes)
 
 
 
