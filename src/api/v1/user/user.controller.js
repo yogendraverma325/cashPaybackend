@@ -42,7 +42,7 @@ class UserController {
                     {
                         model: db.employeeMaster,
                         required: false,
-                        attributes: ['name'],
+                        attributes: ['name', 'profileImage'],
                         as: 'managerData',
                         include: [
                             {
