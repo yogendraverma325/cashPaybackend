@@ -1,3 +1,25 @@
+---------------------------------------------------- 30-01-2024 (Manish)--------------------------------------------------------------
+CREATE TABLE dashboardcard (
+    cardId INT AUTO_INCREMENT PRIMARY KEY,
+    cardName VARCHAR(45),
+    webUrl VARCHAR(255),
+    webFontColor VARCHAR(255),
+    webIcon VARCHAR(255),
+    webBackgroundColor VARCHAR(255),
+    webPosition INT,
+    mobileUrl VARCHAR(255),
+    mobileLightFontColor VARCHAR(255),
+    mobileIcon VARCHAR(255),
+    mobileLightBackgroundColor VARCHAR(255),
+    mobilePosition INT,
+    mobileDarkFontColor VARCHAR(255),
+    mobileDarkBackgroundColor VARCHAR(255),
+    createdAt DATETIME(3),
+    updatedAt DATETIME(3),
+    createdBy INT,
+    updatedBy INT,
+    isActive TINYINT(1)
+);
 
 ------------------------------------------------------ 27-05-2024 (Manish)-------------------------------------------------------------
 

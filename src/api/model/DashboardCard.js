@@ -6,34 +6,55 @@ export default (sequelize, Sequelize) => {
             autoIncrement: true
         },
         cardName: {
-            type: Sequelize.STRING,
+            type: Sequelize.STRING(45)
         },
-        url: {
-            type: Sequelize.STRING,
+        webUrl: {
+            type: Sequelize.STRING(255)
         },
-        fontColor: {
-            type: Sequelize.STRING,
+        webFontColor: {
+            type: Sequelize.STRING(255)
         },
-        position: {
-            type: Sequelize.INTEGER,
+        webIcon: {
+            type: Sequelize.STRING(255)
         },
-        icon: {
-            type: Sequelize.STRING,
+        webBackgroundColor: {
+            type: Sequelize.STRING(255)
         },
-        backgroundColor:{
-            type: Sequelize.STRING,
+        webPosition: {
+            type: Sequelize.INTEGER
+        },
+        mobileUrl: {
+            type: Sequelize.STRING(255)
+        },
+        mobileLightFontColor: {
+            type: Sequelize.STRING(255)
+        },
+        mobileIcon: {
+            type: Sequelize.STRING(255)
+        },
+        mobileLightBackgroundColor: {
+            type: Sequelize.STRING(255)
+        },
+        mobilePosition: {
+            type: Sequelize.INTEGER
+        },
+        mobileDarkFontColor: {
+            type: Sequelize.STRING(255)
+        },
+        mobileDarkBackgroundColor: {
+            type: Sequelize.STRING(255)
         },
         createdAt: {
-            type: Sequelize.DATE
-        },
-        createdBy: {
-            type: Sequelize.INTEGER,
-        },
-        updatedBy: {
-            type: Sequelize.INTEGER,
+            type: Sequelize.DATE(3)
         },
         updatedAt: {
-            type: Sequelize.DATE
+            type: Sequelize.DATE(3)
+        },
+        createdBy: {
+            type: Sequelize.INTEGER
+        },
+        updatedBy: {
+            type: Sequelize.INTEGER
         },
         isActive: {
             type: Sequelize.BOOLEAN
