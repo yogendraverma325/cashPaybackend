@@ -6,3 +6,6 @@ export default Express
     .Router()
     .post("/addEmployee", authorization('ADMIN'), adminController.addEmployee)
     .put("/updateBiographicalDetails", authorization('ADMIN'), adminController.updateBiographicalDetails)
+    .post("/insertOrUpdatePaymentDetails", authorization('ADMIN'), adminController.insertOrUpdatePaymentDetails)
+    .post("/updateFamilyMembers", authorization('ADMIN'), adminController.updateFamilyMembers)
+    .get("/dashboardCard/:for", authorization('ADMIN'), adminController.dashboardCard)

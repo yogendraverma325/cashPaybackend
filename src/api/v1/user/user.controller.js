@@ -1,5 +1,6 @@
 import db from "../../../config/db.config.js";
 import respHelper from '../../../helper/respHelper.js'
+import commonController from "../common/common.controller.js";
 
 class UserController {
 
@@ -149,6 +150,52 @@ class UserController {
         }
     }
 
+    async updateBiographicalDetails(req, res) {
+        try {
+          req.body.updatedBy = req.userId;
+          await commonController.updateBiographicalDetails(req,res)
+        } catch (error) {
+          console.log(error);
+          return respHelper(res, {
+            status: 500,
+          });
+        }
+      }
+
+      async insertOrUpdatePaymentDetails(req, res) {
+        try {
+          req.body.updatedBy = req.userId;
+          await commonController.insertOrUpdatePaymentDetails(req,res)
+        } catch (error) {
+          console.log(error);
+          return respHelper(res, {
+            status: 500,
+          });
+        }
+      }
+
+      async updateFamilyMembers(req, res) {
+        try {
+          req.body.updatedBy = req.userId;
+          await commonController.updateFamilyMembers(req,res)
+        } catch (error) {
+          console.log(error);
+          return respHelper(res, {
+            status: 500,
+          });
+        }
+      }
+
+      async dashboardCard(req, res){
+        try {  
+          await commonController.dashboardCard(req,res)
+        } catch (error) {
+          console.log(error);
+          return respHelper(res, {
+            status: 500,
+          });
+        }
+      };
 }
 
 export default new UserController()

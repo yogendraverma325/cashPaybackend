@@ -46,10 +46,19 @@ const approveRegularizationRequestSchema = Joi.object({
     status: Joi.number().valid(0, 1)
 })
 
+const bankDetailsSchema = Joi.object({
+    userId:Joi.number().optional(),
+    paymentAccountNumber:Joi.string().required(),
+    paymentBankName:Joi.string().required(),
+    paymentBankIfsc:Joi.string().required(),
+    paymentHolderName:Joi.string().required(),
+})
+
 export default {
     loginSchema,
     userCreationSchema,
     attendanceSchema,
     regularizeRequest,
-    approveRegularizationRequestSchema
+    approveRegularizationRequestSchema,
+    bankDetailsSchema
 }

@@ -9,6 +9,7 @@ const message = {
     "INVALID_AUTH": "Invalid Authentication",
     "USER_NOT_EXIST": "User Doesn't Exists.",
     "INVALID_TOKEN": "Invalid Token.",
+    "INSERT_SUCCESS": "Inserted Successfully.",
     "SESSION_EXPIRED": "Session Expired, Please Login Again!",
     "INVALID_CREDENTIALS": "Invalid Credentials!",
     "LOGIN_SUCCESS": "Login Successfully.",

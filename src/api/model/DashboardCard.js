@@ -8,19 +8,34 @@ export default (sequelize, Sequelize) => {
         cardName: {
             type: Sequelize.STRING,
         },
-        url: {
+        urlWeb: {
             type: Sequelize.STRING,
         },
-        fontColor: {
+        urlApp: {
             type: Sequelize.STRING,
         },
-        position: {
+        fontColorWeb: {
+            type: Sequelize.STRING,
+        },
+        fontColorApp: {
+            type: Sequelize.STRING,
+        },
+        positionWeb: {
             type: Sequelize.INTEGER,
         },
-        icon: {
+        positionApp: {
+            type: Sequelize.INTEGER,
+        },
+        iconWeb: {
             type: Sequelize.STRING,
         },
-        backgroundColor:{
+        iconApp: {
+            type: Sequelize.STRING,
+        },
+        backgroundColorWeb:{
+            type: Sequelize.STRING,
+        },
+        backgroundColorApp:{
             type: Sequelize.STRING,
         },
         createdAt: {
@@ -35,7 +50,10 @@ export default (sequelize, Sequelize) => {
         updatedAt: {
             type: Sequelize.DATE
         },
-        isActive: {
+        isActiveWeb: {
+            type: Sequelize.BOOLEAN
+        },
+        isActiveApp: {
             type: Sequelize.BOOLEAN
         }
     })

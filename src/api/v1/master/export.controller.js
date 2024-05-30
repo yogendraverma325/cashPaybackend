@@ -82,14 +82,13 @@ class MasterController {
           },
           {
             model: db.educationDetails,
-            attributes: [
-              "educationDegree",
-              "educationSpecialisation",
-              "educationInstitute",
-              "educationRemark",
-              "educationStartDate",
-              "educationCompletionDate",
-            ],
+            attributes: ["educationDegree","educationSpecialisation","educationInstitute","educationRemark",
+              "educationStartDate","educationCompletionDate"],
+          },
+          {
+            model: db.familyDetails,
+            attributes:['name','dob','gender','mobileNo','relationWithEmp'],
+            as:'employeefamilydetails'
           },
           {
             model: db.employeeMaster,
@@ -146,6 +145,9 @@ class MasterController {
       );
 
       let educationDetails = [];
+      let familyDetails = [];
+
+
       employeeData.rows.forEach((employee) => {
         employee.employeeeducationdetails.forEach((education) => {
           // Extract only the required fields
@@ -177,6 +179,21 @@ class MasterController {
           educationDetails.push(extractedEducation);
         });
       });
+
+      employeeData.rows.forEach((employee) => {
+        employee.employeefamilydetails.forEach((family) => {
+        const extractedFamily = {
+            empCode: employee.empCode ? employee.empCode : "",
+            name: employee.firstName + " " + employee.lastName,
+            familyName: family.name ? family.name : "",
+            dob: family.dob ? family.dob : "",
+            gender: family.gender ? family.gender : "",
+            mobileNo: family.mobileNo ? family.mobileNo : "",
+            relationWithEmp: family.relationWithEmp ? family.relationWithEmp : "",
+        };
+        familyDetails.push(extractedFamily);
+    });
+  })
 
       if (arr.length > 0) {
         const dt = new Date();
@@ -225,6 +242,19 @@ class MasterController {
             ],
             content: educationDetails,
           },
+          {
+            sheet: "Family Details",
+            columns: [
+                { label: "Employee_Code", value: "empCode" },
+                { label: "Name", value: "name" },
+                { label: "Family_Member_Name", value: "familyName" },
+                { label: "Date_Of_Birth", value: "dob" },
+                { label: "Gender", value: "gender" },
+                { label: "Mobile_Number", value: "mobileNo" },
+                { label: "Relation_With_Employee", value: "relationWithEmp" },
+            ],
+            content: familyDetails,
+        },
         ];
 
         const settings = {

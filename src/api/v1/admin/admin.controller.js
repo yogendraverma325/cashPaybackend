@@ -5,6 +5,7 @@ import helper from "../../../helper/helper.js";
 import respHelper from "../../../helper/respHelper.js";
 import constant from "../../../constant/messages.js";
 import bcrypt from "bcrypt";
+import commonController from "../common/common.controller.js";
 
 class AdminController {
   async addEmployee(req, res) {
@@ -63,22 +64,8 @@ class AdminController {
 
   async updateBiographicalDetails(req, res) {
     try {
-      const { employeeId, maritalStatus, mobileAccess, laptopSystem, backgroundVerification, gender, dateOfBirth } = req.body
-
-      const updateObj = {
-        ...(maritalStatus && { maritalStatus }),
-        ...(mobileAccess && { mobileAccess }),
-        ...(laptopSystem && { laptopSystem: laptopSystem.toLowerCase().replace(/(?<= )[^\s]|^./g, a => a.toUpperCase()) }),
-        ...(backgroundVerification && { backgroundVerification }),
-        ...(gender && { gender }),
-        ...(dateOfBirth && { dateOfBirth })
-      }
-      await db.biographicalDetails.update(updateObj, { where: { userId: employeeId } })
-      return respHelper(res, {
-        status: 200,
-        msg: constant.UPDATE_SUCCESS,
-        data: updateObj
-      });
+      req.body.updatedBy = req.userId
+      await commonController.updateBiographicalDetails(req,res)
     } catch (error) {
       console.log(error);
       return respHelper(res, {
@@ -86,6 +73,43 @@ class AdminController {
       });
     }
   }
+
+  async insertOrUpdatePaymentDetails(req, res){
+    try {  
+        req.body.updatedBy = req.userId
+        await commonController.insertOrUpdatePaymentDetails(req,res)
+    } catch (error) {
+      console.log(error);
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  };
+
+  async updateFamilyMembers(req, res){
+    try {  
+        req.body.updatedBy = req.userId
+        await commonController.updateFamilyMembers(req,res)
+    } catch (error) {
+      console.log(error);
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  };
+  
+  async dashboardCard(req, res){
+    console.log("req.body",req.params.for)
+    try {  
+        await commonController.dashboardCard(req,res)
+    } catch (error) {
+      console.log(error);
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  };
+  
 }
 
 export default new AdminController();
