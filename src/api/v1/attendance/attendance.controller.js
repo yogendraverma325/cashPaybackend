@@ -331,6 +331,7 @@ class AttendanceController {
                             regularizeData.regularizePunchInTime,
                             regularizeData.regularizePunchOutTime
                         ),
+                        attendancePresentStatus: 'Present',
                         attandanceShiftStartDate: regularizeData.regularizePunchInDate,
                         attendanceShiftEndDate: regularizeData.regularizePunchOutDate,
                         attendancePunchInTime: regularizeData.regularizePunchInTime,
@@ -351,6 +352,7 @@ class AttendanceController {
                 await db.attendanceMaster.update(
                     {
                         attendanceRegularizeStatus: "Rejected",
+                        attendancePresentStatus: "Absent"
                     },
                     {
                         where: {

@@ -10,34 +10,46 @@ import moment from "moment";
 class commonController {
   async updateBiographicalDetails(req, res) {
     try {
-      const {
-        userId,
-        maritalStatus,
-        mobileAccess,
-        laptopSystem,
-        backgroundVerification,
-        gender,
-        dateOfBirth,
-        updatedBy,
-      } = req.body;
+      // const {
+      //   userId,
+      //   maritalStatus,
+      //   mobileAccess,
+      //   laptopSystem,
+      //   backgroundVerification,
+      //   gender,
+      //   dateOfBirth,
+      //   updatedBy,
+      // } = req.body;
 
-      const updateObj = {
-        ...(maritalStatus && { maritalStatus }),
-        ...(mobileAccess && { mobileAccess }),
-        ...(laptopSystem && {
-          laptopSystem: laptopSystem
-            .toLowerCase()
-            .replace(/(?<= )[^\s]|^./g, (a) => a.toUpperCase()),
-        }),
-        ...(backgroundVerification && { backgroundVerification }),
-        ...(gender && { gender }),
-        ...(dateOfBirth && { dateOfBirth }),
-        ...(updatedBy && { updatedBy: req.userId }),
-        updatedAt: moment()
-      };
+      const result = await validator.updateBiographicalDetailsSchema.validateAsync(req.body)
+
+      // const updateObj = {
+      //   ...(maritalStatus && { maritalStatus }),
+      //   ...(mobileAccess && { mobileAccess }),
+      //   ...(laptopSystem && {
+      //     laptopSystem: laptopSystem
+      //       .toLowerCase()
+      //       .replace(/(?<= )[^\s]|^./g, (a) => a.toUpperCase()),
+      //   }),
+      //   ...(backgroundVerification && { backgroundVerification }),
+      //   ...(gender && { gender }),
+      //   ...(dateOfBirth && { dateOfBirth }),
+      //   ...(updatedBy && { updatedBy: req.userId }),
+      //   updatedAt: moment()
+      // };
+
+      const updateObj = Object.assign(
+        result,
+        {
+          updatedAt: moment(),
+          updatedBy: req.userId
+        }
+      )
+
       await db.biographicalDetails.update(updateObj, {
-        where: { userId: userId ? userId : req.userId },
+        where: { userId: result.userId ? result.userId : req.userId },
       });
+      
       return respHelper(res, {
         status: 200,
         msg: constant.UPDATE_SUCCESS,
@@ -45,6 +57,12 @@ class commonController {
       });
     } catch (error) {
       console.log(error);
+      if (error.isJoi === true) {
+        return respHelper(res, {
+          status: 422,
+          msg: error.details[0].message,
+        });
+      }
       return respHelper(res, {
         status: 500,
       });
@@ -123,18 +141,16 @@ class commonController {
       //for key 0 using for web and 1 for app
       var dashboardData = [];
       let cacheKey = req.params.for == 0 ? "dashboardCardWeb" : "dashboardCardApp";
-      console.log("cacheKey", cacheKey)
       await client.get(cacheKey).then(async (data) => {
         if (data) {
-          console.log("i am in data if")
           dashboardData = JSON.parse(data);
-          console.log("Array of objects fetched Redis successfully.");
+
           return respHelper(res, {
             status: 200,
             data: dashboardData,
           });
         } else {
-          console.log("i am in data else")
+
           const whereConditon = {
             ...(req.params.for == 0 && { isActiveWeb: 1 }),
             ...(req.params.for == 1 && { isActiveApp: 1 }),

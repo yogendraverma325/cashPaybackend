@@ -58,6 +58,16 @@ const unlockAccountSchema = Joi.object({
     employeeCode: Joi.string().trim().required().label("Employee Code")
 })
 
+const updateBiographicalDetailsSchema = Joi.object({
+    userId: Joi.number().label("User ID"),
+    maritalStatus: Joi.number().required().label("Marital Status"),
+    mobileAccess: Joi.number().required().label("Mobile Access"),
+    laptopSystem: Joi.string().trim().label("System"),
+    backgroundVerification: Joi.number().required().label("Background Verification"),
+    gender: Joi.string().trim().label("Gender"),
+    dateOfBirth: Joi.string().trim().label("Date of Birth"),
+})
+
 export default {
     loginSchema,
     userCreationSchema,
@@ -65,5 +75,6 @@ export default {
     regularizeRequest,
     approveRegularizationRequestSchema,
     bankDetailsSchema,
-    unlockAccountSchema
+    unlockAccountSchema,
+    updateBiographicalDetailsSchema
 }

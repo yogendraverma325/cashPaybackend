@@ -10,3 +10,5 @@ export default Express
     .get("/dashboardCard/:for", authorization('ADMIN'), adminController.dashboardCard)
     .post("/unlockAccount", authorization('ADMIN'), adminController.unlockAccount)
     .post("/resetPassword", authorization('ADMIN'), adminController.resetPassword)
+    .put("/updateBiographicalDetails", authorization('ADMIN'), commonController.updateBiographicalDetails)
+    .post("/updateFamilyMembers", authorization('ADMIN'), commonController.updateFamilyMembers)
