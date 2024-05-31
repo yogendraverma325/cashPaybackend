@@ -6,6 +6,7 @@ import respHelper from "../../../helper/respHelper.js";
 import constant from "../../../constant/messages.js";
 import eventEmitter from "../../../services/eventService.js";
 import bcrypt from "bcrypt";
+import commonController from "../common/common.controller.js";
 
 class AdminController {
   async addEmployee(req, res) {
@@ -62,31 +63,6 @@ class AdminController {
     }
   }
 
-  async updateBiographicalDetails(req, res) {
-    try {
-      const { employeeId, maritalStatus, mobileAccess, laptopSystem, backgroundVerification, gender, dateOfBirth } = req.body
-
-      const updateObj = {
-        ...(maritalStatus && { maritalStatus }),
-        ...(mobileAccess && { mobileAccess }),
-        ...(laptopSystem && { laptopSystem: laptopSystem.toLowerCase().replace(/(?<= )[^\s]|^./g, a => a.toUpperCase()) }),
-        ...(backgroundVerification && { backgroundVerification }),
-        ...(gender && { gender }),
-        ...(dateOfBirth && { dateOfBirth })
-      }
-      await db.biographicalDetails.update(updateObj, { where: { userId: employeeId } })
-      return respHelper(res, {
-        status: 200,
-        msg: constant.UPDATE_SUCCESS,
-        data: updateObj
-      });
-    } catch (error) {
-      console.log(error);
-      return respHelper(res, {
-        status: 500,
-      });
-    }
-  }
 
   async unlockAccount(req, res) {
     try {
@@ -119,11 +95,18 @@ class AdminController {
         status: 500,
       });
     }
+  };
+  
+  async dashboardCard(req, res){
+    try {  
+        await commonController.dashboardCard(req,res)
+    } catch (error) {
+      console.log(error);
   }
+}
 
   async resetPassword(req, res) {
     try {
-
       const result = await validator.unlockAccountSchema.validateAsync(req.body)
 
       const existUser = await db.employeeMaster.findOne({
@@ -169,7 +152,8 @@ class AdminController {
         status: 500,
       });
     }
-  }
+  };
+  
 }
 
 export default new AdminController();

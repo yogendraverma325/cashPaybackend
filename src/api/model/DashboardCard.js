@@ -56,7 +56,10 @@ export default (sequelize, Sequelize) => {
         updatedBy: {
             type: Sequelize.INTEGER
         },
-        isActive: {
+        isActiveWeb: {
+            type: Sequelize.BOOLEAN
+        },
+        isActiveApp: {
             type: Sequelize.BOOLEAN
         }
     })

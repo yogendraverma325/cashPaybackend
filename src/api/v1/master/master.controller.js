@@ -113,6 +113,10 @@ class MasterController {
                 ],
               },
               {
+                model: db.familyDetails,
+                attributes:['name','dob','gender','mobileNo','relationWithEmp']
+              },
+              {
                 model: db.employeeMaster,
                 required: false,
                 attributes: ["name"],
