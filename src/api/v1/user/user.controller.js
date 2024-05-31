@@ -1,5 +1,6 @@
 import db from "../../../config/db.config.js";
 import respHelper from '../../../helper/respHelper.js'
+import commonController from "../common/common.controller.js";
 
 class UserController {
 
@@ -149,6 +150,16 @@ class UserController {
         }
     }
 
+    async dashboardCard(req, res) {
+        try {
+            await commonController.dashboardCard(req, res)
+        } catch (error) {
+            console.log(error);
+            return respHelper(res, {
+                status: 500,
+            });
+        }
+    };
 }
 
 export default new UserController()

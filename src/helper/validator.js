@@ -46,8 +46,26 @@ const approveRegularizationRequestSchema = Joi.object({
     status: Joi.number().valid(0, 1)
 })
 
+const bankDetailsSchema = Joi.object({
+    userId: Joi.number().optional(),
+    paymentAccountNumber: Joi.string().required(),
+    paymentBankName: Joi.string().required(),
+    paymentBankIfsc: Joi.string().required(),
+    paymentHolderName: Joi.string().required()
+})
+
 const unlockAccountSchema = Joi.object({
     employeeCode: Joi.string().trim().required().label("Employee Code")
+})
+
+const updateBiographicalDetailsSchema = Joi.object({
+    userId: Joi.number().label("User ID"),
+    maritalStatus: Joi.number().required().label("Marital Status"),
+    mobileAccess: Joi.number().required().label("Mobile Access"),
+    laptopSystem: Joi.string().trim().label("System"),
+    backgroundVerification: Joi.number().required().label("Background Verification"),
+    gender: Joi.string().trim().label("Gender"),
+    dateOfBirth: Joi.string().trim().label("Date of Birth"),
 })
 
 export default {
@@ -56,5 +74,7 @@ export default {
     attendanceSchema,
     regularizeRequest,
     approveRegularizationRequestSchema,
-    unlockAccountSchema
+    bankDetailsSchema,
+    unlockAccountSchema,
+    updateBiographicalDetailsSchema
 }
