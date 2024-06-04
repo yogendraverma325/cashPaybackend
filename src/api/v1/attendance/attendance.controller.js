@@ -337,8 +337,7 @@ class AttendanceController {
                         attendancePunchInTime: regularizeData.regularizePunchInTime,
                         attendancePunchOutTime: regularizeData.regularizePunchOutTime,
                         attendanceRegularizeUserRemark: regularizeData.regularizeUserRemark,
-                        attendanceRegularizeManagerRemark:
-                            regularizeData.regularizeManagerRemark,
+                        attendanceRegularizeManagerRemark: regularizeData.regularizeManagerRemark,
                         attendanceRegularizeReason: regularizeData.regularizeReason,
                         attendanceRegularizeStatus: "Approved",
                     },
