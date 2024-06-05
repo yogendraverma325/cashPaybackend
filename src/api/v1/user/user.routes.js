@@ -8,6 +8,6 @@ export default Express
     .get("/profileDetails", authentication.authenticate, userController.profileDetails)
     .get("/personalDetails", authentication.authenticate, userController.personalDetails)
     .put("/updateBiographicalDetails", authentication.authenticate, commonController.updateBiographicalDetails)
-    .post("/insertOrUpdatePaymentDetails", authentication.authenticate, commonController.insertOrUpdatePaymentDetails)
-    .post("/updateFamilyMembers", authentication.authenticate, commonController.updateFamilyMembers)
+    .put("/updatePaymentDetails", authentication.authenticate, commonController.updatePaymentDetails)
+    .put("/updateFamilyMembers", authentication.authenticate, commonController.updateFamilyMembers)
     .get("/dashboardCard/:for", authentication.authenticate, userController.dashboardCard)

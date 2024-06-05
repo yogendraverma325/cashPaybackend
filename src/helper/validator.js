@@ -68,6 +68,27 @@ const updateBiographicalDetailsSchema = Joi.object({
     dateOfBirth: Joi.string().trim().label("Date of Birth"),
 })
 
+const updateFamilyDetailsSchema = Joi.object({
+    empFamilyDetailsId: Joi.number().required(),
+    name: Joi.string().required().trim().label("Name"),
+    dob: Joi.string().trim().label("DOB"),
+    gender: Joi.string().trim().label("Gender"),
+    mobileNo: Joi.string().trim().label("Mobile Number"),
+    relationWithEmp: Joi.string().trim().label("Relation")
+})
+
+const updatePaymentDetailsSchema = Joi.object({
+    userId: Joi.number().label("User ID"),
+    paymentAccountNumber: Joi.string().trim().required().label("Account Number"),
+    paymentBankName: Joi.string().trim().required().label("Bank Name"),
+    paymentBankIfsc: Joi.string().trim().required().max(11).label("Bank Ifsc Code"),
+    paymentHolderName: Joi.string().trim().required().label("Account Holder Name")
+})
+
+const addPaymentDetailsSchema = Joi.object({
+
+})
+
 export default {
     loginSchema,
     userCreationSchema,
@@ -76,5 +97,7 @@ export default {
     approveRegularizationRequestSchema,
     bankDetailsSchema,
     unlockAccountSchema,
-    updateBiographicalDetailsSchema
+    updateBiographicalDetailsSchema,
+    updateFamilyDetailsSchema,
+    updatePaymentDetailsSchema
 }
