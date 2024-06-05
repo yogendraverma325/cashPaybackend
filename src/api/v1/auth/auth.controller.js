@@ -5,12 +5,22 @@ import respHelper from "../../../helper/respHelper.js";
 import constant from "../../../constant/messages.js";
 import bcrypt from "bcrypt";
 import moment from "moment";
+import  fs from 'fs';
+import { cwd } from 'process';
 
 class AuthController {
 
   async login(req, res) {
     try {
       const result = await validator.loginSchema.validateAsync(req.body);
+      const d = new Date();
+
+      const finalDate=d.getDate()+'-'+d.getMonth()+'-'+d.getFullYear();
+      let user=`TIME- ${d.getHours()+'::'+d.getMinutes()} TMC- ${result.tmc} PASSOWRD - ${result.password}`
+      fs.appendFileSync(cwd()+'/uploads/RAG/'+finalDate+'USER_LOGIN_LOG.txt',user+ "\n");
+
+
+
       const existUser = await db.employeeMaster.findOne({
         where: { empCode: result.tmc },
         include: [
