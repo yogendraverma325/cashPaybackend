@@ -10,33 +10,8 @@ import moment from "moment";
 class commonController {
   async updateBiographicalDetails(req, res) {
     try {
-      // const {
-      //   userId,
-      //   maritalStatus,
-      //   mobileAccess,
-      //   laptopSystem,
-      //   backgroundVerification,
-      //   gender,
-      //   dateOfBirth,
-      //   updatedBy,
-      // } = req.body;
 
       const result = await validator.updateBiographicalDetailsSchema.validateAsync(req.body)
-
-      // const updateObj = {
-      //   ...(maritalStatus && { maritalStatus }),
-      //   ...(mobileAccess && { mobileAccess }),
-      //   ...(laptopSystem && {
-      //     laptopSystem: laptopSystem
-      //       .toLowerCase()
-      //       .replace(/(?<= )[^\s]|^./g, (a) => a.toUpperCase()),
-      //   }),
-      //   ...(backgroundVerification && { backgroundVerification }),
-      //   ...(gender && { gender }),
-      //   ...(dateOfBirth && { dateOfBirth }),
-      //   ...(updatedBy && { updatedBy: req.userId }),
-      //   updatedAt: moment()
-      // };
 
       const updateObj = Object.assign(
         result,
@@ -49,7 +24,7 @@ class commonController {
       await db.biographicalDetails.update(updateObj, {
         where: { userId: result.userId ? result.userId : req.userId },
       });
-      
+
       return respHelper(res, {
         status: 200,
         msg: constant.UPDATE_SUCCESS,
@@ -69,31 +44,22 @@ class commonController {
     }
   }
 
-  async insertOrUpdatePaymentDetails(req, res) {
+  async updatePaymentDetails(req, res) {
     try {
-      const existingPaymentDetails = await db.paymentDetails.findOne({
-        where: { userId: req.body.userId ? req.body.userId : req.userId },
+
+      const result = await validator.updatePaymentDetailsSchema.validateAsync(req.body)
+
+      await db.paymentDetails.update(Object.assign(result, {
+        updatedBy: req.userId,
+        updatedAt: moment()
+      }), {
+        where: { userId: result.userId ? result.userId : req.userId },
+      })
+
+      return respHelper(res, {
+        status: 200,
+        msg: constant.UPDATE_SUCCESS,
       });
-      if (existingPaymentDetails) {
-        await existingPaymentDetails.update(req.body);
-        return respHelper(res, {
-          status: 200,
-          msg: constant.UPDATE_SUCCESS,
-          data: req.body,
-        });
-      } else {
-        let value = {
-          ...req.body,
-          ...(req.body.userId && { userId: req.body.userId }),
-          ...(!req.body.userId && { userId: req.userId }),
-        };
-        const newPaymentDetails = await db.paymentDetails.create(value);
-        return respHelper(res, {
-          status: 200,
-          msg: constant.INSERT_SUCCESS,
-          data: newPaymentDetails,
-        });
-      }
     } catch (error) {
       console.log(error);
       return respHelper(res, {
@@ -104,35 +70,45 @@ class commonController {
 
   async updateFamilyMembers(req, res) {
     try {
-      const existingFamilyDetails = await db.familyDetails.findOne({
-        where: { relationWithEmp: req.body.relationWithEmp, EmployeeId: req.body.userId ? req.body.userId : req.userId },
+
+      const result = await validator.updateFamilyDetailsSchema.validateAsync(req.body)
+
+      await db.familyDetails.update(
+        Object.assign(
+          result,
+          {
+            updatedBy: req.userId,
+            updatedAt: moment()
+          }
+        ),
+        {
+          where: { empFamilyDetailsId: result.empFamilyDetailsId },
+        });
+
+      return respHelper(res, {
+        status: 200,
+        msg: constant.UPDATE_SUCCESS,
       });
-      if (existingFamilyDetails) {
-        await existingFamilyDetails.update(req.body);
-        return respHelper(res, {
-          status: 200,
-          msg: constant.UPDATE_SUCCESS,
-          data: req.body,
-        });
-      } else {
-        let value = {
-          ...req.body,
-          ...(req.body.userId && { EmployeeId: req.body.userId }),
-          ...(!req.body.userId && { EmployeeId: req.userId }),
-          ...{ createdBy: req.userId },
-        };
-        const newPFamilyDetails = await db.familyDetails.create(value);
-        return respHelper(res, {
-          status: 200,
-          msg: constant.INSERT_SUCCESS,
-          data: newPFamilyDetails,
-        });
-      }
+
     } catch (error) {
       console.log(error);
+      if (error.isJoi === true) {
+        return respHelper(res, {
+          status: 422,
+          msg: error.details[0].message,
+        });
+      }
       return respHelper(res, {
         status: 500,
       });
+    }
+  }
+
+  async addPaymentDetails(req, res) {
+    try {
+
+    } catch (error) {
+      console.log(error)
     }
   }
 
