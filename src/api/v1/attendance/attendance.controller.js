@@ -299,10 +299,7 @@ class AttendanceController {
 
     async approveRegularizationRequest(req, res) {
         try {
-            const result =
-                await validator.approveRegularizationRequestSchema.validateAsync(
-                    req.body
-                );
+            const result = await validator.approveRegularizationRequestSchema.validateAsync(req.body);
 
             const regularizeData = await db.regularizationMaster.findOne({
                 raw: true,
@@ -313,7 +310,7 @@ class AttendanceController {
 
             await db.regularizationMaster.update(
                 {
-                    regularizeManagerRemark: result.remark,
+                    regularizeManagerRemark: (result.remark != "") ? result.remark : null,
                     regularizeStatus: result.status ? "Approved" : "Rejected",
                 },
                 {

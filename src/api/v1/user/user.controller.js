@@ -118,7 +118,11 @@ class UserController {
                 },
                 {
                     model: db.familyDetails,
-                    attributes: { exclude: ['createdAt', 'createdBy', 'updatedBy', 'updatedAt'] },
+                    required: false,
+                    where: {
+                        isActive: 1
+                    },
+                    attributes: { exclude: ['isActive', 'createdAt', 'createdBy', 'updatedBy', 'updatedAt'] },
                 },
                 {
                     model: db.educationDetails,
@@ -129,6 +133,10 @@ class UserController {
                 },
                 {
                     model: db.paymentDetails,
+                    required: false,
+                    where: {
+                        isActive: 1
+                    },
                     attributes: { exclude: ['createdAt', 'createdBy', 'updatedBy', 'updatedAt', 'isActive'] },
                 },
                 {

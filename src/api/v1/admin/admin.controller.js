@@ -22,7 +22,7 @@ class AdminController {
       if (existUser) {
         return respHelper(res, {
           status: 400,
-          msg: constant.ALREADY_EXISTS,
+          msg: constant.ALREADY_EXISTS.replace('<module>', 'User'),
         });
       }
 
@@ -96,14 +96,14 @@ class AdminController {
       });
     }
   };
-  
-  async dashboardCard(req, res){
-    try {  
-        await commonController.dashboardCard(req,res)
+
+  async dashboardCard(req, res) {
+    try {
+      await commonController.dashboardCard(req, res)
     } catch (error) {
       console.log(error);
+    }
   }
-}
 
   async resetPassword(req, res) {
     try {
@@ -153,7 +153,7 @@ class AdminController {
       });
     }
   };
-  
+
 }
 
 export default new AdminController();
