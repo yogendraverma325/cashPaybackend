@@ -41,10 +41,14 @@ const regularizeRequest = Joi.object({
 })
 
 const approveRegularizationRequestSchema = Joi.object({
+    status: Joi.number().valid(0, 1),
     regularizeId: Joi.number(),
-    remark: Joi.string().trim().max(250),
-    status: Joi.number().valid(0, 1)
-})
+    remark: Joi.string().trim().max(250).when('status', {
+        is: Joi.number().valid(0),
+        then: Joi.required().label("Remark"),
+        otherwise: Joi.optional().allow("").label("Remark")
+    })
+});
 
 const bankDetailsSchema = Joi.object({
     userId: Joi.number().optional(),
@@ -86,7 +90,15 @@ const updatePaymentDetailsSchema = Joi.object({
 })
 
 const addPaymentDetailsSchema = Joi.object({
+    userId: Joi.number().label("User ID"),
+    paymentAccountNumber: Joi.string().trim().required().label("Account Number"),
+    paymentBankName: Joi.string().trim().required().label("Bank Name"),
+    paymentBankIfsc: Joi.string().trim().required().max(11).label("Bank Ifsc Code"),
+    paymentHolderName: Joi.string().trim().required().label("Account Holder Name")
+})
 
+const deleteFamilyMemberDetailsSchema = Joi.object({
+    empFamilyDetailsId: Joi.number().required(),
 })
 
 export default {
@@ -99,5 +111,7 @@ export default {
     unlockAccountSchema,
     updateBiographicalDetailsSchema,
     updateFamilyDetailsSchema,
-    updatePaymentDetailsSchema
+    updatePaymentDetailsSchema,
+    deleteFamilyMemberDetailsSchema,
+    addPaymentDetailsSchema
 }

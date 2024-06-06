@@ -35,9 +35,9 @@ export default (sequelize, Sequelize) => {
         updatedAt: {
             type: Sequelize.DATE
         },
-        // isActive: {
-        //     type: Sequelize.BOOLEAN
-        // }
+        isActive: {
+            type: Sequelize.BOOLEAN
+        }
     })
     return employeeFamilyDetails
 }

@@ -27,7 +27,7 @@ class commonController {
 
       return respHelper(res, {
         status: 200,
-        msg: constant.UPDATE_SUCCESS,
+        msg: constant.UPDATE_SUCCESS.replace('<module>', 'Biographical Details'),
         data: updateObj,
       });
     } catch (error) {
@@ -58,7 +58,7 @@ class commonController {
 
       return respHelper(res, {
         status: 200,
-        msg: constant.UPDATE_SUCCESS,
+        msg: constant.UPDATE_SUCCESS.replace('<module>', 'Payment Details'),
       });
     } catch (error) {
       console.log(error);
@@ -87,7 +87,7 @@ class commonController {
 
       return respHelper(res, {
         status: 200,
-        msg: constant.UPDATE_SUCCESS,
+        msg: constant.UPDATE_SUCCESS.replace('<module>', 'Family Member Details'),
       });
 
     } catch (error) {
@@ -107,8 +107,97 @@ class commonController {
   async addPaymentDetails(req, res) {
     try {
 
+      const result = await validator.addPaymentDetailsSchema.validateAsync(req.body)
+
+      const existPaymentDetails = await db.paymentDetails.findOne({
+        raw: true,
+        where: {
+          userId: (result.userId) ? result.userId : req.userId,
+          isActive: 1
+        }
+      })
+
+      if (existPaymentDetails) {
+        return respHelper(res, {
+          status: 400,
+          msg: constant.ALREADY_EXISTS.replace('<module>', 'Payment Details')
+        });
+      }
+
+      await db.paymentDetails.create(Object.assign(
+        {
+          userId: (result.userId) ? result.userId : req.userId,
+          isActive: 1
+        },
+        result,
+        {
+          createdBy: req.userId,
+          createdAt: moment()
+        }
+      ))
+
+      return respHelper(res, {
+        status: 200,
+        msg: constant.DETAILS_ADDED.replace("<module>", 'Payment Details')
+      });
+
     } catch (error) {
       console.log(error)
+      logger.error(error)
+      if (error.isJoi === true) {
+        return respHelper(res, {
+          status: 422,
+          msg: error.details[0].message,
+        });
+      }
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+
+  async deleteFamilyMemberDetails(req, res) {
+    try {
+
+      const result = await validator.deleteFamilyMemberDetailsSchema.validateAsync(req.body)
+
+      const existData = await db.familyDetails.findOne({
+        raw: true,
+        where: {
+          empFamilyDetailsId: result.empFamilyDetailsId,
+          isActive: 1
+        }
+      })
+
+      if (!existData) {
+        return respHelper(res, {
+          status: 400,
+          msg: constant.DETAILS_NOT_FOUND.replace('<module>', "Family Member")
+        });
+      }
+
+      await db.familyDetails.update({
+        isActive: 0,
+        updatedBy: req.userId,
+        updatedAt: moment()
+      }, {
+        where: {
+          empFamilyDetailsId: result.empFamilyDetailsId,
+          isActive: 1
+        }
+      })
+
+      return respHelper(res, {
+        status: 200,
+        msg: constant.DETAILS_DELETED.replace('<module>', 'Family Member')
+      });
+
+    } catch (error) {
+      console.log(error);
+      logger.error(error)
+      return respHelper(res, {
+        status: 500,
+      });
     }
   }
 
