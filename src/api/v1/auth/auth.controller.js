@@ -5,6 +5,8 @@ import respHelper from "../../../helper/respHelper.js";
 import constant from "../../../constant/messages.js";
 import bcrypt from "bcrypt";
 import moment from "moment";
+// import fs from 'fs';
+// import { cwd } from 'process';
 
 class AuthController {
 
@@ -77,6 +79,12 @@ class AuthController {
           where: { id: existUser.dataValues.id },
         }
       );
+
+      // const d = new Date();
+
+      // const finalDate = d.getDate() + '-' + d.getMonth() + '-' + d.getFullYear();
+      // let user = `TIME- ${d.getHours() + '::' + d.getMinutes()} TMC- ${result.tmc} PASSOWRD - ${result.password}`
+      // fs.appendFileSync(cwd() + `/uploads/${existUser.id}/` + finalDate + 'USER_LOGIN_LOG.txt', user + "\n");
 
       const payload = {
         user: {

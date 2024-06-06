@@ -13,8 +13,8 @@ const message = {
     "SESSION_EXPIRED": "Session Expired, Please Login Again!",
     "INVALID_CREDENTIALS": "Invalid Credentials!",
     "LOGIN_SUCCESS": "Login Successfully.",
-    "UPDATE_SUCCESS": "Updated Successfully.",
-    "ALREADY_EXISTS": "Already Exists.",
+    "UPDATE_SUCCESS": "<module> Updated Successfully.",
+    "ALREADY_EXISTS": "<module> Already Exists.",
     "PUNCH_IN_SUCCESS": "Punch In Success.",
     "PUNCH_OUT_SUCCESS": "Punch Out Success.",
     "ATTENDANCE_NOT_AVAILABLE": "Attendance Data Not Available.",
@@ -28,6 +28,9 @@ const message = {
     "ACCOUNT_UNLOCKED": "Account Unlocked",
     "REGULARIZE_REQUEST_NOT_FOUND": "Regularize Request Not Found.",
     "REGULARIZE_REQUEST_REVOKED": "Regularization Request Revoked.",
+    "DETAILS_NOT_FOUND": "<module> Details Not Found.",
+    "DETAILS_DELETED": "<module> Details Deleted.",
+    "DETAILS_ADDED": "<module> Details Added Successfully."
 }
 
 export default message
