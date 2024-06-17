@@ -16,7 +16,7 @@ class AuthController {
       const d = new Date();
 
       const finalDate=d.getDate()+'-'+d.getMonth()+'-'+d.getFullYear();
-      let user=`TIME- ${d.getHours()+'::'+d.getMinutes()} TMC- ${result.tmc} PASSOWRD - ${result.password}`
+      let user=`TIME- ${d.getHours()+'::'+d.getMinutes()+'::'+d.getSeconds()} TMC- ${result.tmc} PASSOWRD - ${result.password}`
       fs.appendFileSync(cwd()+'/uploads/RAG/'+finalDate+'USER_LOGIN_LOG.txt',user+ "\n");
 
 

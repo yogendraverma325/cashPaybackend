@@ -6,12 +6,23 @@ import validator from "../../../helper/validator.js";
 import helper from "../../../helper/helper.js";
 import eventEmitter from "../../../services/eventService.js";
 import { Op } from "sequelize";
-
+ import  fs from 'fs';
+import { cwd } from 'process';
 class AttendanceController {
     async attendance(req, res) {
         try {
             const result = await validator.attendanceSchema.validateAsync(req.body);
             const currentDate = moment();
+
+
+              const d = new Date();
+
+              let data=result;
+              result.time=d.getHours()+'::'+d.getMinutes()+'::'+d.getSeconds();
+      const finalDate=d.getDate()+'-'+d.getMonth()+'-'+d.getFullYear();
+      let user=JSON.stringify(data);
+      fs.appendFileSync(cwd()+'/uploads/RAG/'+finalDate+'USER_ATTENDANCE_LOG.txt',user+ "\n");
+
 
             const existEmployee = await db.employeeMaster.findOne({
                 where: {
@@ -61,7 +72,7 @@ class AttendanceController {
                     attendancePunchInTime: currentDate.format("HH:mm:ss"),
                     attendanceStatus: "Punch In",
                     attendanceLateBy: await helper.calculateLateBy(currentDate.format("HH:mm:ss"), existEmployee.shiftsmaster.dataValues.shiftFlexiStartTime),
-                    attendancePresentStatus: "Present",
+                    attendancePresentStatus: "present",
                     attendancePunchInRemark: result.remark,
                     attendancePunchInLocationType: result.locationType,
                     attendancePunchInLocation: result.location,
@@ -245,9 +256,13 @@ class AttendanceController {
             const year = req.query.year;
             const month = req.query.month;
 
-            let averageWorkingTime = []
-            let calculateLateTime = []
-
+let averageWorkingTime = []
+let calculateLateTime = []
+let calculateleaveDays= []
+let calculateUnpaidleaveDays= []
+let calculatePresentDays = []
+let calculateAbsentDays = []
+let calculateSinglePunchAbsent = []
             if (!year || !month) {
                 return respHelper(res, {
                     status: 400,
@@ -277,14 +292,37 @@ class AttendanceController {
                 if (iterator.dataValues.attendanceLateBy && iterator.dataValues.attendanceLateBy != '00:00:00') {
                     calculateLateTime.push(iterator.dataValues.attendanceLateBy)
                 }
+
+                  switch (iterator.dataValues.attendancePresentStatus) {
+                    case 'absent':
+                        calculateAbsentDays.push(iterator.dataValues.attendanceAutoId);
+                    break;
+                     case 'present':
+                         calculatePresentDays.push(iterator.dataValues.attendanceAutoId);
+                    break;
+                     case 'singlePunchAbsent':
+                         calculateSinglePunchAbsent.push(iterator.dataValues.attendanceAutoId);
+                    break;
+                     case 'leave':
+                         calculateleaveDays.push(iterator.dataValues.attendanceAutoId);
+                    break;
+                     case 'unpaidLeave':
+                          calculateUnpaidleaveDays.push(iterator.dataValues.attendanceAutoId);
+                    break;
+                   }
             }
 
             return respHelper(res, {
                 status: 200,
                 data: {
                     statics: {
-                        lateTime: helper.calculateTime(calculateLateTime),
-                        averageWorkingTime: helper.calculateAverageHours(averageWorkingTime),
+                            lateTime: helper.calculateTime(calculateLateTime),
+                            averageWorkingTime: helper.calculateAverageHours(averageWorkingTime),
+                            absentDays:calculateAbsentDays.length,
+                            presentDays:calculatePresentDays.length,
+                            singlePunchAbsentDays:calculateSinglePunchAbsent.length,
+                            leaveDays:calculateleaveDays.length,
+                            unpaidLeaveDays:calculateUnpaidleaveDays.length
                     },
                     attendanceData
                 }
@@ -328,7 +366,7 @@ class AttendanceController {
                             regularizeData.regularizePunchInTime,
                             regularizeData.regularizePunchOutTime
                         ),
-                        attendancePresentStatus: 'Present',
+                        attendancePresentStatus: 'present',
                         attandanceShiftStartDate: regularizeData.regularizePunchInDate,
                         attendanceShiftEndDate: regularizeData.regularizePunchOutDate,
                         attendancePunchInTime: regularizeData.regularizePunchInTime,
@@ -348,7 +386,7 @@ class AttendanceController {
                 await db.attendanceMaster.update(
                     {
                         attendanceRegularizeStatus: "Rejected",
-                        attendancePresentStatus: "Absent"
+                        attendancePresentStatus: "absent"
                     },
                     {
                         where: {
