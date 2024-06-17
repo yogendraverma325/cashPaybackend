@@ -1,3 +1,8 @@
+
+----------------------------17-06-2024 (Yogi)---------------
+ALTER TABLE hrms_dev.employee 
+ADD COLUMN buHRId INT NULL AFTER accountRecoveryTime,
+ADD COLUMN buHeadId INT NULL AFTER buHRId;
 -------------------------------------------------- 05-06-2024 (Manish) --------------------------------------------------------------
 
 ALTER TABLE `hrms`.`employeefamilydetails` 
