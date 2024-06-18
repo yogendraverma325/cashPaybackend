@@ -6,7 +6,7 @@ import validator from "../../../helper/validator.js";
 import helper from "../../../helper/helper.js";
 import eventEmitter from "../../../services/eventService.js";
 import { Op } from "sequelize";
- import  fs from 'fs';
+import fs from 'fs';
 import { cwd } from 'process';
 class AttendanceController {
     async attendance(req, res) {
@@ -15,13 +15,13 @@ class AttendanceController {
             const currentDate = moment();
 
 
-              const d = new Date();
+            const d = new Date();
 
-              let data=result;
-              result.time=d.getHours()+'::'+d.getMinutes()+'::'+d.getSeconds();
-      const finalDate=d.getDate()+'-'+d.getMonth()+'-'+d.getFullYear();
-      let user=JSON.stringify(data);
-      fs.appendFileSync(cwd()+'/uploads/RAG/'+finalDate+'USER_ATTENDANCE_LOG.txt',user+ "\n");
+            let data = result;
+            result.time = d.getHours() + '::' + d.getMinutes() + '::' + d.getSeconds();
+            const finalDate = d.getDate() + '-' + d.getMonth() + '-' + d.getFullYear();
+            let user = JSON.stringify(data);
+            fs.appendFileSync(cwd() + '/uploads/RAG/' + finalDate + 'USER_ATTENDANCE_LOG.txt', user + "\n");
 
 
             const existEmployee = await db.employeeMaster.findOne({
@@ -256,13 +256,13 @@ class AttendanceController {
             const year = req.query.year;
             const month = req.query.month;
 
-let averageWorkingTime = []
-let calculateLateTime = []
-let calculateleaveDays= []
-let calculateUnpaidleaveDays= []
-let calculatePresentDays = []
-let calculateAbsentDays = []
-let calculateSinglePunchAbsent = []
+            let averageWorkingTime = []
+            let calculateLateTime = []
+            let calculateleaveDays = []
+            let calculateUnpaidleaveDays = []
+            let calculatePresentDays = []
+            let calculateAbsentDays = []
+            let calculateSinglePunchAbsent = []
             if (!year || !month) {
                 return respHelper(res, {
                     status: 400,
@@ -293,36 +293,36 @@ let calculateSinglePunchAbsent = []
                     calculateLateTime.push(iterator.dataValues.attendanceLateBy)
                 }
 
-                  switch (iterator.dataValues.attendancePresentStatus) {
+                switch (iterator.dataValues.attendancePresentStatus) {
                     case 'absent':
                         calculateAbsentDays.push(iterator.dataValues.attendanceAutoId);
-                    break;
-                     case 'present':
-                         calculatePresentDays.push(iterator.dataValues.attendanceAutoId);
-                    break;
-                     case 'singlePunchAbsent':
-                         calculateSinglePunchAbsent.push(iterator.dataValues.attendanceAutoId);
-                    break;
-                     case 'leave':
-                         calculateleaveDays.push(iterator.dataValues.attendanceAutoId);
-                    break;
-                     case 'unpaidLeave':
-                          calculateUnpaidleaveDays.push(iterator.dataValues.attendanceAutoId);
-                    break;
-                   }
+                        break;
+                    case 'present':
+                        calculatePresentDays.push(iterator.dataValues.attendanceAutoId);
+                        break;
+                    case 'singlePunchAbsent':
+                        calculateSinglePunchAbsent.push(iterator.dataValues.attendanceAutoId);
+                        break;
+                    case 'leave':
+                        calculateleaveDays.push(iterator.dataValues.attendanceAutoId);
+                        break;
+                    case 'unpaidLeave':
+                        calculateUnpaidleaveDays.push(iterator.dataValues.attendanceAutoId);
+                        break;
+                }
             }
 
             return respHelper(res, {
                 status: 200,
                 data: {
                     statics: {
-                            lateTime: helper.calculateTime(calculateLateTime),
-                            averageWorkingTime: helper.calculateAverageHours(averageWorkingTime),
-                            absentDays:calculateAbsentDays.length,
-                            presentDays:calculatePresentDays.length,
-                            singlePunchAbsentDays:calculateSinglePunchAbsent.length,
-                            leaveDays:calculateleaveDays.length,
-                            unpaidLeaveDays:calculateUnpaidleaveDays.length
+                        lateTime: helper.calculateTime(calculateLateTime),
+                        averageWorkingTime: helper.calculateAverageHours(averageWorkingTime),
+                        absentDays: calculateAbsentDays.length,
+                        presentDays: calculatePresentDays.length,
+                        singlePunchAbsentDays: calculateSinglePunchAbsent.length,
+                        leaveDays: calculateleaveDays.length,
+                        unpaidLeaveDays: calculateUnpaidleaveDays.length
                     },
                     attendanceData
                 }

@@ -29,3 +29,4 @@ export default Express
     .get("/timezone", masterController.timeZone)
     .get("/groupCompany", masterController.groupCompany)
     .get("/dashboardCard", masterController.dashboardCard)
+    .get("/leave", masterController.leaveMaster)

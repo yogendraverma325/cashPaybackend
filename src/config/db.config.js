@@ -47,6 +47,8 @@ import RegularizationMaster from '../api/model/RegularizationMaster.js';
 import SbuMaster from '../api/model/SbuMaster.js';
 import BusinessLogic from '../api/model/BusinessLogic.js';
 import DashboardCard from '../api/model/DashboardCard.js'
+import Leave from '../api/model/LeaveMaster.js';
+import LeaveMapping from '../api/model/LeaveMapping.js';
 
 const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {
     port: process.env.DB_PORT,
@@ -125,8 +127,9 @@ db.attendanceMaster = AttendanceMaster(sequelize, Sequelize)
 db.regularizationMaster = RegularizationMaster(sequelize, Sequelize)
 db.sbuMaster = SbuMaster(sequelize, Sequelize)
 db.BusinessLogic = BusinessLogic(sequelize, Sequelize)
-db.DashboardCard = DashboardCard(sequelize,Sequelize)
-
+db.DashboardCard = DashboardCard(sequelize, Sequelize)
+db.leaveMaster = Leave(sequelize, Sequelize)
+db.leaveMapping = LeaveMapping(sequelize, Sequelize)
 
 db.employeeMaster.hasMany(db.employeeMaster, { foreignKey: 'manager', sourceKey: 'id', as: 'reportie' })
 db.employeeMaster.hasOne(db.employeeMaster, { foreignKey: 'id', sourceKey: 'manager', as: 'managerData' })
@@ -161,5 +164,8 @@ db.attendanceMaster.hasOne(db.employeeMaster, { foreignKey: 'id', sourceKey: 'em
 db.attendanceMaster.hasOne(db.shiftMaster, { foreignKey: 'shiftId', sourceKey: 'attendanceShiftId' })
 db.regularizationMaster.hasOne(db.attendanceMaster, { foreignKey: 'attendanceAutoId', sourceKey: 'attendanceAutoId' })
 db.attendanceMaster.hasMany(db.regularizationMaster, { foreignKey: 'attendanceAutoId', sourceKey: 'attendanceAutoId', as: 'latest_Regularization_Request' })
+db.leaveMapping.hasOne(db.leaveMaster, { foreignKey: 'leaveId', sourceKey: 'leaveAutoId' })
+db.leaveMapping.hasOne(db.employeeMaster, { foreignKey: 'id', sourceKey: 'EmployeeId' })
+
 
 export default db;

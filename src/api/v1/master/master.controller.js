@@ -114,7 +114,7 @@ class MasterController {
               },
               {
                 model: db.familyDetails,
-                attributes:['name','dob','gender','mobileNo','relationWithEmp']
+                attributes: ['name', 'dob', 'gender', 'mobileNo', 'relationWithEmp']
               },
               {
                 model: db.employeeMaster,
@@ -839,6 +839,31 @@ class MasterController {
 
         }
       });
+    } catch (error) {
+      console.log(error);
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+
+  async leaveMaster(req, res) {
+    try {
+
+      const limit = req.query.limit * 1 || 10;
+      const pageNo = req.query.page * 1 || 1;
+      const offset = (pageNo - 1) * limit;
+
+      const leaveData = await db.leaveMaster.findAndCountAll({
+        limit,
+        offset
+      })
+
+      return respHelper(res, {
+        status: 200,
+        data: leaveData,
+      });
+
     } catch (error) {
       console.log(error);
       return respHelper(res, {

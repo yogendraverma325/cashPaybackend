@@ -10,3 +10,4 @@ export default Express
     .get("/sbu", authentication.authenticate, mappingController.sbu)
     .get("/department", authentication.authenticate, mappingController.department)
     .get('/functionalArea', authentication.authenticate, mappingController.functionalArea)
+    .get("/leave", authentication.authenticate, mappingController.leaveMapping)
