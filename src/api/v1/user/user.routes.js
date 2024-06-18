@@ -13,3 +13,4 @@ export default Express
     .get("/dashboardCard/:for", authentication.authenticate, userController.dashboardCard)
     .delete("/deleteFamilyMemberDetails", authentication.authenticate, commonController.deleteFamilyMemberDetails)
     .post("/addPaymentDetails", authentication.authenticate, commonController.addPaymentDetails)
+    .get("/leave", authentication.authenticate, commonController.addPaymentDetails)
