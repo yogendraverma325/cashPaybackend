@@ -80,7 +80,20 @@ class UserController {
                             attributes: ['designationId', 'name']
                         }]
 
-                    }]
+                    },
+                    {
+                    model: db.employeeMaster,
+                    required: false,
+                    attributes: ["id", "name"],
+                    as: "buHeadData",
+                    },
+                    {
+                    model: db.employeeMaster,
+                    required: false,
+                    attributes: ["id", "name"],
+                    as: "buhrData",
+                    }
+        ]
             })
 
             return respHelper(res, {

@@ -45,7 +45,7 @@ const checkActiveUser = async (data) => {
             id: data
         }
     })
-    return (existUser) ? true : false
+    return existUser;
 }
 
 const mailService = async (data) => {

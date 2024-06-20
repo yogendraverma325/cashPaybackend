@@ -9,7 +9,7 @@ import paymentRoutes from '../api/v1/payments/payment.routes.js';
 import attendanceRoutes from '../api/v1/attendance/attendance.routes.js';
 import masterExportRoutes from '../api/v1/master/export.routes.js'
 import rateLimit from '../middleware/rateLimit.js';
-
+import commanRoutes from "../api/v1/common/comman.routes.js";
 const router = express.Router()
 
 router.use("/export", masterExportRoutes)
@@ -20,7 +20,7 @@ router.use("/mapping", mappingRoutes)
 router.use("/user", userRoutes)
 router.use("/payment", paymentRoutes)
 router.use("/attendance", authentication.authenticate, attendanceRoutes)
-
+router.use("/comman", authentication.authenticate, commanRoutes);
 
 
 export default router

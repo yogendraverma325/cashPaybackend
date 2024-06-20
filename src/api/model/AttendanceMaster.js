@@ -93,6 +93,9 @@ export default (sequelize, Sequelize) => {
         updatedAt: {
             type: Sequelize.DATE
         },
+        needAttendanceCron: {
+        type: Sequelize.INTEGER,
+        },
     })
     return attendanceMaster
 }

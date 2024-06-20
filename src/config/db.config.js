@@ -49,7 +49,9 @@ import BusinessLogic from '../api/model/BusinessLogic.js';
 import DashboardCard from '../api/model/DashboardCard.js'
 import Leave from '../api/model/LeaveMaster.js';
 import LeaveMapping from '../api/model/LeaveMapping.js';
-
+import holidayMaster from "../api/model/HolidayMaster.js";
+import holidayCompanyLocationConfiguration from "../api/model/holidayCompanyLocationConfiguration.js";
+import attendancePolicymaster from "../api/model/attendancePolicymaster.js";
 const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {
     port: process.env.DB_PORT,
     host: process.env.DB_HOST,
@@ -130,6 +132,17 @@ db.BusinessLogic = BusinessLogic(sequelize, Sequelize)
 db.DashboardCard = DashboardCard(sequelize, Sequelize)
 db.leaveMaster = Leave(sequelize, Sequelize)
 db.leaveMapping = LeaveMapping(sequelize, Sequelize)
+db.holidayMaster = holidayMaster(sequelize, Sequelize);
+db.holidayCompanyLocationConfiguration = holidayCompanyLocationConfiguration(
+  sequelize,
+  Sequelize
+);
+db.attendancePolicymaster = attendancePolicymaster(sequelize, Sequelize);
+db.holidayCompanyLocationConfiguration.hasOne(db.holidayMaster, {
+  foreignKey: "holidayId",
+  sourceKey: "holidayId",
+  as: "holidayDetails",
+});
 
 db.employeeMaster.hasMany(db.employeeMaster, { foreignKey: 'manager', sourceKey: 'id', as: 'reportie' })
 db.employeeMaster.hasOne(db.employeeMaster, { foreignKey: 'id', sourceKey: 'manager', as: 'managerData' })
@@ -166,6 +179,20 @@ db.regularizationMaster.hasOne(db.attendanceMaster, { foreignKey: 'attendanceAut
 db.attendanceMaster.hasMany(db.regularizationMaster, { foreignKey: 'attendanceAutoId', sourceKey: 'attendanceAutoId', as: 'latest_Regularization_Request' })
 db.leaveMapping.hasOne(db.leaveMaster, { foreignKey: 'leaveId', sourceKey: 'leaveAutoId' })
 db.leaveMapping.hasOne(db.employeeMaster, { foreignKey: 'id', sourceKey: 'EmployeeId' })
+db.employeeMaster.hasOne(db.attendancePolicymaster, {
+  foreignKey: "attendancePolicyId",
+  sourceKey: "attendancePolicyId",
+});
+db.employeeMaster.hasOne(db.employeeMaster, {
+  foreignKey: "id",
+  sourceKey: "buHRId",
+  as: "buhrData",
+});
 
+db.employeeMaster.hasOne(db.employeeMaster, {
+  foreignKey: "id",
+  sourceKey: "buHeadId",
+  as: "buHeadData",
+});
 
 export default db;

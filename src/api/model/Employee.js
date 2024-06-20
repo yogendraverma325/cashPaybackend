@@ -82,7 +82,19 @@ export default (sequelize, Sequelize) => {
         },
         lastLogin: {
             type: Sequelize.DATE
-        }
+        },
+        buHRId: {
+        type: Sequelize.INTEGER,
+        },
+        buHeadId: {
+        type: Sequelize.INTEGER,
+        },
+        attendancePolicyId: {
+        type: Sequelize.INTEGER,
+        },
+        companyLocationId: {
+        type: Sequelize.INTEGER,
+        },
     })
     return employeeMaster
 }

@@ -31,14 +31,15 @@ class Authentication {
                     });
                 }
 
-                if (!(await helper.checkActiveUser(decoded.user.id))) {
+                 let userData = await helper.checkActiveUser(decoded.user.id);
+               if (!userData) {
                     return respHelper(res, {
                         status: 401,
                         msg: constant.USER_NOT_EXIST,
                     });
                 }
                 const token = await helper.generateJwtToken({ user: decoded.user });
-
+                req.userData = userData;
                 req.userId = decoded.user.id;
                 req.userRole = decoded.user.role
                 req.sessionToken = token;

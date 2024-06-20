@@ -1,27 +1,15 @@
 export default (sequelize, Sequelize) => {
-  const shiftMaster = sequelize.define("shiftsmaster", {
-    shiftId: {
+  const holidayMaster = sequelize.define("holidayMaster", {
+    holidayId: {
       type: Sequelize.INTEGER,
       primaryKey: true,
       autoIncrement: true,
     },
-    shiftName: {
+    holidayName: {
       type: Sequelize.STRING,
     },
-    shiftStartTime: {
-      type: Sequelize.STRING,
-    },
-    shiftEndTime: {
-      type: Sequelize.STRING,
-    },
-    shiftRemark: {
-      type: Sequelize.STRING,
-    },
-    isOverNight: {
-      type: Sequelize.INTEGER,
-    },
-    createdBy: {
-      type: Sequelize.INTEGER,
+    holidayDate: {
+      type: Sequelize.DATE,
     },
     createdAt: {
       type: Sequelize.DATE,
@@ -36,5 +24,5 @@ export default (sequelize, Sequelize) => {
       type: Sequelize.BOOLEAN,
     },
   });
-  return shiftMaster;
+  return holidayMaster;
 };
