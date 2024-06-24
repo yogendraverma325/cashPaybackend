@@ -52,6 +52,7 @@ import LeaveMapping from "../api/model/LeaveMapping.js";
 import holidayMaster from "../api/model/HolidayMaster.js";
 import holidayCompanyLocationConfiguration from "../api/model/holidayCompanyLocationConfiguration.js";
 import attendancePolicymaster from "../api/model/attendancePolicymaster.js";
+import employeeLeaveTransactions from "../api/model/EmployeeLeaveTransactions.js";
 const sequelize = new Sequelize(
   process.env.DB_NAME,
   process.env.DB_USER,
@@ -152,6 +153,7 @@ db.holidayCompanyLocationConfiguration = holidayCompanyLocationConfiguration(
   Sequelize
 );
 db.attendancePolicymaster = attendancePolicymaster(sequelize, Sequelize);
+db.employeeLeaveTransactions = employeeLeaveTransactions(sequelize, Sequelize);
 db.holidayCompanyLocationConfiguration.hasOne(db.holidayMaster, {
   foreignKey: "holidayId",
   sourceKey: "holidayId",
@@ -311,10 +313,21 @@ db.employeeMaster.hasOne(db.employeeMaster, {
   as: "buHeadData",
 });
 
-db.employeeMaster.hasOne(db.employeeMaster, {
+db.attendanceMaster.hasMany(db.employeeLeaveTransactions, {
+  foreignKey: "appliedFor",
+  sourceKey: "attendanceDate",
+  as: "employeeLeaveTransactionDetails",
+});
+
+db.employeeLeaveTransactions.hasMany(db.leaveMaster, {
+  foreignKey: "leaveId",
+  sourceKey: "leaveAutoId",
+  as: "leaveMasterDetails",
+});
+
+db.employeeLeaveTransactions.hasOne(db.employeeMaster, {
   foreignKey: "id",
-  sourceKey: "buHeadId",
-  as: "buHeadData",
+  sourceKey: "employeeId",
 });
 
 export default db;
