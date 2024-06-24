@@ -89,6 +89,12 @@ export default (sequelize, Sequelize) => {
     buHeadId: {
       type: Sequelize.INTEGER,
     },
+    attendancePolicyId: {
+      type: Sequelize.INTEGER,
+    },
+    companyLocationId: {
+      type: Sequelize.INTEGER,
+    },
   });
   return employeeMaster;
 };

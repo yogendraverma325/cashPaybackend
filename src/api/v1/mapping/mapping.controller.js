@@ -218,6 +218,33 @@ class MappingController {
             })
         }
     }
+
+    async leaveMapping(req, res) {
+        try {
+            const userId = req.query.user || req.userId
+
+            const leaveData = await db.leaveMapping.findAll({
+                where: {
+                    EmployeeId: userId
+                },
+                include: [{
+                    model: db.leaveMaster,
+                    attributes: { exclude: ['createdAt', 'createdBy', 'updatedBy', 'updatedAt', 'isActive'] }
+                }]
+            })
+
+            return respHelper(res, {
+                status: 200,
+                data: leaveData
+            })
+
+        } catch (error) {
+            console.log(error)
+            return respHelper(res, {
+                status: 500
+            })
+        }
+    }
 }
 
 export default new MappingController()

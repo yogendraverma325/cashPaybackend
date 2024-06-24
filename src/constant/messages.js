@@ -30,7 +30,15 @@ const message = {
     "REGULARIZE_REQUEST_REVOKED": "Regularization Request Revoked.",
     "DETAILS_NOT_FOUND": "<module> Details Not Found.",
     "DETAILS_DELETED": "<module> Details Deleted.",
-    "DETAILS_ADDED": "<module> Details Added Successfully."
+    "DETAILS_ADDED": "<module> Details Added Successfully.",
+    "ATTENDANCE_POLICY_DID_NOT_MAP":
+    "No Attendance policy Is assign to you, you can't mark attendance",
+    "DATA_FETCHED": "Data fetched successfully",
+    "DATA_BLANK": "No data available",
+    "SHIFT": {
+    "NO_SHIFT": "No Shift Is assign to you, you can't mark attendance",
+    "SHIFT_TIME_INVALID": "Invalid Shift Time",
+    },
 }
 
 export default message

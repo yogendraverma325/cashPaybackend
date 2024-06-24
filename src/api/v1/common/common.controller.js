@@ -6,7 +6,7 @@ import respHelper from "../../../helper/respHelper.js";
 import constant from "../../../constant/messages.js";
 import client from "../../../config/redisDb.config.js";
 import moment from "moment";
-
+const message=constant;
 class commonController {
   async updateBiographicalDetails(req, res) {
     try {
@@ -245,6 +245,38 @@ class commonController {
       console.log(error);
       return respHelper(res, {
         status: 500,
+      });
+    }
+  }
+  async getCalendar(req, res) {
+    try {
+      let userData = req.userData;
+      console.log("userData",userData)
+      const holidayData = await db.holidayCompanyLocationConfiguration.findAll({
+        where: {
+          companyLocationId: userData.companyLocationId,
+        },
+        include: [
+          {
+            model: db.holidayMaster,
+            attributes: ["holidayId", "holidayName", "holidayDate"],
+            as: "holidayDetails",
+            where: {
+              isActive: 1,
+            },
+          },
+        ],
+      });
+
+      return respHelper(res, {
+        status: 200,
+        data: holidayData,
+        msg: message.DATA_FETCHED,
+      });
+    } catch (error) {
+      return respHelper(res, {
+        status: 500,
+        data: error,
       });
     }
   }
