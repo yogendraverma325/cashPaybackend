@@ -5,4 +5,6 @@ export default Express.Router()
   .get("/history", LeaveController.history)
   .get("/list", LeaveController.leaveMapping)
   .get("/leaveRequestList", LeaveController.leaveRequestList)
-  .post("/updateLeaveRequest", LeaveController.updateLeaveRequest);
+  .post("/updateLeaveRequest", LeaveController.updateLeaveRequest)
+  .post("/requestForLeave", LeaveController.requestForLeave)
+  .post("/revokeLeaveRequest", LeaveController.revokeLeaveRequest);

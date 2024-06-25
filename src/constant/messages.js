@@ -43,9 +43,12 @@ const message = {
     SHIFT_TIME_INVALID: "Invalid Shift Time",
   },
   LEAVE: {
-    NO_UPDATE: "Can't Update Currently",
+    RECORDED: "Leave Request has been submitted",
+    NO_UPDATE: "Can't Update Status Currently",
+    DATES_NOT_APPLICABLE: "You Can Request For Given Dates",
     APPROVED: "Leave Request Approved",
     REJECTED: "Leave Request Rejected",
+    REVOKED: "Leave Request Revoked",
   },
 };
 

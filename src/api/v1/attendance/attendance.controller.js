@@ -436,7 +436,10 @@ class AttendanceController {
               "halfDayFor",
               "reason",
             ],
-            where: { status: ["pending", "approved"] },
+            where: {
+              status: ["pending", "approved"],
+              employeeId: user ? user : req.userId,
+            },
           },
         ],
       });

@@ -37,6 +37,9 @@ export default (sequelize, Sequelize) => {
       reason: {
         type: Sequelize.STRING,
       },
+      message: {
+        type: Sequelize.STRING,
+      },
       pendingAt: {
         type: Sequelize.INTEGER,
       },

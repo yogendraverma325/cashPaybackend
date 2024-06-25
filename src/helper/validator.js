@@ -139,6 +139,25 @@ const updateLeaveRequest = Joi.object({
     .label("status"),
 });
 
+const leaveRequestSchema = Joi.object({
+  attachment: Joi.string().optional(),
+  employeeId: Joi.number().required().label("Employee ID"),
+  leaveAutoId: Joi.number().required().label("Leave Type"),
+  recipientsIds: Joi.string().optional().allow(""),
+  fromDate: Joi.date().required(),
+  toDate: Joi.date().required().min(Joi.ref("fromDate")),
+  firstDayHalf: Joi.number().optional().valid(0, 1, 2),
+  lastDayHalf: Joi.number().optional().valid(0, 1, 2),
+  reason: Joi.string().optional().max(45),
+  message: Joi.string().optional().max(45),
+}).options({ abortEarly: false });
+
+const revoekLeaveRequest = Joi.object({
+  employeeLeaveTransactionsIds: Joi.string()
+    .trim()
+    .required()
+    .label("Leave ID"),
+});
 export default {
   loginSchema,
   userCreationSchema,
@@ -153,4 +172,6 @@ export default {
   deleteFamilyMemberDetailsSchema,
   addPaymentDetailsSchema,
   updateLeaveRequest,
+  leaveRequestSchema,
+  revoekLeaveRequest,
 };

@@ -8,6 +8,8 @@ import eventEmitter from "../../../services/eventService.js";
 import { Op } from "sequelize";
 import fs from "fs";
 import { cwd } from "process";
+var _this = this;
+
 class LeaveController {
   async history(req, res) {
     try {
@@ -48,27 +50,7 @@ class LeaveController {
   async leaveMapping(req, res) {
     try {
       const userId = req.query.user || req.userId;
-
-      const leaveData = await db.leaveMapping.findAll({
-        where: {
-          EmployeeId: userId,
-        },
-        include: [
-          {
-            model: db.leaveMaster,
-            attributes: {
-              exclude: [
-                "createdAt",
-                "createdBy",
-                "updatedBy",
-                "updatedAt",
-                "isActive",
-              ],
-            },
-          },
-        ],
-      });
-
+      let leaveData = await helper.empLeaveDetails(userId, 0);
       return respHelper(res, {
         status: 200,
         data: leaveData,
@@ -114,81 +96,233 @@ class LeaveController {
     }
   }
   async updateLeaveRequest(req, res) {
-    // try {
-    const result = await validator.updateLeaveRequest.validateAsync(req.body);
-    let leaveIds = result.employeeLeaveTransactionsIds.split(",");
-    let countLeave = await db.employeeLeaveTransactions.count({
-      where: {
-        status: "pending",
-        pendingAt: req.userId,
-        employeeLeaveTransactionsId: leaveIds,
-      },
-    });
-
-    if (leaveIds.length != countLeave) {
-      return respHelper(res, {
-        status: 401,
-        msg: message.LEAVE.NO_UPDATE,
-      });
-    }
-    await db.employeeLeaveTransactions.update(
-      {
-        status: result.status,
-        updatedBy: req.userId,
-        updatedAt: moment(),
-      },
-      {
+    try {
+      const result = await validator.updateLeaveRequest.validateAsync(req.body);
+      let leaveIds = result.employeeLeaveTransactionsIds.split(",");
+      let countLeave = await db.employeeLeaveTransactions.count({
         where: {
+          status: "pending",
+          pendingAt: req.userId,
           employeeLeaveTransactionsId: leaveIds,
         },
-      }
-    );
-
-    for (const leaveID of leaveIds) {
-      const existingRecord = await db.employeeLeaveTransactions.findOne({
-        where: { employeeLeaveTransactionsId: leaveID },
       });
 
-      if (existingRecord) {
-        console.log(
-          "existingRecord.appliedFor",
-          existingRecord.appliedFor,
-          "existingRecord.employeeId",
-          existingRecord.employeeId
-        );
-        await db.attendanceMaster.update(
-          { employeeLeaveTransactionsId: leaveID },
-          {
-            where: {
-              attendanceDate: existingRecord.appliedFor,
-              employeeId: existingRecord.employeeId,
-            },
-          }
-        );
-      } else {
-        // await db.User.create(record, { transaction });
+      if (leaveIds.length != countLeave) {
+        return respHelper(res, {
+          status: 401,
+          msg: message.LEAVE.NO_UPDATE,
+        });
+      }
+      await db.employeeLeaveTransactions.update(
+        {
+          status: result.status,
+          updatedBy: req.userId,
+          updatedAt: moment(),
+        },
+        {
+          where: {
+            employeeLeaveTransactionsId: leaveIds,
+          },
+        }
+      );
+
+      for (const leaveID of leaveIds) {
+        const existingRecord = await db.employeeLeaveTransactions.findOne({
+          where: { employeeLeaveTransactionsId: leaveID },
+        });
+
+        if (existingRecord) {
+          console.log(
+            "existingRecord.appliedFor",
+            existingRecord.appliedFor,
+            "existingRecord.employeeId",
+            existingRecord.employeeId
+          );
+          await db.attendanceMaster.update(
+            { employeeLeaveTransactionsId: leaveID },
+            {
+              where: {
+                attendanceDate: existingRecord.appliedFor,
+                employeeId: existingRecord.employeeId,
+              },
+            }
+          );
+        } else {
+          // await db.User.create(record, { transaction });
+        }
+
+        console.log("leaveID", leaveID);
       }
 
-      console.log("leaveID", leaveID);
+      return respHelper(res, {
+        status: 200,
+        data: countLeave,
+        msg: message.REGULARIZE_REQUEST_SUCCESSFULL,
+      });
+    } catch (error) {
+      console.log(error);
+      if (error.isJoi === true) {
+        return respHelper(res, {
+          status: 422,
+          msg: error.details[0].message,
+        });
+      }
+      return respHelper(res, {
+        status: 500,
+      });
     }
+  }
+  async requestForLeave(req, res) {
+    try {
+      const result = await validator.leaveRequestSchema.validateAsync(req.body);
 
-    return respHelper(res, {
-      status: 200,
-      data: countLeave,
-      msg: message.REGULARIZE_REQUEST_SUCCESSFULL,
-    });
-    // } catch (error) {
-    //   console.log(error);
-    //   if (error.isJoi === true) {
-    //     return respHelper(res, {
-    //       status: 422,
-    //       msg: error.details[0].message,
-    //     });
-    //   }
-    //   return respHelper(res, {
-    //     status: 500,
-    //   });
-    // }
+      const leaveCountForDates = await db.employeeLeaveTransactions.count({
+        where: {
+          appliedFor: {
+            [Op.between]: [req.body.fromDate, req.body.toDate],
+          },
+          status: {
+            [Op.ne]: "revoked",
+          },
+        },
+      });
+      let EMP_DATA = await helper.getEmpProfile(req.body.employeeId);
+      if (leaveCountForDates > 0) {
+        return respHelper(res, {
+          status: 401,
+          msg: message.LEAVE.DATES_NOT_APPLICABLE,
+        });
+      }
+
+      let leaveData = await helper.empLeaveDetails(
+        req.body.employeeId,
+        req.body.leaveAutoId
+      );
+
+      const fromDate = req.body.fromDate;
+      const toDate = req.body.toDate;
+      let arr = [];
+      let leaveDays = 0;
+      const daysDifference = moment(toDate).diff(moment(fromDate), "days");
+      for (let i = -1; i < daysDifference; i++) {
+        let appliedFor = moment(fromDate)
+          .add(i + 1, "days")
+          .format("YYYY-MM-DD");
+
+        let halfDayFor = 0;
+        let isHalfDay = 0;
+
+        if (daysDifference == 0) {
+          isHalfDay = req.body.firstDayHalf != 0 ? 1 : 0;
+          halfDayFor = req.body.firstDayHalf;
+        } else {
+          if (i + 1 == 0) {
+            isHalfDay = req.body.firstDayHalf != 0 ? 1 : 0;
+            halfDayFor = req.body.firstDayHalf;
+          } else if (i + 1 == daysDifference) {
+            isHalfDay = req.body.lastDayHalf != 0 ? 1 : 0;
+            halfDayFor = req.body.lastDayHalf;
+          }
+        }
+
+        if (isHalfDay) {
+          leaveDays += 0.5;
+        } else {
+          leaveDays += 1;
+        }
+
+        let leaveId = 6;
+        if (leaveData) {
+          leaveId = req.body.leaveAutoId;
+          if (leaveData.availableLeave < leaveDays) {
+            leaveId = 6;
+          }
+        }
+        const recordData = {
+          employeeId: req.body.employeeId, // Replace with actual employee ID
+          attendanceShiftId: EMP_DATA.shiftId, // Replace with actual attendance shift ID
+          attendancePolicyId: EMP_DATA.attendancePolicyId, // Replace with actual attendance policy ID
+          leaveAutoId: leaveId, // Replace with actual leave auto ID
+          appliedOn: moment().format("YYYY-MM-DD"), // Replace with actual applied on date
+          appliedFor: appliedFor, // Replace with actual applied for date
+          isHalfDay: isHalfDay, // Replace with actual is half day value (0 or 1)
+          halfDayFor: halfDayFor, // Replace with actual half day for value
+          status: "pending", // Replace with actual status
+          reason: req.body.reason, // Replace with actual reason
+          message: req.body.message,
+          pendingAt: EMP_DATA.managerData.id, // Replace with actual pending at value
+          createdBy: req.userId, // Replace with actual creator user ID
+          createdAt: moment(), // Replace with actual creation date
+        };
+        arr.push(recordData);
+        const record = await db.employeeLeaveTransactions.create(recordData);
+      }
+      return respHelper(res, {
+        status: 200,
+        data: {},
+        msg: message.LEAVE.RECORDED,
+      });
+    } catch (error) {
+      if (error.isJoi === true) {
+        return respHelper(res, {
+          status: 422,
+          msg: error.details[0].message,
+        });
+      }
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+
+  async revokeLeaveRequest(req, res) {
+    try {
+      const result = await validator.revoekLeaveRequest.validateAsync(req.body);
+      let leaveIds = result.employeeLeaveTransactionsIds.split(",");
+      let countLeave = await db.employeeLeaveTransactions.count({
+        where: {
+          status: "pending",
+          employeeLeaveTransactionsId: leaveIds,
+        },
+      });
+
+      console.log("leaveIds", leaveIds.length, countLeave);
+      if (leaveIds.length != countLeave) {
+        return respHelper(res, {
+          status: 401,
+          msg: message.LEAVE.NO_UPDATE,
+        });
+      }
+      await db.employeeLeaveTransactions.update(
+        {
+          status: "revoked",
+          updatedBy: req.userId,
+          updatedAt: moment(),
+        },
+        {
+          where: {
+            employeeLeaveTransactionsId: leaveIds,
+          },
+        }
+      );
+
+      return respHelper(res, {
+        status: 200,
+        data: {},
+        msg: message.LEAVE.REVOKED,
+      });
+    } catch (error) {
+      console.log(error);
+      if (error.isJoi === true) {
+        return respHelper(res, {
+          status: 422,
+          msg: error.details[0].message,
+        });
+      }
+      return respHelper(res, {
+        status: 500,
+      });
+    }
   }
 }
 
