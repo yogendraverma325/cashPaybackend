@@ -49,6 +49,15 @@ const msg = function (res, data) {
 
             break;
 
+        case 402:
+            res.status(data.status).json({
+            statusCode: 402,
+            status: false,
+            message: data.msg
+            });
+
+        break;
+
         case 403:
             res.status(data.status).json({
                 statusCode: 403,

@@ -425,8 +425,8 @@ class AttendanceController {
             attributes: ["regularizeStatus", "regularizeId"],
             where: { regularizeStatus: ["Pending", "Approved"] },
           },
-          {
-            model: db.employeeLeaveTransactions.scope("latest"),
+         {
+            model: db.employeeLeaveTransactions,
             required: false,
             as: "employeeLeaveTransactionDetails",
             attributes: [
@@ -435,10 +435,18 @@ class AttendanceController {
               "isHalfDay",
               "halfDayFor",
               "reason",
+              "leaveAutoId",
             ],
+            limit: 1,
             where: {
               status: ["pending", "approved"],
               employeeId: user ? user : req.userId,
+            },
+            include: {
+              model: db.leaveMaster,
+              required: false,
+              as: "leaveMasterDetails",
+              attributes: ["leaveName", "leaveCode"],
             },
           },
         ],
