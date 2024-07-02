@@ -45,7 +45,7 @@ const message = {
   LEAVE: {
     RECORDED: "Leave Request has been submitted",
     NO_UPDATE: "Can't Update Status Currently",
-    DATES_NOT_APPLICABLE: "You Can Request For Given Dates",
+    DATES_NOT_APPLICABLE: "You Can't Request For Given Dates",
     APPROVED: "Leave Request Approved",
     REJECTED: "Leave Request Rejected",
     REVOKED: "Leave Request Revoked",

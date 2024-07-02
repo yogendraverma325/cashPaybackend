@@ -190,6 +190,7 @@ class LeaveController {
           status: {
             [Op.ne]: "revoked",
           },
+          employeeId: req.body.employeeId, 
         },
       });
       let EMP_DATA = await helper.getEmpProfile(req.body.employeeId);
