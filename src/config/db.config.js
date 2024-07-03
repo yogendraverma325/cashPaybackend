@@ -330,4 +330,10 @@ db.employeeLeaveTransactions.hasOne(db.employeeMaster, {
   sourceKey: "employeeId",
 });
 
+db.attendanceMaster.hasMany(db.holidayCompanyLocationConfiguration, {
+  foreignKey: "holidayCompanyLocationConfigurationID",
+  sourceKey: "holidayCompanyLocationConfigurationID",
+  as: "holidayLocationMappingDetails",
+});
+
 export default db;

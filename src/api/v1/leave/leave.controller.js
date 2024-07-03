@@ -82,6 +82,12 @@ class LeaveController {
             model: db.employeeMaster,
             attributes: ["empCode", "name"],
           },
+          {
+            model: db.leaveMaster,
+            required: false,
+            as: "leaveMasterDetails",
+            attributes: ["leaveName", "leaveCode"],
+          },
         ],
       });
 
@@ -204,6 +210,7 @@ class LeaveController {
       let arr = [];
       let leaveDays = 0;
       const daysDifference = moment(toDate).diff(moment(fromDate), "days");
+      let uuid = "id_" + moment().format("YYYYMMDDHHmmss");
       for (let i = -1; i < daysDifference; i++) {
         let appliedFor = moment(fromDate)
           .add(i + 1, "days")
@@ -253,6 +260,7 @@ class LeaveController {
           pendingAt: EMP_DATA.managerData.id, // Replace with actual pending at value
           createdBy: req.userId, // Replace with actual creator user ID
           createdAt: moment(), // Replace with actual creation date
+          batch_id: uuid,
         };
         arr.push(recordData);
         const record = await db.employeeLeaveTransactions.create(recordData);

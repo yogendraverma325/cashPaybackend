@@ -102,6 +102,9 @@ export default (sequelize, Sequelize) => {
     needAttendanceCron: {
       type: Sequelize.INTEGER,
     },
+    holidayCompanyLocationConfigurationID: {
+      type: Sequelize.INTEGER,
+    },
   });
   return attendanceMaster;
 };

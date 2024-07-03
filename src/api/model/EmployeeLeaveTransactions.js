@@ -40,6 +40,9 @@ export default (sequelize, Sequelize) => {
       message: {
         type: Sequelize.STRING,
       },
+      batch_id: {
+        type: Sequelize.STRING,
+      },
       pendingAt: {
         type: Sequelize.INTEGER,
       },

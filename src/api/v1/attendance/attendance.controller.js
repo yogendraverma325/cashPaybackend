@@ -426,7 +426,21 @@ class AttendanceController {
             where: { regularizeStatus: ["Pending", "Approved"] },
           },
           {
-            model: db.employeeLeaveTransactions.scope("latest"),
+            model: db.holidayCompanyLocationConfiguration,
+            required: false,
+            as: "holidayLocationMappingDetails",
+            include: {
+              model: db.holidayMaster,
+              required: true,
+              as: "holidayDetails",
+              attributes: ["holidayName", "holidayDate"],
+              where: {
+                isActive: 1,
+              },
+            },
+          },
+          {
+            model: db.employeeLeaveTransactions,
             required: false,
             as: "employeeLeaveTransactionDetails",
             attributes: [
@@ -435,10 +449,18 @@ class AttendanceController {
               "isHalfDay",
               "halfDayFor",
               "reason",
+              "leaveAutoId",
             ],
+            limit: 1,
             where: {
               status: ["pending", "approved"],
               employeeId: user ? user : req.userId,
+            },
+            include: {
+              model: db.leaveMaster,
+              required: false,
+              as: "leaveMasterDetails",
+              attributes: ["leaveName", "leaveCode"],
             },
           },
         ],
@@ -729,6 +751,91 @@ class AttendanceController {
         status: 500,
       });
     }
+  }
+  async generateCalendarForEmp(req, res) {
+    let empIds = req.body.empIds
+      .split(",")
+      .filter((el) => el != "")
+      .map((el) => parseInt(el));
+    let whereCondition = { isActive: 1 };
+    if (empIds && empIds.length > 0) {
+      whereCondition["id"] = empIds;
+    }
+
+    const dates = [];
+    const startDate = moment().startOf("year"); // January 1st of the current year
+    const endDate = moment().endOf("year"); // December 31st of the current year
+
+    let currentDate = startDate.clone();
+    while (currentDate.isSameOrBefore(endDate)) {
+      dates.push(currentDate.clone().format("YYYY-MM-DD")); // Format date as YYYY-MM-DD
+      currentDate.add(1, "days");
+    }
+    let employees = await db.employeeMaster.findAll({
+      attributes: ["id", "companyLocationId", "attendancePolicyId", "shiftId"],
+      limit: 100,
+      offset: 0,
+      where: whereCondition,
+    });
+
+    for (let employee of employees) {
+      let insertionData = [];
+      for (let date of dates) {
+        let holidayOnDate =
+          await db.holidayCompanyLocationConfiguration.findOne({
+            attributes: ["holidayCompanyLocationConfigurationID"],
+            where: {
+              companyLocationId: employee.companyLocationId,
+            },
+            include: {
+              model: db.holidayMaster,
+              attributes: ["holidayId", "holidayName", "holidayDate"],
+              required: true,
+              as: "holidayDetails",
+              where: {
+                holidayDate: date,
+              },
+            },
+          });
+
+        insertionData.push({
+          attendanceDate: date,
+          employeeId: employee.id,
+          attandanceShiftStartDate: null,
+          attendanceShiftEndDate: null,
+          attendanceShiftId: employee.shiftId,
+          attendancePunchInTime: null,
+          attendancePunchOutTime: null,
+          attendanceStatus: "NA",
+          attendanceLateBy: "",
+          attendancePresentStatus: "NA",
+          attendancePunchInRemark: "",
+          attendancePunchInLocationType: "",
+          attendancePunchInLocation: "",
+          attendancePunchInLatitude: "",
+          attendancePunchInLongitude: "",
+          createdBy: employee.id,
+          attendancePolicyId: employee.attendancePolicyId,
+          holidayCompanyLocationConfigurationID: holidayOnDate
+            ? holidayOnDate.holidayCompanyLocationConfigurationID
+            : 0,
+          needAttendanceCron: 0,
+          attendanceRegularizeCount: 0,
+          employeeLeaveTransactionsId: 0,
+          attendanceRegularizeId: 0,
+        });
+      }
+      if (insertionData.length > 0) {
+        await db.attendanceMaster.bulkCreate(insertionData);
+      }
+    }
+
+    return respHelper(res, {
+      status: 200,
+      data: { whereCondition },
+      msg: "hello",
+    });
+    console.log("");
   }
 }
 
