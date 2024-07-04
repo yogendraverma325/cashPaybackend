@@ -182,7 +182,7 @@ class LeaveController {
     try {
       const result = await validator.leaveRequestSchema.validateAsync(req.body);
 
-      const leaveCountForDates = await db.employeeLeaveTransactions.count({
+      const leaveCountForDates = await db.employeeLeaveTransactions.findAll({
         where: {
           appliedFor: {
             [Op.between]: [req.body.fromDate, req.body.toDate],
@@ -190,17 +190,65 @@ class LeaveController {
           status: {
             [Op.ne]: "revoked",
           },
-          employeeId: req.body.employeeId, 
+          employeeId: req.body.employeeId,
         },
       });
-      let EMP_DATA = await helper.getEmpProfile(req.body.employeeId);
-      if (leaveCountForDates > 0) {
+
+      const fromDateReq = req.body.fromDate;
+      const toDateReq = req.body.toDate;
+      const daysDifferenceReq = moment(toDateReq).diff(
+        moment(fromDateReq),
+        "days"
+      );
+
+      var inputs = [];
+      for (let i = -1; i < daysDifferenceReq; i++) {
+        let appliedFor = moment(fromDateReq)
+          .add(i + 1, "days")
+          .format("YYYY-MM-DD");
+
+        let halfDayFor = 0;
+        let isHalfDay = 0;
+
+        if (daysDifferenceReq == 0) {
+          isHalfDay = req.body.firstDayHalf != 0 ? 1 : 0;
+          halfDayFor = req.body.firstDayHalf;
+        } else {
+          if (i + 1 == 0) {
+            isHalfDay = req.body.firstDayHalf != 0 ? 1 : 0;
+            halfDayFor = req.body.firstDayHalf;
+          } else if (i + 1 == daysDifferenceReq) {
+            isHalfDay = req.body.lastDayHalf != 0 ? 1 : 0;
+            halfDayFor = req.body.lastDayHalf;
+          }
+        }
+        inputs = leaveCountForDates.filter((el) => {
+          if (el.appliedFor == appliedFor) {
+            if (el.isHalfDay == 1) {
+              if (halfDayFor == 0) {
+                return true;
+              } else {
+                if (el.halfDayFor == halfDayFor) {
+                  return true;
+                } else {
+                  return false;
+                }
+              }
+            } else {
+              return true;
+            }
+          } else {
+            return true;
+          }
+        });
+      }
+      if (inputs.length > 0) {
         return respHelper(res, {
-          status: 402,
+          status: 401,
           msg: message.LEAVE.DATES_NOT_APPLICABLE,
         });
       }
-
+      let EMP_DATA = await helper.getEmpProfile(req.body.employeeId);
       let leaveData = await helper.empLeaveDetails(
         req.body.employeeId,
         req.body.leaveAutoId
