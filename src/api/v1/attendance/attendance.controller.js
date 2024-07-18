@@ -372,11 +372,12 @@ class AttendanceController {
     }
   }
 
-  async attendanceList(req, res) {
+   async attendanceList(req, res) {
     try {
       const user = req.query.user;
       const year = req.query.year;
       const month = req.query.month;
+      const companyLocationId = req.userData.companyLocationId;
 
       let averageWorkingTime = [];
       let calculateLateTime = [];
@@ -392,6 +393,23 @@ class AttendanceController {
         });
       }
 
+      const getLocationBasedHolidays =
+        await db.holidayCompanyLocationConfiguration.findAll({
+          where: {
+            companyLocationId: companyLocationId,
+          },
+          include: [
+            {
+              model: db.holidayMaster,
+              required: true,
+              as: "holidayDetails",
+              attributes: ["holidayName", "holidayDate"],
+              where: {
+                isActive: 1,
+              },
+            },
+          ],
+        });
       const attendanceData = await db.attendanceMaster.findAndCountAll({
         where: {
           employeeId: user ? user : req.userId,
@@ -419,7 +437,21 @@ class AttendanceController {
             attributes: ["regularizeStatus", "regularizeId"],
             where: { regularizeStatus: ["Pending", "Approved"] },
           },
-         {
+          {
+            model: db.holidayCompanyLocationConfiguration,
+            required: false,
+            as: "holidayLocationMappingDetails",
+            include: {
+              model: db.holidayMaster,
+              required: true,
+              as: "holidayDetails",
+              attributes: ["holidayName", "holidayDate"],
+              where: {
+                isActive: 1,
+              },
+            },
+          },
+          {
             model: db.employeeLeaveTransactions,
             required: false,
             as: "employeeLeaveTransactionDetails",
@@ -446,6 +478,13 @@ class AttendanceController {
         ],
       });
 
+      const monthDays = await db.CalenderYear.findAll({
+        attributes: ["calenderId", "date", "year", "month", "fullDate"],
+        where: {
+          month: month,
+          year: year,
+        },
+      });
       for (const iterator of attendanceData.rows) {
         if (iterator.dataValues.attendanceWorkingTime) {
           averageWorkingTime.push(iterator.dataValues.attendanceWorkingTime);
@@ -478,6 +517,110 @@ class AttendanceController {
         }
       }
 
+      let holidayDates = {};
+
+      getLocationBasedHolidays.forEach((locationHoliday) => {
+        if (locationHoliday.holidayDetails) {
+          holidayDates[locationHoliday.holidayDetails.holidayDate] = {
+            holidayDate: locationHoliday.holidayDetails.holidayDate,
+            holidayName: locationHoliday.holidayDetails.holidayName,
+          };
+        }
+      });
+
+      const attendanceMap = attendanceData.rows.reduce((map, record) => {
+        map[record.attendanceDate] = record;
+        return map;
+      }, {});
+
+      let i=0;
+      const result = monthDays.map((day) => {
+        const attendance = attendanceMap[day.fullDate] || null;
+        const holiday = holidayDates[day.fullDate] || null;
+i++
+        return {
+          attendanceAutoId: attendance
+            ? attendance.attendanceAutoId
+            : i,
+          employeeId: attendance ? attendance.employeeId : 0,
+          attendanceShiftId: attendance ? attendance.attendanceShiftId : 0,
+          attendancePolicyId: attendance ? attendance.attendancePolicyId : 0,
+          attendanceRegularizeId: attendance
+            ? attendance.attendanceRegularizeId
+            : 0,
+          attendanceDate: attendance ? attendance.attendanceDate : day.fullDate,
+          attandanceShiftStartDate: attendance
+            ? attendance.attandanceShiftStartDate
+            : day.fullDate,
+          attendanceShiftEndDate: attendance
+            ? attendance.attendanceShiftEndDate
+            : day.fullDate,
+          attendancePunchInTime: attendance
+            ? attendance.attendancePunchInTime
+            : null,
+          attendancePunchOutTime: attendance
+            ? attendance.attendancePunchOutTime
+            : null,
+          attendanceLateBy: attendance ? attendance.attendanceLateBy : "",
+          attendancePunchInRemark: attendance
+            ? attendance.attendancePunchInRemark
+            : "",
+          attendancePunchOutRemark: attendance
+            ? attendance.attendancePunchOutRemark
+            : "",
+          attendancePunchInLocationType: attendance
+            ? attendance.attendancePunchInLocationType
+            : "",
+          attendancePunchOutLocationType: attendance
+            ? attendance.attendancePunchOutLocationType
+            : "",
+          attendanceStatus: attendance ? attendance.attendanceStatus : "NA",
+          attendancePresentStatus: attendance
+            ? attendance.attendancePresentStatus
+            : "NA",
+          attendanceRegularizeStatus: attendance
+            ? attendance.attendanceRegularizeStatus
+            : "NA",
+          attendanceManagerUpdateDate: attendance
+            ? attendance.attendanceManagerUpdateDate
+            : "NA",
+          attendancePunchInLocation: attendance
+            ? attendance.attendancePunchInLocation
+            : "NA",
+          attendancePunchInLatitude: attendance
+            ? attendance.attendancePunchInLatitude
+            : "",
+          attendancePunchInLongitude: attendance
+            ? attendance.attendancePunchInLongitude
+            : "",
+          attendancePunchOutLocation: attendance
+            ? attendance.attendancePunchOutLocation
+            : "",
+          attendancePunchOutLatitude: attendance
+            ? attendance.attendancePunchOutLatitude
+            : "",
+          attendancePunchOutLongitude: attendance
+            ? attendance.attendancePunchOutLongitude
+            : "",
+          attendanceWorkingTime: attendance
+            ? attendance.attendanceWorkingTime
+            : null,
+          attendanceRegularizeCount: attendance
+            ? attendance.attendanceRegularizeCount
+            : 0,
+          employeeLeaveTransactionsId: attendance
+            ? attendance.employeeLeaveTransactionsId
+            :i,
+          needAttendanceCron: attendance ? attendance.needAttendanceCron : 0,
+          holidayCompanyLocationConfigurationID: attendance
+            ? attendance.holidayCompanyLocationConfigurationID
+            : 0,
+          holidayLocationMappingDetails: holiday ? [holiday] : [],
+          latest_Regularization_Request: [],
+          employeeLeaveTransactionDetails: [],
+        };
+      });
+  
       return respHelper(res, {
         status: 200,
         data: {
@@ -491,7 +634,10 @@ class AttendanceController {
             leaveDays: calculateleaveDays.length,
             unpaidLeaveDays: calculateUnpaidleaveDays.length,
           },
-          attendanceData,
+          attendanceData:{
+          count: result.length,
+          rows: result,
+          },
         },
       });
     } catch (error) {
@@ -502,20 +648,60 @@ class AttendanceController {
     }
   }
 
-  async approveRegularizationRequest(req, res) {
+ async approveRegularizationRequest(req, res) {
     try {
       const result =
         await validator.approveRegularizationRequestSchema.validateAsync(
           req.body
         );
-
       const regularizeData = await db.regularizationMaster.findOne({
         raw: true,
         where: {
           regularizeId: result.regularizeId,
         },
+        include: [
+          {
+            model: db.attendanceMaster,
+            attributes:['attendanceAutoId','employeeId'],
+            include:[{
+              model:db.employeeMaster,
+              attributes:['attendancePolicyId'],
+              include:[
+                {
+                  model: db.shiftMaster,
+                  required: false,
+                  attributes: [
+                    "shiftId",
+                    "shiftName",
+                    "shiftStartTime",
+                    "shiftEndTime",
+                    "isOverNight",
+                  ],
+                  where: {
+                    isActive: true,
+                  },
+                },{
+                  model: db.attendancePolicymaster,
+                  attributes:['graceTimeClockIn'],
+                  where: {
+                    isActive: true,
+                  },
+                }]
+            }]
+          }]
       });
 
+      let graceTime = moment(
+        regularizeData['attendancemaster.employee.shiftsmaster.shiftStartTime'],
+        "HH:mm"
+      ); // set shift start time
+
+      graceTime.add(
+        regularizeData['attendancemaster.employee.attendancePolicymaster.graceTimeClockIn'],
+        "minutes"
+      ); // Add buffer time  to the selected time if buffer allow
+
+      const withGraceTime = graceTime.format("HH:mm");
       await db.regularizationMaster.update(
         {
           regularizeManagerRemark: result.remark != "" ? result.remark : null,
@@ -546,6 +732,10 @@ class AttendanceController {
               regularizeData.regularizeManagerRemark,
             attendanceRegularizeReason: regularizeData.regularizeReason,
             attendanceRegularizeStatus: "Approved",
+            attendanceLateBy: await helper.calculateLateBy(
+              regularizeData.regularizePunchInTime,
+              withGraceTime
+            ),
           },
           {
             where: {
@@ -1019,6 +1209,42 @@ console.log("existEmployees",existEmployees)
     //   status: 200,
     //   data: existEmployees,
     // });
+  }
+   async attendenceDetails(req, res) {
+    try {
+      console.log("req.params.employeeId", req.userId);
+      let attendanceData = await db.attendanceMaster.findOne({
+        where: {
+          employeeId:req.userId,
+          attendanceDate: moment().format("YYYY-MM-DD"),
+        },
+      });
+
+      if (!attendanceData) {
+        return respHelper(res, {
+          status: 200,
+          msg: message.ATTENDANCE_NOT_AVAILABLE,
+          data: null,
+        });
+      } else {
+        return respHelper(res, {
+          status: 200,
+          data: attendanceData,
+          msg: message.ATTENDANCE_NOT_AVAILABLE,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      if (error.isJoi === true) {
+        return respHelper(res, {
+          status: 422,
+          msg: error.details[0].message,
+        });
+      }
+      return respHelper(res, {
+        status: 500,
+      });
+    }
   }
 }
 

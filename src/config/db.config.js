@@ -57,6 +57,7 @@ import employeeLeaveTransactions from "../api/model/EmployeeLeaveTransactions.js
 import DaysMaster from "../api/model/DaysMaster.js";
 import weekOffMaster from "../api/model/weekOffMaster.js";
 import weekOffDayMappingMaster from "../api/model/weekOffDayMappingMaster.js";
+import CalenderYear from "../api/model/CalenderYear.js";
 import literal from "sequelize";
 const sequelize = new Sequelize(
   process.env.DB_NAME,
@@ -164,7 +165,7 @@ db.employeeLeaveTransactions = employeeLeaveTransactions(sequelize, Sequelize);
 db.DaysMaster = DaysMaster(sequelize, Sequelize);
 db.weekOffMaster = weekOffMaster(sequelize, Sequelize);
 db.weekOffDayMappingMaster = weekOffDayMappingMaster(sequelize, Sequelize);
-
+db.CalenderYear = CalenderYear(sequelize, Sequelize);
 db.holidayCompanyLocationConfiguration.hasOne(db.holidayMaster, {
   foreignKey: "holidayId",
   sourceKey: "holidayId",
@@ -370,5 +371,8 @@ db.employeeMaster.hasMany(db.holidayCompanyLocationConfiguration, {
   foreignKey: "companyLocationId",
   sourceKey: "companyLocationId",
 });
-
+db.employeeMaster.hasOne(db.companyLocationMaster, {
+  foreignKey: "companyLocationId",
+  sourceKey: "companyLocationId"
+});
 export default db;
