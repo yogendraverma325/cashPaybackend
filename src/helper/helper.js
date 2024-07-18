@@ -299,6 +299,37 @@ const empLeaveDetails = async function (userId, type) {
 
   return leaveData;
 };
+const empMarkLeaveOfGivenDate = async function (userId, inputData, batch) {
+  let empLeave = await empLeaveDetails(userId, inputData.leaveAutoId);
+  if (inputData.leaveAutoId != 6) {
+    let pendingLeaveCountList = await db.employeeLeaveTransactions.findAll({
+      where: {
+        status: "pending",
+        employeeId: userId,
+        leaveAutoId: inputData.leaveAutoId,
+      },
+    });
+    let pendingLeaveCount = 0;
+
+    pendingLeaveCountList.map((el) => {
+      pendingLeaveCount += parseFloat(el.leaveCount);
+    });
+
+    if (
+      pendingLeaveCount + inputData.leaveCount >=
+      parseFloat(empLeave.availableLeave)
+    ) {
+      inputData.leaveAutoId = 6;
+    }
+    inputData.batch_id = batch;
+    await db.employeeLeaveTransactions.create(inputData);
+  }
+  // console.log("userId", userId);
+  // console.log("inputData", inputData);
+  // console.log("batch", batch);
+  // console.log("empLeave", empLeave);
+  return 1;
+};
 export default {
   generateJwtToken,
   checkFolder,
@@ -313,4 +344,5 @@ export default {
   encryptPassword,
   getEmpProfile,
   empLeaveDetails,
+  empMarkLeaveOfGivenDate
 };

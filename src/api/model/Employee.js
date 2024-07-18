@@ -95,6 +95,13 @@ export default (sequelize, Sequelize) => {
     companyLocationId: {
       type: Sequelize.INTEGER,
     },
+     weekOffId: {
+      type: Sequelize.INTEGER,
+    },
+     isActive: {
+      type: Sequelize.INTEGER,
+      defaultValue: 1,
+    },
   });
   return employeeMaster;
 };

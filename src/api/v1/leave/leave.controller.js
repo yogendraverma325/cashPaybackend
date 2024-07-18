@@ -244,7 +244,7 @@ class LeaveController {
       }
       if (inputs.length > 0) {
         return respHelper(res, {
-          status: 401,
+          status: 402,
           msg: message.LEAVE.DATES_NOT_APPLICABLE,
         });
       }

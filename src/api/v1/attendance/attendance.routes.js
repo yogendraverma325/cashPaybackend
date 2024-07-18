@@ -9,3 +9,4 @@ export default Express
     .post("/approveRegularizationRequest", attendanceController.approveRegularizationRequest)
     .get("/regularizeRequestList", attendanceController.regularizeRequestList)
     .put("/revokeRegularizeRequest", attendanceController.revokeRegularizeRequest)
+    .post("/attedanceCron", attendanceController.attedanceCron)
