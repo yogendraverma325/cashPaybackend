@@ -249,6 +249,7 @@ class LeaveController {
         });
       }
       let EMP_DATA = await helper.getEmpProfile(req.body.employeeId);
+      console.log("EMP_DATA",EMP_DATA.managerData)
       let leaveData = await helper.empLeaveDetails(
         req.body.employeeId,
         req.body.leaveAutoId
@@ -290,9 +291,27 @@ class LeaveController {
         let leaveId = 6;
         if (leaveData) {
           leaveId = req.body.leaveAutoId;
-          if (leaveData.availableLeave < leaveDays) {
-            leaveId = 6;
+          if (leaveId != 6) {
+            let pendingLeaveCountList = await db.employeeLeaveTransactions.findAll({
+            where: {
+            status: "pending",
+            employeeId: req.body.employeeId,
+            leaveAutoId: leaveId
+            },
+            });
+    let pendingLeaveCount = 0;
+     pendingLeaveCountList.map((el) => {
+      pendingLeaveCount += parseFloat(el.leaveCount);
+    });
+
+      if (
+      pendingLeaveCount + leaveDays >=
+      parseFloat(leaveData.availableLeave)
+      ) {
+      leaveId = 6;
+      }
           }
+         
         }
         const recordData = {
           employeeId: req.body.employeeId, // Replace with actual employee ID
@@ -305,7 +324,13 @@ class LeaveController {
           halfDayFor: halfDayFor, // Replace with actual half day for value
           status: "pending", // Replace with actual status
           reason: req.body.reason, // Replace with actual reason
+             leaveCount: isHalfDay == 1 ? 0.5 : 1,
           message: req.body.message,
+             leaveAttachment: helper.fileUpload(
+            result.attachment,
+            `leaveAttachment_${uuid}`,
+            `uploads/${EMP_DATA.empCode}`
+          ),
           pendingAt: EMP_DATA.managerData.id, // Replace with actual pending at value
           createdBy: req.userId, // Replace with actual creator user ID
           createdAt: moment(), // Replace with actual creation date
@@ -326,6 +351,7 @@ class LeaveController {
           msg: error.details[0].message,
         });
       }
+      console.log("error",error)
       return respHelper(res, {
         status: 500,
       });

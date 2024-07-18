@@ -49,6 +49,13 @@ export default (sequelize, Sequelize) => {
       employeeId: {
         type: Sequelize.INTEGER,
       },
+      leaveAttachment: {
+        type: Sequelize.STRING,
+      },
+        leaveCount: {
+        type: Sequelize.DECIMAL(10, 1),
+        defaltValue: 0,
+      },
       createdBy: {
         type: Sequelize.INTEGER,
       },

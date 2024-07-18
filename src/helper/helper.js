@@ -20,13 +20,16 @@ const fileUpload = (base64String, fileName, filepath) => {
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir);
   }
-  const base64Data = base64String.replace(/^data:image\/\w+;base64,/, "");
+  const fileExt = base64String.slice(
+    base64String.indexOf("/") + 1,
+    base64String.indexOf(";")
+  );
+  const base64Data = base64String.replace(/^data:(.+);base64,/, "");
   const buffer = Buffer.from(base64Data, "base64");
-  const finalFilePath = `${dir}/${fileName}`;
+  const finalFilePath = `${dir}/${fileName}.${fileExt}`;
   fs.writeFileSync(finalFilePath, buffer);
   return finalFilePath;
 };
-
 const checkFolder = async () => {
   const folder = ["uploads"];
   for (const iterator of folder) {
