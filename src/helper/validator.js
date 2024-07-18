@@ -158,6 +158,10 @@ const revoekLeaveRequest = Joi.object({
     .required()
     .label("Leave ID"),
 });
+
+const attendanceDetails = Joi.object({
+    employeeId: Joi.number().required().label("Employee ID")
+  })
 export default {
   loginSchema,
   userCreationSchema,
@@ -174,4 +178,5 @@ export default {
   updateLeaveRequest,
   leaveRequestSchema,
   revoekLeaveRequest,
+  attendanceDetails
 };

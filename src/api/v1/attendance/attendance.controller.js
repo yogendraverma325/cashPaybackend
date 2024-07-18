@@ -378,6 +378,41 @@ class AttendanceController {
     }
   }
 
+  async attendenceDetails(req,res){
+    try {
+      console.log("req.params.employeeId",req.params.employeeId)
+        let attendanceData = await db.attendanceMaster.findOne({
+        where: {
+          employeeId: req.params.employeeId,
+          attendanceDate:moment().format('YYYY-MM-DD')
+        }
+      });
+
+      if (!attendanceData) {
+        return respHelper(res, {
+          status: 404,
+          msg: message.ATTENDANCE_NOT_AVAILABLE,
+        });
+      }
+      else{
+        return respHelper(res, {
+          status: 200,
+          data: attendanceData,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      if (error.isJoi === true) {
+        return respHelper(res, {
+          status: 422,
+          msg: error.details[0].message,
+        });
+      }
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
   async attendanceList(req, res) {
     try {
       const user = req.query.user;
@@ -522,6 +557,183 @@ class AttendanceController {
     }
   }
 
+  async attendanceListNew(req, res) {
+    try {
+      const user = req.query.user;
+      const year = req.query.year;
+      const month = req.query.month;
+      const companyLocationId = req.userData.companyLocationId;
+
+      if (!year || !month) {
+        return respHelper(res, {
+          status: 400,
+          msg: "Please Fill Month and Year",
+        });
+      }
+
+      const getLocationBasedHolidays =
+        await db.holidayCompanyLocationConfiguration.findAll({
+          where: {
+            companyLocationId: companyLocationId,
+          },
+          include: [
+            {
+              model: db.holidayMaster,
+              required: true,
+              as: "holidayDetails",
+              attributes: ["holidayName", "holidayDate"],
+              where: {
+                isActive: 1,
+              },
+            },
+          ],
+        });
+
+      const monthDays = await db.CalenderYear.findAll({
+        attributes: ["calenderId", "date", "year", "month", "fullDate"],
+        where: {
+          month: month,
+          year: year,
+        },
+      });
+
+      const attendanceData = await db.attendanceMaster.findAll({
+        where: {
+          employeeId: user ? user : req.userId,
+          attendanceDate: {
+            [Op.and]: [
+              { [Op.gte]: `${year}-${month}-01` },
+              {
+                [Op.lte]: `${year}-${month}-${moment(
+                  `${year}-${month}`,
+                  "YYYY-MM"
+                ).daysInMonth()}`,
+              },
+            ],
+          },
+        },
+        attributes: {
+          exclude: ["createdBy", "createdAt", "updatedBy", "updatedAt"],
+        },
+      });
+
+      let holidayDates = {};
+
+      getLocationBasedHolidays.forEach((locationHoliday) => {
+        if (locationHoliday.holidayDetails) {
+          holidayDates[locationHoliday.holidayDetails.holidayDate] = {
+            holidayDate: locationHoliday.holidayDetails.holidayDate,
+            holidayName: locationHoliday.holidayDetails.holidayName,
+          };
+        }
+      });
+
+      
+      const attendanceMap = attendanceData.reduce((map, record) => {
+        map[record.attendanceDate] = record;
+        return map;
+      }, {});
+
+      const result = monthDays.map((day) => {
+        const attendance = attendanceMap[day.fullDate] || null;
+        const holiday = holidayDates[day.fullDate] || null;
+
+        return {
+          attendanceAutoId: attendance ? attendance.attendanceAutoId : null,
+          employeeId: attendance ? attendance.employeeId : null,
+          attendanceShiftId: attendance ? attendance.attendanceShiftId : null,
+          attendancePolicyId: attendance ? attendance.attendancePolicyId : null,
+          attendanceRegularizeId: attendance
+            ? attendance.attendanceRegularizeId
+            : null,
+          attendanceDate: attendance ? attendance.attendanceDate : day.fullDate,
+          attandanceShiftStartDate: attendance
+            ? attendance.attandanceShiftStartDate
+            : null,
+          attendanceShiftEndDate: attendance
+            ? attendance.attendanceShiftEndDate
+            : null,
+          attendancePunchInTime: attendance
+            ? attendance.attendancePunchInTime
+            : null,
+          attendancePunchOutTime: attendance
+            ? attendance.attendancePunchOutTime
+            : null,
+          attendanceLateBy: attendance ? attendance.attendanceLateBy : null,
+          attendancePunchInRemark: attendance
+            ? attendance.attendancePunchInRemark
+            : null,
+          attendancePunchOutRemark: attendance
+            ? attendance.attendancePunchOutRemark
+            : null,
+          attendancePunchInLocationType: attendance
+            ? attendance.attendancePunchInLocationType
+            : null,
+          attendancePunchOutLocationType: attendance
+            ? attendance.attendancePunchOutLocationType
+            : null,
+          attendanceStatus: attendance ? attendance.attendanceStatus : null,
+          attendancePresentStatus: attendance
+            ? attendance.attendancePresentStatus
+            : "NA",
+          attendanceRegularizeStatus: attendance
+            ? attendance.attendanceRegularizeStatus
+            : null,
+          attendanceManagerUpdateDate: attendance
+            ? attendance.attendanceManagerUpdateDate
+            : null,
+          attendancePunchInLocation: attendance
+            ? attendance.attendancePunchInLocation
+            : null,
+          attendancePunchInLatitude: attendance
+            ? attendance.attendancePunchInLatitude
+            : null,
+          attendancePunchInLongitude: attendance
+            ? attendance.attendancePunchInLongitude
+            : null,
+          attendancePunchOutLocation: attendance
+            ? attendance.attendancePunchOutLocation
+            : null,
+          attendancePunchOutLatitude: attendance
+            ? attendance.attendancePunchOutLatitude
+            : null,
+          attendancePunchOutLongitude: attendance
+            ? attendance.attendancePunchOutLongitude
+            : null,
+          attendanceWorkingTime: attendance
+            ? attendance.attendanceWorkingTime
+            : null,
+          attendanceRegularizeCount: attendance
+            ? attendance.attendanceRegularizeCount
+            : null,
+          employeeLeaveTransactionsId: attendance
+            ? attendance.employeeLeaveTransactionsId
+            : null,
+          needAttendanceCron: attendance ? attendance.needAttendanceCron : null,
+          holidayCompanyLocationConfigurationID: attendance
+            ? attendance.holidayCompanyLocationConfigurationID
+            : null,
+            holidayLocationMappingDetails: holiday ? [holiday] : [],
+        };
+      });
+
+      return respHelper(res, {
+        status: 200,
+        data: result,
+        // data: getLocationBasedHolidays,
+
+        // data: {
+        //   attendanceData: result,
+        // },
+      });
+    } catch (error) {
+      console.log(error);
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+
   async approveRegularizationRequest(req, res) {
     try {
       const result =
@@ -529,13 +741,60 @@ class AttendanceController {
           req.body
         );
 
+      // const regularizeData = await db.regularizationMaster.findOne({
+      //   raw: true,
+      //   where: {
+      //     regularizeId: result.regularizeId,
+      //   },
+      // });
       const regularizeData = await db.regularizationMaster.findOne({
         raw: true,
         where: {
           regularizeId: result.regularizeId,
         },
+        include: [
+          {
+            model: db.attendanceMaster,
+            attributes:['attendanceAutoId','employeeId'],
+            include:[{
+              model:db.employeeMaster,
+              attributes:['attendancePolicyId'],
+              include:[
+                {
+                  model: db.shiftMaster,
+                  required: false,
+                  attributes: [
+                    "shiftId",
+                    "shiftName",
+                    "shiftStartTime",
+                    "shiftEndTime",
+                    "isOverNight",
+                  ],
+                  where: {
+                    isActive: true,
+                  },
+                },{
+                  model: db.attendancePolicymaster,
+                  attributes:['graceTimeClockIn'],
+                  where: {
+                    isActive: true,
+                  },
+                }]
+            }]
+          }]
       });
 
+      let graceTime = moment(
+        regularizeData['attendancemaster.employee.shiftsmaster.shiftStartTime'],
+        "HH:mm"
+      ); // set shift start time
+
+      graceTime.add(
+        regularizeData['attendancemaster.employee.attendancePolicymaster.graceTimeClockIn'],
+        "minutes"
+      ); // Add buffer time  to the selected time if buffer allow
+
+      const withGraceTime = graceTime.format("HH:mm");
       await db.regularizationMaster.update(
         {
           regularizeManagerRemark: result.remark != "" ? result.remark : null,
@@ -566,6 +825,10 @@ class AttendanceController {
               regularizeData.regularizeManagerRemark,
             attendanceRegularizeReason: regularizeData.regularizeReason,
             attendanceRegularizeStatus: "Approved",
+            attendanceLateBy: await helper.calculateLateBy(
+              regularizeData.regularizePunchInTime,
+              withGraceTime
+            ),
           },
           {
             where: {
@@ -753,31 +1016,33 @@ class AttendanceController {
     }
   }
   async generateCalendarForEmp(req, res) {
-    let empIds = req.body.empIds
-      .split(",")
-      .filter((el) => el != "")
-      .map((el) => parseInt(el));
-    let whereCondition = { isActive: 1 };
-    if (empIds && empIds.length > 0) {
-      whereCondition["id"] = empIds;
+    try {
+      const year = new Date().getFullYear();
+      const daysInYear = moment([year]).isLeapYear() ? 366 : 365;
+      let fullData = [];
+
+      for (let day = 1; day <= daysInYear; day++) {
+        const date = moment().year(year).dayOfYear(day);
+        let calObj = {
+          year: date.year(),
+          month: date.format("MM"), // moment months are 0-based
+          date: date.date(),
+          fullDate: date.format("YYYY-MM-DD"),
+        };
+        fullData.push(calObj);
+      }
+      await db.CalenderYear.bulkCreate(fullData);
+      return respHelper(res, {
+        status: 200,
+        msg: "success",
+        data: {},
+      });
+    } catch (error) {
+      return respHelper(res, {
+        status: 500,
+      });
     }
-
-    const dates = [];
-    const startDate = moment().startOf("year"); // January 1st of the current year
-    const endDate = moment().endOf("year"); // December 31st of the current year
-
-    let currentDate = startDate.clone();
-    while (currentDate.isSameOrBefore(endDate)) {
-      dates.push(currentDate.clone().format("YYYY-MM-DD")); // Format date as YYYY-MM-DD
-      currentDate.add(1, "days");
-    }
-    let employees = await db.employeeMaster.findAll({
-      attributes: ["id", "companyLocationId", "attendancePolicyId", "shiftId"],
-      limit: 100,
-      offset: 0,
-      where: whereCondition,
-    });
-
+    return;
     for (let employee of employees) {
       let insertionData = [];
       for (let date of dates) {

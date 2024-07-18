@@ -14,5 +14,7 @@ export default Express
     .get("/employee", rateLimit.limiter, masterExportController.employee)
     .get("/employeeRedis", masterExportController.employeeRedis)
     .get("/employeeImport", upload.single('excelFile'), masterExportController.employeeImport)
+    .get("/employeeImportNew", upload.single('excelFile'), masterExportController.employeeImportNew)
+
     .post("/employeeMissedData", masterExportController.employeeMissedData)
 

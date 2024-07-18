@@ -6,7 +6,7 @@ import fs from "fs";
 import client from "../../../config/redisDb.config.js";
 import pkg from "xlsx";
 import bcrypt from "bcrypt";
-
+import moment from "moment";
 //const {readFile} = pkg
 import helper from "../../../helper/helper.js";
 //const XLSX = require('xlsx');
@@ -453,6 +453,77 @@ class MasterController {
     }
   }
 
+  async employeeImportNew(req, res) {
+    const transaction = await db.sequelize.transaction(); // Start a transaction
+    try {
+      // Read Excel file
+      const workbookEmployee = pkg.readFile(req.file.path);
+      const sheetNameEmployee = workbookEmployee.SheetNames[0];
+      const sheetToImportEmployee = pkg.utils.sheet_to_json(
+        workbookEmployee.Sheets[sheetNameEmployee]
+      );
+          
+      let arrPoper = [];
+      let arrMissingData = [];
+  
+      for (const row of sheetToImportEmployee) {
+        console.log("row['Direct Manager Email Id']", row['Direct Manager Email Id']);
+        console.log("row['Direct Manager Email Id']", row['Direct Manager Code']);
+  
+        const existUser = await db.employeeMaster.findOne({
+          where: {
+            [Op.and]: [
+              { email: row['Direct Manager Email Id'] },
+              { empCode: row['Direct Manager Code'] },
+            ],
+          },
+          transaction // Pass transaction object
+        });
+  
+        if (existUser) {
+          arrMissingData.push(row);
+
+        } else {
+          const salt = await bcrypt.genSalt(10);
+          const fullName = row["Direct Manager Name"].split(' ');
+          let data = {
+            empCode: row['Direct Manager Code'],
+            name: row["Direct Manager Name"],
+            email: row['Direct Manager Email Id'],
+            officeMobileNumber: row['officeMobileNumber'],
+            personalMobileNumber: row['personalMobileNumber'],
+            firstName: fullName[0],
+            lastName: fullName.slice(1).join(' '),
+            isActive: 1,
+            role_id: 3,
+            password: await bcrypt.hash("test1234", salt),
+          };
+  
+          arrPoper.push(data);
+         // await db.employeeMaster.create(data, { transaction }); // Add transaction object here
+        }
+      }
+  
+      await db.employeeMaster.bulkCreate(arrPoper)
+      await transaction.commit(); // Commit the transaction if all operations are successful
+  
+      return respHelper(res, {
+        status: 200,
+        msg: "File Uploaded Successfully",
+        data: {
+          arrPoper: arrPoper,
+          arrMissingData: arrMissingData,
+        },
+      });
+    } catch (error) {
+      await transaction.rollback(); // Rollback the transaction in case of an error
+      console.log(error);
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+  
   /*************************************redis**********************************************************/
   //   async employeeRedis(req, res) {
   //     try {

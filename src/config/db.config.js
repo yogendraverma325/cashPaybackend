@@ -53,6 +53,8 @@ import holidayMaster from "../api/model/HolidayMaster.js";
 import holidayCompanyLocationConfiguration from "../api/model/holidayCompanyLocationConfiguration.js";
 import attendancePolicymaster from "../api/model/attendancePolicymaster.js";
 import employeeLeaveTransactions from "../api/model/EmployeeLeaveTransactions.js";
+import CalenderYear from "../api/model/CalenderYear.js";
+
 const sequelize = new Sequelize(
   process.env.DB_NAME,
   process.env.DB_USER,
@@ -154,6 +156,7 @@ db.holidayCompanyLocationConfiguration = holidayCompanyLocationConfiguration(
 );
 db.attendancePolicymaster = attendancePolicymaster(sequelize, Sequelize);
 db.employeeLeaveTransactions = employeeLeaveTransactions(sequelize, Sequelize);
+db.CalenderYear = CalenderYear(sequelize, Sequelize)
 db.holidayCompanyLocationConfiguration.hasOne(db.holidayMaster, {
   foreignKey: "holidayId",
   sourceKey: "holidayId",
@@ -335,5 +338,8 @@ db.attendanceMaster.hasMany(db.holidayCompanyLocationConfiguration, {
   sourceKey: "holidayCompanyLocationConfigurationID",
   as: "holidayLocationMappingDetails",
 });
-
+db.employeeMaster.hasOne(db.companyLocationMaster, {
+  foreignKey: "companyLocationId",
+  sourceKey: "companyLocationId"
+});
 export default db;

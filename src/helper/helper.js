@@ -249,7 +249,6 @@ const getEmpProfile = async (EMP_ID) => {
           },
         ],
       },
-
       {
         model: db.employeeMaster,
         required: false,
@@ -262,6 +261,11 @@ const getEmpProfile = async (EMP_ID) => {
         attributes: ["id", "name"],
         as: "buhrData",
       },
+      {
+        model:db.companyLocationMaster,
+        required: false,
+        attributes: ["address1","address2"],
+      }
     ],
   });
   return EMP_DATA;
