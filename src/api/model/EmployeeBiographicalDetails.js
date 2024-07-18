@@ -12,7 +12,7 @@ export default (sequelize, Sequelize) => {
             type: Sequelize.STRING,
         },
         maritalStatus: {
-            type: Sequelize.BOOLEAN
+            type: Sequelize.INTEGER
         },
         mobileAccess: {
             type: Sequelize.BOOLEAN
