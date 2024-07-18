@@ -132,18 +132,13 @@ class LeaveController {
         }
       );
 
+    
       for (const leaveID of leaveIds) {
         const existingRecord = await db.employeeLeaveTransactions.findOne({
           where: { employeeLeaveTransactionsId: leaveID },
         });
 
         if (existingRecord) {
-          console.log(
-            "existingRecord.appliedFor",
-            existingRecord.appliedFor,
-            "existingRecord.employeeId",
-            existingRecord.employeeId
-          );
           await db.attendanceMaster.update(
             { employeeLeaveTransactionsId: leaveID },
             {
@@ -153,17 +148,59 @@ class LeaveController {
               },
             }
           );
-        } else {
-          // await db.User.create(record, { transaction });
-        }
 
-        console.log("leaveID", leaveID);
+          if (existingRecord.leaveAutoId === 6) {
+
+            const lwpLeave = await db.leaveMapping.findOne({
+              where: {
+                EmployeeId: existingRecord.employeeId,
+                leaveAutoId: existingRecord.leaveAutoId
+              }
+            })
+
+            if (lwpLeave) {
+              await db.leaveMapping.increment({ accruedThisYear: parseFloat(existingRecord.leaveCount) }, {
+                where: {
+                  EmployeeId: existingRecord.employeeId,
+                  leaveAutoId: existingRecord.leaveAutoId
+                }
+              });
+            } else {
+              await db.leaveMapping.create({
+                EmployeeId: existingRecord.employeeId,
+                leaveAutoId: existingRecord.leaveAutoId,
+                availableLeave: 0,
+                accruedThisYear: parseFloat(existingRecord.leaveCount),
+                creditedFromLastYear: 0,
+                annualAllotment: 0
+              })
+            }
+          } else {
+            await db.leaveMapping.increment({ accruedThisYear: parseFloat(existingRecord.leaveCount) }, {
+              where: {
+                EmployeeId: existingRecord.employeeId,
+                leaveAutoId: existingRecord.leaveAutoId
+              }
+            });
+            await db.leaveMapping.increment({ availableLeave: -parseFloat(existingRecord.leaveCount) }, {
+              where: {
+                EmployeeId: existingRecord.employeeId,
+                leaveAutoId: existingRecord.leaveAutoId
+              }
+            });
+          }
+
+        }
+        //  else {
+        // await db.User.create(record, { transaction });
+        // }
+
       }
 
       return respHelper(res, {
         status: 200,
         data: countLeave,
-        msg: message.REGULARIZE_REQUEST_SUCCESSFULL,
+        msg: message.UPDATE_SUCCESS.replace("<module>", "Leave"),
       });
     } catch (error) {
       console.log(error);
