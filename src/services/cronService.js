@@ -10,11 +10,16 @@ import attendanceController from "../api/v1/attendance/attendance.controller.js"
 //If user is inactive this cron will 
 
 cron.schedule("30 7 * * *", async () => {
-await attendanceController.attedanceCron();
+    await attendanceController.attedanceCron();
 });
 
 cron.schedule("* * * * *", async () => {
     cronController.updateActiveStatus()
 });
+
+// cron.schedule("* * * * *", async () => {
+//     cronController.EarnedLeaveCreditCron()
+// });
+
 
 export default cron

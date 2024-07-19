@@ -105,6 +105,9 @@ export default (sequelize, Sequelize) => {
     holidayCompanyLocationConfigurationID: {
       type: Sequelize.INTEGER,
     },
+    holidayCompanyLocationConfigurationID: {
+      type: Sequelize.INTEGER,
+    },
   });
   return attendanceMaster;
 };

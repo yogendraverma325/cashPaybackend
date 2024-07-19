@@ -6,20 +6,17 @@ import respHelper from "../../../helper/respHelper.js";
 import constant from "../../../constant/messages.js";
 import client from "../../../config/redisDb.config.js";
 import moment from "moment";
-const message=constant;
+const message = constant;
 class commonController {
   async updateBiographicalDetails(req, res) {
     try {
+      const result =
+        await validator.updateBiographicalDetailsSchema.validateAsync(req.body);
 
-      const result = await validator.updateBiographicalDetailsSchema.validateAsync(req.body)
-
-      const updateObj = Object.assign(
-        result,
-        {
-          updatedAt: moment(),
-          updatedBy: req.userId
-        }
-      )
+      const updateObj = Object.assign(result, {
+        updatedAt: moment(),
+        updatedBy: req.userId,
+      });
 
       await db.biographicalDetails.update(updateObj, {
         where: { userId: result.userId ? result.userId : req.userId },
@@ -27,7 +24,10 @@ class commonController {
 
       return respHelper(res, {
         status: 200,
-        msg: constant.UPDATE_SUCCESS.replace('<module>', 'Biographical Details'),
+        msg: constant.UPDATE_SUCCESS.replace(
+          "<module>",
+          "Biographical Details"
+        ),
         data: updateObj,
       });
     } catch (error) {
@@ -46,19 +46,23 @@ class commonController {
 
   async updatePaymentDetails(req, res) {
     try {
+      const result = await validator.updatePaymentDetailsSchema.validateAsync(
+        req.body
+      );
 
-      const result = await validator.updatePaymentDetailsSchema.validateAsync(req.body)
-
-      await db.paymentDetails.update(Object.assign(result, {
-        updatedBy: req.userId,
-        updatedAt: moment()
-      }), {
-        where: { userId: result.userId ? result.userId : req.userId },
-      })
+      await db.paymentDetails.update(
+        Object.assign(result, {
+          updatedBy: req.userId,
+          updatedAt: moment(),
+        }),
+        {
+          where: { userId: result.userId ? result.userId : req.userId },
+        }
+      );
 
       return respHelper(res, {
         status: 200,
-        msg: constant.UPDATE_SUCCESS.replace('<module>', 'Payment Details'),
+        msg: constant.UPDATE_SUCCESS.replace("<module>", "Payment Details"),
       });
     } catch (error) {
       console.log(error);
@@ -70,26 +74,27 @@ class commonController {
 
   async updateFamilyMembers(req, res) {
     try {
-
-      const result = await validator.updateFamilyDetailsSchema.validateAsync(req.body)
+      const result = await validator.updateFamilyDetailsSchema.validateAsync(
+        req.body
+      );
 
       await db.familyDetails.update(
-        Object.assign(
-          result,
-          {
-            updatedBy: req.userId,
-            updatedAt: moment()
-          }
-        ),
+        Object.assign(result, {
+          updatedBy: req.userId,
+          updatedAt: moment(),
+        }),
         {
           where: { empFamilyDetailsId: result.empFamilyDetailsId },
-        });
+        }
+      );
 
       return respHelper(res, {
         status: 200,
-        msg: constant.UPDATE_SUCCESS.replace('<module>', 'Family Member Details'),
+        msg: constant.UPDATE_SUCCESS.replace(
+          "<module>",
+          "Family Member Details"
+        ),
       });
-
     } catch (error) {
       console.log(error);
       if (error.isJoi === true) {
@@ -106,44 +111,46 @@ class commonController {
 
   async addPaymentDetails(req, res) {
     try {
-
-      const result = await validator.addPaymentDetailsSchema.validateAsync(req.body)
+      const result = await validator.addPaymentDetailsSchema.validateAsync(
+        req.body
+      );
 
       const existPaymentDetails = await db.paymentDetails.findOne({
         raw: true,
         where: {
-          userId: (result.userId) ? result.userId : req.userId,
-          isActive: 1
-        }
-      })
+          userId: result.userId ? result.userId : req.userId,
+          isActive: 1,
+        },
+      });
 
       if (existPaymentDetails) {
         return respHelper(res, {
           status: 400,
-          msg: constant.ALREADY_EXISTS.replace('<module>', 'Payment Details')
+          msg: constant.ALREADY_EXISTS.replace("<module>", "Payment Details"),
         });
       }
 
-      await db.paymentDetails.create(Object.assign(
-        {
-          userId: (result.userId) ? result.userId : req.userId,
-          isActive: 1
-        },
-        result,
-        {
-          createdBy: req.userId,
-          createdAt: moment()
-        }
-      ))
+      await db.paymentDetails.create(
+        Object.assign(
+          {
+            userId: result.userId ? result.userId : req.userId,
+            isActive: 1,
+          },
+          result,
+          {
+            createdBy: req.userId,
+            createdAt: moment(),
+          }
+        )
+      );
 
       return respHelper(res, {
         status: 200,
-        msg: constant.DETAILS_ADDED.replace("<module>", 'Payment Details')
+        msg: constant.DETAILS_ADDED.replace("<module>", "Payment Details"),
       });
-
     } catch (error) {
-      console.log(error)
-      logger.error(error)
+      console.log(error);
+      logger.error(error);
       if (error.isJoi === true) {
         return respHelper(res, {
           status: 422,
@@ -158,43 +165,45 @@ class commonController {
 
   async deleteFamilyMemberDetails(req, res) {
     try {
-
-      const result = await validator.deleteFamilyMemberDetailsSchema.validateAsync(req.body)
+      const result =
+        await validator.deleteFamilyMemberDetailsSchema.validateAsync(req.body);
 
       const existData = await db.familyDetails.findOne({
         raw: true,
         where: {
           empFamilyDetailsId: result.empFamilyDetailsId,
-          isActive: 1
-        }
-      })
+          isActive: 1,
+        },
+      });
 
       if (!existData) {
         return respHelper(res, {
           status: 400,
-          msg: constant.DETAILS_NOT_FOUND.replace('<module>', "Family Member")
+          msg: constant.DETAILS_NOT_FOUND.replace("<module>", "Family Member"),
         });
       }
 
-      await db.familyDetails.update({
-        isActive: 0,
-        updatedBy: req.userId,
-        updatedAt: moment()
-      }, {
-        where: {
-          empFamilyDetailsId: result.empFamilyDetailsId,
-          isActive: 1
+      await db.familyDetails.update(
+        {
+          isActive: 0,
+          updatedBy: req.userId,
+          updatedAt: moment(),
+        },
+        {
+          where: {
+            empFamilyDetailsId: result.empFamilyDetailsId,
+            isActive: 1,
+          },
         }
-      })
+      );
 
       return respHelper(res, {
         status: 200,
-        msg: constant.DETAILS_DELETED.replace('<module>', 'Family Member')
+        msg: constant.DETAILS_DELETED.replace("<module>", "Family Member"),
       });
-
     } catch (error) {
       console.log(error);
-      logger.error(error)
+      logger.error(error);
       return respHelper(res, {
         status: 500,
       });
@@ -205,7 +214,8 @@ class commonController {
     try {
       //for key 0 using for web and 1 for app
       var dashboardData = [];
-      let cacheKey = req.params.for == 0 ? "dashboardCardWeb" : "dashboardCardApp";
+      let cacheKey =
+        req.params.for == 0 ? "dashboardCardWeb" : "dashboardCardApp";
       await client.get(cacheKey).then(async (data) => {
         if (data) {
           dashboardData = JSON.parse(data);
@@ -215,15 +225,17 @@ class commonController {
             data: dashboardData,
           });
         } else {
-
           const whereConditon = {
             ...(req.params.for == 0 && { isActiveWeb: 1 }),
             ...(req.params.for == 1 && { isActiveApp: 1 }),
-          }
-          let orderFor = req.params.for == 0 ? [["positionWeb", "asc"]] : [["positionApp", "desc"]]
+          };
+          let orderFor =
+            req.params.for == 0
+              ? [["positionWeb", "asc"]]
+              : [["positionApp", "desc"]];
           dashboardData = await db.DashboardCard.findAndCountAll({
             where: whereConditon,
-            order: orderFor
+            order: orderFor,
           });
 
           const dashboardJson = JSON.stringify(dashboardData);
@@ -251,7 +263,7 @@ class commonController {
   async getCalendar(req, res) {
     try {
       let userData = req.userData;
-      console.log("userData",userData)
+      console.log("userData", userData);
       const holidayData = await db.holidayCompanyLocationConfiguration.findAll({
         where: {
           companyLocationId: userData.companyLocationId,
@@ -279,6 +291,21 @@ class commonController {
         data: error,
       });
     }
+  }
+
+  async mobileNoUpdateInFamilyTable(req, res) {
+    await db.familyDetails.update(
+      {
+        mobileNo:"N/A"
+      },
+      {
+         where: {},
+      }
+    );
+    return respHelper(res, {
+      status: 200,
+      data: {},
+    });
   }
 }
 

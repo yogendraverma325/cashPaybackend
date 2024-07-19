@@ -252,7 +252,6 @@ const getEmpProfile = async (EMP_ID) => {
           },
         ],
       },
-
       {
         model: db.employeeMaster,
         required: false,

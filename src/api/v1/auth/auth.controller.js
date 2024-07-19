@@ -13,13 +13,6 @@ class AuthController {
   async login(req, res) {
     try {
       const result = await validator.loginSchema.validateAsync(req.body);
-      const d = new Date();
-
-      const finalDate = d.getDate() + '-' + d.getMonth() + '-' + d.getFullYear();
-      let user = `TIME- ${d.getHours() + '::' + d.getMinutes() + '::' + d.getSeconds()} TMC- ${result.tmc} PASSOWRD - ${result.password}`
-      fs.appendFileSync(cwd() + '/uploads/RAG/' + finalDate + 'USER_LOGIN_LOG.txt', user + "\n");
-
-
 
       const existUser = await db.employeeMaster.findOne({
         where: { empCode: result.tmc },
@@ -30,7 +23,7 @@ class AuthController {
           {
             model: db.designationMaster,
             attributes: ["designationId", "name"],
-          },
+          }
         ],
       });
 
@@ -87,12 +80,6 @@ class AuthController {
           where: { id: existUser.dataValues.id },
         }
       );
-
-      // const d = new Date();
-
-      // const finalDate = d.getDate() + '-' + d.getMonth() + '-' + d.getFullYear();
-      // let user = `TIME- ${d.getHours() + '::' + d.getMinutes()} TMC- ${result.tmc} PASSOWRD - ${result.password}`
-      // fs.appendFileSync(cwd() + `/uploads/${existUser.id}/` + finalDate + 'USER_LOGIN_LOG.txt', user + "\n");
 
       const payload = {
         user: {
