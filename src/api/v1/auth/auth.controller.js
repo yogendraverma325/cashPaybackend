@@ -48,11 +48,10 @@ class AuthController {
         });
       }
 
-      let comparePass = parseInt(existUser.dataValues.id) === parseInt(result.password)
-      // const comparePass = await bcrypt.compare(
-      //   result.password,
-      //   existUser.password
-      // );
+      const comparePass = await bcrypt.compare(
+        result.password,
+        existUser.password
+      );
 
       if (!comparePass) {
         await db.employeeMaster.update(
@@ -127,6 +126,30 @@ class AuthController {
       return respHelper(res, {
         status: 500,
       });
+    }
+  }
+
+  async test(req, res) {
+    const empData = await db.employeeMaster.findAll({
+      raw: true,
+      where: {
+        departmentId: 11
+      },
+      attributes: ['id', 'name']
+    })
+
+    for (const iterator of empData) {
+
+      const hashedPassword = await helper.encryptPassword(iterator.id.toString())
+
+      await db.employeeMaster.update({
+        password: hashedPassword,
+        isTempPassword: 1
+      }, {
+        where: {
+          id: iterator.id
+        }
+      })
     }
   }
 }
