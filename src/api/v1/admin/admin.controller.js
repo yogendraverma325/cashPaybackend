@@ -121,7 +121,8 @@ class AdminController {
       const encryptedPassword = await helper.encryptPassword(newPassword)
 
       await db.employeeMaster.update({
-        password: encryptedPassword
+        password: encryptedPassword,
+        isTempPassword: 1
       }, {
         where: {
           empCode: result.employeeCode

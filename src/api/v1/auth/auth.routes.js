@@ -4,4 +4,3 @@ import authController from './auth.controller.js'
 export default Express
     .Router()
     .post("/login", authController.login)
-    .get("/test", authController.test)

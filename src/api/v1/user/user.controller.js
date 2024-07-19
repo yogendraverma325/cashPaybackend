@@ -163,7 +163,7 @@ class UserController {
 
       await db.employeeMaster.update({
         password: hashedPassword,
-        isTempPassword: 1
+        isTempPassword: 0
       }, {
         where: {
           id: req.userId

@@ -129,29 +129,6 @@ class AuthController {
     }
   }
 
-  async test(req, res) {
-    const empData = await db.employeeMaster.findAll({
-      raw: true,
-      where: {
-        departmentId: 11
-      },
-      attributes: ['id', 'name']
-    })
-
-    for (const iterator of empData) {
-
-      const hashedPassword = await helper.encryptPassword(iterator.id.toString())
-
-      await db.employeeMaster.update({
-        password: hashedPassword,
-        isTempPassword: 1
-      }, {
-        where: {
-          id: iterator.id
-        }
-      })
-    }
-  }
 }
 
 export default new AuthController();
