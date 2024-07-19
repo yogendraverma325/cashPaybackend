@@ -17,4 +17,9 @@ cron.schedule("* * * * *", async () => {
     cronController.updateActiveStatus()
 });
 
+// cron.schedule("* * * * *", async () => {
+//     cronController.EarnedLeaveCreditCron()
+// });
+
+
 export default cron

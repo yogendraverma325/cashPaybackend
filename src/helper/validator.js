@@ -161,6 +161,9 @@ const revoekLeaveRequest = Joi.object({
     .label("Leave ID"),
 });
 
+const attendanceDetails = Joi.object({
+    employeeId: Joi.number().required().label("Employee ID")
+  })
 const changePasswordSchema = Joi.object({
   password: Joi.string().trim().max(14).min(8).pattern(new RegExp(passwordRegex)).required().label("Password").messages({
     'string.pattern.base': "Password should contain at least Uppercase, Lowercase, Special Character, and Number"
@@ -183,5 +186,6 @@ export default {
   updateLeaveRequest,
   leaveRequestSchema,
   revoekLeaveRequest,
+  attendanceDetails,
   changePasswordSchema
 };
