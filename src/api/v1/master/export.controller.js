@@ -82,13 +82,13 @@ class MasterController {
           },
           {
             model: db.educationDetails,
-            attributes: ["educationDegree","educationSpecialisation","educationInstitute","educationRemark",
-              "educationStartDate","educationCompletionDate"],
+            attributes: ["educationDegree", "educationSpecialisation", "educationInstitute", "educationRemark",
+              "educationStartDate", "educationCompletionDate"],
           },
           {
             model: db.familyDetails,
-            attributes:['name','dob','gender','mobileNo','relationWithEmp'],
-            as:'employeefamilydetails'
+            attributes: ['name', 'dob', 'gender', 'mobileNo', 'relationWithEmp'],
+            as: 'employeefamilydetails'
           },
           {
             model: db.employeeMaster,
@@ -182,7 +182,7 @@ class MasterController {
 
       employeeData.rows.forEach((employee) => {
         employee.employeefamilydetails.forEach((family) => {
-        const extractedFamily = {
+          const extractedFamily = {
             empCode: employee.empCode ? employee.empCode : "",
             name: employee.firstName + " " + employee.lastName,
             familyName: family.name ? family.name : "",
@@ -190,10 +190,10 @@ class MasterController {
             gender: family.gender ? family.gender : "",
             mobileNo: family.mobileNo ? family.mobileNo : "",
             relationWithEmp: family.relationWithEmp ? family.relationWithEmp : "",
-        };
-        familyDetails.push(extractedFamily);
-    });
-  })
+          };
+          familyDetails.push(extractedFamily);
+        });
+      })
 
       if (arr.length > 0) {
         const dt = new Date();
@@ -245,16 +245,16 @@ class MasterController {
           {
             sheet: "Family Details",
             columns: [
-                { label: "Employee_Code", value: "empCode" },
-                { label: "Name", value: "name" },
-                { label: "Family_Member_Name", value: "familyName" },
-                { label: "Date_Of_Birth", value: "dob" },
-                { label: "Gender", value: "gender" },
-                { label: "Mobile_Number", value: "mobileNo" },
-                { label: "Relation_With_Employee", value: "relationWithEmp" },
+              { label: "Employee_Code", value: "empCode" },
+              { label: "Name", value: "name" },
+              { label: "Family_Member_Name", value: "familyName" },
+              { label: "Date_Of_Birth", value: "dob" },
+              { label: "Gender", value: "gender" },
+              { label: "Mobile_Number", value: "mobileNo" },
+              { label: "Relation_With_Employee", value: "relationWithEmp" },
             ],
             content: familyDetails,
-        },
+          },
         ];
 
         const settings = {
@@ -284,10 +284,10 @@ class MasterController {
       const sheetName = "uploads/temp/dataSheetMissed"; //+ dt.getTime();
       fs.writeFileSync(sheetName + ".xlsx", "", { flag: "a+" }, (err) => {
         if (err) {
-          console.error("Error writing file:", err);
+
           return;
         }
-        console.log("File created successfully!");
+
       });
       const data = [
         {
@@ -394,7 +394,6 @@ class MasterController {
               transaction, // Add transaction object here
             });
             if (existUser) {
-              console.log("already exists");
               arrMissingData.push(row);
             } else {
               const maxCode = await db.employeeMaster.max("empCode", {
@@ -430,7 +429,6 @@ class MasterController {
               await db.employeeMaster.create(data, { transaction }); // Add transaction object here
             }
           } else {
-            console.log("in else condition row.Manager_Name");
             arrMissingData.push(row);
           }
         }
@@ -462,14 +460,12 @@ class MasterController {
       const sheetToImportEmployee = pkg.utils.sheet_to_json(
         workbookEmployee.Sheets[sheetNameEmployee]
       );
-          
+
       let arrPoper = [];
       let arrMissingData = [];
-  
+
       for (const row of sheetToImportEmployee) {
-        console.log("row['Direct Manager Email Id']", row['Direct Manager Email Id']);
-        console.log("row['Direct Manager Email Id']", row['Direct Manager Code']);
-  
+
         const existUser = await db.employeeMaster.findOne({
           where: {
             [Op.and]: [
@@ -479,7 +475,7 @@ class MasterController {
           },
           transaction // Pass transaction object
         });
-  
+
         if (existUser) {
           arrMissingData.push(row);
 
@@ -498,15 +494,15 @@ class MasterController {
             role_id: 3,
             password: await bcrypt.hash("test1234", salt),
           };
-  
+
           arrPoper.push(data);
-         // await db.employeeMaster.create(data, { transaction }); // Add transaction object here
+          // await db.employeeMaster.create(data, { transaction }); // Add transaction object here
         }
       }
-  
+
       await db.employeeMaster.bulkCreate(arrPoper)
       await transaction.commit(); // Commit the transaction if all operations are successful
-  
+
       return respHelper(res, {
         status: 200,
         msg: "File Uploaded Successfully",
@@ -523,7 +519,7 @@ class MasterController {
       });
     }
   }
-  
+
   /*************************************redis**********************************************************/
   //   async employeeRedis(req, res) {
   //     try {
@@ -697,7 +693,6 @@ class MasterController {
       await client.get(cacheKey).then(async (data) => {
         if (data) {
           employeeData = JSON.parse(data);
-          console.log("Data fetched from Redis successfully.");
           return respHelper(res, {
             status: 200,
             data: employeeData,
@@ -797,7 +792,6 @@ class MasterController {
           const employeeJson = JSON.stringify(employeeData);
           await client.setEx(cacheKey, 200, employeeJson); // Cache for 10 minutes
 
-          console.log("Data stored in Redis successfully.");
           return respHelper(res, {
             status: 200,
             data: employeeData,

@@ -263,7 +263,6 @@ class commonController {
   async getCalendar(req, res) {
     try {
       let userData = req.userData;
-      console.log("userData", userData);
       const holidayData = await db.holidayCompanyLocationConfiguration.findAll({
         where: {
           companyLocationId: userData.companyLocationId,

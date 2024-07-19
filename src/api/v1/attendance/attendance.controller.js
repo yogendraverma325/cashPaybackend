@@ -503,7 +503,6 @@ class AttendanceController {
       const result = await Promise.all(monthDays.map(async (day) => {
         const attendance = attendanceMap[day.fullDate] || null;
         const holiday = holidayDates[day.fullDate] || null;
-         console.log("attendance.employeeId",attendance)
         const employeeLeaveTransactionDetails = await db.employeeLeaveTransactions.findAll({
          attributes: [
           "status",
@@ -967,7 +966,7 @@ class AttendanceController {
         isActive: 1
       },
     });
-console.log("existEmployees",existEmployees)
+
     await Promise.all(
       existEmployees.map(async (singleEmp) => {
         let presentStatus = null;
@@ -1042,10 +1041,7 @@ console.log("existEmployees",existEmployees)
                 timeWorkDuration.minutes() +
                 timeWorkDuration.seconds() / 60;
 
-              console.log(
-                "totalMinutesTotalHoursMinutes",
-                totalMinutesTotalHoursMinutes
-              );
+              
 
               if (
                 totalMinutesTotalHoursMinutes <
@@ -1143,7 +1139,7 @@ console.log("existEmployees",existEmployees)
   }
    async attendenceDetails(req, res) {
     try {
-      console.log("req.params.employeeId", req.userId);
+ 
       let attendanceData = await db.attendanceMaster.findOne({
         where: {
           employeeId:req.userId,
