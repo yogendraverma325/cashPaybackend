@@ -53,7 +53,7 @@ import holidayMaster from "../api/model/HolidayMaster.js";
 import holidayCompanyLocationConfiguration from "../api/model/holidayCompanyLocationConfiguration.js";
 import attendancePolicymaster from "../api/model/attendancePolicymaster.js";
 import employeeLeaveTransactions from "../api/model/EmployeeLeaveTransactions.js";
-
+import LoginDetails from "../api/model/LoginDetails.js";
 import DaysMaster from "../api/model/DaysMaster.js";
 import weekOffMaster from "../api/model/weekOffMaster.js";
 import weekOffDayMappingMaster from "../api/model/weekOffDayMappingMaster.js";
@@ -166,6 +166,8 @@ db.DaysMaster = DaysMaster(sequelize, Sequelize);
 db.weekOffMaster = weekOffMaster(sequelize, Sequelize);
 db.weekOffDayMappingMaster = weekOffDayMappingMaster(sequelize, Sequelize);
 db.CalenderYear = CalenderYear(sequelize, Sequelize);
+db.loginDetails = LoginDetails(sequelize, Sequelize)
+
 db.holidayCompanyLocationConfiguration.hasOne(db.holidayMaster, {
   foreignKey: "holidayId",
   sourceKey: "holidayId",
@@ -375,4 +377,7 @@ db.employeeMaster.hasOne(db.companyLocationMaster, {
   foreignKey: "companyLocationId",
   sourceKey: "companyLocationId"
 });
+
+db.employeeMaster.hasMany(db.loginDetails, { foreignKey: "employeeId", sourceKey: "id" })
+
 export default db;

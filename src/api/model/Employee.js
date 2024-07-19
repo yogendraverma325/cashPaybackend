@@ -104,7 +104,6 @@ export default (sequelize, Sequelize) => {
     },
     isTempPassword: {
       type: Sequelize.BOOLEAN,
-      default: 0
     }
   });
   return employeeMaster;

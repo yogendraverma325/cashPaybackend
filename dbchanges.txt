@@ -1,3 +1,14 @@
+----------------------------- 19-07-2024 (Manish)------------------------------------------
+
+CREATE TABLE logindetails (
+    loginDetailsId INT AUTO_INCREMENT PRIMARY KEY,
+    employeeId INT,
+    loginIP VARCHAR(255),
+    loginLatitude VARCHAR(50),
+    loginLongitude VARCHAR(50),
+    loginDevice VARCHAR(100),
+    createdDt DATE
+);
 
 ----------------------------17-06-2024 (Yogi)---------------
 ALTER TABLE hrms_dev.employee 
