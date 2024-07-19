@@ -26,7 +26,6 @@ class MasterController {
       await client.get(cacheKey).then(async (data) => {
         if (data) {
           employeeData = JSON.parse(data);
-          console.log("Data fetched from Redis successfully.");
           return respHelper(res, {
             status: 200,
             data: employeeData,
@@ -146,7 +145,7 @@ class MasterController {
           const employeeJson = JSON.stringify(employeeData);
           await client.setEx(cacheKey, parseInt(process.env.TTL), employeeJson); // Cache for 2.3 minutes
 
-          console.log("Data stored in Redis successfully.");
+
           return respHelper(res, {
             status: 200,
             data: employeeData,

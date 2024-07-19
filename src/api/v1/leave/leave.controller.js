@@ -286,7 +286,6 @@ class LeaveController {
         });
       }
       let EMP_DATA = await helper.getEmpProfile(req.body.employeeId);
-      console.log("EMP_DATA",EMP_DATA.managerData)
       let leaveData = await helper.empLeaveDetails(
         req.body.employeeId,
         req.body.leaveAutoId
@@ -406,7 +405,7 @@ class LeaveController {
         },
       });
 
-      console.log("leaveIds", leaveIds.length, countLeave);
+     
       if (leaveIds.length != countLeave) {
         return respHelper(res, {
           status: 402,

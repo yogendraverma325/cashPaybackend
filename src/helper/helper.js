@@ -264,10 +264,10 @@ const getEmpProfile = async (EMP_ID) => {
         attributes: ["id", "name"],
         as: "buhrData",
       },
-        {
-        model:db.companyLocationMaster, 
+      {
+        model: db.companyLocationMaster,
         required: false,
-        attributes: ["address1","address2"],
+        attributes: ["address1", "address2"],
       }
     ],
   });
@@ -331,10 +331,6 @@ const empMarkLeaveOfGivenDate = async function (userId, inputData, batch) {
     inputData.batch_id = batch;
     await db.employeeLeaveTransactions.create(inputData);
   }
-  // console.log("userId", userId);
-  // console.log("inputData", inputData);
-  // console.log("batch", batch);
-  // console.log("empLeave", empLeave);
   return 1;
 };
 export default {

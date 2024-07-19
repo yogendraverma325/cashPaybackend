@@ -9,7 +9,7 @@ import { Op } from "sequelize";
 import fs from "fs";
 import { cwd } from "process";
 class AttendanceController {
- async attendance(req, res) {
+  async attendance(req, res) {
     try {
       const result = await validator.attendanceSchema.validateAsync(req.body);
       const currentDate = moment();
@@ -385,14 +385,14 @@ class AttendanceController {
       let calculatePresentDays = [];
       let calculateAbsentDays = [];
       let calculateSinglePunchAbsent = [];
-  
+
       if (!year || !month) {
         return respHelper(res, {
           status: 400,
           msg: "Please Fill Month and Year",
         });
       }
-  
+
       const getLocationBasedHolidays = await db.holidayCompanyLocationConfiguration.findAll({
         where: { companyLocationId: companyLocationId },
         include: [{
@@ -403,7 +403,7 @@ class AttendanceController {
           where: { isActive: 1 },
         }],
       });
-  
+
       const attendanceData = await db.attendanceMaster.findAndCountAll({
         where: {
           employeeId: user ? user : req.userId,
@@ -452,12 +452,12 @@ class AttendanceController {
           },
         ],
       });
-  
+
       const monthDays = await db.CalenderYear.findAll({
         attributes: ["calenderId", "date", "year", "month", "fullDate"],
         where: { month: month, year: year },
       });
-  
+
       for (const iterator of attendanceData.rows) {
         if (iterator.dataValues.attendanceWorkingTime) {
           averageWorkingTime.push(iterator.dataValues.attendanceWorkingTime);
@@ -483,7 +483,7 @@ class AttendanceController {
             break;
         }
       }
-  
+
       let holidayDates = {};
       getLocationBasedHolidays.forEach((locationHoliday) => {
         if (locationHoliday.holidayDetails) {
@@ -493,29 +493,34 @@ class AttendanceController {
           };
         }
       });
-  
+
       const attendanceMap = attendanceData.rows.reduce((map, record) => {
         map[record.attendanceDate] = record;
         return map;
       }, {});
-  
+
       let i = 0;
       const result = await Promise.all(monthDays.map(async (day) => {
         const attendance = attendanceMap[day.fullDate] || null;
         const holiday = holidayDates[day.fullDate] || null;
-         console.log("attendance.employeeId",attendance)
         const employeeLeaveTransactionDetails = await db.employeeLeaveTransactions.findAll({
-         attributes: [
-          "status",
-          "employeeLeaveTransactionsId",
-          "isHalfDay",
-          "halfDayFor",
-          "reason",
-          "leaveAutoId",
-        ],
-         where: { employeeId: req.userId, appliedFor: attendance ? attendance.attendanceDate : day.fullDate }
+          attributes: [
+            "status",
+            "employeeLeaveTransactionsId",
+            "isHalfDay",
+            "halfDayFor",
+            "reason",
+            "leaveAutoId",
+          ],
+          where: { employeeId: req.userId, appliedFor: attendance ? attendance.attendanceDate : day.fullDate },
+          include: {
+            model: db.leaveMaster,
+            required: false,
+            as: "leaveMasterDetails",
+            attributes: ["leaveName", "leaveCode"],
+          },
         });
-  
+
         return {
           attendanceAutoId: attendance ? attendance.attendanceAutoId : i++,
           employeeId: attendance ? attendance.employeeId : 0,
@@ -523,7 +528,7 @@ class AttendanceController {
           attendancePolicyId: attendance ? attendance.attendancePolicyId : 0,
           attendanceRegularizeId: attendance ? attendance.attendanceRegularizeId : 0,
           attendanceDate: attendance ? attendance.attendanceDate : day.fullDate,
-          day:moment(attendance ? attendance.attendanceDate : day.fullDate).format('dddd'),
+          day: moment(attendance ? attendance.attendanceDate : day.fullDate).format('dddd'),
           attandanceShiftStartDate: attendance ? attendance.attandanceShiftStartDate : day.fullDate,
           attendanceShiftEndDate: attendance ? attendance.attendanceShiftEndDate : day.fullDate,
           attendancePunchInTime: attendance ? attendance.attendancePunchInTime : null,
@@ -553,7 +558,7 @@ class AttendanceController {
           employeeLeaveTransactionDetails: employeeLeaveTransactionDetails,
         };
       }));
-  
+
       return respHelper(res, {
         status: 200,
         data: {
@@ -577,9 +582,9 @@ class AttendanceController {
       return respHelper(res, { status: 500 });
     }
   }
-  
 
- async approveRegularizationRequest(req, res) {
+
+  async approveRegularizationRequest(req, res) {
     try {
       const result =
         await validator.approveRegularizationRequestSchema.validateAsync(
@@ -593,11 +598,11 @@ class AttendanceController {
         include: [
           {
             model: db.attendanceMaster,
-            attributes:['attendanceAutoId','employeeId'],
-            include:[{
-              model:db.employeeMaster,
-              attributes:['attendancePolicyId'],
-              include:[
+            attributes: ['attendanceAutoId', 'employeeId'],
+            include: [{
+              model: db.employeeMaster,
+              attributes: ['attendancePolicyId'],
+              include: [
                 {
                   model: db.shiftMaster,
                   required: false,
@@ -611,9 +616,9 @@ class AttendanceController {
                   where: {
                     isActive: true,
                   },
-                },{
+                }, {
                   model: db.attendancePolicymaster,
-                  attributes:['graceTimeClockIn'],
+                  attributes: ['graceTimeClockIn'],
                   where: {
                     isActive: true,
                   },
@@ -717,11 +722,11 @@ class AttendanceController {
         where: Object.assign(
           query === "raisedByMe"
             ? {
-                createdBy: req.userId,
-              }
+              createdBy: req.userId,
+            }
             : {
-                regularizeManagerId: req.userId,
-              },
+              regularizeManagerId: req.userId,
+            },
           {
             regularizeStatus: "Pending",
           }
@@ -967,7 +972,7 @@ class AttendanceController {
         isActive: 1
       },
     });
-console.log("existEmployees",existEmployees)
+
     await Promise.all(
       existEmployees.map(async (singleEmp) => {
         let presentStatus = null;
@@ -1007,21 +1012,21 @@ console.log("existEmployees",existEmployees)
 
               if (
                 totalMinutesLateMinutes >=
-                  singleEmp.attendancePolicymaster
-                    .leaveDeductPolicyLateDurationHalfDayTime &&
+                singleEmp.attendancePolicymaster
+                  .leaveDeductPolicyLateDurationHalfDayTime &&
                 totalMinutesLateMinutes <
-                  singleEmp.attendancePolicymaster
-                    .leaveDeductPolicyLateDurationFullDayTime
+                singleEmp.attendancePolicymaster
+                  .leaveDeductPolicyLateDurationFullDayTime
               ) {
                 isHalfDay_late_by = 1;
                 halfDayFor_late_by = 1;
               } else if (
                 totalMinutesLateMinutes >
-                  singleEmp.attendancePolicymaster
-                    .leaveDeductPolicyLateDurationHalfDayTime &&
+                singleEmp.attendancePolicymaster
+                  .leaveDeductPolicyLateDurationHalfDayTime &&
                 totalMinutesLateMinutes >=
-                  singleEmp.attendancePolicymaster
-                    .leaveDeductPolicyLateDurationFullDayTime
+                singleEmp.attendancePolicymaster
+                  .leaveDeductPolicyLateDurationFullDayTime
               ) {
                 isHalfDay_late_by = 0;
                 halfDayFor_late_by = 0;
@@ -1042,18 +1047,15 @@ console.log("existEmployees",existEmployees)
                 timeWorkDuration.minutes() +
                 timeWorkDuration.seconds() / 60;
 
-              console.log(
-                "totalMinutesTotalHoursMinutes",
-                totalMinutesTotalHoursMinutes
-              );
+
 
               if (
                 totalMinutesTotalHoursMinutes <
-                  singleEmp.attendancePolicymaster
-                    .leaveDeductPolicyWorkDurationHalfDayTime &&
+                singleEmp.attendancePolicymaster
+                  .leaveDeductPolicyWorkDurationHalfDayTime &&
                 totalMinutesTotalHoursMinutes <
-                  singleEmp.attendancePolicymaster
-                    .leaveDeductPolicyWorkDurationFullDayTime
+                singleEmp.attendancePolicymaster
+                  .leaveDeductPolicyWorkDurationFullDayTime
               ) {
                 isHalfDay_total_work = 0;
                 halfDayFor_total_work = 0;
@@ -1141,12 +1143,12 @@ console.log("existEmployees",existEmployees)
     //   data: existEmployees,
     // });
   }
-   async attendenceDetails(req, res) {
+  async attendenceDetails(req, res) {
     try {
-      console.log("req.params.employeeId", req.userId);
+
       let attendanceData = await db.attendanceMaster.findOne({
         where: {
-          employeeId:req.userId,
+          employeeId: req.userId,
           attendanceDate: moment().format("YYYY-MM-DD"),
         },
       });
