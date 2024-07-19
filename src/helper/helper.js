@@ -20,13 +20,16 @@ const fileUpload = (base64String, fileName, filepath) => {
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir);
   }
-  const base64Data = base64String.replace(/^data:image\/\w+;base64,/, "");
+  const fileExt = base64String.slice(
+    base64String.indexOf("/") + 1,
+    base64String.indexOf(";")
+  );
+  const base64Data = base64String.replace(/^data:(.+);base64,/, "");
   const buffer = Buffer.from(base64Data, "base64");
-  const finalFilePath = `${dir}/${fileName}`;
+  const finalFilePath = `${dir}/${fileName}.${fileExt}`;
   fs.writeFileSync(finalFilePath, buffer);
   return finalFilePath;
 };
-
 const checkFolder = async () => {
   const folder = ["uploads"];
   for (const iterator of folder) {
@@ -261,8 +264,8 @@ const getEmpProfile = async (EMP_ID) => {
         attributes: ["id", "name"],
         as: "buhrData",
       },
-      {
-        model:db.companyLocationMaster,
+        {
+        model:db.companyLocationMaster, 
         required: false,
         attributes: ["address1","address2"],
       }
@@ -303,6 +306,37 @@ const empLeaveDetails = async function (userId, type) {
 
   return leaveData;
 };
+const empMarkLeaveOfGivenDate = async function (userId, inputData, batch) {
+  let empLeave = await empLeaveDetails(userId, inputData.leaveAutoId);
+  if (inputData.leaveAutoId != 6) {
+    let pendingLeaveCountList = await db.employeeLeaveTransactions.findAll({
+      where: {
+        status: "pending",
+        employeeId: userId,
+        leaveAutoId: inputData.leaveAutoId,
+      },
+    });
+    let pendingLeaveCount = 0;
+
+    pendingLeaveCountList.map((el) => {
+      pendingLeaveCount += parseFloat(el.leaveCount);
+    });
+
+    if (
+      pendingLeaveCount + inputData.leaveCount >=
+      parseFloat(empLeave.availableLeave)
+    ) {
+      inputData.leaveAutoId = 6;
+    }
+    inputData.batch_id = batch;
+    await db.employeeLeaveTransactions.create(inputData);
+  }
+  // console.log("userId", userId);
+  // console.log("inputData", inputData);
+  // console.log("batch", batch);
+  // console.log("empLeave", empLeave);
+  return 1;
+};
 export default {
   generateJwtToken,
   checkFolder,
@@ -317,4 +351,5 @@ export default {
   encryptPassword,
   getEmpProfile,
   empLeaveDetails,
+  empMarkLeaveOfGivenDate
 };

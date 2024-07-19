@@ -30,7 +30,7 @@ const userCreationSchema = Joi.object({
 
 const attendanceSchema = Joi.object({
   locationType: Joi.string().trim().max(250).label("Location Type"),
-  remark: Joi.string().trim().max(250).label("Remark"),
+  remark: Joi.string().trim().max(250).label("Remark").allow(""),
   location: Joi.string().trim().label("Location"),
   latitude: Joi.string().trim().label("Latitude"),
   longitude: Joi.string().trim().label("Longitude"),

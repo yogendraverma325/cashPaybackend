@@ -99,7 +99,10 @@ export default (sequelize, Sequelize) => {
     updatedAt: {
       type: Sequelize.DATE,
     },
-    needAttendanceCron: {
+     needAttendanceCron: {
+      type: Sequelize.INTEGER,
+    },
+    holidayCompanyLocationConfigurationID: {
       type: Sequelize.INTEGER,
     },
     holidayCompanyLocationConfigurationID: {

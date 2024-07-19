@@ -53,8 +53,12 @@ import holidayMaster from "../api/model/HolidayMaster.js";
 import holidayCompanyLocationConfiguration from "../api/model/holidayCompanyLocationConfiguration.js";
 import attendancePolicymaster from "../api/model/attendancePolicymaster.js";
 import employeeLeaveTransactions from "../api/model/EmployeeLeaveTransactions.js";
-import CalenderYear from "../api/model/CalenderYear.js";
 
+import DaysMaster from "../api/model/DaysMaster.js";
+import weekOffMaster from "../api/model/weekOffMaster.js";
+import weekOffDayMappingMaster from "../api/model/weekOffDayMappingMaster.js";
+import CalenderYear from "../api/model/CalenderYear.js";
+import literal from "sequelize";
 const sequelize = new Sequelize(
   process.env.DB_NAME,
   process.env.DB_USER,
@@ -70,7 +74,7 @@ const sequelize = new Sequelize(
       timestamps: false,
     },
     pool: {
-      max: 5,
+      max: 20,
       min: 0,
       acquire: 30000,
       idle: 10000,
@@ -100,6 +104,7 @@ sequelize
 const db = {};
 db.Sequelize = Sequelize;
 db.sequelize = sequelize;
+db.literal = literal;
 db.employeeMaster = Employee(sequelize, Sequelize);
 db.bandMaster = Band(sequelize, Sequelize);
 db.buMaster = Bu(sequelize, Sequelize);
@@ -156,7 +161,11 @@ db.holidayCompanyLocationConfiguration = holidayCompanyLocationConfiguration(
 );
 db.attendancePolicymaster = attendancePolicymaster(sequelize, Sequelize);
 db.employeeLeaveTransactions = employeeLeaveTransactions(sequelize, Sequelize);
-db.CalenderYear = CalenderYear(sequelize, Sequelize)
+
+db.DaysMaster = DaysMaster(sequelize, Sequelize);
+db.weekOffMaster = weekOffMaster(sequelize, Sequelize);
+db.weekOffDayMappingMaster = weekOffDayMappingMaster(sequelize, Sequelize);
+db.CalenderYear = CalenderYear(sequelize, Sequelize);
 db.holidayCompanyLocationConfiguration.hasOne(db.holidayMaster, {
   foreignKey: "holidayId",
   sourceKey: "holidayId",
@@ -279,6 +288,10 @@ db.attendanceMaster.hasOne(db.employeeMaster, {
   foreignKey: "id",
   sourceKey: "employeeId",
 });
+db.employeeMaster.hasOne(db.attendanceMaster, {
+  foreignKey: "employeeId",
+  sourceKey: "id",
+});
 db.attendanceMaster.hasOne(db.shiftMaster, {
   foreignKey: "shiftId",
   sourceKey: "attendanceShiftId",
@@ -333,10 +346,30 @@ db.employeeLeaveTransactions.hasOne(db.employeeMaster, {
   sourceKey: "employeeId",
 });
 
+db.employeeMaster.belongsTo(db.employeeLeaveTransactions, {
+  foreignKey: "id",
+  sourceKey: "employeeId",
+});
+
 db.attendanceMaster.hasMany(db.holidayCompanyLocationConfiguration, {
   foreignKey: "holidayCompanyLocationConfigurationID",
   sourceKey: "holidayCompanyLocationConfigurationID",
   as: "holidayLocationMappingDetails",
+});
+
+db.employeeMaster.hasOne(db.weekOffMaster, {
+  foreignKey: "weekOffId",
+  sourceKey: "weekOffId",
+});
+
+db.weekOffMaster.hasMany(db.weekOffDayMappingMaster, {
+  foreignKey: "weekOffId",
+  sourceKey: "weekOffId",
+});
+
+db.employeeMaster.hasMany(db.holidayCompanyLocationConfiguration, {
+  foreignKey: "companyLocationId",
+  sourceKey: "companyLocationId",
 });
 db.employeeMaster.hasOne(db.companyLocationMaster, {
   foreignKey: "companyLocationId",

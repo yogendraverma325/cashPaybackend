@@ -40,7 +40,11 @@ export default (sequelize, Sequelize) => {
       message: {
         type: Sequelize.STRING,
       },
+<<<<<<< HEAD
       batch_id: {
+=======
+       batch_id: {
+>>>>>>> b833b46cc88913f2f35970d3220718241fef0840
         type: Sequelize.STRING,
       },
       pendingAt: {
@@ -48,6 +52,13 @@ export default (sequelize, Sequelize) => {
       },
       employeeId: {
         type: Sequelize.INTEGER,
+      },
+      leaveAttachment: {
+        type: Sequelize.STRING,
+      },
+        leaveCount: {
+        type: Sequelize.DECIMAL(10, 1),
+        defaltValue: 0,
       },
       createdBy: {
         type: Sequelize.INTEGER,

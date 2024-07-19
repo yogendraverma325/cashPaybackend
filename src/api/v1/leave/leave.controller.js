@@ -82,7 +82,11 @@ class LeaveController {
             model: db.employeeMaster,
             attributes: ["empCode", "name"],
           },
+<<<<<<< HEAD
           {
+=======
+           {
+>>>>>>> b833b46cc88913f2f35970d3220718241fef0840
             model: db.leaveMaster,
             required: false,
             as: "leaveMasterDetails",
@@ -115,7 +119,7 @@ class LeaveController {
 
       if (leaveIds.length != countLeave) {
         return respHelper(res, {
-          status: 401,
+          status: 402,
           msg: message.LEAVE.NO_UPDATE,
         });
       }
@@ -132,18 +136,13 @@ class LeaveController {
         }
       );
 
+    
       for (const leaveID of leaveIds) {
         const existingRecord = await db.employeeLeaveTransactions.findOne({
           where: { employeeLeaveTransactionsId: leaveID },
         });
 
         if (existingRecord) {
-          console.log(
-            "existingRecord.appliedFor",
-            existingRecord.appliedFor,
-            "existingRecord.employeeId",
-            existingRecord.employeeId
-          );
           await db.attendanceMaster.update(
             { employeeLeaveTransactionsId: leaveID },
             {
@@ -153,17 +152,59 @@ class LeaveController {
               },
             }
           );
-        } else {
-          // await db.User.create(record, { transaction });
-        }
 
-        console.log("leaveID", leaveID);
+          if (existingRecord.leaveAutoId === 6) {
+
+            const lwpLeave = await db.leaveMapping.findOne({
+              where: {
+                EmployeeId: existingRecord.employeeId,
+                leaveAutoId: existingRecord.leaveAutoId
+              }
+            })
+
+            if (lwpLeave) {
+              await db.leaveMapping.increment({ accruedThisYear: parseFloat(existingRecord.leaveCount) }, {
+                where: {
+                  EmployeeId: existingRecord.employeeId,
+                  leaveAutoId: existingRecord.leaveAutoId
+                }
+              });
+            } else {
+              await db.leaveMapping.create({
+                EmployeeId: existingRecord.employeeId,
+                leaveAutoId: existingRecord.leaveAutoId,
+                availableLeave: 0,
+                accruedThisYear: parseFloat(existingRecord.leaveCount),
+                creditedFromLastYear: 0,
+                annualAllotment: 0
+              })
+            }
+          } else {
+            await db.leaveMapping.increment({ accruedThisYear: parseFloat(existingRecord.leaveCount) }, {
+              where: {
+                EmployeeId: existingRecord.employeeId,
+                leaveAutoId: existingRecord.leaveAutoId
+              }
+            });
+            await db.leaveMapping.increment({ availableLeave: -parseFloat(existingRecord.leaveCount) }, {
+              where: {
+                EmployeeId: existingRecord.employeeId,
+                leaveAutoId: existingRecord.leaveAutoId
+              }
+            });
+          }
+
+        }
+        //  else {
+        // await db.User.create(record, { transaction });
+        // }
+
       }
 
       return respHelper(res, {
         status: 200,
         data: countLeave,
-        msg: message.REGULARIZE_REQUEST_SUCCESSFULL,
+        msg: message.UPDATE_SUCCESS.replace("<module>", "Leave"),
       });
     } catch (error) {
       console.log(error);
@@ -182,7 +223,7 @@ class LeaveController {
     try {
       const result = await validator.leaveRequestSchema.validateAsync(req.body);
 
-      const leaveCountForDates = await db.employeeLeaveTransactions.count({
+      const leaveCountForDates = await db.employeeLeaveTransactions.findAll({
         where: {
           appliedFor: {
             [Op.between]: [req.body.fromDate, req.body.toDate],
@@ -190,16 +231,66 @@ class LeaveController {
           status: {
             [Op.ne]: "revoked",
           },
+          employeeId: req.body.employeeId,
         },
       });
-      let EMP_DATA = await helper.getEmpProfile(req.body.employeeId);
-      if (leaveCountForDates > 0) {
+
+      const fromDateReq = req.body.fromDate;
+      const toDateReq = req.body.toDate;
+      const daysDifferenceReq = moment(toDateReq).diff(
+        moment(fromDateReq),
+        "days"
+      );
+
+      var inputs = [];
+      for (let i = -1; i < daysDifferenceReq; i++) {
+        let appliedFor = moment(fromDateReq)
+          .add(i + 1, "days")
+          .format("YYYY-MM-DD");
+
+        let halfDayFor = 0;
+        let isHalfDay = 0;
+
+        if (daysDifferenceReq == 0) {
+          isHalfDay = req.body.firstDayHalf != 0 ? 1 : 0;
+          halfDayFor = req.body.firstDayHalf;
+        } else {
+          if (i + 1 == 0) {
+            isHalfDay = req.body.firstDayHalf != 0 ? 1 : 0;
+            halfDayFor = req.body.firstDayHalf;
+          } else if (i + 1 == daysDifferenceReq) {
+            isHalfDay = req.body.lastDayHalf != 0 ? 1 : 0;
+            halfDayFor = req.body.lastDayHalf;
+          }
+        }
+        inputs = leaveCountForDates.filter((el) => {
+          if (el.appliedFor == appliedFor) {
+            if (el.isHalfDay == 1) {
+              if (halfDayFor == 0) {
+                return true;
+              } else {
+                if (el.halfDayFor == halfDayFor) {
+                  return true;
+                } else {
+                  return false;
+                }
+              }
+            } else {
+              return true;
+            }
+          } else {
+            return true;
+          }
+        });
+      }
+      if (inputs.length > 0) {
         return respHelper(res, {
-          status: 401,
+          status: 402,
           msg: message.LEAVE.DATES_NOT_APPLICABLE,
         });
       }
-
+      let EMP_DATA = await helper.getEmpProfile(req.body.employeeId);
+      console.log("EMP_DATA",EMP_DATA.managerData)
       let leaveData = await helper.empLeaveDetails(
         req.body.employeeId,
         req.body.leaveAutoId
@@ -210,7 +301,11 @@ class LeaveController {
       let arr = [];
       let leaveDays = 0;
       const daysDifference = moment(toDate).diff(moment(fromDate), "days");
+<<<<<<< HEAD
       let uuid = "id_" + moment().format("YYYYMMDDHHmmss");
+=======
+        let uuid ="id_"+moment().format('YYYYMMDDHHmmss');
+>>>>>>> b833b46cc88913f2f35970d3220718241fef0840
       for (let i = -1; i < daysDifference; i++) {
         let appliedFor = moment(fromDate)
           .add(i + 1, "days")
@@ -241,9 +336,27 @@ class LeaveController {
         let leaveId = 6;
         if (leaveData) {
           leaveId = req.body.leaveAutoId;
-          if (leaveData.availableLeave < leaveDays) {
-            leaveId = 6;
+          if (leaveId != 6) {
+            let pendingLeaveCountList = await db.employeeLeaveTransactions.findAll({
+            where: {
+            status: "pending",
+            employeeId: req.body.employeeId,
+            leaveAutoId: leaveId
+            },
+            });
+    let pendingLeaveCount = 0;
+     pendingLeaveCountList.map((el) => {
+      pendingLeaveCount += parseFloat(el.leaveCount);
+    });
+
+      if (
+      pendingLeaveCount + leaveDays >=
+      parseFloat(leaveData.availableLeave)
+      ) {
+      leaveId = 6;
+      }
           }
+         
         }
         const recordData = {
           employeeId: req.body.employeeId, // Replace with actual employee ID
@@ -256,7 +369,13 @@ class LeaveController {
           halfDayFor: halfDayFor, // Replace with actual half day for value
           status: "pending", // Replace with actual status
           reason: req.body.reason, // Replace with actual reason
+             leaveCount: isHalfDay == 1 ? 0.5 : 1,
           message: req.body.message,
+             leaveAttachment: helper.fileUpload(
+            result.attachment,
+            `leaveAttachment_${uuid}`,
+            `uploads/${EMP_DATA.empCode}`
+          ),
           pendingAt: EMP_DATA.managerData.id, // Replace with actual pending at value
           createdBy: req.userId, // Replace with actual creator user ID
           createdAt: moment(), // Replace with actual creation date
@@ -277,6 +396,7 @@ class LeaveController {
           msg: error.details[0].message,
         });
       }
+      console.log("error",error)
       return respHelper(res, {
         status: 500,
       });
@@ -297,7 +417,7 @@ class LeaveController {
       console.log("leaveIds", leaveIds.length, countLeave);
       if (leaveIds.length != countLeave) {
         return respHelper(res, {
-          status: 401,
+          status: 402,
           msg: message.LEAVE.NO_UPDATE,
         });
       }
