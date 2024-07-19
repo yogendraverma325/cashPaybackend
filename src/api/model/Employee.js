@@ -95,14 +95,13 @@ export default (sequelize, Sequelize) => {
     companyLocationId: {
       type: Sequelize.INTEGER,
     },
-<<<<<<< HEAD
-    isActive: {
-=======
      weekOffId: {
       type: Sequelize.INTEGER,
     },
+    isTempPassword :{
+      type: Sequelize.BOOLEAN
+    },
      isActive: {
->>>>>>> b833b46cc88913f2f35970d3220718241fef0840
       type: Sequelize.INTEGER,
       defaultValue: 1,
     },

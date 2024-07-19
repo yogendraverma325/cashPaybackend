@@ -40,11 +40,7 @@ export default (sequelize, Sequelize) => {
       message: {
         type: Sequelize.STRING,
       },
-<<<<<<< HEAD
-      batch_id: {
-=======
        batch_id: {
->>>>>>> b833b46cc88913f2f35970d3220718241fef0840
         type: Sequelize.STRING,
       },
       pendingAt: {

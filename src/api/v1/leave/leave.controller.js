@@ -82,11 +82,7 @@ class LeaveController {
             model: db.employeeMaster,
             attributes: ["empCode", "name"],
           },
-<<<<<<< HEAD
-          {
-=======
            {
->>>>>>> b833b46cc88913f2f35970d3220718241fef0840
             model: db.leaveMaster,
             required: false,
             as: "leaveMasterDetails",
@@ -301,11 +297,7 @@ class LeaveController {
       let arr = [];
       let leaveDays = 0;
       const daysDifference = moment(toDate).diff(moment(fromDate), "days");
-<<<<<<< HEAD
-      let uuid = "id_" + moment().format("YYYYMMDDHHmmss");
-=======
         let uuid ="id_"+moment().format('YYYYMMDDHHmmss');
->>>>>>> b833b46cc88913f2f35970d3220718241fef0840
       for (let i = -1; i < daysDifference; i++) {
         let appliedFor = moment(fromDate)
           .add(i + 1, "days")
