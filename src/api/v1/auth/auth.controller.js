@@ -48,11 +48,10 @@ class AuthController {
         });
       }
 
-      let comparePass = parseInt(existUser.dataValues.id) === parseInt(result.password)
-      // const comparePass = await bcrypt.compare(
-      //   result.password,
-      //   existUser.password
-      // );
+      const comparePass = await bcrypt.compare(
+        result.password,
+        existUser.password
+      );
 
       if (!comparePass) {
         await db.employeeMaster.update(
@@ -129,6 +128,7 @@ class AuthController {
       });
     }
   }
+
 }
 
 export default new AuthController();

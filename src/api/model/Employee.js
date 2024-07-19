@@ -95,16 +95,17 @@ export default (sequelize, Sequelize) => {
     companyLocationId: {
       type: Sequelize.INTEGER,
     },
-     weekOffId: {
+    weekOffId: {
       type: Sequelize.INTEGER,
     },
-    isTempPassword :{
-      type: Sequelize.BOOLEAN
-    },
-     isActive: {
+    isActive: {
       type: Sequelize.INTEGER,
       defaultValue: 1,
     },
+    isTempPassword: {
+      type: Sequelize.BOOLEAN,
+      default: 0
+    }
   });
   return employeeMaster;
 };

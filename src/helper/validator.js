@@ -1,5 +1,7 @@
 import Joi from "joi";
 
+const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*()_+={}\[\]:;,<.>?/~\\-]).{8,}$/
+
 const loginSchema = Joi.object({
   tmc: Joi.string().required().label("TMC"),
   password: Joi.string().required().label("Password"),
@@ -162,6 +164,12 @@ const revoekLeaveRequest = Joi.object({
 const attendanceDetails = Joi.object({
     employeeId: Joi.number().required().label("Employee ID")
   })
+const changePasswordSchema = Joi.object({
+  password: Joi.string().trim().max(14).min(8).pattern(new RegExp(passwordRegex)).required().label("Password").messages({
+    'string.pattern.base': "Password should contain at least Uppercase, Lowercase, Special Character, and Number"
+  })
+})
+
 export default {
   loginSchema,
   userCreationSchema,
@@ -178,5 +186,6 @@ export default {
   updateLeaveRequest,
   leaveRequestSchema,
   revoekLeaveRequest,
-  attendanceDetails
+  attendanceDetails,
+  changePasswordSchema
 };
