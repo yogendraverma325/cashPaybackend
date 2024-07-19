@@ -2,6 +2,8 @@ import db from "../../../config/db.config.js";
 import respHelper from "../../../helper/respHelper.js";
 import commonController from "../common/common.controller.js";
 import helper from "../../../helper/helper.js";
+import validator from "../../../helper/validator.js";
+
 class UserController {
   async profileDetails(req, res) {
     try {
@@ -147,6 +149,40 @@ class UserController {
       await commonController.dashboardCard(req, res);
     } catch (error) {
       console.log(error);
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+
+  async changePassword(req, res) {
+    try {
+
+      const result = await validator.changePasswordSchema.validateAsync(req.body)
+      const hashedPassword = await helper.encryptPassword(result.password)
+
+      await db.employeeMaster.update({
+        password: hashedPassword,
+        isTempPassword: 1
+      }, {
+        where: {
+          id: req.userId
+        }
+      })
+
+      return respHelper(res, {
+        status: 200,
+        msg: "Password Changed SuccessFully."
+      });
+
+    } catch (error) {
+      console.log(error);
+      if (error.isJoi === true) {
+        return respHelper(res, {
+          status: 422,
+          msg: error.details[0].message
+        });
+      }
       return respHelper(res, {
         status: 500,
       });

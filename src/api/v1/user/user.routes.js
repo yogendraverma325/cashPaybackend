@@ -14,3 +14,4 @@ export default Express
     .delete("/deleteFamilyMemberDetails", authentication.authenticate, commonController.deleteFamilyMemberDetails)
     .post("/addPaymentDetails", authentication.authenticate, commonController.addPaymentDetails)
     .get("/leave", authentication.authenticate, commonController.addPaymentDetails)
+    .post("/changePassword", authentication.authenticate, userController.changePassword)
