@@ -13,7 +13,7 @@ const generateJwtToken = async (data) => {
   return token;
 };
 
-const fileUpload = (base64String, fileName, filepath) => {
+const fileUpload = async (base64String, fileName, filepath) => {
   checkFolder();
   let dir = filepath;
   if (!dir) dir = path.resolve(dir);
@@ -96,7 +96,7 @@ const calculateLateBy = async (actualTime, scheduleTime) => {
   }
 };
 
-const calculateTime = (time) => {
+const calculateTime = async(time) => {
   if (time.length === 0) {
     return "00:00:00";
   }
@@ -116,7 +116,7 @@ const calculateTime = (time) => {
   return moment.utc(sumDuration.asMilliseconds()).format("HH:mm:ss");
 };
 
-const calculateAverageHours = (workingHours) => {
+const calculateAverageHours = async (workingHours) => {
   function parseDuration(timeStr) {
     let [hours, minutes, seconds] = timeStr.split(":");
     return moment.duration({

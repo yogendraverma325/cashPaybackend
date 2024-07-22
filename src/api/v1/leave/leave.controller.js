@@ -82,7 +82,7 @@ class LeaveController {
             model: db.employeeMaster,
             attributes: ["empCode", "name"],
           },
-           {
+          {
             model: db.leaveMaster,
             required: false,
             as: "leaveMasterDetails",
@@ -132,7 +132,6 @@ class LeaveController {
         }
       );
 
-    
       for (const leaveID of leaveIds) {
         const existingRecord = await db.employeeLeaveTransactions.findOne({
           where: { employeeLeaveTransactionsId: leaveID },
@@ -150,21 +149,23 @@ class LeaveController {
           );
 
           if (existingRecord.leaveAutoId === 6) {
-
             const lwpLeave = await db.leaveMapping.findOne({
               where: {
                 EmployeeId: existingRecord.employeeId,
-                leaveAutoId: existingRecord.leaveAutoId
-              }
-            })
+                leaveAutoId: existingRecord.leaveAutoId,
+              },
+            });
 
             if (lwpLeave) {
-              await db.leaveMapping.increment({ accruedThisYear: parseFloat(existingRecord.leaveCount) }, {
-                where: {
-                  EmployeeId: existingRecord.employeeId,
-                  leaveAutoId: existingRecord.leaveAutoId
+              await db.leaveMapping.increment(
+                { accruedThisYear: parseFloat(existingRecord.leaveCount) },
+                {
+                  where: {
+                    EmployeeId: existingRecord.employeeId,
+                    leaveAutoId: existingRecord.leaveAutoId,
+                  },
                 }
-              });
+              );
             } else {
               await db.leaveMapping.create({
                 EmployeeId: existingRecord.employeeId,
@@ -172,29 +173,33 @@ class LeaveController {
                 availableLeave: 0,
                 accruedThisYear: parseFloat(existingRecord.leaveCount),
                 creditedFromLastYear: 0,
-                annualAllotment: 0
-              })
+                annualAllotment: 0,
+              });
             }
           } else {
-            await db.leaveMapping.increment({ accruedThisYear: parseFloat(existingRecord.leaveCount) }, {
-              where: {
-                EmployeeId: existingRecord.employeeId,
-                leaveAutoId: existingRecord.leaveAutoId
+            await db.leaveMapping.increment(
+              { accruedThisYear: parseFloat(existingRecord.leaveCount) },
+              {
+                where: {
+                  EmployeeId: existingRecord.employeeId,
+                  leaveAutoId: existingRecord.leaveAutoId,
+                },
               }
-            });
-            await db.leaveMapping.increment({ availableLeave: -parseFloat(existingRecord.leaveCount) }, {
-              where: {
-                EmployeeId: existingRecord.employeeId,
-                leaveAutoId: existingRecord.leaveAutoId
+            );
+            await db.leaveMapping.increment(
+              { availableLeave: -parseFloat(existingRecord.leaveCount) },
+              {
+                where: {
+                  EmployeeId: existingRecord.employeeId,
+                  leaveAutoId: existingRecord.leaveAutoId,
+                },
               }
-            });
+            );
           }
-
         }
         //  else {
         // await db.User.create(record, { transaction });
         // }
-
       }
 
       return respHelper(res, {
@@ -296,7 +301,7 @@ class LeaveController {
       let arr = [];
       let leaveDays = 0;
       const daysDifference = moment(toDate).diff(moment(fromDate), "days");
-        let uuid ="id_"+moment().format('YYYYMMDDHHmmss');
+      let uuid = "id_" + moment().format("YYYYMMDDHHmmss");
       for (let i = -1; i < daysDifference; i++) {
         let appliedFor = moment(fromDate)
           .add(i + 1, "days")
@@ -328,26 +333,26 @@ class LeaveController {
         if (leaveData) {
           leaveId = req.body.leaveAutoId;
           if (leaveId != 6) {
-            let pendingLeaveCountList = await db.employeeLeaveTransactions.findAll({
-            where: {
-            status: "pending",
-            employeeId: req.body.employeeId,
-            leaveAutoId: leaveId
-            },
+            let pendingLeaveCountList =
+              await db.employeeLeaveTransactions.findAll({
+                where: {
+                  status: "pending",
+                  employeeId: req.body.employeeId,
+                  leaveAutoId: leaveId,
+                },
+              });
+            let pendingLeaveCount = 0;
+            pendingLeaveCountList.map((el) => {
+              pendingLeaveCount += parseFloat(el.leaveCount);
             });
-    let pendingLeaveCount = 0;
-     pendingLeaveCountList.map((el) => {
-      pendingLeaveCount += parseFloat(el.leaveCount);
-    });
 
-      if (
-      pendingLeaveCount + leaveDays >=
-      parseFloat(leaveData.availableLeave)
-      ) {
-      leaveId = 6;
-      }
+            if (
+              pendingLeaveCount + leaveDays >=
+              parseFloat(leaveData.availableLeave)
+            ) {
+              leaveId = 6;
+            }
           }
-         
         }
         const recordData = {
           employeeId: req.body.employeeId, // Replace with actual employee ID
@@ -360,13 +365,16 @@ class LeaveController {
           halfDayFor: halfDayFor, // Replace with actual half day for value
           status: "pending", // Replace with actual status
           reason: req.body.reason, // Replace with actual reason
-             leaveCount: isHalfDay == 1 ? 0.5 : 1,
+          leaveCount: isHalfDay == 1 ? 0.5 : 1,
           message: req.body.message,
-             leaveAttachment: helper.fileUpload(
-            result.attachment,
-            `leaveAttachment_${uuid}`,
-            `uploads/${EMP_DATA.empCode}`
-          ),
+          leaveAttachment:
+            result.attachment != ""
+              ? await helper.fileUpload(
+                  result.attachment,
+                  `leaveAttachment_${uuid}`,
+                  `uploads/${EMP_DATA.empCode}`
+                )
+              : null,
           pendingAt: EMP_DATA.managerData.id, // Replace with actual pending at value
           createdBy: req.userId, // Replace with actual creator user ID
           createdAt: moment(), // Replace with actual creation date
@@ -387,7 +395,7 @@ class LeaveController {
           msg: error.details[0].message,
         });
       }
-      console.log("error",error)
+      console.log("error", error);
       return respHelper(res, {
         status: 500,
       });
@@ -405,7 +413,7 @@ class LeaveController {
         },
       });
 
-     
+
       if (leaveIds.length != countLeave) {
         return respHelper(res, {
           status: 402,

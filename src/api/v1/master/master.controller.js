@@ -825,7 +825,7 @@ class MasterController {
               isActive: 1,
             },
             order: (mobile) ? [["mobilePosition", "asc"]] : [["webPosition", "asc"]],
-            attributes: (mobile) ? ['cardId', 'cardName', 'mobileUrl', 'mobileLightFontColor', 'mobileIcon', 'mobileLightBackgroundColor', 'mobilePosition', 'mobileDarkFontColor', 'mobileDarkBackgroundColor'] : ['cardId', 'cardName', 'webUrl', 'webFontColor', 'webBackgroundColor', 'webIcon', 'webPosition']
+            attributes: (mobile) ? ['cardId', 'cardName', 'mobileUrl','isCardWorking', 'mobileLightFontColor', 'mobileIcon', 'mobileLightBackgroundColor', 'mobilePosition', 'mobileDarkFontColor', 'mobileDarkBackgroundColor'] : ['cardId', 'cardName','isCardWorking', 'webUrl', 'webFontColor', 'webBackgroundColor', 'webIcon', 'webPosition']
           });
 
           const dashboardJson = JSON.stringify(dashboardData);

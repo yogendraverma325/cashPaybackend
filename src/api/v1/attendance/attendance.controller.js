@@ -8,6 +8,8 @@ import eventEmitter from "../../../services/eventService.js";
 import { Op } from "sequelize";
 import fs from "fs";
 import { cwd } from "process";
+import client from "../../../config/redisDb.config.js";
+
 class AttendanceController {
   async attendance(req, res) {
     try {
@@ -372,6 +374,8 @@ class AttendanceController {
     }
   }
 
+ 
+
   async attendanceList(req, res) {
     try {
       const user = req.query.user;
@@ -459,6 +463,7 @@ class AttendanceController {
       });
 
       for (const iterator of attendanceData.rows) {
+
         if (iterator.dataValues.attendanceWorkingTime) {
           averageWorkingTime.push(iterator.dataValues.attendanceWorkingTime);
         }
@@ -554,7 +559,7 @@ class AttendanceController {
           needAttendanceCron: attendance ? attendance.needAttendanceCron : 0,
           holidayCompanyLocationConfigurationID: attendance ? attendance.holidayCompanyLocationConfigurationID : 0,
           holidayLocationMappingDetails: holiday ? [holiday] : [],
-          latest_Regularization_Request: [],
+          latest_Regularization_Request: attendance ? attendance.latest_Regularization_Request : [],
           employeeLeaveTransactionDetails: employeeLeaveTransactionDetails,
         };
       }));
@@ -563,8 +568,8 @@ class AttendanceController {
         status: 200,
         data: {
           statics: {
-            lateTime: helper.calculateTime(calculateLateTime),
-            averageWorkingTime: helper.calculateAverageHours(averageWorkingTime),
+            lateTime: await helper.calculateTime(calculateLateTime),
+            averageWorkingTime: await helper.calculateAverageHours(averageWorkingTime),
             absentDays: calculateAbsentDays.length,
             presentDays: calculatePresentDays.length,
             singlePunchAbsentDays: calculateSinglePunchAbsent.length,
@@ -598,42 +603,49 @@ class AttendanceController {
         include: [
           {
             model: db.attendanceMaster,
-            attributes: ['attendanceAutoId', 'employeeId'],
-            include: [{
-              model: db.employeeMaster,
-              attributes: ['attendancePolicyId'],
-              include: [
-                {
-                  model: db.shiftMaster,
-                  required: false,
-                  attributes: [
-                    "shiftId",
-                    "shiftName",
-                    "shiftStartTime",
-                    "shiftEndTime",
-                    "isOverNight",
-                  ],
-                  where: {
-                    isActive: true,
+            attributes: ["attendanceAutoId", "employeeId"],
+            include: [
+              {
+                model: db.employeeMaster,
+                attributes: ["attendancePolicyId"],
+                include: [
+                  {
+                    model: db.shiftMaster,
+                    required: false,
+                    attributes: [
+                      "shiftId",
+                      "shiftName",
+                      "shiftStartTime",
+                      "shiftEndTime",
+                      "isOverNight",
+                    ],
+                    where: {
+                      isActive: true,
+                    },
                   },
-                }, {
-                  model: db.attendancePolicymaster,
-                  attributes: ['graceTimeClockIn'],
-                  where: {
-                    isActive: true,
+                  {
+                    model: db.attendancePolicymaster,
+                    attributes: ["graceTimeClockIn"],
+                    where: {
+                      isActive: true,
+                    },
                   },
-                }]
-            }]
-          }]
+                ],
+              },
+            ],
+          },
+        ],
       });
 
       let graceTime = moment(
-        regularizeData['attendancemaster.employee.shiftsmaster.shiftStartTime'],
+        regularizeData["attendancemaster.employee.shiftsmaster.shiftStartTime"],
         "HH:mm"
       ); // set shift start time
 
       graceTime.add(
-        regularizeData['attendancemaster.employee.attendancePolicymaster.graceTimeClockIn'],
+        regularizeData[
+          "attendancemaster.employee.attendancePolicymaster.graceTimeClockIn"
+        ],
         "minutes"
       ); // Add buffer time  to the selected time if buffer allow
 
@@ -722,11 +734,11 @@ class AttendanceController {
         where: Object.assign(
           query === "raisedByMe"
             ? {
-              createdBy: req.userId,
-            }
+                createdBy: req.userId,
+              }
             : {
-              regularizeManagerId: req.userId,
-            },
+                regularizeManagerId: req.userId,
+              },
           {
             regularizeStatus: "Pending",
           }
@@ -969,7 +981,7 @@ class AttendanceController {
         },
       ],
       where: {
-        isActive: 1
+        isActive: 1,
       },
     });
 
@@ -1012,21 +1024,21 @@ class AttendanceController {
 
               if (
                 totalMinutesLateMinutes >=
-                singleEmp.attendancePolicymaster
-                  .leaveDeductPolicyLateDurationHalfDayTime &&
+                  singleEmp.attendancePolicymaster
+                    .leaveDeductPolicyLateDurationHalfDayTime &&
                 totalMinutesLateMinutes <
-                singleEmp.attendancePolicymaster
-                  .leaveDeductPolicyLateDurationFullDayTime
+                  singleEmp.attendancePolicymaster
+                    .leaveDeductPolicyLateDurationFullDayTime
               ) {
                 isHalfDay_late_by = 1;
                 halfDayFor_late_by = 1;
               } else if (
                 totalMinutesLateMinutes >
-                singleEmp.attendancePolicymaster
-                  .leaveDeductPolicyLateDurationHalfDayTime &&
+                  singleEmp.attendancePolicymaster
+                    .leaveDeductPolicyLateDurationHalfDayTime &&
                 totalMinutesLateMinutes >=
-                singleEmp.attendancePolicymaster
-                  .leaveDeductPolicyLateDurationFullDayTime
+                  singleEmp.attendancePolicymaster
+                    .leaveDeductPolicyLateDurationFullDayTime
               ) {
                 isHalfDay_late_by = 0;
                 halfDayFor_late_by = 0;
@@ -1047,15 +1059,13 @@ class AttendanceController {
                 timeWorkDuration.minutes() +
                 timeWorkDuration.seconds() / 60;
 
-
-
               if (
                 totalMinutesTotalHoursMinutes <
-                singleEmp.attendancePolicymaster
-                  .leaveDeductPolicyWorkDurationHalfDayTime &&
+                  singleEmp.attendancePolicymaster
+                    .leaveDeductPolicyWorkDurationHalfDayTime &&
                 totalMinutesTotalHoursMinutes <
-                singleEmp.attendancePolicymaster
-                  .leaveDeductPolicyWorkDurationFullDayTime
+                  singleEmp.attendancePolicymaster
+                    .leaveDeductPolicyWorkDurationFullDayTime
               ) {
                 isHalfDay_total_work = 0;
                 halfDayFor_total_work = 0;
@@ -1145,7 +1155,6 @@ class AttendanceController {
   }
   async attendenceDetails(req, res) {
     try {
-
       let attendanceData = await db.attendanceMaster.findOne({
         where: {
           employeeId: req.userId,
@@ -1182,275 +1191,3 @@ class AttendanceController {
 }
 
 export default new AttendanceController();
-
-
-// {
-//   "statusCode": 200,
-//   "status": true,
-//   "data": {
-//       "statics": {
-//           "lateTime": "04:06:55",
-//           "averageWorkingTime": "02:01:01",
-//           "absentDays": 2,
-//           "presentDays": 4,
-//           "singlePunchAbsentDays": 1,
-//           "leaveDays": 0,
-//           "unpaidLeaveDays": 0
-//       },
-//       "attendanceData": {
-//           "count": 7,
-//           "rows": [
-//               {
-//                   "attendanceAutoId": 1,
-//                   "employeeId": 546,
-//                   "attendanceShiftId": 1,
-//                   "attendancePolicyId": 1,
-//                   "attendanceRegularizeId": null,
-//                   "attendanceDate": "2024-07-15",
-//                   "attandanceShiftStartDate": "2024-07-15",
-//                   "attendanceShiftEndDate": null,
-//                   "attendancePunchInTime": "15:15:34",
-//                   "attendancePunchOutTime": null,
-//                   "attendanceLateBy": "07:15:34",
-//                   "attendancePunchInRemark": "Marking the Attendance",
-//                   "attendancePunchOutRemark": null,
-//                   "attendancePunchInLocationType": "Office",
-//                   "attendancePunchOutLocationType": null,
-//                   "attendanceStatus": "Punch In",
-//                   "attendancePresentStatus": "present",
-//                   "attendanceRegularizeStatus": null,
-//                   "attendanceManagerUpdateDate": null,
-//                   "attendancePunchInLocation": "G 16, Block B, Noida Sector 3, Noida, Uttar Pradesh 201301, India",
-//                   "attendancePunchInLatitude": "28.5798159",
-//                   "attendancePunchInLongitude": "77.3200544",
-//                   "attendancePunchOutLocation": null,
-//                   "attendancePunchOutLatitude": null,
-//                   "attendancePunchOutLongitude": null,
-//                   "attendanceWorkingTime": null,
-//                   "attendanceRegularizeCount": null,
-//                   "employeeLeaveTransactionsId": null,
-//                   "needAttendanceCron": 1,
-//                   "holidayCompanyLocationConfigurationID": 0,
-//                   "holidayLocationMappingDetails": [],
-//                   "employeeLeaveTransactionDetails": [],
-//                   "latest_Regularization_Request": []
-//               },
-//               {
-//                   "attendanceAutoId": 2,
-//                   "employeeId": 546,
-//                   "attendanceShiftId": 1,
-//                   "attendancePolicyId": 1,
-//                   "attendanceRegularizeId": null,
-//                   "attendanceDate": "2024-07-14",
-//                   "attandanceShiftStartDate": "2024-07-15",
-//                   "attendanceShiftEndDate": null,
-//                   "attendancePunchInTime": "15:21:45",
-//                   "attendancePunchOutTime": null,
-//                   "attendanceLateBy": "07:21:45",
-//                   "attendancePunchInRemark": "Marking the Attendance",
-//                   "attendancePunchOutRemark": null,
-//                   "attendancePunchInLocationType": "Office",
-//                   "attendancePunchOutLocationType": null,
-//                   "attendanceStatus": "Punch In",
-//                   "attendancePresentStatus": "present",
-//                   "attendanceRegularizeStatus": null,
-//                   "attendanceManagerUpdateDate": null,
-//                   "attendancePunchInLocation": "14, Block B, Noida Sector 3, Noida, Uttar Pradesh 201301, India",
-//                   "attendancePunchInLatitude": "28.5796899",
-//                   "attendancePunchInLongitude": "77.32012",
-//                   "attendancePunchOutLocation": null,
-//                   "attendancePunchOutLatitude": null,
-//                   "attendancePunchOutLongitude": null,
-//                   "attendanceWorkingTime": null,
-//                   "attendanceRegularizeCount": null,
-//                   "employeeLeaveTransactionsId": null,
-//                   "needAttendanceCron": 1,
-//                   "holidayCompanyLocationConfigurationID": 0,
-//                   "holidayLocationMappingDetails": [],
-//                   "employeeLeaveTransactionDetails": [],
-//                   "latest_Regularization_Request": []
-//               },
-//               {
-//                   "attendanceAutoId": 3,
-//                   "employeeId": 546,
-//                   "attendanceShiftId": 1,
-//                   "attendancePolicyId": 1,
-//                   "attendanceRegularizeId": null,
-//                   "attendanceDate": "2024-07-13",
-//                   "attandanceShiftStartDate": "2024-07-16",
-//                   "attendanceShiftEndDate": null,
-//                   "attendancePunchInTime": "09:48:21",
-//                   "attendancePunchOutTime": null,
-//                   "attendanceLateBy": "01:48:21",
-//                   "attendancePunchInRemark": "Marking the Attendance",
-//                   "attendancePunchOutRemark": null,
-//                   "attendancePunchInLocationType": "Office",
-//                   "attendancePunchOutLocationType": null,
-//                   "attendanceStatus": "Punch In",
-//                   "attendancePresentStatus": "present",
-//                   "attendanceRegularizeStatus": null,
-//                   "attendanceManagerUpdateDate": null,
-//                   "attendancePunchInLocation": "14, Block B, Noida Sector 3, Noida, Uttar Pradesh 201301, India",
-//                   "attendancePunchInLatitude": "28.5797201",
-//                   "attendancePunchInLongitude": "77.3201341",
-//                   "attendancePunchOutLocation": null,
-//                   "attendancePunchOutLatitude": null,
-//                   "attendancePunchOutLongitude": null,
-//                   "attendanceWorkingTime": null,
-//                   "attendanceRegularizeCount": null,
-//                   "employeeLeaveTransactionsId": null,
-//                   "needAttendanceCron": 1,
-//                   "holidayCompanyLocationConfigurationID": 0,
-//                   "holidayLocationMappingDetails": [],
-//                   "employeeLeaveTransactionDetails": [],
-//                   "latest_Regularization_Request": []
-//               },
-//               {
-//                   "attendanceAutoId": 4,
-//                   "employeeId": 546,
-//                   "attendanceShiftId": 1,
-//                   "attendancePolicyId": 1,
-//                   "attendanceRegularizeId": null,
-//                   "attendanceDate": "2024-07-12",
-//                   "attandanceShiftStartDate": "2024-07-16",
-//                   "attendanceShiftEndDate": null,
-//                   "attendancePunchInTime": "11:53:45",
-//                   "attendancePunchOutTime": null,
-//                   "attendanceLateBy": "03:53:45",
-//                   "attendancePunchInRemark": "ree",
-//                   "attendancePunchOutRemark": null,
-//                   "attendancePunchInLocationType": "Office",
-//                   "attendancePunchOutLocationType": null,
-//                   "attendanceStatus": "Punch In",
-//                   "attendancePresentStatus": "absent",
-//                   "attendanceRegularizeStatus": "Rejected",
-//                   "attendanceManagerUpdateDate": null,
-//                   "attendancePunchInLocation": "1600 Amphitheatre Pkwy Building 43, Mountain View, CA 94043, USA",
-//                   "attendancePunchInLatitude": "37.4219983",
-//                   "attendancePunchInLongitude": "-122.084",
-//                   "attendancePunchOutLocation": null,
-//                   "attendancePunchOutLatitude": null,
-//                   "attendancePunchOutLongitude": null,
-//                   "attendanceWorkingTime": null,
-//                   "attendanceRegularizeCount": 1,
-//                   "employeeLeaveTransactionsId": null,
-//                   "needAttendanceCron": 1,
-//                   "holidayCompanyLocationConfigurationID": 0,
-//                   "holidayLocationMappingDetails": [],
-//                   "employeeLeaveTransactionDetails": [],
-//                   "latest_Regularization_Request": []
-//               },
-//               {
-//                   "attendanceAutoId": 5,
-//                   "employeeId": 546,
-//                   "attendanceShiftId": 1,
-//                   "attendancePolicyId": 1,
-//                   "attendanceRegularizeId": null,
-//                   "attendanceDate": "2024-07-18",
-//                   "attandanceShiftStartDate": "2024-07-16",
-//                   "attendanceShiftEndDate": "2024-07-19",
-//                   "attendancePunchInTime": "11:53:45",
-//                   "attendancePunchOutTime": null,
-//                   "attendanceLateBy": "03:53:45",
-//                   "attendancePunchInRemark": "ree",
-//                   "attendancePunchOutRemark": null,
-//                   "attendancePunchInLocationType": "Office",
-//                   "attendancePunchOutLocationType": null,
-//                   "attendanceStatus": "Punch In",
-//                   "attendancePresentStatus": "singlePunchAbsent",
-//                   "attendanceRegularizeStatus": "Rejected",
-//                   "attendanceManagerUpdateDate": null,
-//                   "attendancePunchInLocation": "1600 Amphitheatre Pkwy Building 43, Mountain View, CA 94043, USA",
-//                   "attendancePunchInLatitude": "37.4219983",
-//                   "attendancePunchInLongitude": "-122.084",
-//                   "attendancePunchOutLocation": null,
-//                   "attendancePunchOutLatitude": null,
-//                   "attendancePunchOutLongitude": null,
-//                   "attendanceWorkingTime": null,
-//                   "attendanceRegularizeCount": 1,
-//                   "employeeLeaveTransactionsId": null,
-//                   "needAttendanceCron": 1,
-//                   "holidayCompanyLocationConfigurationID": 0,
-//                   "holidayLocationMappingDetails": [],
-//                   "employeeLeaveTransactionDetails": [],
-//                   "latest_Regularization_Request": []
-//               },
-//               {
-//                   "attendanceAutoId": 6,
-//                   "employeeId": 546,
-//                   "attendanceShiftId": 1,
-//                   "attendancePolicyId": 1,
-//                   "attendanceRegularizeId": null,
-//                   "attendanceDate": "2024-07-17",
-//                   "attandanceShiftStartDate": "2024-07-17",
-//                   "attendanceShiftEndDate": "2024-07-17",
-//                   "attendancePunchInTime": "04:05:04",
-//                   "attendancePunchOutTime": "06:06:05",
-//                   "attendanceLateBy": "00:00:00",
-//                   "attendancePunchInRemark": "Marking the Attendance",
-//                   "attendancePunchOutRemark": null,
-//                   "attendancePunchInLocationType": "Office",
-//                   "attendancePunchOutLocationType": null,
-//                   "attendanceStatus": "Punch In",
-//                   "attendancePresentStatus": "present",
-//                   "attendanceRegularizeStatus": "Approved",
-//                   "attendanceManagerUpdateDate": null,
-//                   "attendancePunchInLocation": "13, A Block, Block A, Sector 19, Noida, Uttar Pradesh 201301, India",
-//                   "attendancePunchInLatitude": "28.5758269",
-//                   "attendancePunchInLongitude": "77.3209443",
-//                   "attendancePunchOutLocation": null,
-//                   "attendancePunchOutLatitude": null,
-//                   "attendancePunchOutLongitude": null,
-//                   "attendanceWorkingTime": "02:01:01",
-//                   "attendanceRegularizeCount": 1,
-//                   "employeeLeaveTransactionsId": null,
-//                   "needAttendanceCron": 1,
-//                   "holidayCompanyLocationConfigurationID": 0,
-//                   "holidayLocationMappingDetails": [],
-//                   "employeeLeaveTransactionDetails": [],
-//                   "latest_Regularization_Request": [
-//                       {
-//                           "regularizeStatus": "Approved",
-//                           "regularizeId": 3
-//                       }
-//                   ]
-//               },
-//               {
-//                   "attendanceAutoId": 7,
-//                   "employeeId": 546,
-//                   "attendanceShiftId": 1,
-//                   "attendancePolicyId": 1,
-//                   "attendanceRegularizeId": null,
-//                   "attendanceDate": "2024-07-16",
-//                   "attandanceShiftStartDate": "2024-07-16",
-//                   "attendanceShiftEndDate": null,
-//                   "attendancePunchInTime": "11:53:45",
-//                   "attendancePunchOutTime": null,
-//                   "attendanceLateBy": "03:53:45",
-//                   "attendancePunchInRemark": "ree",
-//                   "attendancePunchOutRemark": null,
-//                   "attendancePunchInLocationType": "Office",
-//                   "attendancePunchOutLocationType": null,
-//                   "attendanceStatus": "Punch In",
-//                   "attendancePresentStatus": "absent",
-//                   "attendanceRegularizeStatus": "Revoked",
-//                   "attendanceManagerUpdateDate": null,
-//                   "attendancePunchInLocation": "1600 Amphitheatre Pkwy Building 43, Mountain View, CA 94043, USA",
-//                   "attendancePunchInLatitude": "37.4219983",
-//                   "attendancePunchInLongitude": "-122.084",
-//                   "attendancePunchOutLocation": null,
-//                   "attendancePunchOutLatitude": null,
-//                   "attendancePunchOutLongitude": null,
-//                   "attendanceWorkingTime": null,
-//                   "attendanceRegularizeCount": 3,
-//                   "employeeLeaveTransactionsId": null,
-//                   "needAttendanceCron": 1,
-//                   "holidayCompanyLocationConfigurationID": 0,
-//                   "holidayLocationMappingDetails": [],
-//                   "employeeLeaveTransactionDetails": [],
-//                   "latest_Regularization_Request": []
-//               }
-//           ]
-//       }
-//   }
-// }
