@@ -142,7 +142,7 @@ const updateLeaveRequest = Joi.object({
 });
 
 const leaveRequestSchema = Joi.object({
-  attachment: Joi.string().optional(),
+  attachment: Joi.string().allow("").optional(),
   employeeId: Joi.number().required().label("Employee ID"),
   leaveAutoId: Joi.number().required().label("Leave Type"),
   recipientsIds: Joi.string().optional().allow(""),
