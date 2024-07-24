@@ -10,6 +10,8 @@ class UserController {
     try {
       const { search } = req.params;
       const EMP_DATA = await db.employeeMaster.findAll({
+        raw: true,
+        nest: true,
         attributes: ["id", "empCode", "name", "firstName", "lastName", "email"],
         where: {
           [Op.or]: [
