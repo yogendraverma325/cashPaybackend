@@ -26,7 +26,7 @@ class UserController {
           {
             model: db.designationMaster,
             required: false,
-            attributes: ["designationId", "name"],
+            attributes: ["designationId", ["name", "designationName"]],
           },
           {
             model: db.departmentMaster,
