@@ -15,3 +15,4 @@ export default Express
     .post("/addPaymentDetails", authentication.authenticate, commonController.addPaymentDetails)
     .get("/leave", authentication.authenticate, commonController.addPaymentDetails)
     .post("/changePassword", authentication.authenticate, userController.changePassword)
+    .get("/globalSearch/:search",userController.globalSearch)
