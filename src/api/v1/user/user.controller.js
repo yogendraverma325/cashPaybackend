@@ -12,7 +12,7 @@ class UserController {
       const EMP_DATA = await db.employeeMaster.findAll({
         raw: true,
         nest: true,
-        attributes: ["id", "empCode", "name", "firstName", "lastName", "email"],
+        attributes: ["id", "empCode", ["name", "empName"], "firstName", "lastName", "email"],
         where: {
           [Op.or]: [
             { empCode: { [Op.like]: `%${search}%` } },
