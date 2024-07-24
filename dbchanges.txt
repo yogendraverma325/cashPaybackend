@@ -1,3 +1,7 @@
+------------------------------22-07-2024 (Harish)-----------------------------------------
+ALTER TABLE `hrms_dev`.`dashboardcard` 
+ADD COLUMN `isCardWorking` INT NULL DEFAULT 0 AFTER `mobileDarkBackgroundColor`;
+
 ----------------------------- 19-07-2024 (Manish)------------------------------------------
 
 CREATE TABLE logindetails (
