@@ -1,5 +1,6 @@
 import Express from "express";
 import LeaveController from "./leave.controller.js";
+import authentication from "../../../middleware/authentication.js";
 
 export default Express.Router()
   .get("/history", LeaveController.history)
@@ -7,4 +8,9 @@ export default Express.Router()
   .get("/leaveRequestList", LeaveController.leaveRequestList)
   .post("/updateLeaveRequest", LeaveController.updateLeaveRequest)
   .post("/requestForLeave", LeaveController.requestForLeave)
-  .post("/revokeLeaveRequest", LeaveController.revokeLeaveRequest);
+  .post("/revokeLeaveRequest", LeaveController.revokeLeaveRequest)
+  .post(
+    "/leaveRemainingCount",
+    authentication.authenticate,
+    LeaveController.leaveRemainingCount
+  );
