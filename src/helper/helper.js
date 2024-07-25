@@ -46,6 +46,7 @@ const checkActiveUser = async (data) => {
     raw: true,
     where: {
       id: data,
+      isActive: 1
     },
   });
   return existUser;
@@ -96,7 +97,7 @@ const calculateLateBy = async (actualTime, scheduleTime) => {
   }
 };
 
-const calculateTime = async(time) => {
+const calculateTime = async (time) => {
   if (time.length === 0) {
     return "00:00:00";
   }
