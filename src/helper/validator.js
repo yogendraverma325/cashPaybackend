@@ -170,6 +170,15 @@ const changePasswordSchema = Joi.object({
   })
 })
 
+const remainingLeaves = Joi.object({
+     leaveAutoId: Joi.number().required().label("Leave Type"),
+     employeeFor:Joi.number().required().label("For Employee"),
+     startDate: Joi.date().required(),
+     endDate: Joi.date().required().min(Joi.ref("startDate")),
+     leaveFirstHalf:Joi.number().required(),
+     leaveSecondHalf:Joi.number().required()
+})
+
 export default {
   loginSchema,
   userCreationSchema,
@@ -187,5 +196,6 @@ export default {
   leaveRequestSchema,
   revoekLeaveRequest,
   attendanceDetails,
-  changePasswordSchema
+  changePasswordSchema,
+  remainingLeaves
 };

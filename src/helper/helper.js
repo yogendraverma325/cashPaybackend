@@ -96,7 +96,7 @@ const calculateLateBy = async (actualTime, scheduleTime) => {
   }
 };
 
-const calculateTime = async(time) => {
+const calculateTime = async (time) => {
   if (time.length === 0) {
     return "00:00:00";
   }
@@ -268,7 +268,7 @@ const getEmpProfile = async (EMP_ID) => {
         model: db.companyLocationMaster,
         required: false,
         attributes: ["address1", "address2"],
-      }
+      },
     ],
   });
   return EMP_DATA;
@@ -333,6 +333,110 @@ const empMarkLeaveOfGivenDate = async function (userId, inputData, batch) {
   }
   return 1;
 };
+
+const remainingLeaveCount = async function (
+  startDate,
+  endDate,
+  weekOffId,
+  companyLocationId
+) {
+  const daysDifferenceReq = moment(endDate).diff(moment(startDate), "days");
+  var workingCount = 0;
+
+  for (let i = 0; i <= daysDifferenceReq; i++) {
+    let appliedFor = moment(startDate).add(i, "days").format("YYYY-MM-DD");
+
+    let lastDayDateAnotherFormat = moment(appliedFor).format("DD-MM-YYYY");
+    let parsedDate = moment(lastDayDateAnotherFormat, "DD-MM-YYYY");
+    let dayCode = parseInt(moment(appliedFor).format("d")) + 1;
+
+    let dayOfMonth = parsedDate.date();
+    let occurrence = Math.ceil(dayOfMonth / 7);
+
+    // Output the result
+    let occurrenceDayCondition = {};
+    switch (occurrence) {
+      case 1:
+        occurrenceDayCondition = {
+          dayId: dayCode,
+          isfirstDayOff: 1,
+        };
+        break;
+      case 2:
+        occurrenceDayCondition = {
+          dayId: dayCode,
+          isSecondDayOff: 1,
+        };
+        break;
+      case 3:
+        occurrenceDayCondition = {
+          dayId: dayCode,
+          isThirdyDayOff: 1,
+        };
+        break;
+      case 4:
+        occurrenceDayCondition = {
+          dayId: dayCode,
+          isFourthDayOff: 1,
+        };
+        break;
+      case 5:
+        occurrenceDayCondition = {
+          dayId: dayCode,
+          isFivethDayOff: 1,
+        };
+        break;
+      default:
+        occurrenceDayCondition = {};
+    }
+    const existEmployees = await db.weekOffMaster.findOne({
+      where: {
+        weekOffId: weekOffId,
+      },
+      include: [
+        {
+          model: db.weekOffDayMappingMaster,
+          required: false,
+          where: occurrenceDayCondition,
+        },
+      ],
+    });
+
+    if (existEmployees.weekOffDayMappingMasters.length == 0) {
+      let employeeHolidays =
+        await db.holidayCompanyLocationConfiguration.findOne({
+          where: { companyLocationId: companyLocationId },
+          include: {
+            model: db.holidayMaster,
+            where: { holidayDate: appliedFor },
+            as: "holidayDetails",
+            required: true,
+          },
+        });
+      if (!employeeHolidays) {
+        workingCount += 1;
+      }
+    }
+  }
+  return workingCount;
+};
+
+const getCombineValue = async function (leaveFirstHalf, leaveSecondHalf) {
+  let combineValue = "0.00";
+
+  if ((leaveFirstHalf === 1 || leaveFirstHalf === 2) && leaveSecondHalf === 0) {
+    combineValue = "0.50";
+  } else if (leaveFirstHalf === 0 && (leaveSecondHalf === 1 || leaveSecondHalf === 2)) {
+    combineValue = "0.50";
+  } else if ((leaveFirstHalf === 1 || leaveFirstHalf === 2) && (leaveSecondHalf === 1 || leaveSecondHalf === 2)) {
+    combineValue = "1.00";
+  } else if (leaveFirstHalf === 0 && leaveSecondHalf === 0) {
+    combineValue = "0.00";
+  }
+
+  return combineValue;
+};
+
 export default {
   generateJwtToken,
   checkFolder,
@@ -347,5 +451,7 @@ export default {
   encryptPassword,
   getEmpProfile,
   empLeaveDetails,
-  empMarkLeaveOfGivenDate
+  empMarkLeaveOfGivenDate,
+  remainingLeaveCount,
+  getCombineValue,
 };
