@@ -13,4 +13,9 @@ export default Express.Router()
     "/leaveRemainingCount",
     authentication.authenticate,
     LeaveController.leaveRemainingCount
+  )
+  .get(
+    "/leaveHistory/:year",
+    authentication.authenticate,
+    LeaveController.leaveHistory
   );

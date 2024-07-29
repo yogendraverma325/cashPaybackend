@@ -1,6 +1,6 @@
 export default (sequelize, Sequelize) => {
   const employeeLeaveTransactions = sequelize.define(
-    "employeeLeaveTransactions",
+    "employeeleavetransactions",
     {
       employeeLeaveTransactionsId: {
         type: Sequelize.INTEGER,
