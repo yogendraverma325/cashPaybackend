@@ -26,7 +26,7 @@ helper.checkFolder()
 
 app.get("/api", (req, res) => {
 
-    const htmlContent = `
+  const htmlContent = `
     <!DOCTYPE html>
     <html lang="en">
     <head>
@@ -85,34 +85,34 @@ app.use('/api/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 
 app.get('/api/uploads/:user/:fileName', (req, res) => {
-    res.sendFile(path.join(rootpath, `../uploads/${req.params.user}/${req.params.fileName}`,));
+  res.sendFile(path.join(rootpath, `../uploads/${req.params.user}/${req.params.fileName}`,));
 });
 
 app.use((req, res, next) => {
-    next()
+  next()
 })
 
 app.use((err, req, res, next) => {
-    logger.error(err.stack);
-    return respHelper(res, {
-        status: 500
-    })
+  logger.error(err.stack);
+  return respHelper(res, {
+    status: 500
+  })
 });
 
 io.on('connection', socket => {
-    console.log('Client Socket Connected');
-    // console.log(socket)
-    socket.on('new-user-joined', name => {
-        //   users[socket.id] = name;
+  console.log('Client Socket Connected');
+  // console.log(socket)
+  socket.on('new-user-joined', name => {
+    //   users[socket.id] = name;
 
-        socket.broadcast.emit('user-joined', name);
-    });
+    socket.broadcast.emit('user-joined', name);
+  });
 
-    socket.on('disconnect', () => {
-        console.log('Client Socket Disconnected');
-    });
+  socket.on('disconnect', () => {
+    console.log('Client Socket Disconnected');
+  });
 
-    socket.emit('test', 'Socket Connected With Server');
+  socket.emit('test', 'Socket Connected With Server');
 });
 
 export default Server

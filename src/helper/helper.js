@@ -151,6 +151,12 @@ const calculateAverageHours = async (workingHours) => {
     .format("HH:mm:ss");
 };
 
+const ip = async (data) => {
+  const lastIndex = data.lastIndexOf(':');
+  const result = data.substring(lastIndex + 1);
+  return result
+}
+
 const generateRandomPassword = async () => {
   let length = 8,
     charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
@@ -455,4 +461,5 @@ export default {
   empMarkLeaveOfGivenDate,
   remainingLeaveCount,
   getCombineValue,
+  ip
 };

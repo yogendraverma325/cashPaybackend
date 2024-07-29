@@ -15,3 +15,4 @@ export default Express
     .post("/addPaymentDetails", authorization('ADMIN'), commonController.addPaymentDetails)
     .put("/updatePaymentDetails", authorization('ADMIN'), commonController.updatePaymentDetails)
     .put("/updateUserStatus", authorization('ADMIN'), adminController.updateUserStatus)
+    .put("/updateManager", authorization('ADMIN'), adminController.updateManager)
