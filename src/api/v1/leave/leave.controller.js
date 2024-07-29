@@ -569,7 +569,7 @@ class LeaveController {
 
       // Fetch all leaveMaster details once
       const leaveMasterDetails = await db.leaveMaster.findAll({
-        attributes: ["leaveId", "leaveName"],
+        attributes: ["leaveId", "leaveName", "leaveCode"],
         raw: true,
       });
 
@@ -633,6 +633,7 @@ class LeaveController {
 
           attendanceDataForMonth.push({
             leaveType: leave.leaveName,
+            leaveCode:leave.leaveCode,
             totalLeaveCount: leaveCount,
           });
         });
