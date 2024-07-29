@@ -633,7 +633,7 @@ class LeaveController {
 
           attendanceDataForMonth.push({
             leaveType: leave.leaveName,
-            leaveCode:leave.leaveCode,
+            leaveCode:leave.leaveCode, 
             totalLeaveCount: leaveCount,
           });
         });
