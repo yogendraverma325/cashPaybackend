@@ -5,7 +5,7 @@ import message from "../../../constant/messages.js";
 import validator from "../../../helper/validator.js";
 import helper from "../../../helper/helper.js";
 import eventEmitter from "../../../services/eventService.js";
-import { Op } from "sequelize";
+import { Op, fn, col } from "sequelize";
 import fs from "fs";
 import { cwd } from "process";
 var _this = this;
@@ -530,9 +530,11 @@ class LeaveController {
       return respHelper(res, {
         status: 200,
         data: {
-          totalWorkingDays: totalWorkingDays > 0 ?
-            parseFloat(totalWorkingDays).toFixed(2) -
-            parseFloat(getCombinedVal).toFixed(2) : 0,
+          totalWorkingDays:
+            totalWorkingDays > 0
+              ? parseFloat(totalWorkingDays).toFixed(2) -
+                parseFloat(getCombinedVal).toFixed(2)
+              : 0,
           //availableWithoutPending: parseFloat(
           //   availableLeaveCount.availableLeave
           // ).toFixed(2),
@@ -549,6 +551,449 @@ class LeaveController {
       });
     }
   }
+
+  async leaveHistory(req, res) {
+    try {
+      const year = req.params.year;
+      const employeeId = req.userId;
+      const result = [];
+      const grandLeaveTotal = [];
+      let grandTotalLeaveCount = 0; // Initialize grand total leave count
+
+      // Helper function to get the month name
+      const getMonthName = (month) => {
+        const date = new Date();
+        date.setMonth(month - 1);
+        return date.toLocaleString("default", { month: "long" });
+      };
+
+      // Fetch all leaveMaster details once
+      const leaveMasterDetails = await db.leaveMaster.findAll({
+        attributes: ["leaveId", "leaveName"],
+        raw: true,
+      });
+
+      // Create a map for leaveId to leaveName
+      const leaveMasterMap = leaveMasterDetails.reduce((map, leave) => {
+        map[leave.leaveId] = leave.leaveName;
+        return map;
+      }, {});
+
+      // Fetch all leave transactions for the given employee and year
+      const startDate = `${year}-01-01`;
+      const endDate = `${year}-12-31`;
+
+      const attendanceData = await db.employeeLeaveTransactions.findAll({
+        attributes: [
+          "employeeId",
+          "leaveAutoId",
+          [db.Sequelize.fn("MONTH", db.Sequelize.col("appliedFor")), "month"],
+          [
+            db.Sequelize.fn("sum", db.Sequelize.col("leaveCount")),
+            "totalLeaveCount",
+          ],
+        ],
+        where: {
+          employeeId: employeeId,
+          status: "approved",
+          appliedFor: {
+            [db.Sequelize.Op.between]: [startDate, endDate],
+          },
+        },
+        group: [
+          "employeeId",
+          "leaveAutoId",
+          db.Sequelize.fn("MONTH", db.Sequelize.col("appliedFor")),
+        ],
+        raw: true,
+      });
+
+      // Group data by month and leave type
+      const groupedData = {};
+      attendanceData.forEach((item) => {
+        const month = getMonthName(item.month);
+        if (!groupedData[month]) {
+          groupedData[month] = {};
+        }
+        groupedData[month][item.leaveAutoId] = item.totalLeaveCount;
+      });
+
+      // Create the result array
+      for (let month = 1; month <= 12; month++) {
+        const monthName = getMonthName(month);
+        const attendanceDataForMonth = [];
+        let totalLeaveCountForMonth = 0;
+
+        leaveMasterDetails.forEach((leave) => {
+          const leaveCount =
+            groupedData[monthName] && groupedData[monthName][leave.leaveId]
+              ? groupedData[monthName][leave.leaveId]
+              : 0;
+          totalLeaveCountForMonth += parseFloat(leaveCount);
+
+          attendanceDataForMonth.push({
+            leaveType: leave.leaveName,
+            totalLeaveCount: leaveCount,
+          });
+        });
+
+        grandTotalLeaveCount += totalLeaveCountForMonth; // Update grand total leave count
+
+        result.push({
+          month: monthName,
+          totalMonthLeave: totalLeaveCountForMonth,
+          attendanceData: attendanceDataForMonth,
+        });
+      }
+
+      // Add the grand total to the result
+      grandLeaveTotal.push({
+        month: "Total",
+        totalMonthLeave: grandTotalLeaveCount.toFixed(2),
+        attendanceData: [],
+      });
+
+      return respHelper(res, {
+        status: 200,
+        data: {
+          totalYearLeaves:
+            grandLeaveTotal[0].totalMonthLeave == "0.00"
+              ? 0
+              : grandLeaveTotal[0].totalMonthLeave,
+          monthWiseLeaves: result,
+        },
+      });
+    } catch (error) {
+      console.log(error);
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+
+  //working fine
+  // async leaveHistory(req, res) {
+  //   try {
+  //     const year = req.params.year;
+  //     const employeeId = req.userId;
+  //     const result = [];
+
+  //     // Helper function to get the month name
+  //     const getMonthName = (month) => {
+  //       const date = new Date();
+  //       date.setMonth(month - 1);
+  //       return date.toLocaleString("default", { month: "long" });
+  //     };
+
+  //     // Fetch all leaveMaster details once
+  //     const leaveMasterDetails = await db.leaveMaster.findAll({
+  //       attributes: ["leaveId", "leaveName"],
+  //       raw: true,
+  //     });
+
+  //     // Create a map for leaveId to leaveName
+  //     const leaveMasterMap = leaveMasterDetails.reduce((map, leave) => {
+  //       map[leave.leaveId] = leave.leaveName;
+  //       return map;
+  //     }, {});
+
+  //     // Fetch all leave transactions for the given employee and year
+  //     const startDate = `${year}-01-01`;
+  //     const endDate = `${year}-12-31`;
+
+  //     const attendanceData = await db.employeeLeaveTransactions.findAll({
+  //       attributes: [
+  //         "employeeId",
+  //         "leaveAutoId",
+  //         [
+  //           db.Sequelize.fn("MONTH", db.Sequelize.col("appliedFor")),
+  //           "month",
+  //         ],
+  //         [
+  //           db.Sequelize.fn("sum", db.Sequelize.col("leaveCount")),
+  //           "totalLeaveCount",
+  //         ],
+  //       ],
+  //       where: {
+  //         employeeId: employeeId,
+  //         status: "approved",
+  //         appliedFor: {
+  //           [db.Sequelize.Op.between]: [startDate, endDate],
+  //         },
+  //       },
+  //       group: ["employeeId", "leaveAutoId", db.Sequelize.fn("MONTH", db.Sequelize.col("appliedFor"))],
+  //       raw: true,
+  //     });
+
+  //     // Group data by month and leave type
+  //     const groupedData = {};
+  //     attendanceData.forEach((item) => {
+  //       const month = getMonthName(item.month);
+  //       if (!groupedData[month]) {
+  //         groupedData[month] = {};
+  //       }
+  //       groupedData[month][item.leaveAutoId] = item.totalLeaveCount;
+  //     });
+
+  //     // Create the result array
+  //     for (let month = 1; month <= 12; month++) {
+  //       const monthName = getMonthName(month);
+  //       const attendanceDataForMonth = [];
+  //       let totalLeaveCountForMonth = 0;
+
+  //       leaveMasterDetails.forEach(leave => {
+  //         const leaveCount = groupedData[monthName] && groupedData[monthName][leave.leaveId] ? groupedData[monthName][leave.leaveId] : 0;
+  //         totalLeaveCountForMonth += parseFloat(leaveCount);
+
+  //         attendanceDataForMonth.push({
+  //           leaveType: leave.leaveName,
+  //           totalLeaveCount: leaveCount,
+  //         });
+  //       });
+
+  //       result.push({
+  //         month: monthName,
+  //         totalMonthLeave: totalLeaveCountForMonth,
+  //         attendanceData: attendanceDataForMonth,
+  //       });
+  //     }
+
+  //     return respHelper(res, {
+  //       status: 200,
+  //       data: result,
+  //     });
+  //   } catch (error) {
+  //     console.log(error);
+  //     return respHelper(res, {
+  //       status: 500,
+  //     });
+  //   }
+  // }
+
+  // working fine time execution time fine
+  // async leaveHistory(req, res) {
+  //   try {
+  //     const year = "2024";
+  //     const employeeId = 365;
+  //     const result = [];
+
+  //     const formatMonth = (month) => month.toString().padStart(2, "0");
+
+  //     // Fetch all leaveMaster details once
+  //     const leaveMasterDetails = await db.leaveMaster.findAll({
+  //       attributes: ["leaveId", "leaveName"],
+  //       raw: true,
+  //     });
+
+  //     // Create a map for leaveId to leaveName
+  //     const leaveMasterMap = leaveMasterDetails.reduce((map, leave) => {
+  //       map[leave.leaveId] = leave.leaveName;
+  //       return map;
+  //     }, {});
+
+  //     // Fetch all leave transactions for the given employee and year
+  //     const startDate = `${year}-01-01`;
+  //     const endDate = `${year}-12-31`;
+
+  //     const attendanceData = await db.employeeLeaveTransactions.findAll({
+  //       attributes: [
+  //         "employeeId",
+  //         "leaveAutoId",
+  //         [
+  //           db.Sequelize.fn("MONTH", db.Sequelize.col("appliedFor")),
+  //           "month",
+  //         ],
+  //         [
+  //           db.Sequelize.fn("sum", db.Sequelize.col("leaveCount")),
+  //           "totalLeaveCount",
+  //         ],
+  //       ],
+  //       where: {
+  //         employeeId: employeeId,
+  //         status: "approved",
+  //         appliedFor: {
+  //           [db.Sequelize.Op.between]: [startDate, endDate],
+  //         },
+  //       },
+  //       group: ["employeeId", "leaveAutoId", db.Sequelize.fn("MONTH", db.Sequelize.col("appliedFor"))],
+  //       raw: true,
+  //     });
+
+  //     // Group data by month and leave type
+  //     const groupedData = {};
+  //     attendanceData.forEach((item) => {
+  //       const month = formatMonth(item.month);
+  //       if (!groupedData[month]) {
+  //         groupedData[month] = [];
+  //       }
+  //       groupedData[month].push({
+  //         leaveType: leaveMasterMap[item.leaveAutoId] || "Unknown",
+  //         totalLeaveCount: item.totalLeaveCount,
+  //       });
+  //     });
+
+  //     // Create the result array
+  //     for (let month = 1; month <= 12; month++) {
+  //       const formattedMonth = formatMonth(month);
+  //       result.push({
+  //         month: formattedMonth,
+  //         attendanceData: groupedData[formattedMonth] || [],
+  //       });
+  //     }
+
+  //     return respHelper(res, {
+  //       status: 200,
+  //       data: result,
+  //     });
+  //   } catch (error) {
+  //     console.log(error);
+  //     return respHelper(res, {
+  //       status: 500,
+  //     });
+  //   }
+  // }
+
+  //this is working fine but taking time
+  // async leaveHistory(req, res) {
+  //   try {
+  //     const year = "2024";
+  //     const employeeId = 365;
+  //     const result = [];
+
+  //     const formatMonth = (month) => month.toString().padStart(2, "0");
+
+  //     // Fetch distinct leaveAutoIds for the given employee
+  //     // Fetch distinct leaveIds
+  //     const leaveIds = await db.leaveMaster.findAll({
+  //       attributes: [
+  //         [db.Sequelize.fn("DISTINCT", db.Sequelize.col("leaveId")), "leaveId"],
+  //       ],
+  //       raw: true, // To get plain objects instead of Sequelize instances
+  //     });
+
+  //     for (let index = 0; index < leaveIds.length; index++) {
+  //       const leaveAutoId = leaveIds[index].leaveId;
+  //       // Fetch leaveMaster details for the current leaveAutoId
+  //       const leaveMasterDetails = await db.leaveMaster.findOne({
+  //         where: { leaveId: leaveAutoId },
+  //         raw: true, // To get plain object instead of Sequelize instance
+  //       });
+
+  //       for (let month = 1; month <= 12; month++) {
+  //         const startDate = `${year}-${formatMonth(month)}-01`;
+  //         const endDate = new Date(year, month, 0).toISOString().split("T")[0]; // Correctly get the last day of the current month
+
+  //         // Fetch attendance data for the current month and leaveAutoId
+  //         const attendanceData = await db.employeeLeaveTransactions.findAll({
+  //           attributes: [
+  //             "employeeId",
+  //             [
+  //               db.Sequelize.fn("sum", db.Sequelize.col("leaveCount")),
+  //               "totalLeaveCount",
+  //             ],
+  //           ],
+  //           where: {
+  //             employeeId: employeeId,
+  //             leaveAutoId: leaveAutoId,
+  //             status: "approved",
+  //             appliedFor: {
+  //               [db.Sequelize.Op.between]: [startDate, endDate],
+  //             },
+  //           },
+  //           group: ["employeeId", "leaveAutoId"],
+  //           raw: true, // To get plain objects instead of Sequelize instances
+  //         });
+
+  //         result.push({
+  //           month: formatMonth(month),
+  //           leaveType: leaveMasterDetails
+  //             ? leaveMasterDetails.leaveName
+  //             : "Unknown",
+  //           attendanceData: attendanceData,
+  //         });
+  //       }
+  //     }
+
+  //     return respHelper(res, {
+  //       status: 200,
+  //       data: result,
+  //     });
+  //   } catch (error) {
+  //     console.log(error);
+  //     return respHelper(res, {
+  //       status: 500,
+  //     });
+  //   }
+  // }
+
+  // async leaveHistory(req, res) {
+  //   try {
+  //     const year = "2024";
+  //     const employeeId = 365;
+  //     const result = [];
+
+  //     const formatMonth = (month) => month.toString().padStart(2, "0");
+
+  //     const allLeaveIds = await db.leaveMaster.findAll({attributes:['leaveId']});
+  //     console.log("allLeaveIdsallLeaveIds",allLeaveIds)
+  //     // Fetch unique leaveAutoIds for the given employee
+  //     const leaveIds = await db.employeeLeaveTransactions.findAll({
+  //       attributes: ["leaveAutoId"],
+  //       where: {
+  //         status: "approved",
+  //         employeeId: employeeId,
+  //       },
+  //       group: ["leaveAutoId"],
+  //       raw: true, // To get plain objects instead of Sequelize instances
+  //     });
+
+  //     for (let index = 0; index < leaveIds.length; index++) {
+  //       const leaveAutoId = leaveIds[index].leaveAutoId;
+
+  //       // Fetch leaveMaster details for the current leaveAutoId
+  //       const leaveMasterDetails = await db.leaveMaster.findOne({ where: { leaveId: leaveAutoId } });
+
+  //       for (let month = 1; month <= 12; month++) {
+  //         const startDate = `${year}-${formatMonth(month)}-01`;
+  //         const endDate = new Date(year, month, 0).toISOString().split("T")[0]; // Correctly get the last day of the current month
+
+  //         // Fetch attendance data for the current month and leaveAutoId
+  //         const attendanceData = await db.employeeLeaveTransactions.findAll({
+  //           attributes: [
+  //             "employeeId",
+  //             [fn("sum", col("leaveCount")), "totalLeaveCount"],
+  //           ],
+  //           where: {
+  //             employeeId: employeeId,
+  //             leaveAutoId: leaveAutoId,
+  //             status: "approved",
+  //             appliedFor: {
+  //               [Op.between]: [startDate, endDate],
+  //             },
+  //           },
+  //           group: ["employeeId", "leaveAutoId"],
+  //           raw: true, // To get plain objects instead of Sequelize instances
+  //         });
+
+  //         result.push({
+  //           month: formatMonth(month),
+  //           leaveType: leaveMasterDetails.leaveName,
+  //           attendanceData: attendanceData,
+  //         });
+  //       }
+  //     }
+
+  //     return respHelper(res, {
+  //       status: 200,
+  //       data: result,
+  //     });
+  //   } catch (error) {
+  //     console.log(error);
+  //     return respHelper(res, {
+  //       status: 500,
+  //     });
+  //   }
+  // }
 }
 
 export default new LeaveController();
