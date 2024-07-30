@@ -208,7 +208,7 @@ class AttendanceController {
               attendanceLocationType: result.locationType,
               attendanceWorkingTime: helper.timeDifference(
                 checkAttendance.attendancePunchInTime,
-                currentDate.format("HH:mm")
+                currentDate.format("HH:mm:ss")
               ),
               attendancePunchOutLocation: result.location,
               attendancePunchOutLatitude: result.latitude,
