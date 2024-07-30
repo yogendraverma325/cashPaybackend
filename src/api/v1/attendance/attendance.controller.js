@@ -15,7 +15,6 @@ class AttendanceController {
     try {
       const result = await validator.attendanceSchema.validateAsync(req.body);
       const currentDate = moment();
-      console.log("current date --->>", currentDate.format('LTS'))
 
       const existEmployee = await db.employeeMaster.findOne({
         where: {
@@ -121,7 +120,6 @@ class AttendanceController {
 
           const withGraceTime = graceTime.format("HH:mm");
 
-          console.log("time before mark attendance", moment().format('LTS'))
           let creationObject = {
             attendanceDate: currentDate.format("YYYY-MM-DD"),
             employeeId: req.userId,
@@ -143,7 +141,7 @@ class AttendanceController {
             attendancePolicyId: req.userData.attendancePolicyId,
             createdAt: currentDate,
           };
-          console.log("time after mark attendance", moment().format('LTS'))
+
           await db.attendanceMaster.create(creationObject);
           return respHelper(res, {
             status: 200,
@@ -196,8 +194,6 @@ class AttendanceController {
             });
           }
 
-          console.log("current date before punch out", moment().format("LTS"))
-
           await db.attendanceMaster.update(
             {
               attendancePunchOutTime: currentDate.format("HH:mm:ss"),
@@ -207,8 +203,8 @@ class AttendanceController {
               attendancePunchOutRemark: result.remark,
               attendanceLocationType: result.locationType,
               attendanceWorkingTime: helper.timeDifference(
-                checkAttendance.attendancePunchInTime,
-                currentDate.format("HH:mm:ss")
+                `${checkAttendance.attandanceShiftStartDate} ${checkAttendance.attendancePunchInTime}`,
+                `${currentDate.format("YYYY-MM-DD")} ${currentDate.format("HH:mm:ss")}`
               ),
               attendancePunchOutLocation: result.location,
               attendancePunchOutLatitude: result.latitude,
@@ -222,7 +218,7 @@ class AttendanceController {
             }
           );
         }
-        console.log("current dat while punch out", moment().format('LTS'))
+
         return respHelper(res, {
           status: 200,
           msg: message.PUNCH_OUT_SUCCESS,

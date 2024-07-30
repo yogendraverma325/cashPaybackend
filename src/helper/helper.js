@@ -69,8 +69,8 @@ const mailService = async (data) => {
 };
 
 const timeDifference = (start, end) => {
-  let startTime = moment(start, "HH:mm:ss");
-  let endTime = moment(end, "HH:mm:ss");
+  let startTime = moment(start, "YYYY-MM-DD HH:mm:ss");
+  let endTime = moment(end, "YYYY-MM-DD HH:mm:ss");
 
   let hours = moment.utc(endTime.diff(startTime)).format("HH");
   let minutes = moment.utc(endTime.diff(startTime)).format("mm");
