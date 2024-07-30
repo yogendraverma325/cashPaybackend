@@ -206,7 +206,7 @@ class AttendanceController {
               attendanceStatus: "Punch Out",
               attendancePunchOutRemark: result.remark,
               attendanceLocationType: result.locationType,
-              attendanceWorkingTime: await helper.timeDifference(
+              attendanceWorkingTime: helper.timeDifference(
                 checkAttendance.attendancePunchInTime,
                 currentDate.format("HH:mm")
               ),
