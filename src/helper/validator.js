@@ -162,8 +162,9 @@ const revoekLeaveRequest = Joi.object({
 });
 
 const attendanceDetails = Joi.object({
-    employeeId: Joi.number().required().label("Employee ID")
-  })
+  employeeId: Joi.number().required().label("Employee ID")
+})
+
 const changePasswordSchema = Joi.object({
   password: Joi.string().trim().max(14).min(8).pattern(new RegExp(passwordRegex)).required().label("Password").messages({
     'string.pattern.base': "Password should contain at least Uppercase, Lowercase, Special Character, and Number"
@@ -171,12 +172,12 @@ const changePasswordSchema = Joi.object({
 })
 
 const remainingLeaves = Joi.object({
-     leaveAutoId: Joi.number().required().label("Leave Type"),
-     employeeFor:Joi.number().required().label("For Employee"),
-     startDate: Joi.date().required(),
-     endDate: Joi.date().required().min(Joi.ref("startDate")),
-     leaveFirstHalf:Joi.number().required(),
-     leaveSecondHalf:Joi.number().required()
+  leaveAutoId: Joi.number().required().label("Leave Type"),
+  employeeFor: Joi.number().required().label("For Employee"),
+  startDate: Joi.date().required(),
+  endDate: Joi.date().required().min(Joi.ref("startDate")),
+  leaveFirstHalf: Joi.number().required(),
+  leaveSecondHalf: Joi.number().required()
 })
 
 export default {

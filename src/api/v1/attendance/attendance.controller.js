@@ -1067,8 +1067,8 @@ class AttendanceController {
               attendance.attendancePresentStatus !== undefined
                 ? attendance.attendancePresentStatus
                 : checkWeekOff !== null
-                ? "weeklyOff"
-                : "NA",
+                  ? "weeklyOff"
+                  : "NA",
             attendanceRegularizeStatus:
               attendance.attendanceRegularizeStatus || "NA",
             attendanceManagerUpdateDate:
@@ -1182,7 +1182,7 @@ class AttendanceController {
 
       graceTime.add(
         regularizeData[
-          "attendancemaster.employee.attendancePolicymaster.graceTimeClockIn"
+        "attendancemaster.employee.attendancePolicymaster.graceTimeClockIn"
         ],
         "minutes"
       ); // Add buffer time  to the selected time if buffer allow
@@ -1272,11 +1272,11 @@ class AttendanceController {
         where: Object.assign(
           query === "raisedByMe"
             ? {
-                createdBy: req.userId,
-              }
+              createdBy: req.userId,
+            }
             : {
-                regularizeManagerId: req.userId,
-              },
+              regularizeManagerId: req.userId,
+            },
           {
             regularizeStatus: "Pending",
           }
@@ -1345,15 +1345,15 @@ class AttendanceController {
         });
       }
 
-      console.log({
-        name: `${regularizeData.dataValues.attendancemaster.employee.name} (${regularizeData.dataValues.attendancemaster.employee.empCode})`,
-        email: regularizeData.dataValues.attendancemaster.employee.email,
-        attendanceDate: moment(
-          regularizeData.dataValues.attendancemaster.attendanceDate
-        ).format("MMMM DD, YYYY"),
-        managerName: `${regularizeData.dataValues.attendancemaster.employee.managerData.name} (${regularizeData.dataValues.attendancemaster.employee.managerData.empCode})`,
-        // email: regularizeData.dataValues.attendancemaster.employee.managerData.email
-      });
+      // console.log({
+      //   name: `${regularizeData.dataValues.attendancemaster.employee.name} (${regularizeData.dataValues.attendancemaster.employee.empCode})`,
+      //   email: regularizeData.dataValues.attendancemaster.employee.email,
+      //   attendanceDate: moment(
+      //     regularizeData.dataValues.attendancemaster.attendanceDate
+      //   ).format("MMMM DD, YYYY"),
+      //   managerName: `${regularizeData.dataValues.attendancemaster.employee.managerData.name} (${regularizeData.dataValues.attendancemaster.employee.managerData.empCode})`,
+      //   // email: regularizeData.dataValues.attendancemaster.employee.managerData.email
+      // });
 
       await db.regularizationMaster.update(
         {
@@ -1408,6 +1408,7 @@ class AttendanceController {
       });
     }
   }
+
   async attedanceCron() {
     let lastDayDate = moment().subtract(1, "day").format("YYYY-MM-DD");
     let lastDayDateAnotherFormat = moment()
@@ -1562,21 +1563,21 @@ class AttendanceController {
 
               if (
                 totalMinutesLateMinutes >=
-                  singleEmp.attendancePolicymaster
-                    .leaveDeductPolicyLateDurationHalfDayTime &&
+                singleEmp.attendancePolicymaster
+                  .leaveDeductPolicyLateDurationHalfDayTime &&
                 totalMinutesLateMinutes <
-                  singleEmp.attendancePolicymaster
-                    .leaveDeductPolicyLateDurationFullDayTime
+                singleEmp.attendancePolicymaster
+                  .leaveDeductPolicyLateDurationFullDayTime
               ) {
                 isHalfDay_late_by = 1;
                 halfDayFor_late_by = 1;
               } else if (
                 totalMinutesLateMinutes >
-                  singleEmp.attendancePolicymaster
-                    .leaveDeductPolicyLateDurationHalfDayTime &&
+                singleEmp.attendancePolicymaster
+                  .leaveDeductPolicyLateDurationHalfDayTime &&
                 totalMinutesLateMinutes >=
-                  singleEmp.attendancePolicymaster
-                    .leaveDeductPolicyLateDurationFullDayTime
+                singleEmp.attendancePolicymaster
+                  .leaveDeductPolicyLateDurationFullDayTime
               ) {
                 isHalfDay_late_by = 0;
                 halfDayFor_late_by = 0;
@@ -1599,11 +1600,11 @@ class AttendanceController {
 
               if (
                 totalMinutesTotalHoursMinutes <
-                  singleEmp.attendancePolicymaster
-                    .leaveDeductPolicyWorkDurationHalfDayTime &&
+                singleEmp.attendancePolicymaster
+                  .leaveDeductPolicyWorkDurationHalfDayTime &&
                 totalMinutesTotalHoursMinutes <
-                  singleEmp.attendancePolicymaster
-                    .leaveDeductPolicyWorkDurationFullDayTime
+                singleEmp.attendancePolicymaster
+                  .leaveDeductPolicyWorkDurationFullDayTime
               ) {
                 isHalfDay_total_work = 0;
                 halfDayFor_total_work = 0;
@@ -1691,6 +1692,7 @@ class AttendanceController {
     //   data: existEmployees,
     // });
   }
+
   async attendenceDetails(req, res) {
     try {
       let attendanceData = await db.attendanceMaster.findOne({

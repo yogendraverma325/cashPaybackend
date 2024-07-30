@@ -46,6 +46,7 @@ const checkActiveUser = async (data) => {
     raw: true,
     where: {
       id: data,
+      isActive: 1
     },
   });
   return existUser;
@@ -149,6 +150,12 @@ const calculateAverageHours = async (workingHours) => {
     })
     .format("HH:mm:ss");
 };
+
+const ip = async (data) => {
+  const lastIndex = data.lastIndexOf(':');
+  const result = data.substring(lastIndex + 1);
+  return result
+}
 
 const generateRandomPassword = async () => {
   let length = 8,
@@ -454,4 +461,5 @@ export default {
   empMarkLeaveOfGivenDate,
   remainingLeaveCount,
   getCombineValue,
+  ip
 };

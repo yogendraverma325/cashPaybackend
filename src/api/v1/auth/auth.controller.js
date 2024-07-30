@@ -7,12 +7,18 @@ import bcrypt from "bcrypt";
 import moment from "moment";
 import fs from 'fs';
 import { cwd } from 'process';
+import DeviceDetector from "device-detector-js";
+
 
 class AuthController {
 
   async login(req, res) {
     try {
+
       const result = await validator.loginSchema.validateAsync(req.body);
+
+      const deviceDetector = new DeviceDetector();
+      const deviceData = deviceDetector.parse(req.headers['user-agent'])
 
       const existUser = await db.employeeMaster.findOne({
         where: { empCode: result.tmc },
@@ -80,6 +86,13 @@ class AuthController {
           where: { id: existUser.dataValues.id },
         }
       );
+
+      await db.loginDetails.create({
+        employeeId: existUser.dataValues.id,
+        loginIP: req.headers['x-real-ip'] ? req.headers['x-real-ip'] : await helper.ip(req._remoteAddress),
+        loginDevice: `${deviceData.os ? deviceData.os.name : 'OS Name'} - ${deviceData.device ? deviceData.device.type : 'Device Type'}`,
+        createdDt: moment()
+      })
 
       const payload = {
         user: {

@@ -71,9 +71,9 @@ class LeaveController {
         where: Object.assign(
           query === "raisedByMe"
             ? {
-                createdBy: req.userId,
-                status: "pending",
-              }
+              createdBy: req.userId,
+              status: "pending",
+            }
             : { pendingAt: req.userId, status: "pending" }
         ),
         attributes: { exclude: ["createdBy", "updatedBy", "updatedAt"] },
@@ -370,10 +370,10 @@ class LeaveController {
           leaveAttachment:
             result.attachment != ""
               ? await helper.fileUpload(
-                  result.attachment,
-                  `leaveAttachment_${uuid}`,
-                  `uploads/${EMP_DATA.empCode}`
-                )
+                result.attachment,
+                `leaveAttachment_${uuid}`,
+                `uploads/${EMP_DATA.empCode}`
+              )
               : null,
           pendingAt: EMP_DATA.managerData.id, // Replace with actual pending at value
           createdBy: req.userId, // Replace with actual creator user ID
@@ -510,21 +510,21 @@ class LeaveController {
 
       let totalAvailableLeave = availableLeaveCount
         ? parseFloat(availableLeaveCount.availableLeave).toFixed(2) -
-            parseFloat(pendingLeaveCount).toFixed(2) <
+          parseFloat(pendingLeaveCount).toFixed(2) <
           0
           ? "0.00"
           : parseFloat(availableLeaveCount.availableLeave) -
-            parseFloat(pendingLeaveCount).toFixed(2)
+          parseFloat(pendingLeaveCount).toFixed(2)
         : "0.00";
 
       let unpaidLeave =
         parseFloat(availableLeaveCount.availableLeave) -
           parseFloat(totalWorkingDays).toFixed(2) <
-        0
+          0
           ? -parseFloat(
-              parseFloat(availableLeaveCount.availableLeave) -
-                parseFloat(totalWorkingDays).toFixed(2)
-            )
+            parseFloat(availableLeaveCount.availableLeave) -
+            parseFloat(totalWorkingDays).toFixed(2)
+          )
           : 0;
 
       return respHelper(res, {
@@ -533,7 +533,7 @@ class LeaveController {
           totalWorkingDays:
             totalWorkingDays > 0
               ? parseFloat(totalWorkingDays).toFixed(2) -
-                parseFloat(getCombinedVal).toFixed(2)
+              parseFloat(getCombinedVal).toFixed(2)
               : 0,
           //availableWithoutPending: parseFloat(
           //   availableLeaveCount.availableLeave

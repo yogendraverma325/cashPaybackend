@@ -63,7 +63,6 @@ class AdminController {
     }
   }
 
-
   async unlockAccount(req, res) {
     try {
 
@@ -155,6 +154,58 @@ class AdminController {
     }
   };
 
+  async updateUserStatus(req, res) {
+    try {
+
+      for (const iterator of req.body) {
+
+        await db.employeeMaster.update({
+          isActive: iterator.status,
+          id: iterator.user
+        }, {
+          where: {
+            id: iterator.user
+          }
+        })
+
+      }
+
+      return respHelper(res, {
+        status: 200,
+        msg: "Status Updated"
+      });
+
+    } catch (error) {
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+
+  async updateManager(req, res) {
+    try {
+
+      for (const iterator of object) {
+        await db.employeeMaster.update({
+          manager: iterator.manager,
+          id: iterator.user
+        }, {
+          where: {
+            id: iterator.user
+          }
+        })
+      }
+
+      return respHelper(res, {
+        status: 200,
+      });
+
+    } catch (error) {
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
 }
 
 export default new AdminController();
