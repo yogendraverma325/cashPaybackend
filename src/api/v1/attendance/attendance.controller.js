@@ -931,7 +931,7 @@ class AttendanceController {
         }),
       ]);
 
-      // Process holidays
+      // Process holidays//
       const holidayDates = locationBasedHolidays.reduce(
         (acc, locationHoliday) => {
           if (locationHoliday.holidayDetails) {
