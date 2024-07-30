@@ -20,8 +20,6 @@ class AuthController {
       const deviceDetector = new DeviceDetector();
       const deviceData = deviceDetector.parse(req.headers['user-agent'])
 
-      console.log("jdjbdjbh---->>", req.headers['user-agent'])
-
       const existUser = await db.employeeMaster.findOne({
         where: { empCode: result.tmc },
         include: [
@@ -88,7 +86,7 @@ class AuthController {
           where: { id: existUser.dataValues.id },
         }
       );
-      console.log("njnjdnjd--->>", deviceData)
+      
       await db.loginDetails.create({
         employeeId: existUser.dataValues.id,
         loginIP: req.headers['x-real-ip'] ? req.headers['x-real-ip'] : await helper.ip(req._remoteAddress),

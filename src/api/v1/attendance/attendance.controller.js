@@ -15,7 +15,7 @@ class AttendanceController {
     try {
       const result = await validator.attendanceSchema.validateAsync(req.body);
       const currentDate = moment();
-
+      console.log("current date --->>", currentDate)
       const d = new Date();
 
       let data = result;
@@ -119,7 +119,6 @@ class AttendanceController {
               status: 400,
               msg: message.SHIFT.SHIFT_TIME_INVALID,
             });
-            return;
           }
 
           let graceTime = moment(
@@ -133,6 +132,8 @@ class AttendanceController {
           ); // Add buffer time  to the selected time if buffer allow
 
           const withGraceTime = graceTime.format("HH:mm");
+
+          console.log("time before mark attendance", moment())
           let creationObject = {
             attendanceDate: currentDate.format("YYYY-MM-DD"),
             employeeId: req.userId,
@@ -154,6 +155,7 @@ class AttendanceController {
             attendancePolicyId: req.userData.attendancePolicyId,
             createdAt: currentDate,
           };
+          console.log("time after mark attendance", moment())
           await db.attendanceMaster.create(creationObject);
           return respHelper(res, {
             status: 200,
