@@ -202,7 +202,7 @@ class AttendanceController {
               attendanceStatus: "Punch Out",
               attendancePunchOutRemark: result.remark,
               attendanceLocationType: result.locationType,
-              attendanceWorkingTime: helper.timeDifference(
+              attendanceWorkingTime: await helper.timeDifference(
                 `${checkAttendance.attandanceShiftStartDate} ${checkAttendance.attendancePunchInTime}`,
                 `${currentDate.format("YYYY-MM-DD")} ${currentDate.format("HH:mm:ss")}`
               ),
