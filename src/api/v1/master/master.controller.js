@@ -68,6 +68,7 @@ class MasterController {
               "officeMobileNumber",
               "buId",
               "sbuId",
+              "isActive"
             ],
             include: [
               {

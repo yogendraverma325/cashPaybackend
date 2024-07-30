@@ -30,6 +30,7 @@ const fileUpload = async (base64String, fileName, filepath) => {
   fs.writeFileSync(finalFilePath, buffer);
   return finalFilePath;
 };
+
 const checkFolder = async () => {
   const folder = ["uploads"];
   for (const iterator of folder) {
