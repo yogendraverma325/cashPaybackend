@@ -374,8 +374,7 @@ class AttendanceController {
     }
   }
 
- 
-// old implmentation
+  //old implmentation
   // async attendanceList(req, res) {
   //   try {
   //     const user = req.query.user;
@@ -588,32 +587,253 @@ class AttendanceController {
   //   }
   // }
 
-  // new implementation
+  //new implementation
+  // async attendanceList(req, res) {
+  //   try {
+  //     const user = req.query.user;
+  //     const year = req.query.year;
+  //     const month = req.query.month;
+  //     const companyLocationId = req.userData.companyLocationId;
+
+  //     if (!year || !month) {
+  //       return respHelper(res, {
+  //         status: 400,
+  //         msg: "Please Fill Month and Year",
+  //       });
+  //     }
+
+  //     // Fetch all required data in bulk
+  //     const [locationBasedHolidays, attendanceData, monthDays, employeeLeaveTransactions] = await Promise.all([
+  //       db.holidayCompanyLocationConfiguration.findAll({
+  //         where: { companyLocationId: companyLocationId },
+  //         include: [{
+  //           model: db.holidayMaster,
+  //           required: true,
+  //           as: "holidayDetails",
+  //           attributes: ["holidayName", "holidayDate"],
+  //           where: { isActive: 1 },
+  //         }],
+  //       }),
+  //       db.attendanceMaster.findAll({
+  //         where: {
+  //           employeeId: user || req.userId,
+  //           attendanceDate: {
+  //             [Op.between]: [
+  //               `${year}-${month}-01`,
+  //               `${year}-${month}-${moment(`${year}-${month}`, "YYYY-MM").daysInMonth()}`,
+  //             ],
+  //           },
+  //         },
+  //         attributes: { exclude: ["createdBy", "createdAt", "updatedBy", "updatedAt"] },
+  //         include: [
+  //           {
+  //             model: db.regularizationMaster.scope("latest"),
+  //             required: false,
+  //             as: "latest_Regularization_Request",
+  //             attributes: ["regularizeStatus", "regularizeId"],
+  //             where: { regularizeStatus: ["Pending", "Approved"] },
+  //           },
+  //           {
+  //             model: db.holidayCompanyLocationConfiguration,
+  //             required: false,
+  //             as: "holidayLocationMappingDetails",
+  //             include: {
+  //               model: db.holidayMaster,
+  //               required: true,
+  //               as: "holidayDetails",
+  //               attributes: ["holidayName", "holidayDate"],
+  //               where: { isActive: 1 },
+  //             },
+  //           },
+  //           {
+  //             model: db.employeeLeaveTransactions,
+  //             required: false,
+  //             as: "employeeLeaveTransactionDetails",
+  //             attributes: ["status", "employeeLeaveTransactionsId", "isHalfDay", "halfDayFor", "reason", "leaveAutoId"],
+  //             where: { status: ["pending", "approved"], employeeId: user || req.userId },
+  //             include: {
+  //               model: db.leaveMaster,
+  //               required: false,
+  //               as: "leaveMasterDetails",
+  //               attributes: ["leaveName", "leaveCode"],
+  //             },
+  //           },
+  //         ],
+  //       }),
+  //       db.CalenderYear.findAll({
+  //         attributes: ["calenderId", "date", "year", "month", "fullDate"],
+  //         where: { month: month, year: year },
+  //       }),
+  //       db.employeeLeaveTransactions.findAll({
+  //         attributes: ["status", "employeeLeaveTransactionsId", "isHalfDay", "halfDayFor", "reason", "leaveAutoId"],
+  //         where: {
+  //           employeeId: req.userId,
+  //           appliedFor: {
+  //             [Op.between]: [
+  //               `${year}-${month}-01`,
+  //               `${year}-${month}-${moment(`${year}-${month}`, "YYYY-MM").daysInMonth()}`,
+  //             ],
+  //           },
+  //         },
+  //         include: {
+  //           model: db.leaveMaster,
+  //           required: false,
+  //           as: "leaveMasterDetails",
+  //           attributes: ["leaveName", "leaveCode"],
+  //         },
+  //       }),
+  //     ]);
+
+  //     // Process holidays
+  //     const holidayDates = locationBasedHolidays.reduce((acc, locationHoliday) => {
+  //       if (locationHoliday.holidayDetails) {
+  //         acc[locationHoliday.holidayDetails.holidayDate] = {
+  //           holidayDate: locationHoliday.holidayDetails.holidayDate,
+  //           holidayName: locationHoliday.holidayDetails.holidayName,
+  //         };
+  //       }
+  //       return acc;
+  //     }, {});
+
+  //     // Process attendance data
+  //     let averageWorkingTime = [];
+  //     let calculateLateTime = [];
+  //     let calculateleaveDays = [];
+  //     let calculateUnpaidleaveDays = [];
+  //     let calculatePresentDays = [];
+  //     let calculateAbsentDays = [];
+  //     let calculateSinglePunchAbsent = [];
+
+  //     const attendanceMap = attendanceData.reduce((acc, record) => {
+  //       const data = record.dataValues;
+  //       acc[data.attendanceDate] = record;
+  //       if (data.attendanceWorkingTime) {
+  //         averageWorkingTime.push(data.attendanceWorkingTime);
+  //       }
+  //       if (data.attendanceLateBy && data.attendanceLateBy !== "00:00:00") {
+  //         calculateLateTime.push(data.attendanceLateBy);
+  //       }
+  //       switch (data.attendancePresentStatus) {
+  //         case "absent":
+  //           calculateAbsentDays.push(data.attendanceAutoId);
+  //           break;
+  //         case "present":
+  //           calculatePresentDays.push(data.attendanceAutoId);
+  //           break;
+  //         case "singlePunchAbsent":
+  //           calculateSinglePunchAbsent.push(data.attendanceAutoId);
+  //           break;
+  //         case "leave":
+  //           calculateleaveDays.push(data.attendanceAutoId);
+  //           break;
+  //         case "unpaidLeave":
+  //           calculateUnpaidleaveDays.push(data.attendanceAutoId);
+  //           break;
+  //       }
+  //       return acc;
+  //     }, {});
+
+  //     // Combine monthDays with attendance and holiday data
+  //     const result = monthDays.map(day => {
+  //       const fullDate = day.fullDate;
+  //       const attendance = attendanceMap[fullDate] || {};
+  //       const holiday = holidayDates[fullDate] || null;
+  //       const leaveTransactions = employeeLeaveTransactions.filter(tx => tx.appliedFor === fullDate);
+
+  //       return {
+  //         attendanceAutoId: attendance.attendanceAutoId || 0,
+  //         employeeId: attendance.employeeId || 0,
+  //         attendanceShiftId: attendance.attendanceShiftId || 0,
+  //         attendancePolicyId: attendance.attendancePolicyId || 0,
+  //         attendanceRegularizeId: attendance.attendanceRegularizeId || 0,
+  //         attendanceDate: attendance.attendanceDate || fullDate,
+  //         day: moment(fullDate).format('dddd'),
+  //         attandanceShiftStartDate: attendance.attandanceShiftStartDate || fullDate,
+  //         attendanceShiftEndDate: attendance.attendanceShiftEndDate || fullDate,
+  //         attendancePunchInTime: attendance.attendancePunchInTime || null,
+  //         attendancePunchOutTime: attendance.attendancePunchOutTime || null,
+  //         attendanceLateBy: attendance.attendanceLateBy || "",
+  //         attendancePunchInRemark: attendance.attendancePunchInRemark || "",
+  //         attendancePunchOutRemark: attendance.attendancePunchOutRemark || "",
+  //         attendancePunchInLocationType: attendance.attendancePunchInLocationType || "",
+  //         attendancePunchOutLocationType: attendance.attendancePunchOutLocationType || "",
+  //         attendanceStatus: attendance.attendanceStatus || "NA",
+  //         attendancePresentStatus: attendance.attendancePresentStatus || "NA",
+  //         attendanceRegularizeStatus: attendance.attendanceRegularizeStatus || "NA",
+  //         attendanceManagerUpdateDate: attendance.attendanceManagerUpdateDate || "NA",
+  //         attendancePunchInLocation: attendance.attendancePunchInLocation || "NA",
+  //         attendancePunchInLatitude: attendance.attendancePunchInLatitude || "",
+  //         attendancePunchInLongitude: attendance.attendancePunchInLongitude || "",
+  //         attendancePunchOutLocation: attendance.attendancePunchOutLocation || "",
+  //         attendancePunchOutLatitude: attendance.attendancePunchOutLatitude || "",
+  //         attendancePunchOutLongitude: attendance.attendancePunchOutLongitude || "",
+  //         attendanceWorkingTime: attendance.attendanceWorkingTime || null,
+  //         attendanceRegularizeCount: attendance.attendanceRegularizeCount || 0,
+  //         employeeLeaveTransactionsId: attendance.employeeLeaveTransactionsId || 0,
+  //         needAttendanceCron: attendance.needAttendanceCron || 0,
+  //         holidayCompanyLocationConfigurationID: attendance.holidayCompanyLocationConfigurationID || 0,
+  //         holidayLocationMappingDetails: holiday ? [holiday] : [],
+  //         latest_Regularization_Request: attendance.latest_Regularization_Request || [],
+  //         employeeLeaveTransactionDetails: leaveTransactions,
+  //       };
+  //     });
+
+  //     return respHelper(res, {
+  //       status: 200,
+  //       data: {
+  //         statics: {
+  //           lateTime: await helper.calculateTime(calculateLateTime),
+  //           averageWorkingTime: await helper.calculateAverageHours(averageWorkingTime),
+  //           absentDays: calculateAbsentDays.length,
+  //           presentDays: calculatePresentDays.length,
+  //           singlePunchAbsentDays: calculateSinglePunchAbsent.length,
+  //           leaveDays: calculateleaveDays.length,
+  //           unpaidLeaveDays: calculateUnpaidleaveDays.length,
+  //         },
+  //         attendanceData: {
+  //           count: result.length,
+  //           rows: result,
+  //         },
+  //       },
+  //     });
+  //   } catch (error) {
+  //     console.log(error);
+  //     return respHelper(res, { status: 500 });
+  //   }
+  // }
+
   async attendanceList(req, res) {
     try {
       const user = req.query.user;
       const year = req.query.year;
       const month = req.query.month;
       const companyLocationId = req.userData.companyLocationId;
-  
+      const weekOffId = req.userData.weekOffId;
       if (!year || !month) {
         return respHelper(res, {
           status: 400,
           msg: "Please Fill Month and Year",
         });
       }
-  
+
       // Fetch all required data in bulk
-      const [locationBasedHolidays, attendanceData, monthDays, employeeLeaveTransactions] = await Promise.all([
+      const [
+        locationBasedHolidays,
+        attendanceData,
+        monthDays,
+        employeeLeaveTransactions,
+      ] = await Promise.all([
         db.holidayCompanyLocationConfiguration.findAll({
           where: { companyLocationId: companyLocationId },
-          include: [{
-            model: db.holidayMaster,
-            required: true,
-            as: "holidayDetails",
-            attributes: ["holidayName", "holidayDate"],
-            where: { isActive: 1 },
-          }],
+          include: [
+            {
+              model: db.holidayMaster,
+              required: true,
+              as: "holidayDetails",
+              attributes: ["holidayName", "holidayDate"],
+              where: { isActive: 1 },
+            },
+          ],
         }),
         db.attendanceMaster.findAll({
           where: {
@@ -621,11 +841,16 @@ class AttendanceController {
             attendanceDate: {
               [Op.between]: [
                 `${year}-${month}-01`,
-                `${year}-${month}-${moment(`${year}-${month}`, "YYYY-MM").daysInMonth()}`,
+                `${year}-${month}-${moment(
+                  `${year}-${month}`,
+                  "YYYY-MM"
+                ).daysInMonth()}`,
               ],
             },
           },
-          attributes: { exclude: ["createdBy", "createdAt", "updatedBy", "updatedAt"] },
+          attributes: {
+            exclude: ["createdBy", "createdAt", "updatedBy", "updatedAt"],
+          },
           include: [
             {
               model: db.regularizationMaster.scope("latest"),
@@ -650,8 +875,18 @@ class AttendanceController {
               model: db.employeeLeaveTransactions,
               required: false,
               as: "employeeLeaveTransactionDetails",
-              attributes: ["status", "employeeLeaveTransactionsId", "isHalfDay", "halfDayFor", "reason", "leaveAutoId"],
-              where: { status: ["pending", "approved"], employeeId: user || req.userId },
+              attributes: [
+                "status",
+                "employeeLeaveTransactionsId",
+                "isHalfDay",
+                "halfDayFor",
+                "reason",
+                "leaveAutoId",
+              ],
+              where: {
+                status: ["pending", "approved"],
+                employeeId: user || req.userId,
+              },
               include: {
                 model: db.leaveMaster,
                 required: false,
@@ -666,13 +901,23 @@ class AttendanceController {
           where: { month: month, year: year },
         }),
         db.employeeLeaveTransactions.findAll({
-          attributes: ["status", "employeeLeaveTransactionsId", "isHalfDay", "halfDayFor", "reason", "leaveAutoId"],
+          attributes: [
+            "status",
+            "employeeLeaveTransactionsId",
+            "isHalfDay",
+            "halfDayFor",
+            "reason",
+            "leaveAutoId",
+          ],
           where: {
             employeeId: req.userId,
             appliedFor: {
               [Op.between]: [
                 `${year}-${month}-01`,
-                `${year}-${month}-${moment(`${year}-${month}`, "YYYY-MM").daysInMonth()}`,
+                `${year}-${month}-${moment(
+                  `${year}-${month}`,
+                  "YYYY-MM"
+                ).daysInMonth()}`,
               ],
             },
           },
@@ -684,18 +929,21 @@ class AttendanceController {
           },
         }),
       ]);
-  
+
       // Process holidays
-      const holidayDates = locationBasedHolidays.reduce((acc, locationHoliday) => {
-        if (locationHoliday.holidayDetails) {
-          acc[locationHoliday.holidayDetails.holidayDate] = {
-            holidayDate: locationHoliday.holidayDetails.holidayDate,
-            holidayName: locationHoliday.holidayDetails.holidayName,
-          };
-        }
-        return acc;
-      }, {});
-  
+      const holidayDates = locationBasedHolidays.reduce(
+        (acc, locationHoliday) => {
+          if (locationHoliday.holidayDetails) {
+            acc[locationHoliday.holidayDetails.holidayDate] = {
+              holidayDate: locationHoliday.holidayDetails.holidayDate,
+              holidayName: locationHoliday.holidayDetails.holidayName,
+            };
+          }
+          return acc;
+        },
+        {}
+      );
+
       // Process attendance data
       let averageWorkingTime = [];
       let calculateLateTime = [];
@@ -704,7 +952,7 @@ class AttendanceController {
       let calculatePresentDays = [];
       let calculateAbsentDays = [];
       let calculateSinglePunchAbsent = [];
-  
+
       const attendanceMap = attendanceData.reduce((acc, record) => {
         const data = record.dataValues;
         acc[data.attendanceDate] = record;
@@ -733,58 +981,133 @@ class AttendanceController {
         }
         return acc;
       }, {});
-  
+
       // Combine monthDays with attendance and holiday data
-      const result = monthDays.map(day => {
-        const fullDate = day.fullDate;
-        const attendance = attendanceMap[fullDate] || {};
-        const holiday = holidayDates[fullDate] || null;
-        const leaveTransactions = employeeLeaveTransactions.filter(tx => tx.appliedFor === fullDate);
-  
-        return {
-          attendanceAutoId: attendance.attendanceAutoId || 0,
-          employeeId: attendance.employeeId || 0,
-          attendanceShiftId: attendance.attendanceShiftId || 0,
-          attendancePolicyId: attendance.attendancePolicyId || 0,
-          attendanceRegularizeId: attendance.attendanceRegularizeId || 0,
-          attendanceDate: attendance.attendanceDate || fullDate,
-          day: moment(fullDate).format('dddd'),
-          attandanceShiftStartDate: attendance.attandanceShiftStartDate || fullDate,
-          attendanceShiftEndDate: attendance.attendanceShiftEndDate || fullDate,
-          attendancePunchInTime: attendance.attendancePunchInTime || null,
-          attendancePunchOutTime: attendance.attendancePunchOutTime || null,
-          attendanceLateBy: attendance.attendanceLateBy || "",
-          attendancePunchInRemark: attendance.attendancePunchInRemark || "",
-          attendancePunchOutRemark: attendance.attendancePunchOutRemark || "",
-          attendancePunchInLocationType: attendance.attendancePunchInLocationType || "",
-          attendancePunchOutLocationType: attendance.attendancePunchOutLocationType || "",
-          attendanceStatus: attendance.attendanceStatus || "NA",
-          attendancePresentStatus: attendance.attendancePresentStatus || "NA",
-          attendanceRegularizeStatus: attendance.attendanceRegularizeStatus || "NA",
-          attendanceManagerUpdateDate: attendance.attendanceManagerUpdateDate || "NA",
-          attendancePunchInLocation: attendance.attendancePunchInLocation || "NA",
-          attendancePunchInLatitude: attendance.attendancePunchInLatitude || "",
-          attendancePunchInLongitude: attendance.attendancePunchInLongitude || "",
-          attendancePunchOutLocation: attendance.attendancePunchOutLocation || "",
-          attendancePunchOutLatitude: attendance.attendancePunchOutLatitude || "",
-          attendancePunchOutLongitude: attendance.attendancePunchOutLongitude || "",
-          attendanceWorkingTime: attendance.attendanceWorkingTime || null,
-          attendanceRegularizeCount: attendance.attendanceRegularizeCount || 0,
-          employeeLeaveTransactionsId: attendance.employeeLeaveTransactionsId || 0,
-          needAttendanceCron: attendance.needAttendanceCron || 0,
-          holidayCompanyLocationConfigurationID: attendance.holidayCompanyLocationConfigurationID || 0,
-          holidayLocationMappingDetails: holiday ? [holiday] : [],
-          latest_Regularization_Request: attendance.latest_Regularization_Request || [],
-          employeeLeaveTransactionDetails: leaveTransactions,
-        };
-      });
-  
+      const result = await Promise.all(
+        monthDays.map(async (day) => {
+          const fullDate = day.fullDate;
+          const attendance = attendanceMap[fullDate] || {};
+          const holiday = holidayDates[fullDate] || null;
+          const leaveTransactions = employeeLeaveTransactions.filter(
+            (tx) => tx.appliedFor === fullDate
+          );
+          let dayCode = parseInt(moment(fullDate).format("d")) + 1;
+          let momentDate = moment(fullDate);
+          let dayOfMonth = momentDate.date();
+          let occurrence = Math.ceil(dayOfMonth / 7);
+
+          let occurrenceDayCondition = {};
+          switch (occurrence) {
+            case 1:
+              occurrenceDayCondition = {
+                dayId: dayCode,
+                isfirstDayOff: 1,
+                weekOffId: weekOffId,
+              };
+              break;
+            case 2:
+              occurrenceDayCondition = {
+                dayId: dayCode,
+                isSecondDayOff: 1,
+                weekOffId: weekOffId,
+              };
+              break;
+            case 3:
+              occurrenceDayCondition = {
+                dayId: dayCode,
+                isThirdyDayOff: 1,
+                weekOffId: weekOffId,
+              };
+              break;
+            case 4:
+              occurrenceDayCondition = {
+                dayId: dayCode,
+                isFourthDayOff: 1,
+                weekOffId: weekOffId,
+              };
+              break;
+            case 5:
+              occurrenceDayCondition = {
+                dayId: dayCode,
+                isFivethDayOff: 1,
+                weekOffId: weekOffId,
+              };
+              break;
+            default:
+              occurrenceDayCondition = {};
+          }
+
+          let checkWeekOff = await db.weekOffDayMappingMaster.findOne({
+            where: occurrenceDayCondition,
+          });
+          return {
+            attendanceAutoId: attendance.attendanceAutoId || 0,
+            employeeId: attendance.employeeId || 0,
+            attendanceShiftId: attendance.attendanceShiftId || 0,
+            attendancePolicyId: attendance.attendancePolicyId || 0,
+            attendanceRegularizeId: attendance.attendanceRegularizeId || 0,
+            attendanceDate: attendance.attendanceDate || fullDate,
+            day: moment(fullDate).format("dddd"),
+            attandanceShiftStartDate:
+              attendance.attandanceShiftStartDate || fullDate,
+            attendanceShiftEndDate:
+              attendance.attendanceShiftEndDate || fullDate,
+            attendancePunchInTime: attendance.attendancePunchInTime || null,
+            attendancePunchOutTime: attendance.attendancePunchOutTime || null,
+            attendanceLateBy: attendance.attendanceLateBy || "",
+            attendancePunchInRemark: attendance.attendancePunchInRemark || "",
+            attendancePunchOutRemark: attendance.attendancePunchOutRemark || "",
+            attendancePunchInLocationType:
+              attendance.attendancePunchInLocationType || "",
+            attendancePunchOutLocationType:
+              attendance.attendancePunchOutLocationType || "",
+            attendanceStatus: attendance.attendanceStatus || "NA",
+            attendancePresentStatus:
+            attendance.attendancePresentStatus !== undefined
+            ? attendance.attendancePresentStatus
+            : checkWeekOff !== null
+            ? "weeklyOff"
+            : "NA",
+            attendanceRegularizeStatus:
+              attendance.attendanceRegularizeStatus || "NA",
+            attendanceManagerUpdateDate:
+              attendance.attendanceManagerUpdateDate || "NA",
+            attendancePunchInLocation:
+              attendance.attendancePunchInLocation || "NA",
+            attendancePunchInLatitude:
+              attendance.attendancePunchInLatitude || "",
+            attendancePunchInLongitude:
+              attendance.attendancePunchInLongitude || "",
+            attendancePunchOutLocation:
+              attendance.attendancePunchOutLocation || "",
+            attendancePunchOutLatitude:
+              attendance.attendancePunchOutLatitude || "",
+            attendancePunchOutLongitude:
+              attendance.attendancePunchOutLongitude || "",
+            attendanceWorkingTime: attendance.attendanceWorkingTime || null,
+            attendanceRegularizeCount:
+              attendance.attendanceRegularizeCount || 0,
+            employeeLeaveTransactionsId:
+              attendance.employeeLeaveTransactionsId || 0,
+            needAttendanceCron: attendance.needAttendanceCron || 0,
+            holidayCompanyLocationConfigurationID:
+              attendance.holidayCompanyLocationConfigurationID || 0,
+            holidayLocationMappingDetails: holiday ? [holiday] : [],
+            latest_Regularization_Request:
+              attendance.latest_Regularization_Request || [],
+            employeeLeaveTransactionDetails: leaveTransactions,
+          };
+        })
+      );
+
       return respHelper(res, {
         status: 200,
         data: {
           statics: {
             lateTime: await helper.calculateTime(calculateLateTime),
-            averageWorkingTime: await helper.calculateAverageHours(averageWorkingTime),
+            averageWorkingTime: await helper.calculateAverageHours(
+              averageWorkingTime
+            ),
             absentDays: calculateAbsentDays.length,
             presentDays: calculatePresentDays.length,
             singlePunchAbsentDays: calculateSinglePunchAbsent.length,
@@ -802,7 +1125,7 @@ class AttendanceController {
       return respHelper(res, { status: 500 });
     }
   }
-  
+
   async approveRegularizationRequest(req, res) {
     try {
       const result =
