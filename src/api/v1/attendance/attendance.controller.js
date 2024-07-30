@@ -908,6 +908,7 @@ class AttendanceController {
             "halfDayFor",
             "reason",
             "leaveAutoId",
+            "appliedFor"
           ],
           where: {
             employeeId: req.userId,
@@ -1063,11 +1064,11 @@ class AttendanceController {
               attendance.attendancePunchOutLocationType || "",
             attendanceStatus: attendance.attendanceStatus || "NA",
             attendancePresentStatus:
-            attendance.attendancePresentStatus !== undefined
-            ? attendance.attendancePresentStatus
-            : checkWeekOff !== null
-            ? "weeklyOff"
-            : "NA",
+              attendance.attendancePresentStatus !== undefined
+                ? attendance.attendancePresentStatus
+                : checkWeekOff !== null
+                ? "weeklyOff"
+                : "NA",
             attendanceRegularizeStatus:
               attendance.attendanceRegularizeStatus || "NA",
             attendanceManagerUpdateDate:
