@@ -16,18 +16,6 @@ class AttendanceController {
       const result = await validator.attendanceSchema.validateAsync(req.body);
       const currentDate = moment();
       console.log("current date --->>", currentDate)
-      const d = new Date();
-
-      let data = result;
-      result.time =
-        d.getHours() + "::" + d.getMinutes() + "::" + d.getSeconds();
-      const finalDate =
-        d.getDate() + "-" + d.getMonth() + "-" + d.getFullYear();
-      let user = JSON.stringify(data);
-      fs.appendFileSync(
-        cwd() + "/uploads/RAG/" + finalDate + "USER_ATTENDANCE_LOG.txt",
-        user + "\n"
-      );
 
       const existEmployee = await db.employeeMaster.findOne({
         where: {
@@ -208,6 +196,8 @@ class AttendanceController {
             });
           }
 
+          console.log("current date before punch out", moment())
+
           await db.attendanceMaster.update(
             {
               attendancePunchOutTime: currentDate.format("HH:mm:ss"),
@@ -232,7 +222,7 @@ class AttendanceController {
             }
           );
         }
-
+        console.log("current dat while punch out", moment())
         return respHelper(res, {
           status: 200,
           msg: message.PUNCH_OUT_SUCCESS,
