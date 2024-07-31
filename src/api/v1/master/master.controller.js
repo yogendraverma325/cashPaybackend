@@ -55,8 +55,17 @@ class MasterController {
                       },
                     },
                   ],
+                   [Op.and]: [
+                    {
+                      isActive:1
+                    }
+                   ]
                 }
-                : {}
+                : { [Op.and]: [
+                    {
+                      isActive:1
+                    }
+                   ]}
             ),
             attributes: [
               "id",
@@ -170,9 +179,11 @@ class MasterController {
           manager
             ? {
               id: manager,
+              isActive:1
             }
             : {
               manager: null,
+              isActive:1
             }
         ),
         attributes: { exclude: ["password", "role_id", "designation_id"] },

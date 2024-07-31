@@ -185,7 +185,7 @@ class AdminController {
   async updateManager(req, res) {
     try {
 
-      for (const iterator of object) {
+      for (const iterator of req.body) {
         await db.employeeMaster.update({
           manager: iterator.manager,
           id: iterator.user
