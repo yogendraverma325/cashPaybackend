@@ -131,7 +131,7 @@ class LeaveController {
           },
         }
       );
-
+if(result.status=='approved'){
       for (const leaveID of leaveIds) {
         const existingRecord = await db.employeeLeaveTransactions.findOne({
           where: { employeeLeaveTransactionsId: leaveID },
@@ -201,6 +201,7 @@ class LeaveController {
         // await db.User.create(record, { transaction });
         // }
       }
+    }
 
       return respHelper(res, {
         status: 200,
