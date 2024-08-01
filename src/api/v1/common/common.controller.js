@@ -8,6 +8,47 @@ import client from "../../../config/redisDb.config.js";
 import moment from "moment";
 const message = constant;
 class commonController {
+  async addBiographicalDetails(req, res) {
+    try {
+      const result =
+        await validator.updateBiographicalDetailsSchema.validateAsync(req.body);
+
+      let detailsExists = await db.biographicalDetails.findOne({
+        where: { userId: result.userId },
+      });
+      if (detailsExists) {
+        return respHelper(res, {
+          status: 400,
+          msg: constant.ALREADY_EXISTS.replace(
+            "<module>",
+            "Biographical Details"
+          ),
+          data: {},
+        });
+      } else {
+        await db.biographicalDetails.create(result)
+        return respHelper(res, {
+          status: 200,
+          msg: constant.DETAILS_ADDED.replace(
+            "<module>",
+            "Biographical Details"
+          ),
+          data: {},
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      if (error.isJoi === true) {
+        return respHelper(res, {
+          status: 422,
+          msg: error.details[0].message,
+        });
+      }
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
   async updateBiographicalDetails(req, res) {
     try {
       const result =
@@ -295,10 +336,10 @@ class commonController {
   async mobileNoUpdateInFamilyTable(req, res) {
     await db.familyDetails.update(
       {
-        mobileNo:"N/A"
+        mobileNo: "N/A",
       },
       {
-         where: {},
+        where: {},
       }
     );
     return respHelper(res, {

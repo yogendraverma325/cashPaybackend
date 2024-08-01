@@ -79,6 +79,7 @@ const updateBiographicalDetailsSchema = Joi.object({
   maritalStatus: Joi.number().required().label("Marital Status"),
   mobileAccess: Joi.number().required().label("Mobile Access"),
   laptopSystem: Joi.string().trim().label("System"),
+  //nationality: Joi.string().trim().label("Nationality"),
   backgroundVerification: Joi.number()
     .required()
     .label("Background Verification"),

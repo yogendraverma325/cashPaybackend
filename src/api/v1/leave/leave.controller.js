@@ -624,6 +624,24 @@ class LeaveController {
         const attendanceDataForMonth = [];
         let totalLeaveCountForMonth = 0;
 
+        function getMonthName(month) {
+          const monthNames = {
+            1: "January",
+            2: "February",
+            3: "March",
+            4: "April",
+            5: "May",
+            6: "June",
+            7: "July",
+            8: "August",
+            9: "September",
+            10: "October",
+            11: "November",
+            12: "December",
+          };
+        
+          return monthNames[month] ? monthNames[month] : "Invalid month number";
+        }
         leaveMasterDetails.forEach((leave) => {
           const leaveCount =
             groupedData[monthName] && groupedData[monthName][leave.leaveId]
@@ -641,7 +659,7 @@ class LeaveController {
         grandTotalLeaveCount += totalLeaveCountForMonth; // Update grand total leave count
 
         result.push({
-          month: monthName,
+          month: getMonthName(month),
           totalMonthLeave: totalLeaveCountForMonth,
           attendanceData: attendanceDataForMonth,
         });
