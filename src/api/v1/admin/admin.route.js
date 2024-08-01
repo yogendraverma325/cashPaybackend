@@ -9,6 +9,7 @@ export default Express
     .get("/dashboardCard/:for", authorization('ADMIN'), adminController.dashboardCard)
     .post("/unlockAccount", authorization('ADMIN'), adminController.unlockAccount)
     .post("/resetPassword", authorization('ADMIN'), adminController.resetPassword)
+    .post("/addBiographicalDetails", authorization('ADMIN'), commonController.addBiographicalDetails)
     .put("/updateBiographicalDetails", authorization('ADMIN'), commonController.updateBiographicalDetails)
     .put("/updateFamilyMembers", authorization('ADMIN'), commonController.updateFamilyMembers)
     .delete("/deleteFamilyMemberDetails", authorization('ADMIN'), commonController.deleteFamilyMemberDetails)
