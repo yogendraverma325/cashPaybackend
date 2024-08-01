@@ -71,7 +71,7 @@ class LeaveController {
         where: Object.assign(
           query === "raisedByMe"
             ? {
-              createdBy: req.userId,
+              employeeId: req.userId,
               status: "pending",
             }
             : { pendingAt: req.userId, status: "pending" }
