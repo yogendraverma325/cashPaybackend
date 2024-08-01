@@ -41,7 +41,7 @@ class MasterController {
           });
         } else {
 
-         if(usersData.role_id!=1 && usersData.role_id!=2){
+         if(usersData.role_id!=1 && usersData.role_id!=2 && usersData.role_id!=5){
           let permissionAssignTousers=usersData.permissionAndAccess.split(',').map(el =>parseInt(el))
             let permissionAndAccess = await db.permissoinandaccess.findAll({
             where:{role_id:usersData.role_id,isActive:1,permissoinandaccessId:{
