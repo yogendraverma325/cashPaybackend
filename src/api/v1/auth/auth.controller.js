@@ -21,7 +21,7 @@ class AuthController {
       const deviceData = deviceDetector.parse(req.headers['user-agent'])
 
       const existUser = await db.employeeMaster.findOne({
-        where: { empCode: result.tmc },
+        where: { empCode: result.tmc,isActive:1 },
         include: [
           {
             model: db.roleMaster,

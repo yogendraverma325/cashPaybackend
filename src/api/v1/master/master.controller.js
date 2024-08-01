@@ -79,77 +79,56 @@ class MasterController {
               "sbuId",
               "isActive"
             ],
-            include: [
+              include: [
               {
-                model: db.designationMaster,
-                attributes: ["name"],
-                required: !!designation,
-                where: {
+                  model: db.designationMaster,
+                  seperate:true,
+                  attributes: ["name"],
+                  where: {
                   ...(designation && {
                     name: { [Op.like]: `%${designation}%` },
                   }),
                 },
               },
               {
-                model: db.functionalAreaMaster,
-                attributes: ["functionalAreaName"],
-                required: !!areaSearch,
-                where: {
-                  ...(areaSearch && {
-                    functionalAreaName: { [Op.like]: `%${areaSearch}%` },
-                  }),
-                },
-              },
-              {
-                model: db.departmentMaster,
-                attributes: ["departmentName"],
-                required: !!department,
-                where: {
+                  model: db.departmentMaster,
+                  seperate:true,
+                  attributes: ["departmentName"],
+                 where: {
                   ...(department && {
                     departmentName: { [Op.like]: `%${department}%` },
                   }),
                 },
               },
               {
-                model: db.educationDetails,
-                attributes: [
-                  "educationDegree",
-                  "educationSpecialisation",
-                  "educationInstitute",
-                  "educationRemark",
-                  "educationStartDate",
-                  "educationCompletionDate",
-                ],
-              },
-              {
-                model: db.familyDetails,
-                attributes: ['name', 'dob', 'gender', 'mobileNo', 'relationWithEmp']
-              },
-              {
-                model: db.employeeMaster,
-                required: false,
-                attributes: ["name"],
-                as: "managerData",
-              },
-              {
-                model: db.buMaster,
+                  model: db.buMaster,
+                  seperate:true,
                 attributes: ["buName"],
-                where: {
+                 where: {
                   ...(buSearch && { buName: { [Op.like]: `%${buSearch}%` } }),
                 },
-                required: !!buSearch,
               },
               {
-                model: db.sbuMaster,
+                  model: db.sbuMaster,
+                  seperate:true,
                 attributes: ["sbuname"],
-                where: {
+                  where: {
                   ...(sbuSearch && {
                     sbuname: { [Op.like]: `%${sbuSearch}%` },
                   }),
                 },
-                required: !!sbuSearch,
               },
-            ],
+               {
+            model: db.functionalAreaMaster,
+            seperate:true,
+            attributes: ["functionalAreaName"],
+            where: {
+            ...(areaSearch && {
+            functionalAreaName: { [Op.like]: `%${areaSearch}%` },
+            }),
+            },
+              }
+              ],
           });
 
           const employeeJson = JSON.stringify(employeeData);
