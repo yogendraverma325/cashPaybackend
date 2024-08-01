@@ -14,6 +14,15 @@ class MasterController {
         sbuSearch,
         areaSearch,
       } = req.query;
+
+        let buFIlter= {};
+        let sbbuFIlter= {};
+        let functionAreaFIlter= {};
+        let departmentFIlter= {};
+        let designationFIlter= {};
+         const usersData = req.userData;
+
+     
       const limit = req.query.limit * 1 || 10;
       const pageNo = req.query.page * 1 || 1;
       const offset = (pageNo - 1) * limit;
@@ -31,6 +40,68 @@ class MasterController {
             data: employeeData,
           });
         } else {
+
+         if(usersData.role_id!=1 && usersData.role_id!=2){
+          let permissionAssignTousers=usersData.permissionAndAccess.split(',').map(el =>parseInt(el))
+            let permissionAndAccess = await db.permissoinandaccess.findAll({
+            where:{role_id:usersData.role_id,isActive:1,permissoinandaccessId:{
+               [Op.in]:permissionAssignTousers
+            }}
+            }); /// get all permission of access to fetch list with active status as per role
+
+              const buArrayForFilter = permissionAndAccess
+              .filter(obj => obj.permissionType=='BU')
+              .map(obj => obj.permissionValue); // checking BU Access
+
+              if(buArrayForFilter.length >0){
+                buFIlter.buId = { ///appedning Bu to filter
+                [Op.in]:buArrayForFilter
+                }
+              }
+             
+             const sbuArrayForFilter = permissionAndAccess
+              .filter(obj => obj.permissionType=='SBU')
+              .map(obj => obj.permissionValue); // checking SBU Access
+                if(sbuArrayForFilter.length >0){
+                sbbuFIlter.sbuId = { ///appedning SBU to filter
+                      [Op.in]:sbuArrayForFilter
+                      }
+                }
+              
+
+              const departmentArrayForFilter = permissionAndAccess
+              .filter(obj => obj.permissionType=='DEPARTMENT')
+              .map(obj => obj.permissionValue); // checking department Access
+
+              if(departmentArrayForFilter.length >0){
+                departmentFIlter.departmentId = { ///appedning department to filter
+                [Op.in]:departmentArrayForFilter
+                }
+              }
+              const funcareaArrayForFilter = permissionAndAccess
+              .filter(obj => obj.permissionType=='FUNCAREA')
+              .map(obj => obj.permissionValue); // checking SBU Access
+
+              if(funcareaArrayForFilter.length >0){
+                functionAreaFIlter.functionalAreaId = { ///appedning SBU to filter
+                [Op.in]:funcareaArrayForFilter
+                }
+              }
+
+              const designationArrayForFilter = permissionAndAccess
+              .filter(obj => obj.permissionType=='DESIGNATION')
+              .map(obj => obj.permissionValue); // checking SBU Access
+
+              if(designationArrayForFilter.length >0){
+                designationFIlter.designationId = { ///appedning SBU to filter
+                [Op.in]:designationArrayForFilter
+                }
+              }
+          }
+             
+     
+
+
           employeeData = await db.employeeMaster.findAndCountAll({
             order: [["id", "desc"]],
             limit,
@@ -57,13 +128,13 @@ class MasterController {
                   ],
                    [Op.and]: [
                     {
-                      isActive:1
+                      isActive:(usersData.role_id==1 || usersData.role_id==2)?[1,0]:[1]
                     }
                    ]
                 }
                 : { [Op.and]: [
                     {
-                      isActive:1
+                     isActive:(usersData.role_id==1 || usersData.role_id==2)?[1,0]:[1]
                     }
                    ]}
             ),
@@ -88,6 +159,7 @@ class MasterController {
                   ...(designation && {
                     name: { [Op.like]: `%${designation}%` },
                   }),
+                  ...designationFIlter
                 },
               },
               {
@@ -98,6 +170,7 @@ class MasterController {
                   ...(department && {
                     departmentName: { [Op.like]: `%${department}%` },
                   }),
+                  ...departmentFIlter
                 },
               },
               {
@@ -105,7 +178,8 @@ class MasterController {
                   seperate:true,
                 attributes: ["buName"],
                  where: {
-                  ...(buSearch && { buName: { [Op.like]: `%${buSearch}%` } }),
+                ...(buSearch && { buName: { [Op.like]: `%${buSearch}%` } }),
+                ...buFIlter
                 },
               },
               {
@@ -116,6 +190,7 @@ class MasterController {
                   ...(sbuSearch && {
                     sbuname: { [Op.like]: `%${sbuSearch}%` },
                   }),
+                  ...sbbuFIlter
                 },
               },
                {
@@ -126,6 +201,7 @@ class MasterController {
             ...(areaSearch && {
             functionalAreaName: { [Op.like]: `%${areaSearch}%` },
             }),
+            ...functionAreaFIlter
             },
               }
               ],

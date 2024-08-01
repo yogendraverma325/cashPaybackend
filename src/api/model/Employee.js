@@ -98,6 +98,9 @@ export default (sequelize, Sequelize) => {
     weekOffId: {
       type: Sequelize.INTEGER,
     },
+    permissionAndAccess: {
+     type: Sequelize.STRING(255),
+    },
     isActive: {
       type: Sequelize.INTEGER,
       defaultValue: 1,
