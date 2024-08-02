@@ -1120,7 +1120,7 @@ class AttendanceController {
         status: 200,
         data: {
           statics: {
-            lateTime: await helper.calculateTime(calculateLateTime),
+            lateTime: await helper.calculateAverageHours(calculateLateTime),
             averageWorkingTime: await helper.calculateAverageHours(
               averageWorkingTime
             ),
