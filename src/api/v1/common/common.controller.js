@@ -347,6 +347,81 @@ class commonController {
       data: {},
     });
   }
+  async updateEducationDetails(req, res) {
+    try {
+      const result = await validator.updateEducationDetailsSchema.validateAsync(
+        req.body
+      );
+
+      await db.educationDetails.update(
+        Object.assign(result, {
+          updatedBy: req.userId,
+          updatedAt: moment(),
+        }),
+        {
+          where: { educationId: result.educationId },
+        }
+      );
+
+      return respHelper(res, {
+        status: 200,
+        msg: constant.UPDATE_SUCCESS.replace(
+          "<module>",
+          "Family Member Details"
+        ),
+      });
+    } catch (error) {
+      console.log(error);
+      if (error.isJoi === true) {
+        return respHelper(res, {
+          status: 422,
+          msg: error.details[0].message,
+        });
+      }
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+   async addEducationDetails(req, res) {
+    try {
+      const result = await validator.addEducationDetailsSchema.validateAsync(
+        req.body
+      );
+       await db.educationDetails.create(
+        Object.assign(
+          {
+            userId: result.userId ? result.userId : req.userId,
+            isActive: 1,
+          },
+          result,
+          {
+            createdBy: req.userId,
+            createdAt: moment(),
+          }
+        )
+      );
+
+      return respHelper(res, {
+        status: 200,
+        msg: constant.UPDATE_SUCCESS.replace(
+          "<module>",
+          "Family Member Details"
+        ),
+      });
+    } catch (error) {
+      console.log(error);
+      if (error.isJoi === true) {
+        return respHelper(res, {
+          status: 422,
+          msg: error.details[0].message,
+        });
+      }
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
 }
 
 export default new commonController();

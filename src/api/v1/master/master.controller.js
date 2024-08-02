@@ -937,6 +937,30 @@ class MasterController {
       });
     }
   }
+  async educationMaster(req, res) {
+    try {
+
+      const limit = req.query.limit * 1 || 100;
+      const pageNo = req.query.page * 1 || 1;
+      const offset = (pageNo - 1) * limit;
+
+      const leaveData = await db.degreeMaster.findAndCountAll({
+        limit,
+        offset
+      })
+
+      return respHelper(res, {
+        status: 200,
+        data: leaveData,
+      });
+
+    } catch (error) {
+      console.log(error);
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
 }
 
 export default new MasterController();
