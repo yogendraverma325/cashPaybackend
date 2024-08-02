@@ -499,7 +499,7 @@ class commonController {
 
       await db.educationDetails.update(
         Object.assign(result, {
-          updatedBy: req.userId,
+          updatedBy:req.userId,
           updatedAt: moment(),
         }),
         {
@@ -540,7 +540,7 @@ class commonController {
           },
           result,
           {
-            createdBy: req.userId,
+            createdBy:req.userId,
             createdAt: moment(),
           }
         )

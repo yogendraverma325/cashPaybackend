@@ -110,6 +110,7 @@ const addEducationDetailsSchema = Joi.object({
   educationInstitute: Joi.string().required(),
   educationSpecialisation: Joi.string().required(),
   educationStartDate: Joi.date().iso().required(),
+  userId: Joi.number().integer().required()
 });
 
 
@@ -123,7 +124,7 @@ const updateEducationDetailsSchema = Joi.object({
   educationRemark: Joi.string().allow('N/A', null).required(),
   educationSpecialisation: Joi.string().allow('N/A', null).required(),
   educationStartDate: Joi.date().iso().required(),
-  isHighestEducation: Joi.boolean().required(),
+  isHighestEducation: Joi.string().required().allow(null),
   userId: Joi.number().integer().required()
 });
 
