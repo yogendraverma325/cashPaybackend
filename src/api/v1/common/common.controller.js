@@ -12,9 +12,8 @@ class commonController {
     try {
       const result =
         await validator.updateBiographicalDetailsSchema.validateAsync(req.body);
-
       let detailsExists = await db.biographicalDetails.findOne({
-        where: { userId: result.userId },
+        where: { userId: result.userId == 0 ? req.userId : result.userId },
       });
       if (detailsExists) {
         return respHelper(res, {
@@ -26,10 +25,19 @@ class commonController {
           data: {},
         });
       } else {
-        await db.biographicalDetails.create(result)
+        const userId = result.userId == 0 ? req.userId : result.userId;
+
+        let obj = {
+          ...result,
+          userId: userId,
+          createdBy: req.userData.role_id != 3 ? req.userId : result.userId,
+          updatedBy: req.userData.role_id != 3 ? req.userId : result.userId,
+        };
+        await db.biographicalDetails.create(obj);
+
         return respHelper(res, {
           status: 200,
-          msg: constant.DETAILS_ADDED.replace(
+          msg: constant.INSERT_SUCCESS.replace(
             "<module>",
             "Biographical Details"
           ),
@@ -49,18 +57,21 @@ class commonController {
       });
     }
   }
+
   async updateBiographicalDetails(req, res) {
     try {
       const result =
         await validator.updateBiographicalDetailsSchema.validateAsync(req.body);
 
+      const userId = result.userId == 0 ? req.userId : result.userId;
       const updateObj = Object.assign(result, {
+        userId: userId,
         updatedAt: moment(),
         updatedBy: req.userId,
       });
-
+      console.log("updateObjupdateObj",updateObj)
       await db.biographicalDetails.update(updateObj, {
-        where: { userId: result.userId ? result.userId : req.userId },
+        where: { userId: userId },
       });
 
       return respHelper(res, {
@@ -85,6 +96,33 @@ class commonController {
     }
   }
 
+  async getBiographicalDetails(req, res) {
+    try {
+      const userId = req.params.userId == 0 ? req.userId : req.params.userId;
+      console.log("userIduserId", userId);
+      let detailsExists = await db.biographicalDetails.findOne({
+        attributes: { exclude: ["createdAt", "updatedAt", "isActive"] },
+        where: { userId: userId },
+      });
+      if (detailsExists) {
+        return respHelper(res, {
+          status: 200,
+          msg: constant.DATA_FETCHED.replace(
+            "<module>",
+            "Biographical Details"
+          ),
+          data: detailsExists,
+        });
+      } else {
+        return respHelper(res, {
+          status: 400,
+          msg: constant.NOT_FOUND.replace("<module>", "Biographical Details"),
+          data: {},
+        });
+      }
+    } catch (error) {}
+  }
+
   async updatePaymentDetails(req, res) {
     try {
       const result = await validator.updatePaymentDetailsSchema.validateAsync(
@@ -107,6 +145,61 @@ class commonController {
       });
     } catch (error) {
       console.log(error);
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+
+  async addFamilyMembers(req, res) {
+    try {
+      const result = await validator.addFamilyDetailsSchema.validateAsync(
+        req.body
+      );
+      let detailsExists = await db.familyDetails.findOne({
+        where: {
+          EmployeeId: result.userId == 0 ? req.userId : result.userId,
+          name: result.name,
+        },
+      });
+      if (detailsExists) {
+        return respHelper(res, {
+          status: 400,
+          msg: constant.ALREADY_EXISTS.replace(
+            "<module>",
+            "Family Member Details"
+          ),
+          data: {},
+        });
+      } else {
+        const userId = result.userId == 0 ? req.userId : result.userId;
+
+        let obj = {
+          ...result,
+          EmployeeId: userId,
+          createdBy: req.userData.role_id != 3 ? req.userId : result.userId,
+          updatedBy: req.userData.role_id != 3 ? req.userId : result.userId,
+        };
+
+        await db.familyDetails.create(obj);
+
+        return respHelper(res, {
+          status: 200,
+          msg: constant.INSERT_SUCCESS.replace(
+            "<module>",
+            "Family Member Details"
+          ),
+          data: {},
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      if (error.isJoi === true) {
+        return respHelper(res, {
+          status: 422,
+          msg: error.details[0].message,
+        });
+      }
       return respHelper(res, {
         status: 500,
       });
@@ -150,6 +243,57 @@ class commonController {
     }
   }
 
+  async getFamilyList(req, res) {
+    try {
+      const userId = req.params.userId == 0 ? req.userId : req.params.userId;
+      let detailsExists = await db.familyDetails.findAll({
+        attributes: { exclude: ["createdAt", "updatedAt", "isActive"] },
+        where: { EmployeeId: userId, isActive: 1 },
+      });
+      if (detailsExists) {
+        return respHelper(res, {
+          status: 200,
+          msg: constant.DATA_FETCHED.replace(
+            "<module>",
+            "Family Member Details"
+          ),
+          data: detailsExists,
+        });
+      } else {
+        return respHelper(res, {
+          status: 400,
+          msg: constant.NOT_FOUND.replace("<module>", "Family Member Details"),
+          data: {},
+        });
+      }
+    } catch (error) {}
+  }
+
+  async getFamilyMember(req, res) {
+    try {
+      const userId = req.params.userId == 0 ? req.userId : req.params.userId;
+      let detailsExists = await db.familyDetails.findOne({
+        attributes: { exclude: ["createdAt", "updatedAt", "isActive"] },
+        where: { empFamilyDetailsId: userId,isActive },
+      });
+      if (detailsExists) {
+        return respHelper(res, {
+          status: 200,
+          msg: constant.DATA_FETCHED.replace(
+            "<module>",
+            "Family Member Details"
+          ),
+          data: detailsExists,
+        });
+      } else {
+        return respHelper(res, {
+          status: 400,
+          msg: constant.NOT_FOUND.replace("<module>", "Family Member Details"),
+          data: {},
+        });
+      }
+    } catch (error) {}
+  }
   async addPaymentDetails(req, res) {
     try {
       const result = await validator.addPaymentDetailsSchema.validateAsync(
@@ -204,7 +348,7 @@ class commonController {
     }
   }
 
-  async deleteFamilyMemberDetails(req, res) {
+  async deleteFamilyMember(req, res) {
     try {
       const result =
         await validator.deleteFamilyMemberDetailsSchema.validateAsync(req.body);
@@ -346,6 +490,81 @@ class commonController {
       status: 200,
       data: {},
     });
+  }
+  async updateEducationDetails(req, res) {
+    try {
+      const result = await validator.updateEducationDetailsSchema.validateAsync(
+        req.body
+      );
+
+      await db.educationDetails.update(
+        Object.assign(result, {
+          updatedBy:req.userId,
+          updatedAt: moment(),
+        }),
+        {
+          where: { educationId: result.educationId },
+        }
+      );
+
+      return respHelper(res, {
+        status: 200,
+        msg: constant.UPDATE_SUCCESS.replace(
+          "<module>",
+          "Family Member Details"
+        ),
+      });
+    } catch (error) {
+      console.log(error);
+      if (error.isJoi === true) {
+        return respHelper(res, {
+          status: 422,
+          msg: error.details[0].message,
+        });
+      }
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+   async addEducationDetails(req, res) {
+    try {
+      const result = await validator.addEducationDetailsSchema.validateAsync(
+        req.body
+      );
+       await db.educationDetails.create(
+        Object.assign(
+          {
+            userId: result.userId ? result.userId : req.userId,
+            isActive: 1,
+          },
+          result,
+          {
+            createdBy:req.userId,
+            createdAt: moment(),
+          }
+        )
+      );
+
+      return respHelper(res, {
+        status: 200,
+        msg: constant.UPDATE_SUCCESS.replace(
+          "<module>",
+          "Family Member Details"
+        ),
+      });
+    } catch (error) {
+      console.log(error);
+      if (error.isJoi === true) {
+        return respHelper(res, {
+          status: 422,
+          msg: error.details[0].message,
+        });
+      }
+      return respHelper(res, {
+        status: 500,
+      });
+    }
   }
 }
 

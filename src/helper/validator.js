@@ -79,12 +79,21 @@ const updateBiographicalDetailsSchema = Joi.object({
   maritalStatus: Joi.number().required().label("Marital Status"),
   mobileAccess: Joi.number().required().label("Mobile Access"),
   laptopSystem: Joi.string().trim().label("System"),
-  //nationality: Joi.string().trim().label("Nationality"),
+  nationality: Joi.string().trim().label("Nationality"),
   backgroundVerification: Joi.number()
     .required()
     .label("Background Verification"),
   gender: Joi.string().trim().label("Gender"),
   dateOfBirth: Joi.string().trim().label("Date of Birth"),
+});
+
+const addFamilyDetailsSchema = Joi.object({
+  userId: Joi.number().label("User ID"),
+  name: Joi.string().required().trim().label("Name"),
+  dob: Joi.string().trim().label("DOB"),
+  gender: Joi.string().trim().label("Gender"),
+  mobileNo: Joi.string().trim().label("Mobile Number"),
+  relationWithEmp: Joi.string().trim().label("Relation"),
 });
 
 const updateFamilyDetailsSchema = Joi.object({
@@ -94,6 +103,29 @@ const updateFamilyDetailsSchema = Joi.object({
   gender: Joi.string().trim().label("Gender"),
   mobileNo: Joi.string().trim().label("Mobile Number"),
   relationWithEmp: Joi.string().trim().label("Relation"),
+});
+const addEducationDetailsSchema = Joi.object({
+  educationCompletionDate: Joi.date().iso().required(),
+  educationDegree: Joi.number().integer().required(),
+  educationInstitute: Joi.string().required(),
+  educationSpecialisation: Joi.string().required(),
+  educationStartDate: Joi.date().iso().required(),
+  userId: Joi.number().integer().required()
+});
+
+
+const updateEducationDetailsSchema = Joi.object({
+  educationActivities: Joi.string().allow('N/A', null).required(),
+  educationAttachments: Joi.string().allow('N/A', null).required(),
+  educationCompletionDate: Joi.date().iso().required(),
+  educationDegree: Joi.number().integer().required(),
+  educationId: Joi.number().integer().required(),
+  educationInstitute: Joi.string().required(),
+  educationRemark: Joi.string().allow('N/A', null).required(),
+  educationSpecialisation: Joi.string().allow('N/A', null).required(),
+  educationStartDate: Joi.date().iso().required(),
+  isHighestEducation: Joi.string().required().allow(null),
+  userId: Joi.number().integer().required()
 });
 
 const updatePaymentDetailsSchema = Joi.object({
@@ -190,6 +222,7 @@ export default {
   bankDetailsSchema,
   unlockAccountSchema,
   updateBiographicalDetailsSchema,
+  addFamilyDetailsSchema,
   updateFamilyDetailsSchema,
   updatePaymentDetailsSchema,
   deleteFamilyMemberDetailsSchema,
@@ -199,5 +232,7 @@ export default {
   revoekLeaveRequest,
   attendanceDetails,
   changePasswordSchema,
-  remainingLeaves
+  remainingLeaves,
+  updateEducationDetailsSchema,
+  addEducationDetailsSchema
 };

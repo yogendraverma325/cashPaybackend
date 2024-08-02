@@ -30,3 +30,4 @@ export default Express
     .get("/groupCompany", masterController.groupCompany)
     .get("/dashboardCard", masterController.dashboardCard)
     .get("/leave", masterController.leaveMaster)
+     .get("/educations", masterController.educationMaster)
