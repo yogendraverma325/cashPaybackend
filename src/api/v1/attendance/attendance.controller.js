@@ -793,7 +793,6 @@ class AttendanceController {
   // }
 
   async attendanceList(req, res) {
-    console.log("req.userId", req.userId);
     try {
       const user = req.query.user;
       const year = req.query.year;
@@ -923,7 +922,7 @@ class AttendanceController {
           },
         }),
       ]);
-      const monthLeves = await db.employeeLeaveTransactions.findAll({
+      const monthLeaves = await db.employeeLeaveTransactions.findAll({
         attributes: [
           "employeeId",
           "leaveAutoId",
@@ -936,6 +935,30 @@ class AttendanceController {
         where: {
           employeeId: req.userId,
           status: "approved",
+          appliedFor: {
+            [db.Sequelize.Op.between]: [startDateLeaves, endDateLeaves],
+          },
+        },
+        group: [
+          "employeeId",
+          "leaveAutoId",
+          db.Sequelize.fn("MONTH", db.Sequelize.col("appliedFor")),
+        ],
+        raw: true,
+      });
+      const monthUpaidLeave = await db.employeeLeaveTransactions.findAll({
+        attributes: [
+          "employeeId",
+          "leaveAutoId",
+          [db.Sequelize.fn("MONTH", db.Sequelize.col("appliedFor")), "month"],
+          [
+            db.Sequelize.fn("sum", db.Sequelize.col("leaveCount")),
+            "totalLeaveCount",
+          ],
+        ],
+        where: {
+          employeeId: req.userId,
+          leaveAutoId: 6,
           appliedFor: {
             [db.Sequelize.Op.between]: [startDateLeaves, endDateLeaves],
           },
@@ -1128,8 +1151,8 @@ class AttendanceController {
             presentDays: calculatePresentDays.length,
             singlePunchAbsentDays: calculateSinglePunchAbsent.length,
             leaveDays:
-              monthLeves.length > 0 ? monthLeves[0].totalLeaveCount : 0,
-            unpaidLeaveDays: calculateUnpaidleaveDays.length,
+            monthLeaves.length > 0 ? monthLeaves[0].totalLeaveCount : 0,
+            unpaidLeaveDays:  monthUpaidLeave.length > 0 ? monthUpaidLeave[0].totalLeaveCount : 0,
           },
           attendanceData: {
             count: result.length,
