@@ -1243,7 +1243,7 @@ class AttendanceController {
         await db.attendanceMaster.update(
           {
             attendanceDate: regularizeData.regularizePunchInDate,
-            attendanceWorkingTime: await helper.timeDifference(
+            attendanceWorkingTime: await helper.timeDifferenceNew(
               regularizeData.regularizePunchInTime,
               regularizeData.regularizePunchOutTime
             ),

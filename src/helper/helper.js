@@ -79,6 +79,20 @@ const timeDifference = async (start, end) => {
   return time;
 };
 
+const timeDifferenceNew = async (start, end) => {
+  console.log("start",start)
+  console.log("end",end)
+  // let startTime = moment(start, "YYYY-MM-DD HH:mm:ss");
+  // let endTime = moment(end, "YYYY-MM-DD HH:mm:ss");
+  let startTime = moment(start, "HH:mm:ss");
+  let endTime = moment(end, "HH:mm:ss");
+
+  let hours = moment.utc(endTime.diff(startTime)).format("HH");
+  let minutes = moment.utc(endTime.diff(startTime)).format("mm");
+  let sec = moment.utc(endTime.diff(startTime)).format("ss");
+  const time = [hours, minutes, sec].join(":");
+  return time;
+};
 const calculateLateBy = async (actualTime, scheduleTime) => {
   let actualMoment = moment(actualTime, "HH:mm:ss");
   let scheduledTime = moment(scheduleTime, "HH:mm:ss");
@@ -462,5 +476,6 @@ export default {
   empMarkLeaveOfGivenDate,
   remainingLeaveCount,
   getCombineValue,
+  timeDifferenceNew,
   ip
 };
