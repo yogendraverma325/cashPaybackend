@@ -204,7 +204,9 @@ class AttendanceController {
               attendanceLocationType: result.locationType,
               attendanceWorkingTime: await helper.timeDifference(
                 `${checkAttendance.attandanceShiftStartDate} ${checkAttendance.attendancePunchInTime}`,
-                `${currentDate.format("YYYY-MM-DD")} ${currentDate.format("HH:mm:ss")}`
+                `${currentDate.format("YYYY-MM-DD")} ${currentDate.format(
+                  "HH:mm:ss"
+                )}`
               ),
               attendancePunchOutLocation: result.location,
               attendancePunchOutLatitude: result.latitude,
@@ -803,7 +805,9 @@ class AttendanceController {
           msg: "Please Fill Month and Year",
         });
       }
-
+      const startDateLeaves = `${year}-${month}-01`;
+      const endDateLeaves =  moment().year(year).month(month - 1).endOf('month').format("YYYY-MM-DD")//`${year}-${month}-31`;
+     
       // Fetch all required data in bulk
       const [
         locationBasedHolidays,
@@ -896,7 +900,7 @@ class AttendanceController {
             "halfDayFor",
             "reason",
             "leaveAutoId",
-            "appliedFor"
+            "appliedFor",
           ],
           where: {
             employeeId: req.userId,
@@ -918,7 +922,54 @@ class AttendanceController {
           },
         }),
       ]);
-
+      const monthLeaves = await db.employeeLeaveTransactions.findAll({
+        attributes: [
+          "employeeId",
+          "leaveAutoId",
+          [db.Sequelize.fn("MONTH", db.Sequelize.col("appliedFor")), "month"],
+          [
+            db.Sequelize.fn("sum", db.Sequelize.col("leaveCount")),
+            "totalLeaveCount",
+          ],
+        ],
+        where: {
+          employeeId: req.userId,
+          status: "approved",
+          appliedFor: {
+            [db.Sequelize.Op.between]: [startDateLeaves, endDateLeaves],
+          },
+        },
+        group: [
+          "employeeId",
+          "leaveAutoId",
+          db.Sequelize.fn("MONTH", db.Sequelize.col("appliedFor")),
+        ],
+        raw: true,
+      });
+      const monthUpaidLeave = await db.employeeLeaveTransactions.findAll({
+        attributes: [
+          "employeeId",
+          "leaveAutoId",
+          [db.Sequelize.fn("MONTH", db.Sequelize.col("appliedFor")), "month"],
+          [
+            db.Sequelize.fn("sum", db.Sequelize.col("leaveCount")),
+            "totalLeaveCount",
+          ],
+        ],
+        where: {
+          employeeId: req.userId,
+          leaveAutoId: 6,
+          appliedFor: {
+            [db.Sequelize.Op.between]: [startDateLeaves, endDateLeaves],
+          },
+        },
+        group: [
+          "employeeId",
+          "leaveAutoId",
+          db.Sequelize.fn("MONTH", db.Sequelize.col("appliedFor")),
+        ],
+        raw: true,
+      });
       // Process holidays//
       const holidayDates = locationBasedHolidays.reduce(
         (acc, locationHoliday) => {
@@ -1055,8 +1106,8 @@ class AttendanceController {
               attendance.attendancePresentStatus !== undefined
                 ? attendance.attendancePresentStatus
                 : checkWeekOff !== null
-                  ? "weeklyOff"
-                  : "NA",
+                ? "weeklyOff"
+                : "NA",
             attendanceRegularizeStatus:
               attendance.attendanceRegularizeStatus || "NA",
             attendanceManagerUpdateDate:
@@ -1088,20 +1139,20 @@ class AttendanceController {
           };
         })
       );
-
       return respHelper(res, {
         status: 200,
         data: {
           statics: {
-            lateTime: await helper.calculateTime(calculateLateTime),
+            lateTime: await helper.calculateAverageHours(calculateLateTime),
             averageWorkingTime: await helper.calculateAverageHours(
               averageWorkingTime
             ),
             absentDays: calculateAbsentDays.length,
             presentDays: calculatePresentDays.length,
             singlePunchAbsentDays: calculateSinglePunchAbsent.length,
-            leaveDays: calculateleaveDays.length,
-            unpaidLeaveDays: calculateUnpaidleaveDays.length,
+            leaveDays:
+            monthLeaves.length > 0 ? monthLeaves[0].totalLeaveCount : 0,
+            unpaidLeaveDays:  monthUpaidLeave.length > 0 ? monthUpaidLeave[0].totalLeaveCount : 0,
           },
           attendanceData: {
             count: result.length,
@@ -1170,7 +1221,7 @@ class AttendanceController {
 
       graceTime.add(
         regularizeData[
-        "attendancemaster.employee.attendancePolicymaster.graceTimeClockIn"
+          "attendancemaster.employee.attendancePolicymaster.graceTimeClockIn"
         ],
         "minutes"
       ); // Add buffer time  to the selected time if buffer allow
@@ -1260,11 +1311,11 @@ class AttendanceController {
         where: Object.assign(
           query === "raisedByMe"
             ? {
-              createdBy: req.userId,
-            }
+                createdBy: req.userId,
+              }
             : {
-              regularizeManagerId: req.userId,
-            },
+                regularizeManagerId: req.userId,
+              },
           {
             regularizeStatus: "Pending",
           }
@@ -1551,21 +1602,21 @@ class AttendanceController {
 
               if (
                 totalMinutesLateMinutes >=
-                singleEmp.attendancePolicymaster
-                  .leaveDeductPolicyLateDurationHalfDayTime &&
+                  singleEmp.attendancePolicymaster
+                    .leaveDeductPolicyLateDurationHalfDayTime &&
                 totalMinutesLateMinutes <
-                singleEmp.attendancePolicymaster
-                  .leaveDeductPolicyLateDurationFullDayTime
+                  singleEmp.attendancePolicymaster
+                    .leaveDeductPolicyLateDurationFullDayTime
               ) {
                 isHalfDay_late_by = 1;
                 halfDayFor_late_by = 1;
               } else if (
                 totalMinutesLateMinutes >
-                singleEmp.attendancePolicymaster
-                  .leaveDeductPolicyLateDurationHalfDayTime &&
+                  singleEmp.attendancePolicymaster
+                    .leaveDeductPolicyLateDurationHalfDayTime &&
                 totalMinutesLateMinutes >=
-                singleEmp.attendancePolicymaster
-                  .leaveDeductPolicyLateDurationFullDayTime
+                  singleEmp.attendancePolicymaster
+                    .leaveDeductPolicyLateDurationFullDayTime
               ) {
                 isHalfDay_late_by = 0;
                 halfDayFor_late_by = 0;
@@ -1588,11 +1639,11 @@ class AttendanceController {
 
               if (
                 totalMinutesTotalHoursMinutes <
-                singleEmp.attendancePolicymaster
-                  .leaveDeductPolicyWorkDurationHalfDayTime &&
+                  singleEmp.attendancePolicymaster
+                    .leaveDeductPolicyWorkDurationHalfDayTime &&
                 totalMinutesTotalHoursMinutes <
-                singleEmp.attendancePolicymaster
-                  .leaveDeductPolicyWorkDurationFullDayTime
+                  singleEmp.attendancePolicymaster
+                    .leaveDeductPolicyWorkDurationFullDayTime
               ) {
                 isHalfDay_total_work = 0;
                 halfDayFor_total_work = 0;
