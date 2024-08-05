@@ -93,10 +93,7 @@ const timeDifferenceNew = async (start, end) => {
   const time = [hours, minutes, sec].join(":");
   return time;
 };
-<<<<<<< HEAD
-=======
 
->>>>>>> mainback
 const calculateLateBy = async (actualTime, scheduleTime) => {
   let actualMoment = moment(actualTime, "HH:mm:ss");
   let scheduledTime = moment(scheduleTime, "HH:mm:ss");

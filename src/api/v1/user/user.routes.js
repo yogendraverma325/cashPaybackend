@@ -21,9 +21,6 @@ export default Express
     .get("/leave", authentication.authenticate, commonController.addPaymentDetails)
     .post("/changePassword", authentication.authenticate, userController.changePassword)
     .get("/globalSearch/:search",userController.globalSearch)
-<<<<<<< HEAD
     .post("/addJobDetails", authentication.authenticate, commonController.addJobDetails)
-=======
      .put("/updateEducationDetails", authentication.authenticate, commonController.updateEducationDetails)
      .post("/addEducationDetails", authentication.authenticate, commonController.addEducationDetails)
->>>>>>> mainback
