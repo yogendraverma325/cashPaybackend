@@ -127,7 +127,7 @@ const addPaymentDetailsSchema = Joi.object({
   paymentBankIfsc: Joi.string()
     .trim()
     .required()
-    .max(11)
+    .max(18)
     .label("Bank Ifsc Code"),
   paymentHolderName: Joi.string()
     .trim()
@@ -190,6 +190,13 @@ const remainingLeaves = Joi.object({
   leaveSecondHalf: Joi.number().required()
 })
 
+const addJobDetailsSchema = Joi.object({
+  userId: Joi.number().label("User ID"),
+  dateOfJoining: Joi.string().label("Date Of Joining").optional(),
+  probationPeriod: Joi.string().label("Probation Period").optional(),
+  languagesSpoken: Joi.string().label("Language Spoken").optional()
+})
+
 export default {
   loginSchema,
   userCreationSchema,
@@ -209,5 +216,6 @@ export default {
   revoekLeaveRequest,
   attendanceDetails,
   changePasswordSchema,
-  remainingLeaves
+  remainingLeaves,
+  addJobDetailsSchema
 };

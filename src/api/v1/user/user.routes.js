@@ -21,3 +21,4 @@ export default Express
     .get("/leave", authentication.authenticate, commonController.addPaymentDetails)
     .post("/changePassword", authentication.authenticate, userController.changePassword)
     .get("/globalSearch/:search",userController.globalSearch)
+    .post("/addJobDetails", authentication.authenticate, commonController.addJobDetails)
