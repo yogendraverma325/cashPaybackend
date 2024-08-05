@@ -14,6 +14,15 @@ class MasterController {
         sbuSearch,
         areaSearch,
       } = req.query;
+
+        let buFIlter= {};
+        let sbbuFIlter= {};
+        let functionAreaFIlter= {};
+        let departmentFIlter= {};
+        let designationFIlter= {};
+         const usersData = req.userData;
+
+     
       const limit = req.query.limit * 1 || 10;
       const pageNo = req.query.page * 1 || 1;
       const offset = (pageNo - 1) * limit;
@@ -31,6 +40,68 @@ class MasterController {
             data: employeeData,
           });
         } else {
+
+         if(usersData.role_id!=1 && usersData.role_id!=2 && usersData.role_id!=5){
+          let permissionAssignTousers=usersData.permissionAndAccess.split(',').map(el =>parseInt(el))
+            let permissionAndAccess = await db.permissoinandaccess.findAll({
+            where:{role_id:usersData.role_id,isActive:1,permissoinandaccessId:{
+               [Op.in]:permissionAssignTousers
+            }}
+            }); /// get all permission of access to fetch list with active status as per role
+
+              const buArrayForFilter = permissionAndAccess
+              .filter(obj => obj.permissionType=='BU')
+              .map(obj => obj.permissionValue); // checking BU Access
+
+              if(buArrayForFilter.length >0){
+                buFIlter.buId = { ///appedning Bu to filter
+                [Op.in]:buArrayForFilter
+                }
+              }
+             
+             const sbuArrayForFilter = permissionAndAccess
+              .filter(obj => obj.permissionType=='SBU')
+              .map(obj => obj.permissionValue); // checking SBU Access
+                if(sbuArrayForFilter.length >0){
+                sbbuFIlter.sbuId = { ///appedning SBU to filter
+                      [Op.in]:sbuArrayForFilter
+                      }
+                }
+              
+
+              const departmentArrayForFilter = permissionAndAccess
+              .filter(obj => obj.permissionType=='DEPARTMENT')
+              .map(obj => obj.permissionValue); // checking department Access
+
+              if(departmentArrayForFilter.length >0){
+                departmentFIlter.departmentId = { ///appedning department to filter
+                [Op.in]:departmentArrayForFilter
+                }
+              }
+              const funcareaArrayForFilter = permissionAndAccess
+              .filter(obj => obj.permissionType=='FUNCAREA')
+              .map(obj => obj.permissionValue); // checking SBU Access
+
+              if(funcareaArrayForFilter.length >0){
+                functionAreaFIlter.functionalAreaId = { ///appedning SBU to filter
+                [Op.in]:funcareaArrayForFilter
+                }
+              }
+
+              const designationArrayForFilter = permissionAndAccess
+              .filter(obj => obj.permissionType=='DESIGNATION')
+              .map(obj => obj.permissionValue); // checking SBU Access
+
+              if(designationArrayForFilter.length >0){
+                designationFIlter.designationId = { ///appedning SBU to filter
+                [Op.in]:designationArrayForFilter
+                }
+              }
+          }
+             
+     
+
+
           employeeData = await db.employeeMaster.findAndCountAll({
             order: [["id", "desc"]],
             limit,
@@ -57,13 +128,13 @@ class MasterController {
                   ],
                    [Op.and]: [
                     {
-                      isActive:1
+                      isActive:(usersData.role_id==1 || usersData.role_id==2)?[1,0]:[1]
                     }
                    ]
                 }
                 : { [Op.and]: [
                     {
-                      isActive:1
+                     isActive:(usersData.role_id==1 || usersData.role_id==2)?[1,0]:[1]
                     }
                    ]}
             ),
@@ -79,77 +150,61 @@ class MasterController {
               "sbuId",
               "isActive"
             ],
-            include: [
+              include: [
               {
-                model: db.designationMaster,
-                attributes: ["name"],
-                required: !!designation,
-                where: {
+                  model: db.designationMaster,
+                  seperate:true,
+                  attributes: ["name"],
+                  where: {
                   ...(designation && {
                     name: { [Op.like]: `%${designation}%` },
                   }),
+                  ...designationFIlter
                 },
               },
               {
-                model: db.functionalAreaMaster,
-                attributes: ["functionalAreaName"],
-                required: !!areaSearch,
-                where: {
-                  ...(areaSearch && {
-                    functionalAreaName: { [Op.like]: `%${areaSearch}%` },
-                  }),
-                },
-              },
-              {
-                model: db.departmentMaster,
-                attributes: ["departmentName"],
-                required: !!department,
-                where: {
+                  model: db.departmentMaster,
+                  seperate:true,
+                  attributes: ["departmentName"],
+                 where: {
                   ...(department && {
                     departmentName: { [Op.like]: `%${department}%` },
                   }),
+                  ...departmentFIlter
                 },
               },
               {
-                model: db.educationDetails,
-                attributes: [
-                  "educationDegree",
-                  "educationSpecialisation",
-                  "educationInstitute",
-                  "educationRemark",
-                  "educationStartDate",
-                  "educationCompletionDate",
-                ],
-              },
-              {
-                model: db.familyDetails,
-                attributes: ['name', 'dob', 'gender', 'mobileNo', 'relationWithEmp']
-              },
-              {
-                model: db.employeeMaster,
-                required: false,
-                attributes: ["name"],
-                as: "managerData",
-              },
-              {
-                model: db.buMaster,
+                  model: db.buMaster,
+                  seperate:true,
                 attributes: ["buName"],
-                where: {
-                  ...(buSearch && { buName: { [Op.like]: `%${buSearch}%` } }),
+                 where: {
+                ...(buSearch && { buName: { [Op.like]: `%${buSearch}%` } }),
+                ...buFIlter
                 },
-                required: !!buSearch,
               },
               {
-                model: db.sbuMaster,
+                  model: db.sbuMaster,
+                  seperate:true,
                 attributes: ["sbuname"],
-                where: {
+                  where: {
                   ...(sbuSearch && {
                     sbuname: { [Op.like]: `%${sbuSearch}%` },
                   }),
+                  ...sbbuFIlter
                 },
-                required: !!sbuSearch,
               },
-            ],
+               {
+            model: db.functionalAreaMaster,
+            seperate:true,
+            attributes: ["functionalAreaName"],
+            where: {
+            ...(areaSearch && {
+            functionalAreaName: { [Op.like]: `%${areaSearch}%` },
+            }),
+            ...functionAreaFIlter
+            },
+              }
+              ],
           });
 
           const employeeJson = JSON.stringify(employeeData);
@@ -866,6 +921,30 @@ class MasterController {
       const offset = (pageNo - 1) * limit;
 
       const leaveData = await db.leaveMaster.findAndCountAll({
+        limit,
+        offset
+      })
+
+      return respHelper(res, {
+        status: 200,
+        data: leaveData,
+      });
+
+    } catch (error) {
+      console.log(error);
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+  async educationMaster(req, res) {
+    try {
+
+      const limit = req.query.limit * 1 || 100;
+      const pageNo = req.query.page * 1 || 1;
+      const offset = (pageNo - 1) * limit;
+
+      const leaveData = await db.degreeMaster.findAndCountAll({
         limit,
         offset
       })
