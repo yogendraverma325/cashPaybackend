@@ -71,9 +71,9 @@ class LeaveController {
         where: Object.assign(
           query === "raisedByMe"
             ? {
-              employeeId: req.userId,
-              status: "pending",
-            }
+                employeeId: req.userId,
+                status: "pending",
+              }
             : { pendingAt: req.userId, status: "pending" }
         ),
         attributes: { exclude: ["createdBy", "updatedBy", "updatedAt"] },
@@ -131,32 +131,52 @@ class LeaveController {
           },
         }
       );
-if(result.status=='approved'){
-      for (const leaveID of leaveIds) {
-        const existingRecord = await db.employeeLeaveTransactions.findOne({
-          where: { employeeLeaveTransactionsId: leaveID },
-        });
+      if (result.status == "approved") {
+        for (const leaveID of leaveIds) {
+          const existingRecord = await db.employeeLeaveTransactions.findOne({
+            where: { employeeLeaveTransactionsId: leaveID },
+          });
 
-        if (existingRecord) {
-          await db.attendanceMaster.update(
-            { employeeLeaveTransactionsId: leaveID },
-            {
-              where: {
-                attendanceDate: existingRecord.appliedFor,
-                employeeId: existingRecord.employeeId,
-              },
-            }
-          );
+          if (existingRecord) {
+            await db.attendanceMaster.update(
+              { employeeLeaveTransactionsId: leaveID },
+              {
+                where: {
+                  attendanceDate: existingRecord.appliedFor,
+                  employeeId: existingRecord.employeeId,
+                },
+              }
+            );
 
-          if (existingRecord.leaveAutoId === 6) {
-            const lwpLeave = await db.leaveMapping.findOne({
-              where: {
-                EmployeeId: existingRecord.employeeId,
-                leaveAutoId: existingRecord.leaveAutoId,
-              },
-            });
+            if (existingRecord.leaveAutoId === 6) {
+              const lwpLeave = await db.leaveMapping.findOne({
+                where: {
+                  EmployeeId: existingRecord.employeeId,
+                  leaveAutoId: existingRecord.leaveAutoId,
+                },
+              });
 
-            if (lwpLeave) {
+              if (lwpLeave) {
+                await db.leaveMapping.increment(
+                  { accruedThisYear: parseFloat(existingRecord.leaveCount) },
+                  {
+                    where: {
+                      EmployeeId: existingRecord.employeeId,
+                      leaveAutoId: existingRecord.leaveAutoId,
+                    },
+                  }
+                );
+              } else {
+                await db.leaveMapping.create({
+                  EmployeeId: existingRecord.employeeId,
+                  leaveAutoId: existingRecord.leaveAutoId,
+                  availableLeave: 0,
+                  accruedThisYear: parseFloat(existingRecord.leaveCount),
+                  creditedFromLastYear: 0,
+                  annualAllotment: 0,
+                });
+              }
+            } else {
               await db.leaveMapping.increment(
                 { accruedThisYear: parseFloat(existingRecord.leaveCount) },
                 {
@@ -166,42 +186,22 @@ if(result.status=='approved'){
                   },
                 }
               );
-            } else {
-              await db.leaveMapping.create({
-                EmployeeId: existingRecord.employeeId,
-                leaveAutoId: existingRecord.leaveAutoId,
-                availableLeave: 0,
-                accruedThisYear: parseFloat(existingRecord.leaveCount),
-                creditedFromLastYear: 0,
-                annualAllotment: 0,
-              });
+              await db.leaveMapping.increment(
+                { availableLeave: -parseFloat(existingRecord.leaveCount) },
+                {
+                  where: {
+                    EmployeeId: existingRecord.employeeId,
+                    leaveAutoId: existingRecord.leaveAutoId,
+                  },
+                }
+              );
             }
-          } else {
-            await db.leaveMapping.increment(
-              { accruedThisYear: parseFloat(existingRecord.leaveCount) },
-              {
-                where: {
-                  EmployeeId: existingRecord.employeeId,
-                  leaveAutoId: existingRecord.leaveAutoId,
-                },
-              }
-            );
-            await db.leaveMapping.increment(
-              { availableLeave: -parseFloat(existingRecord.leaveCount) },
-              {
-                where: {
-                  EmployeeId: existingRecord.employeeId,
-                  leaveAutoId: existingRecord.leaveAutoId,
-                },
-              }
-            );
           }
+          //  else {
+          // await db.User.create(record, { transaction });
+          // }
         }
-        //  else {
-        // await db.User.create(record, { transaction });
-        // }
       }
-    }
 
       return respHelper(res, {
         status: 200,
@@ -221,6 +221,196 @@ if(result.status=='approved'){
       });
     }
   }
+  //   async requestForLeave(req, res) {
+  //     try {
+  //       const result = await validator.leaveRequestSchema.validateAsync(req.body);
+
+  //       const leaveCountForDates = await db.employeeLeaveTransactions.findAll({
+  //         where: {
+  //           appliedFor: {
+  //             [Op.between]: [req.body.fromDate, req.body.toDate],
+  //           },
+  //           status: {
+  //             [Op.ne]: "revoked",
+  //           },
+  //           employeeId: req.body.employeeId,
+  //         },
+  //       });
+
+  //       const fromDateReq = req.body.fromDate;
+  //       const toDateReq = req.body.toDate;
+  //       const daysDifferenceReq = moment(toDateReq).diff(
+  //         moment(fromDateReq),
+  //         "days"
+  //       );
+  //       if (daysDifferenceReq > parseInt(process.env.LEAVE_LIMIT)) {
+  //         return respHelper(res, {
+  //           status: 404,
+  //           data: {},
+  //           msg: message.LEAVE.LEAVE_LIMIT,
+  //         });
+  //       }
+  //       var inputs = [];
+  //       for (let i = -1; i < daysDifferenceReq; i++) {
+  //         let appliedFor = moment(fromDateReq)
+  //           .add(i + 1, "days")
+  //           .format("YYYY-MM-DD");
+
+  //         let halfDayFor = 0;
+  //         let isHalfDay = 0;
+
+  //         if (daysDifferenceReq == 0) {
+  //           isHalfDay = req.body.firstDayHalf != 0 ? 1 : 0;
+  //           halfDayFor = req.body.firstDayHalf;
+  //         } else {
+  //           if (i + 1 == 0) {
+  //             isHalfDay = req.body.firstDayHalf != 0 ? 1 : 0;
+  //             halfDayFor = req.body.firstDayHalf;
+  //           } else if (i + 1 == daysDifferenceReq) {
+  //             isHalfDay = req.body.lastDayHalf != 0 ? 1 : 0;
+  //             halfDayFor = req.body.lastDayHalf;
+  //           }
+  //         }
+  //         inputs = leaveCountForDates.filter((el) => {
+  //           if (el.appliedFor == appliedFor) {
+  //             if (el.isHalfDay == 1) {
+  //               if (halfDayFor == 0) {
+  //                 return true;
+  //               } else {
+  //                 if (el.halfDayFor == halfDayFor) {
+  //                   return true;
+  //                 } else {
+  //                   return false;
+  //                 }
+  //               }
+  //             } else {
+  //               return true;
+  //             }
+  //           } else {
+  //             return true;
+  //           }
+  //         });
+  //       }
+  //       if (inputs.length > 0) {
+  //         return respHelper(res, {
+  //           status: 402,
+  //           msg: message.LEAVE.DATES_NOT_APPLICABLE,
+  //         });
+  //       }
+  //       let EMP_DATA = await helper.getEmpProfile(req.body.employeeId);
+  //       let leaveData = await helper.empLeaveDetails(
+  //         req.body.employeeId,
+  //         req.body.leaveAutoId
+  //       );
+
+  //       const fromDate = req.body.fromDate;
+  //       const toDate = req.body.toDate;
+  //       let arr = [];
+  //       let leaveDays = 0;
+  //       const daysDifference = moment(toDate).diff(moment(fromDate), "days");
+  //       let uuid = "id_" + moment().format("YYYYMMDDHHmmss");
+  //       for (let i = -1; i < daysDifference; i++) {
+
+  //         let appliedFor = moment(fromDate)
+  //           .add(i + 1, "days")
+  //           .format("YYYY-MM-DD");
+  // console.log("appliedForappliedForappliedFor",appliedFor)
+  //         let halfDayFor = 0;
+  //         let isHalfDay = 0;
+
+  //         if (daysDifference == 0) {
+  //           isHalfDay = req.body.firstDayHalf != 0 ? 1 : 0;
+  //           halfDayFor = req.body.firstDayHalf;
+  //         } else {
+  //           if (i + 1 == 0) {
+  //             isHalfDay = req.body.firstDayHalf != 0 ? 1 : 0;
+  //             halfDayFor = req.body.firstDayHalf;
+  //           } else if (i + 1 == daysDifference) {
+  //             isHalfDay = req.body.lastDayHalf != 0 ? 1 : 0;
+  //             halfDayFor = req.body.lastDayHalf;
+  //           }
+  //         }
+
+  //         if (isHalfDay) {
+  //           leaveDays += 0.5;
+  //         } else {
+  //           leaveDays += 1;
+  //         }
+
+  //         let leaveId = 6;
+  //         if (leaveData) {
+  //           leaveId = req.body.leaveAutoId;
+  //           if (leaveId != 6) {
+  //             let pendingLeaveCountList =
+  //               await db.employeeLeaveTransactions.findAll({
+  //                 where: {
+  //                   status: "pending",
+  //                   employeeId: req.body.employeeId,
+  //                   leaveAutoId: leaveId,
+  //                 },
+  //               });
+  //             let pendingLeaveCount = 0;
+  //             pendingLeaveCountList.map((el) => {
+  //               pendingLeaveCount += parseFloat(el.leaveCount);
+  //             });
+
+  //             if (
+  //               pendingLeaveCount + leaveDays >=
+  //               parseFloat(leaveData.availableLeave)
+  //             ) {
+  //               leaveId = 6;
+  //             }
+  //           }
+  //         }
+  //         const recordData = {
+  //           employeeId: req.body.employeeId, // Replace with actual employee ID
+  //           attendanceShiftId: EMP_DATA.shiftId, // Replace with actual attendance shift ID
+  //           attendancePolicyId: EMP_DATA.attendancePolicyId, // Replace with actual attendance policy ID
+  //           leaveAutoId: leaveId, // Replace with actual leave auto ID
+  //           appliedOn: moment().format("YYYY-MM-DD"), // Replace with actual applied on date
+  //           appliedFor: appliedFor, // Replace with actual applied for date
+  //           isHalfDay: isHalfDay, // Replace with actual is half day value (0 or 1)
+  //           halfDayFor: halfDayFor, // Replace with actual half day for value
+  //           status: "pending", // Replace with actual status
+  //           reason: req.body.reason, // Replace with actual reason
+  //           leaveCount: isHalfDay == 1 ? 0.5 : 1,
+  //           message: req.body.message,
+  //           leaveAttachment:
+  //             result.attachment != ""
+  //               ? await helper.fileUpload(
+  //                 result.attachment,
+  //                 `leaveAttachment_${uuid}`,
+  //                 `uploads/${EMP_DATA.empCode}`
+  //               )
+  //               : null,
+  //           pendingAt: EMP_DATA.managerData.id, // Replace with actual pending at value
+  //           createdBy: req.userId, // Replace with actual creator user ID
+  //           createdAt: moment(), // Replace with actual creation date
+  //           batch_id: uuid,
+  //         };
+  //         arr.push(recordData);
+
+  //         //const record = await db.employeeLeaveTransactions.create(recordData);
+  //       }
+
+  //       return respHelper(res, {
+  //         status: 200,
+  //         data: arr,
+  //         msg: message.LEAVE.RECORDED,
+  //       });
+  //     } catch (error) {
+  //       if (error.isJoi === true) {
+  //         return respHelper(res, {
+  //           status: 422,
+  //           msg: error.details[0].message,
+  //         });
+  //       }
+  //       console.log("error", error);
+  //       return respHelper(res, {
+  //         status: 500,
+  //       });
+  //     }
+  //   }
   async requestForLeave(req, res) {
     try {
       const result = await validator.leaveRequestSchema.validateAsync(req.body);
@@ -243,7 +433,13 @@ if(result.status=='approved'){
         moment(fromDateReq),
         "days"
       );
-
+      if (daysDifferenceReq > parseInt(process.env.LEAVE_LIMIT)) {
+        return respHelper(res, {
+          status: 404,
+          data: {},
+          msg: message.LEAVE.LEAVE_LIMIT,
+        });
+      }
       var inputs = [];
       for (let i = -1; i < daysDifferenceReq; i++) {
         let appliedFor = moment(fromDateReq)
@@ -307,86 +503,98 @@ if(result.status=='approved'){
         let appliedFor = moment(fromDate)
           .add(i + 1, "days")
           .format("YYYY-MM-DD");
-
         let halfDayFor = 0;
         let isHalfDay = 0;
-
-        if (daysDifference == 0) {
-          isHalfDay = req.body.firstDayHalf != 0 ? 1 : 0;
-          halfDayFor = req.body.firstDayHalf;
+        let isDayWorking = await helper.isDayWorking(
+          appliedFor,
+          EMP_DATA.weekOffId,
+          EMP_DATA.companyLocationId
+        );
+        if (isDayWorking == 0) {
+          console.log("leave on this day");
         } else {
-          if (i + 1 == 0) {
+          if (daysDifference == 0) {
             isHalfDay = req.body.firstDayHalf != 0 ? 1 : 0;
             halfDayFor = req.body.firstDayHalf;
-          } else if (i + 1 == daysDifference) {
-            isHalfDay = req.body.lastDayHalf != 0 ? 1 : 0;
-            halfDayFor = req.body.lastDayHalf;
-          }
-        }
-
-        if (isHalfDay) {
-          leaveDays += 0.5;
-        } else {
-          leaveDays += 1;
-        }
-
-        let leaveId = 6;
-        if (leaveData) {
-          leaveId = req.body.leaveAutoId;
-          if (leaveId != 6) {
-            let pendingLeaveCountList =
-              await db.employeeLeaveTransactions.findAll({
-                where: {
-                  status: "pending",
-                  employeeId: req.body.employeeId,
-                  leaveAutoId: leaveId,
-                },
-              });
-            let pendingLeaveCount = 0;
-            pendingLeaveCountList.map((el) => {
-              pendingLeaveCount += parseFloat(el.leaveCount);
-            });
-
-            if (
-              pendingLeaveCount + leaveDays >=
-              parseFloat(leaveData.availableLeave)
-            ) {
-              leaveId = 6;
+          } else {
+            if (i + 1 == 0) {
+              isHalfDay = req.body.firstDayHalf != 0 ? 1 : 0;
+              halfDayFor = req.body.firstDayHalf;
+            } else if (i + 1 == daysDifference) {
+              isHalfDay = req.body.lastDayHalf != 0 ? 1 : 0;
+              halfDayFor = req.body.lastDayHalf;
             }
           }
+
+          if (isHalfDay) {
+            leaveDays += 0.5;
+          } else {
+            leaveDays += 1;
+          }
+
+          let leaveId = 6;
+          if (leaveData) {
+            leaveId = req.body.leaveAutoId;
+            if (leaveId != 6) {
+              let pendingLeaveCountList =
+                await db.employeeLeaveTransactions.findAll({
+                  where: {
+                    status: "pending",
+                    employeeId: req.body.employeeId,
+                    leaveAutoId: leaveId,
+                  },
+                });
+              let pendingLeaveCount = 0;
+              pendingLeaveCountList.map((el) => {
+                pendingLeaveCount += parseFloat(el.leaveCount);
+              });
+
+              if (
+                pendingLeaveCount + leaveDays >=
+                parseFloat(leaveData.availableLeave)
+              ) {
+                leaveId = 6;
+              }
+            }
+          }
+          const recordData = {
+            employeeId: req.body.employeeId, // Replace with actual employee ID
+            attendanceShiftId: EMP_DATA.shiftId, // Replace with actual attendance shift ID
+            attendancePolicyId: EMP_DATA.attendancePolicyId, // Replace with actual attendance policy ID
+            leaveAutoId: leaveId, // Replace with actual leave auto ID
+            appliedOn: moment().format("YYYY-MM-DD"), // Replace with actual applied on date
+            appliedFor: appliedFor, // Replace with actual applied for date
+            isHalfDay: isHalfDay, // Replace with actual is half day value (0 or 1)
+            halfDayFor: halfDayFor, // Replace with actual half day for value
+            status: "pending", // Replace with actual status
+            reason: req.body.reason, // Replace with actual reason
+            leaveCount: isHalfDay == 1 ? 0.5 : 1,
+            message: req.body.message,
+            leaveAttachment:
+              result.attachment != ""
+                ? await helper.fileUpload(
+                    result.attachment,
+                    `leaveAttachment_${uuid}`,
+                    `uploads/${EMP_DATA.empCode}`
+                  )
+                : null,
+            pendingAt: EMP_DATA.managerData.id, // Replace with actual pending at value
+            createdBy: req.userId, // Replace with actual creator user ID
+            createdAt: moment(), // Replace with actual creation date
+            batch_id: uuid,
+          };
+          arr.push(recordData);
+          //const record = await db.employeeLeaveTransactions.create(recordData);
+
         }
-        const recordData = {
-          employeeId: req.body.employeeId, // Replace with actual employee ID
-          attendanceShiftId: EMP_DATA.shiftId, // Replace with actual attendance shift ID
-          attendancePolicyId: EMP_DATA.attendancePolicyId, // Replace with actual attendance policy ID
-          leaveAutoId: leaveId, // Replace with actual leave auto ID
-          appliedOn: moment().format("YYYY-MM-DD"), // Replace with actual applied on date
-          appliedFor: appliedFor, // Replace with actual applied for date
-          isHalfDay: isHalfDay, // Replace with actual is half day value (0 or 1)
-          halfDayFor: halfDayFor, // Replace with actual half day for value
-          status: "pending", // Replace with actual status
-          reason: req.body.reason, // Replace with actual reason
-          leaveCount: isHalfDay == 1 ? 0.5 : 1,
-          message: req.body.message,
-          leaveAttachment:
-            result.attachment != ""
-              ? await helper.fileUpload(
-                result.attachment,
-                `leaveAttachment_${uuid}`,
-                `uploads/${EMP_DATA.empCode}`
-              )
-              : null,
-          pendingAt: EMP_DATA.managerData.id, // Replace with actual pending at value
-          createdBy: req.userId, // Replace with actual creator user ID
-          createdAt: moment(), // Replace with actual creation date
-          batch_id: uuid,
-        };
-        arr.push(recordData);
-        const record = await db.employeeLeaveTransactions.create(recordData);
+        //const record = await db.employeeLeaveTransactions.bulkCreate(arr);
+
       }
+      // Perform bulk insert
+      await db.employeeLeaveTransactions.bulkCreate(arr);
       return respHelper(res, {
         status: 200,
-        data: {},
+        data: arr,
         msg: message.LEAVE.RECORDED,
       });
     } catch (error) {
@@ -402,7 +610,6 @@ if(result.status=='approved'){
       });
     }
   }
-
   async revokeLeaveRequest(req, res) {
     try {
       const result = await validator.revoekLeaveRequest.validateAsync(req.body);
@@ -462,12 +669,12 @@ if(result.status=='approved'){
         leaveFirstHalf,
         leaveSecondHalf,
       } = req.body;
-
+console.log("req.body",req.body)
       const daysDifferenceReq = moment(endDate).diff(moment(startDate), "days");
 
       if (daysDifferenceReq > parseInt(process.env.LEAVE_LIMIT)) {
         return respHelper(res, {
-          status: 200,
+          status: 404,
           data: {},
           msg: message.LEAVE.LEAVE_LIMIT,
         });
@@ -478,7 +685,7 @@ if(result.status=='approved'){
         leaveSecondHalf
       );
       let employeeId = employeeFor == 0 ? req.userId : employeeFor;
-
+console.log("employeeIdemployeeId",employeeId)
       let employeeWeekOfId = await db.employeeMaster.findOne({
         where: { id: employeeId },
       });
@@ -497,6 +704,7 @@ if(result.status=='approved'){
           leaveAutoId: leaveAutoId,
         },
       });
+
       let pendingLeaveCount = 0;
       pendingLeaveCountList.map((el) => {
         pendingLeaveCount += parseFloat(el.leaveCount);
@@ -511,37 +719,40 @@ if(result.status=='approved'){
 
       let totalAvailableLeave = availableLeaveCount
         ? parseFloat(availableLeaveCount.availableLeave).toFixed(2) -
-          parseFloat(pendingLeaveCount).toFixed(2) <
+            parseFloat(pendingLeaveCount).toFixed(2) <
           0
           ? "0.00"
           : parseFloat(availableLeaveCount.availableLeave) -
-          parseFloat(pendingLeaveCount).toFixed(2)
+            parseFloat(pendingLeaveCount).toFixed(2)
         : "0.00";
 
       let unpaidLeave =
         parseFloat(availableLeaveCount.availableLeave) -
           parseFloat(totalWorkingDays).toFixed(2) <
-          0
+        0
           ? -parseFloat(
-            parseFloat(availableLeaveCount.availableLeave) -
-            parseFloat(totalWorkingDays).toFixed(2)
-          )
+              parseFloat(availableLeaveCount.availableLeave) -
+                parseFloat(totalWorkingDays).toFixed(2)
+            )
           : 0;
+
+      let totalWorkingDaysCalculated =
+        totalWorkingDays > 0
+          ? parseFloat(totalWorkingDays).toFixed(2) -
+            parseFloat(getCombinedVal).toFixed(2)
+          : 0;
+
+      let unpaidLeaveCalculated =
+        unpaidLeave - parseFloat(getCombinedVal).toFixed(2) < 0
+          ? 0
+          : unpaidLeave - parseFloat(getCombinedVal).toFixed(2);
 
       return respHelper(res, {
         status: 200,
         data: {
-          totalWorkingDays:
-            totalWorkingDays > 0
-              ? parseFloat(totalWorkingDays).toFixed(2) -
-              parseFloat(getCombinedVal).toFixed(2)
-              : 0,
-          //availableWithoutPending: parseFloat(
-          //   availableLeaveCount.availableLeave
-          // ).toFixed(2),
+          totalWorkingDays: totalWorkingDaysCalculated,
           availableLeave: totalAvailableLeave,
-          // pendingToApprove: parseFloat(pendingLeaveCount).toFixed(2),
-          unpaidLeave: unpaidLeave,
+          unpaidLeave: unpaidLeaveCalculated,
         },
         msg: message.LEAVE.REMAINING_LEAVES,
       });
@@ -640,7 +851,7 @@ if(result.status=='approved'){
             11: "November",
             12: "December",
           };
-        
+
           return monthNames[month] ? monthNames[month] : "Invalid month number";
         }
         leaveMasterDetails.forEach((leave) => {
@@ -652,7 +863,7 @@ if(result.status=='approved'){
 
           attendanceDataForMonth.push({
             leaveType: leave.leaveName,
-            leaveCode:leave.leaveCode, 
+            leaveCode: leave.leaveCode,
             totalLeaveCount: leaveCount,
           });
         });
