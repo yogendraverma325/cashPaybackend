@@ -8,6 +8,7 @@ const message = {
   UNPROCESSABLE_ENTITY: "Unprocessable Entity",
   INVALID_AUTH: "Invalid Authentication",
   USER_NOT_EXIST: "User Doesn't Exists.",
+  RADIUS_MESSAGE: "Unable to mark attendance. You are not within the required #-meter range",
   INVALID_TOKEN: "Invalid Token.",
   INSERT_SUCCESS: "Inserted Successfully.",
   SESSION_EXPIRED: "Session Expired, Please Login Again!",

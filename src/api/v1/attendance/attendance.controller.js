@@ -14,7 +14,40 @@ class AttendanceController {
   async attendance(req, res) {
     try {
       const result = await validator.attendanceSchema.validateAsync(req.body);
+      if(result.locationType=='Office'){
+          const distanceQuery = `
+    SELECT companyLocationId, (
+      6371 * acos(
+        cos(radians(:userLat)) *
+        cos(radians(latitude)) *
+        cos(radians(longitude) - radians(:userLon)) +
+        sin(radians(:userLat)) *
+        sin(radians(latitude))
+      )
+    ) AS distance
+    FROM companylocationmaster
+    HAVING distance <= 0.1; -- 0.1 km = 100 meters
+  `;
+let userLat=result.latitude;
+let userLon=result.longitude
+  const withInLocatoinRange = await db.sequelize.query(distanceQuery, {
+    replacements: { userLat, userLon },
+    type: db.QueryTypes.SELECT,
+  });
+  if (withInLocatoinRange[0].length==0) {
+
+     return respHelper(res, {
+          status: 404,
+          msg: message.RADIUS_MESSAGE.replace(
+          "#",
+          process.env.RADIUS_LIMIT
+        )
+        });
+  }
+      }
+
       const currentDate = moment();
+
 
       const existEmployee = await db.employeeMaster.findOne({
         where: {
@@ -182,6 +215,11 @@ class AttendanceController {
           ); // Add buffer time  to the selected time if buffer allow
 
           const withGraceTime = graceTime.format("HH:mm");
+          console.log("finalShiftStartTime",finalShiftStartTime)
+          console.log("currentDate",currentDate.format("HH:mm"))
+
+          console.log("withGraceTime",withGraceTime)
+
 
           if (
             currentDate.format("HH:mm") < finalShiftStartTime ||
