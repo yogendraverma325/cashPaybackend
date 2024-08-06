@@ -669,7 +669,6 @@ class LeaveController {
         leaveFirstHalf,
         leaveSecondHalf,
       } = req.body;
-console.log("req.body",req.body)
       const daysDifferenceReq = moment(endDate).diff(moment(startDate), "days");
 
       if (daysDifferenceReq > parseInt(process.env.LEAVE_LIMIT)) {
@@ -685,7 +684,6 @@ console.log("req.body",req.body)
         leaveSecondHalf
       );
       let employeeId = employeeFor == 0 ? req.userId : employeeFor;
-console.log("employeeIdemployeeId",employeeId)
       let employeeWeekOfId = await db.employeeMaster.findOne({
         where: { id: employeeId },
       });
