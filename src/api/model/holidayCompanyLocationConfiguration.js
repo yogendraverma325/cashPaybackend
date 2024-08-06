@@ -1,6 +1,6 @@
 export default (sequelize, Sequelize) => {
   const holidayCompanyLocationConfiguration = sequelize.define(
-    "holidayCompanyLocationConfiguration",
+    "holidaycompanylocationconfiguration",
     {
       holidayCompanyLocationConfigurationID: {
         type: Sequelize.INTEGER,

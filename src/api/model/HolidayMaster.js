@@ -1,5 +1,5 @@
 export default (sequelize, Sequelize) => {
-  const holidayMaster = sequelize.define("holidayMaster", {
+  const holidayMaster = sequelize.define("holidaymaster", {
     holidayId: {
       type: Sequelize.INTEGER,
       primaryKey: true,

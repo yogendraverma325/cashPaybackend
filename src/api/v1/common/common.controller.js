@@ -69,7 +69,6 @@ class commonController {
         updatedAt: moment(),
         updatedBy: req.userId,
       });
-      console.log("updateObjupdateObj",updateObj)
       await db.biographicalDetails.update(updateObj, {
         where: { userId: userId },
       });
@@ -99,7 +98,6 @@ class commonController {
   async getBiographicalDetails(req, res) {
     try {
       const userId = req.params.userId == 0 ? req.userId : req.params.userId;
-      console.log("userIduserId", userId);
       let detailsExists = await db.biographicalDetails.findOne({
         attributes: { exclude: ["createdAt", "updatedAt", "isActive"] },
         where: { userId: userId },
@@ -274,7 +272,7 @@ class commonController {
       const userId = req.params.userId == 0 ? req.userId : req.params.userId;
       let detailsExists = await db.familyDetails.findOne({
         attributes: { exclude: ["createdAt", "updatedAt", "isActive"] },
-        where: { empFamilyDetailsId: userId,isActive },
+        where: { empFamilyDetailsId: userId, isActive },
       });
       if (detailsExists) {
         return respHelper(res, {
@@ -294,45 +292,117 @@ class commonController {
       }
     } catch (error) {}
   }
+
+  async addJobDetails(req, res) {
+    try {
+      const result = await validator.addJobDetailsSchema.validateAsync(
+        req.body
+      );
+      const userId = req.body.userId == 0 ? req.userId : req.body.userId;
+      const existPaymentDetails = await db.jobDetails.findOne({
+        raw: true,
+        where: {
+          userId: userId,
+        },
+      });
+
+      if (existPaymentDetails) {
+        let obj = {
+          ...result,
+          ...{ createdBy: existPaymentDetails.createdBy },
+          ...{ createdAt: existPaymentDetails.createdAt },
+          ...{ updatedBy: userId },
+          ...{ updatedAt: moment() },
+          ...{ userId: userId },
+          ...{ isActive: 1 },
+        };
+        await db.jobDetails.update(obj, {
+          where: { userId: userId },
+        });
+
+        return respHelper(res, {
+          status: 200,
+          msg: constant.UPDATE_SUCCESS.replace("<module>", "Payment Details"),
+        });
+      } else {
+        let obj = {
+          ...result,
+          ...{ createdBy: userId },
+          ...{ createdAt: moment() },
+          ...{ updatedBy: userId },
+          ...{ updatedAt: moment() },
+          ...{ userId: userId },
+          ...{ isActive: 1 },
+        };
+        await db.jobDetails.create(obj);
+
+        return respHelper(res, {
+          status: 200,
+          msg: constant.DETAILS_ADDED.replace("<module>", "Payment Details"),
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      logger.error(error);
+      if (error.isJoi === true) {
+        return respHelper(res, {
+          status: 422,
+          msg: error.details[0].message,
+        });
+      }
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
   async addPaymentDetails(req, res) {
     try {
       const result = await validator.addPaymentDetailsSchema.validateAsync(
         req.body
       );
-
+      const userId = req.body.userId == 0 ? req.userId : req.body.userId;
       const existPaymentDetails = await db.paymentDetails.findOne({
         raw: true,
         where: {
-          userId: result.userId ? result.userId : req.userId,
-          isActive: 1,
+          userId: userId,
         },
       });
 
       if (existPaymentDetails) {
+        let obj = {
+          ...result,
+          ...{ createdBy: existPaymentDetails.createdBy },
+          ...{ createdAt: existPaymentDetails.createdAt },
+          ...{ updatedBy: userId },
+          ...{ updatedAt: moment() },
+          ...{ userId: userId },
+          ...{ isActive: 1 },
+        };
+        await db.paymentDetails.update(obj, {
+          where: { userId: userId },
+        });
+
         return respHelper(res, {
-          status: 400,
-          msg: constant.ALREADY_EXISTS.replace("<module>", "Payment Details"),
+          status: 200,
+          msg: constant.UPDATE_SUCCESS.replace("<module>", "Payment Details"),
+        });
+      } else {
+        let obj = {
+          ...result,
+          ...{ createdBy: userId },
+          ...{ createdAt: moment() },
+          ...{ updatedBy: userId },
+          ...{ updatedAt: moment() },
+          ...{ userId: userId },
+          ...{ isActive: 1 },
+        };
+        await db.paymentDetails.create(obj);
+
+        return respHelper(res, {
+          status: 200,
+          msg: constant.DETAILS_ADDED.replace("<module>", "Payment Details"),
         });
       }
-
-      await db.paymentDetails.create(
-        Object.assign(
-          {
-            userId: result.userId ? result.userId : req.userId,
-            isActive: 1,
-          },
-          result,
-          {
-            createdBy: req.userId,
-            createdAt: moment(),
-          }
-        )
-      );
-
-      return respHelper(res, {
-        status: 200,
-        msg: constant.DETAILS_ADDED.replace("<module>", "Payment Details"),
-      });
     } catch (error) {
       console.log(error);
       logger.error(error);

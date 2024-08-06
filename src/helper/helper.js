@@ -373,6 +373,7 @@ const remainingLeaveCount = async function (
     let parsedDate = moment(lastDayDateAnotherFormat, "DD-MM-YYYY");
     let dayCode = parseInt(moment(appliedFor).format("d")) + 1;
 
+
     let dayOfMonth = parsedDate.date();
     let occurrence = Math.ceil(dayOfMonth / 7);
 
@@ -444,6 +445,83 @@ const remainingLeaveCount = async function (
   return workingCount;
 };
 
+const isDayWorking = async function(startDate,weekOffId,companyLocationId){
+  let appliedFor = moment(startDate).add(0, "days").format("YYYY-MM-DD");
+
+  let lastDayDateAnotherFormat = moment(appliedFor).format("DD-MM-YYYY");
+  let parsedDate = moment(lastDayDateAnotherFormat, "DD-MM-YYYY");
+  let dayCode = parseInt(moment(appliedFor).format("d")) + 1;
+
+  let dayOfMonth = parsedDate.date();
+  let occurrence = Math.ceil(dayOfMonth / 7);
+  var workingCount = 0;
+  // Output the result
+  let occurrenceDayCondition = {};
+  switch (occurrence) {
+    case 1:
+      occurrenceDayCondition = {
+        dayId: dayCode,
+        isfirstDayOff: 1,
+      };
+      break;
+    case 2:
+      occurrenceDayCondition = {
+        dayId: dayCode,
+        isSecondDayOff: 1,
+      };
+      break;
+    case 3:
+      occurrenceDayCondition = {
+        dayId: dayCode,
+        isThirdyDayOff: 1,
+      };
+      break;
+    case 4:
+      occurrenceDayCondition = {
+        dayId: dayCode,
+        isFourthDayOff: 1,
+      };
+      break;
+    case 5:
+      occurrenceDayCondition = {
+        dayId: dayCode,
+        isFivethDayOff: 1,
+      };
+      break;
+    default:
+      occurrenceDayCondition = {};
+  }
+  const existEmployees = await db.weekOffMaster.findOne({
+    where: {
+      weekOffId: weekOffId,
+    },
+    include: [
+      {
+        model: db.weekOffDayMappingMaster,
+        required: false,
+        where: occurrenceDayCondition,
+      },
+    ],
+  });
+
+  if (existEmployees.weekOffDayMappingMasters.length == 0) {
+    let employeeHolidays =
+      await db.holidayCompanyLocationConfiguration.findOne({
+        where: { companyLocationId: companyLocationId },
+        include: {
+          model: db.holidayMaster,
+          where: { holidayDate: appliedFor },
+          as: "holidayDetails",
+          required: true,
+        },
+      });
+    if (!employeeHolidays) {
+      workingCount += 1;
+    }
+  }
+  return workingCount;
+}
+
 const getCombineValue = async function (leaveFirstHalf, leaveSecondHalf) {
   let combineValue = "0.00";
 
@@ -478,5 +556,6 @@ export default {
   remainingLeaveCount,
   getCombineValue,
   timeDifferenceNew,
+  isDayWorking,
   ip
 };
