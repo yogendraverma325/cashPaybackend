@@ -550,7 +550,7 @@ class LeaveController {
               });
 
               if (
-                pendingLeaveCount + leaveDays >=
+                pendingLeaveCount + leaveDays >
                 parseFloat(leaveData.availableLeave)
               ) {
                 leaveId = 6;
@@ -750,7 +750,7 @@ class LeaveController {
         data: {
           totalWorkingDays: totalWorkingDaysCalculated,
           availableLeave: totalAvailableLeave,
-          unpaidLeave: unpaidLeaveCalculated,
+          unpaidLeave: totalWorkingDaysCalculated-totalAvailableLeave,
         },
         msg: message.LEAVE.REMAINING_LEAVES,
       });
