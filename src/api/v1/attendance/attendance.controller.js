@@ -958,6 +958,7 @@ class AttendanceController {
         ],
         where: {
           employeeId: req.userId,
+            status: "approved",
           leaveAutoId: 6,
           appliedFor: {
             [db.Sequelize.Op.between]: [startDateLeaves, endDateLeaves],
