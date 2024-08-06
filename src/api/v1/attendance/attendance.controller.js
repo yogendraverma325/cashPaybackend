@@ -1312,13 +1312,12 @@ class AttendanceController {
           query === "raisedByMe"
             ? {
                 createdBy: req.userId,
+                regularizeStatus: "Pending",
               }
             : {
                 regularizeManagerId: req.userId,
+                regularizeStatus: "Pending",
               },
-          {
-            regularizeStatus: "Pending",
-          }
         ),
         attributes: { exclude: ["createdBy", "updatedBy", "updatedAt"] },
         include: [
