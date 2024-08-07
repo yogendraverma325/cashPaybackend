@@ -54,7 +54,7 @@ let userLon=result.longitude
           id: req.userId,
           isActive: 1,
         },
-        attributes: ["empCode", "name", "email"],
+        attributes: ["empCode", "name", "email","weekOffId"],
         include: [
           {
             model: db.shiftMaster,
@@ -64,8 +64,7 @@ let userLon=result.longitude
               "shiftName",
               "shiftStartTime",
               "shiftEndTime",
-              "isOverNight",
-              "weekOffId"
+              "isOverNight"
             ],
             where: {
               isActive: true,
@@ -1489,6 +1488,9 @@ let userLon=result.longitude
   }
 
   async attedanceCron() {
+    try {
+
+    
     let lastDayDate = moment().subtract(1, "day").format("YYYY-MM-DD");
     let lastDayDateAnotherFormat = moment()
       .subtract(1, "day")
@@ -1547,7 +1549,7 @@ let userLon=result.longitude
             "isOverNight",
           ],
           where: {
-            isActive: 1,
+            isActive: 1, 
           },
         },
         {
@@ -1599,9 +1601,10 @@ let userLon=result.longitude
         },
       ],
       where: {
-        isActive: 1,
+        isActive: 1
       },
     });
+
 
     await Promise.all(
       existEmployees.map(async (singleEmp) => {
@@ -1609,9 +1612,9 @@ let userLon=result.longitude
 
         if (singleEmp.weekOffMaster.weekOffDayMappingMasters.length > 0) {
           presentStatus = "weeklyOff";
-        } else if (singleEmp.holidayCompanyLocationConfigurations.length > 0) {
+        } else if (singleEmp.holidaycompanylocationconfigurations.length > 0) {
           presentStatus = "holiday";
-        } else if (singleEmp.employeeLeaveTransaction) {
+        } else if (singleEmp.employeeleavetransaction) {
           presentStatus = "leave";
         } else {
           presentStatus = "absent";
@@ -1765,6 +1768,9 @@ let userLon=result.longitude
         }
       })
     );
+    }
+    catch (error) {
+    }
 
     // return respHelper(res, {
     //   status: 200,

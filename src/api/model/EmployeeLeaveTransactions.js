@@ -25,6 +25,12 @@ export default (sequelize, Sequelize) => {
       appliedFor: {
         type: Sequelize.DATE,
       },
+      fromDate: {
+        type: Sequelize.DATE,
+      },
+      toDate: {
+        type: Sequelize.DATE,
+      },
       isHalfDay: {
         type: Sequelize.INTEGER,
       },

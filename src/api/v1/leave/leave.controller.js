@@ -583,8 +583,10 @@ class LeaveController {
             createdBy: req.userId, // Replace with actual creator user ID
             createdAt: moment(), // Replace with actual creation date
             batch_id: uuid,
-             weekOffId:EMP_DATA.weekOffId, 
-          };
+            weekOffId:EMP_DATA.weekOffId, 
+            fromDate:req.body.fromDate,
+            toDate:req.body.toDate
+        };
           arr.push(recordData);
           //const record = await db.employeeLeaveTransactions.create(recordData);
 
@@ -752,7 +754,7 @@ class LeaveController {
         data: {
           totalWorkingDays: totalWorkingDaysCalculated,
           availableLeave: totalAvailableLeave,
-          unpaidLeave: totalWorkingDaysCalculated-totalAvailableLeave,
+          unpaidLeave: (totalWorkingDaysCalculated-totalAvailableLeave)>0?totalWorkingDaysCalculated-totalAvailableLeave:0,
         },
         msg: message.LEAVE.REMAINING_LEAVES,
       });
