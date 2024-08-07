@@ -585,7 +585,8 @@ class LeaveController {
             batch_id: uuid,
             weekOffId:EMP_DATA.weekOffId, 
             fromDate:req.body.fromDate,
-            toDate:req.body.toDate
+            toDate:req.body.toDate,
+            source:req.deviceSource
         };
           arr.push(recordData);
           //const record = await db.employeeLeaveTransactions.create(recordData);
