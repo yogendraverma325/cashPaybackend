@@ -1,20 +1,23 @@
 ------------------------------07-08-2024 (Harish)--------------------------------------------
-ALTER TABLE `hrms_dev`.`employee` 
-ADD COLUMN `createdAt` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP AFTER `permissionAndAccess`,
-ADD COLUMN `updatedAt` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP AFTER `createdAt`;
 
 ALTER TABLE `hrms_dev`.`employee` 
-ADD COLUMN `createdBy` INT NULL DEFAULT 1 AFTER `updatedAt`,
-ADD COLUMN `updatedBy` INT NULL DEFAULT 1 AFTER `createdBy`;
+ADD COLUMN `createdBy` INT NULL DEFAULT 1 AFTER `permissionAndAccess`,
+ADD COLUMN `updatedBy` INT NULL DEFAULT 1 AFTER `createdBy`,
+ADD COLUMN `createdAt` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP AFTER `updatedBy`,
+ADD COLUMN `updatedAt` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP AFTER `createdAt`;
+
 
 CREATE TABLE `hrms_dev`.`managerhistory` (
   `id` INT NOT NULL AUTO_INCREMENT,
-  `managerName` VARCHAR(255) NOT NULL,
+  `managerId` INT NOT NULL,
   `fromDate` VARCHAR(255) NOT NULL,
   `toDate` VARCHAR(255) NOT NULL,
-  `createdAt` DATETIME NULL,
-  `updatedAt` DATETIME NULL,
+  `createdBy` INT NOT NULL,
+  `updatedBy` INT NOT NULL,
+  `createdAt` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `updatedAt` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`));
+
 
 ------------------------------22-07-2024 (Harish)-----------------------------------------
 ALTER TABLE `hrms_dev`.`dashboardcard` 
