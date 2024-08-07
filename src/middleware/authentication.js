@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken';
 import helper from '../helper/helper.js';
 import respHelper from '../helper/respHelper.js';
 import constant from '../constant/messages.js'
+import DeviceDetector from "node-device-detector";
 
 class Authentication {
     async authenticate(req, res, next) {
@@ -39,7 +40,12 @@ class Authentication {
                     });
                 }
                 const token = await helper.generateJwtToken({ user: decoded.user });
+
+                const detector = new DeviceDetector();
+                const userAgent = req.get("User-Agent");
+                const result = detector.detect(userAgent);
                 req.userData = userData;
+                req.deviceSource = JSON.stringify(result);
                 req.userId = decoded.user.id;
                 req.userRole = decoded.user.role
                 req.sessionToken = token;

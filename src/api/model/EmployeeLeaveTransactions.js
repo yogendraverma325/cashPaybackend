@@ -25,6 +25,12 @@ export default (sequelize, Sequelize) => {
       appliedFor: {
         type: Sequelize.DATE,
       },
+      fromDate: {
+        type: Sequelize.DATE,
+      },
+      toDate: {
+        type: Sequelize.DATE,
+      },
       isHalfDay: {
         type: Sequelize.INTEGER,
       },
@@ -55,6 +61,12 @@ export default (sequelize, Sequelize) => {
         leaveCount: {
         type: Sequelize.DECIMAL(10, 1),
         defaltValue: 0,
+      },
+      weekOffId: {
+      type: Sequelize.INTEGER,
+      },
+      source: {
+        type: Sequelize.STRING,
       },
       createdBy: {
         type: Sequelize.INTEGER,

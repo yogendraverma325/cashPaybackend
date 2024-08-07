@@ -62,6 +62,7 @@ import permissoinandaccess from "../api/model/PermissionAndAccess.js";
 import ManagerHistory from "../api/model/ManagerHistory.js";
 
 import literal from "sequelize";
+import QueryTypes from "sequelize"
 const sequelize = new Sequelize(
   process.env.DB_NAME,
   process.env.DB_USER,
@@ -108,6 +109,7 @@ const db = {};
 db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 db.literal = literal;
+db.QueryTypes=QueryTypes;
 db.employeeMaster = Employee(sequelize, Sequelize);
 db.bandMaster = Band(sequelize, Sequelize);
 db.buMaster = Bu(sequelize, Sequelize);

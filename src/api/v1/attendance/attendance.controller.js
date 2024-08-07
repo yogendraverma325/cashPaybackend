@@ -14,14 +14,47 @@ class AttendanceController {
   async attendance(req, res) {
     try {
       const result = await validator.attendanceSchema.validateAsync(req.body);
+      if(result.locationType=='Office'){
+          const distanceQuery = `
+    SELECT companyLocationId, (
+      6371 * acos(
+        cos(radians(:userLat)) *
+        cos(radians(latitude)) *
+        cos(radians(longitude) - radians(:userLon)) +
+        sin(radians(:userLat)) *
+        sin(radians(latitude))
+      )
+    ) AS distance
+    FROM companylocationmaster
+    HAVING distance <= 0.1; -- 0.1 km = 100 meters
+  `;
+let userLat=result.latitude;
+let userLon=result.longitude
+  const withInLocatoinRange = await db.sequelize.query(distanceQuery, {
+    replacements: { userLat, userLon },
+    type: db.QueryTypes.SELECT,
+  });
+  if (withInLocatoinRange[0].length==0) {
+
+     return respHelper(res, {
+          status: 404,
+          msg: message.RADIUS_MESSAGE.replace(
+          "#",
+          process.env.RADIUS_LIMIT
+        )
+        });
+  }
+      }
+
       const currentDate = moment();
+
 
       const existEmployee = await db.employeeMaster.findOne({
         where: {
           id: req.userId,
           isActive: 1,
         },
-        attributes: ["empCode", "name", "email"],
+        attributes: ["empCode", "name", "email","weekOffId"],
         include: [
           {
             model: db.shiftMaster,
@@ -31,7 +64,7 @@ class AttendanceController {
               "shiftName",
               "shiftStartTime",
               "shiftEndTime",
-              "isOverNight",
+              "isOverNight"
             ],
             where: {
               isActive: true,
@@ -140,6 +173,7 @@ class AttendanceController {
             createdBy: req.userId,
             attendancePolicyId: req.userData.attendancePolicyId,
             createdAt: currentDate,
+            weekOffId:existEmployee.weekOffId
           };
 
           await db.attendanceMaster.create(creationObject);
@@ -182,6 +216,11 @@ class AttendanceController {
           ); // Add buffer time  to the selected time if buffer allow
 
           const withGraceTime = graceTime.format("HH:mm");
+          console.log("finalShiftStartTime",finalShiftStartTime)
+          console.log("currentDate",currentDate.format("HH:mm"))
+
+          console.log("withGraceTime",withGraceTime)
+
 
           if (
             currentDate.format("HH:mm") < finalShiftStartTime ||
@@ -1456,6 +1495,9 @@ class AttendanceController {
   }
 
   async attedanceCron() {
+    try {
+
+    
     let lastDayDate = moment().subtract(1, "day").format("YYYY-MM-DD");
     let lastDayDateAnotherFormat = moment()
       .subtract(1, "day")
@@ -1514,7 +1556,7 @@ class AttendanceController {
             "isOverNight",
           ],
           where: {
-            isActive: 1,
+            isActive: 1, 
           },
         },
         {
@@ -1566,9 +1608,10 @@ class AttendanceController {
         },
       ],
       where: {
-        isActive: 1,
+        isActive: 1
       },
     });
+
 
     await Promise.all(
       existEmployees.map(async (singleEmp) => {
@@ -1576,9 +1619,9 @@ class AttendanceController {
 
         if (singleEmp.weekOffMaster.weekOffDayMappingMasters.length > 0) {
           presentStatus = "weeklyOff";
-        } else if (singleEmp.holidayCompanyLocationConfigurations.length > 0) {
+        } else if (singleEmp.holidaycompanylocationconfigurations.length > 0) {
           presentStatus = "holiday";
-        } else if (singleEmp.employeeLeaveTransaction) {
+        } else if (singleEmp.employeeleavetransaction) {
           presentStatus = "leave";
         } else {
           presentStatus = "absent";
@@ -1732,6 +1775,9 @@ class AttendanceController {
         }
       })
     );
+    }
+    catch (error) {
+    }
 
     // return respHelper(res, {
     //   status: 200,

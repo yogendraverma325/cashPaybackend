@@ -509,9 +509,10 @@ class LeaveController {
           .format("YYYY-MM-DD");
         let halfDayFor = 0;
         let isHalfDay = 0;
+        console.log("EMP_DATA",EMP_DATA)
         let isDayWorking = await helper.isDayWorking(
           appliedFor,
-          EMP_DATA.weekOffId,
+          EMP_DATA.weekOffId, 
           EMP_DATA.companyLocationId
         );
         if (isDayWorking == 0) {
@@ -586,7 +587,11 @@ class LeaveController {
             createdBy: req.userId, // Replace with actual creator user ID
             createdAt: moment(), // Replace with actual creation date
             batch_id: uuid,
-          };
+            weekOffId:EMP_DATA.weekOffId, 
+            fromDate:req.body.fromDate,
+            toDate:req.body.toDate,
+            source:req.deviceSource
+        };
           arr.push(recordData);
           //const record = await db.employeeLeaveTransactions.create(recordData);
 
@@ -754,7 +759,7 @@ class LeaveController {
         data: {
           totalWorkingDays: totalWorkingDaysCalculated,
           availableLeave: totalAvailableLeave,
-          unpaidLeave: totalWorkingDaysCalculated-totalAvailableLeave,
+          unpaidLeave: (totalWorkingDaysCalculated-totalAvailableLeave)>0?totalWorkingDaysCalculated-totalAvailableLeave:0,
         },
         msg: message.LEAVE.REMAINING_LEAVES,
       });
