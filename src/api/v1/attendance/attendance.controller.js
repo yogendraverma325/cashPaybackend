@@ -65,6 +65,7 @@ let userLon=result.longitude
               "shiftStartTime",
               "shiftEndTime",
               "isOverNight",
+              "weekOffId"
             ],
             where: {
               isActive: true,
@@ -173,6 +174,7 @@ let userLon=result.longitude
             createdBy: req.userId,
             attendancePolicyId: req.userData.attendancePolicyId,
             createdAt: currentDate,
+            weekOffId:existEmployee.weekOffId
           };
 
           await db.attendanceMaster.create(creationObject);

@@ -105,7 +105,7 @@ export default (sequelize, Sequelize) => {
     holidayCompanyLocationConfigurationID: {
       type: Sequelize.INTEGER,
     },
-    holidayCompanyLocationConfigurationID: {
+    weekOffId: {
       type: Sequelize.INTEGER,
     },
   });

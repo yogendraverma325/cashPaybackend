@@ -56,6 +56,9 @@ export default (sequelize, Sequelize) => {
         type: Sequelize.DECIMAL(10, 1),
         defaltValue: 0,
       },
+      weekOffId: {
+      type: Sequelize.INTEGER,
+      },
       createdBy: {
         type: Sequelize.INTEGER,
       },

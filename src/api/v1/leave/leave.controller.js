@@ -583,6 +583,7 @@ class LeaveController {
             createdBy: req.userId, // Replace with actual creator user ID
             createdAt: moment(), // Replace with actual creation date
             batch_id: uuid,
+             weekOffId:EMP_DATA.weekOffId, 
           };
           arr.push(recordData);
           //const record = await db.employeeLeaveTransactions.create(recordData);
