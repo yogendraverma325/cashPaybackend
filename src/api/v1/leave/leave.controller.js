@@ -839,7 +839,7 @@ class LeaveController {
   
       const availableLeave = Math.max(0, totalAvailableLeave - totalWorkingDaysCalculated);
       const unpaidLeaveResult = Math.max(0, unpaidLeaveCalculated);
-      const earnedLeave = parseFloat(availableLeaveCount.availableLeave) - parseFloat(pendingLeaveCount)   
+      const earnedLeave = parseFloat(availableLeaveCount.availableLeave) - parseFloat(pendingLeaveCount)
       return respHelper(res, {
         status: 200,
         data: {
