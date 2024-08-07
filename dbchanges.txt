@@ -1,3 +1,21 @@
+------------------------------07-08-2024 (Harish)--------------------------------------------
+ALTER TABLE `hrms_dev`.`employee` 
+ADD COLUMN `createdAt` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP AFTER `permissionAndAccess`,
+ADD COLUMN `updatedAt` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP AFTER `createdAt`;
+
+ALTER TABLE `hrms_dev`.`employee` 
+ADD COLUMN `createdBy` INT NULL DEFAULT 1 AFTER `updatedAt`,
+ADD COLUMN `updatedBy` INT NULL DEFAULT 1 AFTER `createdBy`;
+
+CREATE TABLE `hrms_dev`.`managerhistory` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `managerName` VARCHAR(255) NOT NULL,
+  `fromDate` VARCHAR(255) NOT NULL,
+  `toDate` VARCHAR(255) NOT NULL,
+  `createdAt` DATETIME NULL,
+  `updatedAt` DATETIME NULL,
+  PRIMARY KEY (`id`));
+
 ------------------------------22-07-2024 (Harish)-----------------------------------------
 ALTER TABLE `hrms_dev`.`dashboardcard` 
 ADD COLUMN `isCardWorking` INT NULL DEFAULT 0 AFTER `mobileDarkBackgroundColor`;

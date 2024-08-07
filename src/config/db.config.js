@@ -59,6 +59,8 @@ import weekOffMaster from "../api/model/weekOffMaster.js";
 import weekOffDayMappingMaster from "../api/model/weekOffDayMappingMaster.js";
 import CalenderYear from "../api/model/CalenderYear.js";
 import permissoinandaccess from "../api/model/PermissionAndAccess.js";
+import ManagerHistory from "../api/model/ManagerHistory.js";
+
 import literal from "sequelize";
 const sequelize = new Sequelize(
   process.env.DB_NAME,
@@ -169,6 +171,7 @@ db.weekOffDayMappingMaster = weekOffDayMappingMaster(sequelize, Sequelize);
 db.CalenderYear = CalenderYear(sequelize, Sequelize);
 db.loginDetails = LoginDetails(sequelize, Sequelize)
 db.permissoinandaccess=permissoinandaccess(sequelize, Sequelize);
+db.managerHistory = ManagerHistory(sequelize, Sequelize)
 
 db.holidayCompanyLocationConfiguration.hasOne(db.holidayMaster, {
   foreignKey: "holidayId",

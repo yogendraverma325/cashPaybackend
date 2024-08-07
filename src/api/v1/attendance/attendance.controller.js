@@ -806,8 +806,12 @@ class AttendanceController {
         });
       }
       const startDateLeaves = `${year}-${month}-01`;
-      const endDateLeaves =  moment().year(year).month(month - 1).endOf('month').format("YYYY-MM-DD")//`${year}-${month}-31`;
-     
+      const endDateLeaves = moment()
+        .year(year)
+        .month(month - 1)
+        .endOf("month")
+        .format("YYYY-MM-DD"); //`${year}-${month}-31`;
+
       // Fetch all required data in bulk
       const [
         locationBasedHolidays,
@@ -958,7 +962,7 @@ class AttendanceController {
         ],
         where: {
           employeeId: req.userId,
-            status: "approved",
+          status: "approved",
           leaveAutoId: 6,
           appliedFor: {
             [db.Sequelize.Op.between]: [startDateLeaves, endDateLeaves],
@@ -1152,8 +1156,11 @@ class AttendanceController {
             presentDays: calculatePresentDays.length,
             singlePunchAbsentDays: calculateSinglePunchAbsent.length,
             leaveDays:
-            monthLeaves.length > 0 ? monthLeaves[0].totalLeaveCount : 0,
-            unpaidLeaveDays:  monthUpaidLeave.length > 0 ? monthUpaidLeave[0].totalLeaveCount : 0,
+              monthLeaves.length > 0 ? monthLeaves[0].totalLeaveCount : 0,
+            unpaidLeaveDays:
+              monthUpaidLeave.length > 0
+                ? monthUpaidLeave[0].totalLeaveCount
+                : 0,
           },
           attendanceData: {
             count: result.length,
@@ -1318,7 +1325,7 @@ class AttendanceController {
             : {
                 regularizeManagerId: req.userId,
                 regularizeStatus: "Pending",
-              },
+              }
         ),
         attributes: { exclude: ["createdBy", "updatedBy", "updatedAt"] },
         include: [
