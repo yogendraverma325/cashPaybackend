@@ -1,21 +1,27 @@
 export default (sequelize, Sequelize) => {
-    const managerHistory = sequelize.define("managerhistory", {
+    const employeeFamilyHistory = sequelize.define("employeefamilyhistory", {
         id: {
             type: Sequelize.INTEGER,
             primaryKey: true,
             autoIncrement: true
         },
-        employeeId:{
+        EmployeeId: {
             type: Sequelize.INTEGER
         },
-        managerId: {
-            type: Sequelize.INTEGER
+        name: {
+            type: Sequelize.STRING,
         },
-        fromDate: {
-            type: Sequelize.INTEGER
+        dob: {
+            type: Sequelize.STRING,
         },
-        toDate: {
-            type: Sequelize.INTEGER
+        gender: {
+            type: Sequelize.STRING,
+        },
+        mobileNo: {
+            type: Sequelize.STRING,
+        },
+        relationWithEmp: {
+            type: Sequelize.STRING,
         },
         createdAt: {
             type: Sequelize.DATE
@@ -30,5 +36,5 @@ export default (sequelize, Sequelize) => {
             type: Sequelize.DATE
         }
     })
-    return managerHistory
+    return employeeFamilyHistory
 }

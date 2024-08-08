@@ -946,7 +946,7 @@ class MasterController {
           });
 
           const dashboardJson = JSON.stringify(dashboardData);
-          client.setEx(redisKey, parseInt(process.env.TTL), dashboardJson);
+          client.setEx(redisKey, 500, dashboardJson);
 
           return respHelper(res, {
             status: 200,

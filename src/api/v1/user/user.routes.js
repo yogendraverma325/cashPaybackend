@@ -22,5 +22,6 @@ export default Express
     .post("/changePassword", authentication.authenticate, userController.changePassword)
     .get("/globalSearch/:search", userController.globalSearch)
     .post("/addJobDetails", authentication.authenticate, commonController.addJobDetails)
-    .put("/updateEducationDetails", authentication.authenticate, commonController.updateEducationDetails)
-    .post("/addEducationDetails", authentication.authenticate, commonController.addEducationDetails)
+     .put("/updateEducationDetails", authentication.authenticate, commonController.updateEducationDetails)
+     .post("/addEducationDetails", authentication.authenticate, commonController.addEducationDetails)
+     .get("/searchEmployee",authentication.authenticate, commonController.searchEmployee)
