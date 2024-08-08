@@ -6,6 +6,8 @@ import respHelper from "../../../helper/respHelper.js";
 import constant from "../../../constant/messages.js";
 import client from "../../../config/redisDb.config.js";
 import moment from "moment";
+import { Op } from "sequelize";
+
 const message = constant;
 class commonController {
   async addBiographicalDetails(req, res) {
@@ -214,15 +216,14 @@ class commonController {
       });
       if (getFamilyDetails) {
         await db.familyMemberHistory.create({
-          "EmployeeId":getFamilyDetails.EmployeeId,
-          "name":getFamilyDetails.name,
-          "dob":getFamilyDetails.dob,
-          "gender":getFamilyDetails.gender,
-          "mobileNo":getFamilyDetails.mobileNo,
-          "relationWithEmp":getFamilyDetails.relationWithEmp,
-          "createdBy":getFamilyDetails.createdBy,
-          "updatedBy":getFamilyDetails.updatedBy
-
+          EmployeeId: getFamilyDetails.EmployeeId,
+          name: getFamilyDetails.name,
+          dob: getFamilyDetails.dob,
+          gender: getFamilyDetails.gender,
+          mobileNo: getFamilyDetails.mobileNo,
+          relationWithEmp: getFamilyDetails.relationWithEmp,
+          createdBy: getFamilyDetails.createdBy,
+          updatedBy: getFamilyDetails.updatedBy,
         });
         await db.familyDetails.update(
           Object.assign(result, {
@@ -676,6 +677,71 @@ class commonController {
       }
       return respHelper(res, {
         status: 500,
+      });
+    }
+  }
+
+  async searchEmployee(req, res) {
+    try {
+      const { search } = req.query;
+      console.log("search>>>>>>>>>>", search);
+      const EMP_DATA = await db.employeeMaster.findAll({
+        raw: true,
+        nest: true,
+        attributes: ["id", "empCode", "name", "firstName", "lastName", "email"],
+        where: {
+          [Op.or]: [
+            { id: req.userId },
+            { empCode: { [Op.like]: `%${search}%` } },
+            { name: { [Op.like]: `%${search}%` } },
+            { email: { [Op.like]: `%${search}%` } },
+            { "$designationmaster.name$": { [Op.like]: `%${search}%` } },
+            {
+              "$departmentmaster.departmentName$": { [Op.like]: `%${search}%` },
+            },
+          ],
+        },
+        include: [
+          {
+            model: db.designationMaster,
+            required: false,
+            attributes: ["designationId", "name"],
+          },
+          {
+            model: db.departmentMaster,
+            required: false,
+            attributes: ["departmentId", "departmentCode", "departmentName"],
+          },
+          {
+            model: db.employeeMaster,
+            as: "reportie",
+            required: false,
+            attributes: ["id", "name"],
+            //attributes: { exclude: ["password", "role_id", "designation_id"] },
+            include: [
+              {
+                model: db.roleMaster,
+                required: true,
+              },
+              {
+                model: db.designationMaster,
+                required: true,
+                attributes: ["designationId", "name"],
+              },
+            ],
+          },
+        ],
+      });
+      console.log("emp_data", EMP_DATA);
+      return respHelper(res, {
+        status: 200,
+        data: EMP_DATA,
+      });
+    } catch (error) {
+      console.log("error", error);
+      return respHelper(res, {
+        status: 500,
+        data: error,
       });
     }
   }
