@@ -26,7 +26,7 @@ class AttendanceController {
       )
     ) AS distance
     FROM companylocationmaster
-    HAVING distance <= 0.1; -- 0.1 km = 100 meters
+    HAVING distance <= 0.5; -- 0.5 km = 500 meters
   `;
 let userLat=result.latitude;
 let userLon=result.longitude
