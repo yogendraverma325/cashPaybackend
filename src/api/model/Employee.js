@@ -99,7 +99,19 @@ export default (sequelize, Sequelize) => {
       type: Sequelize.INTEGER,
     },
     permissionAndAccess: {
-     type: Sequelize.STRING(255),
+      type: Sequelize.STRING(255),
+    },
+    createdBy:{
+      type: Sequelize.INTEGER,
+    },
+    updatedBy:{
+      type: Sequelize.INTEGER,
+    },
+    createdAt: {
+      type: Sequelize.DATE,
+    },
+    updatedAt: {
+      type: Sequelize.DATE,
     },
     isActive: {
       type: Sequelize.INTEGER,
@@ -107,7 +119,7 @@ export default (sequelize, Sequelize) => {
     },
     isTempPassword: {
       type: Sequelize.BOOLEAN,
-    }
+    },
   });
   return employeeMaster;
 };

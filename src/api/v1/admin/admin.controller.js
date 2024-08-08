@@ -7,6 +7,7 @@ import constant from "../../../constant/messages.js";
 import eventEmitter from "../../../services/eventService.js";
 import bcrypt from "bcrypt";
 import commonController from "../common/common.controller.js";
+import moment from "moment";
 
 class AdminController {
   async addEmployee(req, res) {
@@ -22,7 +23,7 @@ class AdminController {
       if (existUser) {
         return respHelper(res, {
           status: 400,
-          msg: constant.ALREADY_EXISTS.replace('<module>', 'User'),
+          msg: constant.ALREADY_EXISTS.replace("<module>", "User"),
         });
       }
 
@@ -65,23 +66,26 @@ class AdminController {
 
   async unlockAccount(req, res) {
     try {
+      const result = await validator.unlockAccountSchema.validateAsync(
+        req.body
+      );
 
-      const result = await validator.unlockAccountSchema.validateAsync(req.body)
-
-      await db.employeeMaster.update({
-        wrongPasswordCount: 0,
-        accountRecoveryTime: null
-      }, {
-        where: {
-          empCode: result.employeeCode
+      await db.employeeMaster.update(
+        {
+          wrongPasswordCount: 0,
+          accountRecoveryTime: null,
+        },
+        {
+          where: {
+            empCode: result.employeeCode,
+          },
         }
-      })
+      );
 
       return respHelper(res, {
         status: 200,
-        msg: constant.ACCOUNT_UNLOCKED
+        msg: constant.ACCOUNT_UNLOCKED,
       });
-
     } catch (error) {
       console.log(error);
       if (error.isJoi === true) {
@@ -94,11 +98,11 @@ class AdminController {
         status: 500,
       });
     }
-  };
+  }
 
   async dashboardCard(req, res) {
     try {
-      await commonController.dashboardCard(req, res)
+      await commonController.dashboardCard(req, res);
     } catch (error) {
       console.log(error);
     }
@@ -106,27 +110,32 @@ class AdminController {
 
   async resetPassword(req, res) {
     try {
-      const result = await validator.unlockAccountSchema.validateAsync(req.body)
+      const result = await validator.unlockAccountSchema.validateAsync(
+        req.body
+      );
 
       const existUser = await db.employeeMaster.findOne({
         raw: true,
         where: {
-          empCode: result.employeeCode
+          empCode: result.employeeCode,
+        },
+      });
+
+      const newPassword = await helper.generateRandomPassword();
+
+      const encryptedPassword = await helper.encryptPassword(newPassword);
+
+      await db.employeeMaster.update(
+        {
+          password: encryptedPassword,
+          isTempPassword: 1,
+        },
+        {
+          where: {
+            empCode: result.employeeCode,
+          },
         }
-      })
-
-      const newPassword = await helper.generateRandomPassword()
-
-      const encryptedPassword = await helper.encryptPassword(newPassword)
-
-      await db.employeeMaster.update({
-        password: encryptedPassword,
-        isTempPassword: 1
-      }, {
-        where: {
-          empCode: result.employeeCode
-        }
-      })
+      );
 
       eventEmitter.emit(
         "resetPasswordMail",
@@ -139,7 +148,6 @@ class AdminController {
       return respHelper(res, {
         status: 200,
       });
-
     } catch (error) {
       console.log(error);
       if (error.isJoi === true) {
@@ -152,29 +160,28 @@ class AdminController {
         status: 500,
       });
     }
-  };
+  }
 
   async updateUserStatus(req, res) {
     try {
-
       for (const iterator of req.body) {
-
-        await db.employeeMaster.update({
-          isActive: iterator.status,
-          id: iterator.user
-        }, {
-          where: {
-            id: iterator.user
+        await db.employeeMaster.update(
+          {
+            isActive: iterator.status,
+            id: iterator.user,
+          },
+          {
+            where: {
+              id: iterator.user,
+            },
           }
-        })
-
+        );
       }
 
       return respHelper(res, {
         status: 200,
-        msg: "Status Updated"
+        msg: "Status Updated",
       });
-
     } catch (error) {
       return respHelper(res, {
         status: 500,
@@ -184,23 +191,43 @@ class AdminController {
 
   async updateManager(req, res) {
     try {
-
       for (const iterator of req.body) {
-        await db.employeeMaster.update({
-          manager: iterator.manager,
-          id: iterator.user
-        }, {
-          where: {
-            id: iterator.user
-          }
-        })
+        let getInfoEmp = await db.employeeMaster.findOne({
+          attributes: ["id", "empCode", "name", "manager", "createdAt","updatedAt"],
+          where: { id: iterator.user },
+        });       
+        if (getInfoEmp) {
+          let createHistory = {
+            employeeId: getInfoEmp.id,
+            managerId: getInfoEmp.manager ? getInfoEmp.manager : 1,
+            fromDate: moment(getInfoEmp.updatedAt).format("YYYY-MM-DD"),
+            toDate: moment().format("YYYY-MM-DD"),
+            createdBy: req.userId,
+            updatedBy: req.userId,
+            createdAt: moment().format("YYYY-MM-DD HH:mm:ss"),
+            updatedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
+          };
+          await db.managerHistory.create(createHistory);
+          await db.employeeMaster.update(
+            {
+              manager: iterator.manager
+            },
+            {
+              where: {
+                id: iterator.user,
+              },
+            }
+          );
+        } else {
+          console.log("employee not found");
+        }
       }
 
       return respHelper(res, {
         status: 200,
       });
-
     } catch (error) {
+      console.log("error", error);
       return respHelper(res, {
         status: 500,
       });

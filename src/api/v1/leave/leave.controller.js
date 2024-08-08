@@ -437,7 +437,7 @@ class LeaveController {
         return respHelper(res, {
           status: 404,
           data: {},
-          msg: message.LEAVE.LEAVE_LIMIT,
+          msg: message.LEAVE.LEAVE_LIMIT.replace("#", process.env.LEAVE_LIMIT),
         });
       }
       var inputs = [];
@@ -505,10 +505,10 @@ class LeaveController {
           .format("YYYY-MM-DD");
         let halfDayFor = 0;
         let isHalfDay = 0;
-        console.log("EMP_DATA",EMP_DATA)
+        console.log("EMP_DATA", EMP_DATA);
         let isDayWorking = await helper.isDayWorking(
           appliedFor,
-          EMP_DATA.weekOffId, 
+          EMP_DATA.weekOffId,
           EMP_DATA.companyLocationId
         );
         if (isDayWorking == 0) {
@@ -583,17 +583,15 @@ class LeaveController {
             createdBy: req.userId, // Replace with actual creator user ID
             createdAt: moment(), // Replace with actual creation date
             batch_id: uuid,
-            weekOffId:EMP_DATA.weekOffId, 
-            fromDate:req.body.fromDate,
-            toDate:req.body.toDate,
-            source:req.deviceSource
-        };
+            weekOffId: EMP_DATA.weekOffId,
+            fromDate: req.body.fromDate,
+            toDate: req.body.toDate,
+            source: req.deviceSource,
+          };
           arr.push(recordData);
           //const record = await db.employeeLeaveTransactions.create(recordData);
-
         }
         //const record = await db.employeeLeaveTransactions.bulkCreate(arr);
-
       }
       // Perform bulk insert
       await db.employeeLeaveTransactions.bulkCreate(arr);
@@ -664,8 +662,127 @@ class LeaveController {
     }
   }
 
+  // async leaveRemainingCount(req, res) {
+  //   try {
+  //     const {
+  //       leaveAutoId,
+  //       startDate,
+  //       endDate,
+  //       employeeFor,
+  //       leaveFirstHalf,
+  //       leaveSecondHalf,
+  //     } = req.body;
+  //     const daysDifferenceReq = moment(endDate).diff(moment(startDate), "days");
+
+  //     if (daysDifferenceReq > parseInt(process.env.LEAVE_LIMIT)) {
+  //       return respHelper(res, {
+  //         status: 404,
+  //         data: {},
+  //         msg: message.LEAVE.LEAVE_LIMIT,
+  //       });
+  //     }
+
+  //     let getCombinedVal = await helper.getCombineValue(
+  //       leaveFirstHalf,
+  //       leaveSecondHalf
+  //     );
+  //     let employeeId = employeeFor == 0 ? req.userId : employeeFor;
+  //     let employeeWeekOfId = await db.employeeMaster.findOne({
+  //       where: { id: employeeId },
+  //     });
+
+  //     let totalWorkingDays = await helper.remainingLeaveCount(
+  //       startDate,
+  //       endDate,
+  //       employeeWeekOfId.weekOffId,
+  //       employeeWeekOfId.companyLocationId
+  //     );
+
+  //     let pendingLeaveCountList = await db.employeeLeaveTransactions.findAll({
+  //       where: {
+  //         status: "pending",
+  //         employeeId: employeeId,
+  //         leaveAutoId: leaveAutoId,
+  //       },
+  //     });
+
+  //     let pendingLeaveCount = 0;
+  //     pendingLeaveCountList.map((el) => {
+  //       pendingLeaveCount += parseFloat(el.leaveCount);
+  //     });
+
+  //     const availableLeaveCount = await db.leaveMapping.findOne({
+  //       where: {
+  //         EmployeeId: employeeId,
+  //         leaveAutoId: leaveAutoId,
+  //       },
+  //     });
+  //     let totalAvailableLeave = availableLeaveCount
+  //       ? parseFloat(availableLeaveCount.availableLeave).toFixed(2) -
+  //           parseFloat(pendingLeaveCount).toFixed(2) <
+  //         0
+  //         ? "0.00"
+  //         : parseFloat(availableLeaveCount.availableLeave) -
+  //           parseFloat(pendingLeaveCount).toFixed(2)
+  //       : "0.00";
+
+  //     let unpaidLeave =
+  //       parseFloat(availableLeaveCount.availableLeave) -
+  //         parseFloat(totalWorkingDays).toFixed(2) <
+  //       0
+  //         ? -parseFloat(
+  //             parseFloat(availableLeaveCount.availableLeave) -
+  //               parseFloat(totalWorkingDays).toFixed(2)
+  //           )
+  //         : 0;
+
+  //     let totalWorkingDaysCalculated =
+  //       totalWorkingDays > 0
+  //         ? parseFloat(totalWorkingDays).toFixed(2) -
+  //           parseFloat(getCombinedVal).toFixed(2)
+  //         : 0;
+
+  //     let unpaidLeaveCalculated =
+  //       unpaidLeave - parseFloat(getCombinedVal).toFixed(2) < 0
+  //         ? 0
+  //         : unpaidLeave - parseFloat(getCombinedVal).toFixed(2);
+
+  //     return respHelper(res, {
+  //       status: 200,
+  //       data: {
+  //         totalWorkingDays: totalWorkingDaysCalculated,
+  //         availableLeave:
+  //           parseFloat(availableLeaveCount.availableLeave) -
+  //             parseFloat(totalWorkingDaysCalculated) <
+  //           0
+  //             ? 0
+  //             : parseFloat(availableLeaveCount.availableLeave) -
+  //               parseFloat(totalWorkingDaysCalculated),
+  //         unpaidLeave:
+  //           parseFloat(availableLeaveCount.availableLeave) -
+  //             parseFloat(totalWorkingDaysCalculated) <
+  //           0
+  //             ? -(
+  //                 parseFloat(availableLeaveCount.availableLeave) -
+  //                 parseFloat(totalWorkingDaysCalculated)
+  //               )
+  //             : 0, //(totalWorkingDaysCalculated-totalAvailableLeave)>0?totalWorkingDaysCalculated-totalAvailableLeave:0,
+  //       },
+  //       msg: message.LEAVE.REMAINING_LEAVES,
+  //     });
+  //   } catch (error) {
+  //     console.error(error);
+  //     return res.status(500).json({
+  //       message: "Internal server error",
+  //     });
+  //   }
+  // }
+
   async leaveRemainingCount(req, res) {
     try {
+      console.time("Total Execution Time");
+      console.time("Initial Validation");
+
       const {
         leaveAutoId,
         startDate,
@@ -674,9 +791,12 @@ class LeaveController {
         leaveFirstHalf,
         leaveSecondHalf,
       } = req.body;
+
       const daysDifferenceReq = moment(endDate).diff(moment(startDate), "days");
 
       if (daysDifferenceReq > parseInt(process.env.LEAVE_LIMIT)) {
+        console.timeEnd("Initial Validation");
+        console.timeEnd("Total Execution Time");
         return respHelper(res, {
           status: 404,
           data: {},
@@ -684,78 +804,103 @@ class LeaveController {
         });
       }
 
-      let getCombinedVal = await helper.getCombineValue(
+      console.timeEnd("Initial Validation");
+      console.time("Helper Function getCombineValue");
+
+      const getCombinedVal = await helper.getCombineValue(
         leaveFirstHalf,
         leaveSecondHalf
       );
-      let employeeId = employeeFor == 0 ? req.userId : employeeFor;
-      let employeeWeekOfId = await db.employeeMaster.findOne({
-        where: { id: employeeId },
-      });
 
-      let totalWorkingDays = await helper.remainingLeaveCount(
-        startDate,
-        endDate,
-        employeeWeekOfId.weekOffId,
-        employeeWeekOfId.companyLocationId
+      console.timeEnd("Helper Function getCombineValue");
+      console.time("Database Queries");
+
+      const employeeId = employeeFor == 0 ? req.userId : employeeFor;
+
+      const employeeData = await db.sequelize.transaction(
+        async (transaction) => {
+          const employee = await db.employeeMaster.findOne({
+            where: { id: employeeId },
+            attributes: ["weekOffId", "companyLocationId"],
+            transaction,
+          });
+
+          const pendingLeaves = await db.employeeLeaveTransactions.findAll({
+            where: {
+              status: "pending",
+              employeeId: employeeId,
+              leaveAutoId: leaveAutoId,
+            },
+            attributes: ["leaveCount"],
+            transaction,
+          });
+
+          const leaveMapping = await db.leaveMapping.findOne({
+            where: {
+              EmployeeId: employeeId,
+              leaveAutoId: leaveAutoId,
+            },
+            attributes: ["availableLeave"],
+            transaction,
+          });
+
+          return { employee, pendingLeaves, leaveMapping };
+        }
       );
 
-      let pendingLeaveCountList = await db.employeeLeaveTransactions.findAll({
-        where: {
-          status: "pending",
-          employeeId: employeeId,
-          leaveAutoId: leaveAutoId,
-        },
-      });
+      console.timeEnd("Database Queries");
+      console.time("Calculations");
 
-      let pendingLeaveCount = 0;
-      pendingLeaveCountList.map((el) => {
-        pendingLeaveCount += parseFloat(el.leaveCount);
-      });
+      const { employee, pendingLeaves, leaveMapping } = employeeData;
 
-      const availableLeaveCount = await db.leaveMapping.findOne({
-        where: {
-          EmployeeId: employeeId,
-          leaveAutoId: leaveAutoId,
-        },
-      });
+      if (!employee) {
+        console.timeEnd("Calculations");
+        console.timeEnd("Total Execution Time");
+        return respHelper(res, {
+          status: 200,
+          data: {
+            totalWorkingDays: 0,
+            availableLeave: 0,
+            unpaidLeave: 0,
+          },
+          msg: message.LEAVE.REMAINING_LEAVES,
+        });
+      }
 
-      let totalAvailableLeave = availableLeaveCount
-        ? parseFloat(availableLeaveCount.availableLeave).toFixed(2) -
-            parseFloat(pendingLeaveCount).toFixed(2) <
-          0
-          ? "0.00"
-          : parseFloat(availableLeaveCount.availableLeave) -
-            parseFloat(pendingLeaveCount).toFixed(2)
-        : "0.00";
+      const totalWorkingDays = await helper.remainingLeaveCount(
+        startDate,
+        endDate,
+        employee.weekOffId,
+        employee.companyLocationId
+      );
 
-      let unpaidLeave =
-        parseFloat(availableLeaveCount.availableLeave) -
-          parseFloat(totalWorkingDays).toFixed(2) <
+      const pendingLeaveCount = pendingLeaves.reduce(
+        (acc, el) => acc + parseFloat(el.leaveCount),
         0
-          ? -parseFloat(
-              parseFloat(availableLeaveCount.availableLeave) -
-                parseFloat(totalWorkingDays).toFixed(2)
-            )
-          : 0;
+      );
 
-      let totalWorkingDaysCalculated =
-        totalWorkingDays > 0
-          ? parseFloat(totalWorkingDays).toFixed(2) -
-            parseFloat(getCombinedVal).toFixed(2)
-          : 0;
+      const availableLeave = leaveMapping
+        ? parseFloat(leaveMapping.availableLeave) - pendingLeaveCount
+        : 0;
+      const unpaidLeave = Math.max(0, totalWorkingDays - availableLeave);
+      const totalWorkingDaysCalculated = Math.max(
+        0,
+        totalWorkingDays - getCombinedVal
+      );
+      const unpaidLeaveCalculated = Math.max(0, unpaidLeave - getCombinedVal);
 
-      let unpaidLeaveCalculated =
-        unpaidLeave - parseFloat(getCombinedVal).toFixed(2) < 0
-          ? 0
-          : unpaidLeave - parseFloat(getCombinedVal).toFixed(2);
+      const earnedLeave = Math.max(0, availableLeave);
+      const unpaidLeaveResult = Math.max(0, unpaidLeaveCalculated);
+
+      console.timeEnd("Calculations");
+      console.timeEnd("Total Execution Time");
 
       return respHelper(res, {
         status: 200,
         data: {
           totalWorkingDays: totalWorkingDaysCalculated,
-          availableLeave: totalAvailableLeave,
-          unpaidLeave: (totalWorkingDaysCalculated-totalAvailableLeave)>0?totalWorkingDaysCalculated-totalAvailableLeave:0,
+          availableLeave: earnedLeave,
+          unpaidLeave: unpaidLeaveResult,
         },
         msg: message.LEAVE.REMAINING_LEAVES,
       });

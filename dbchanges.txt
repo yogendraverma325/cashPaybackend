@@ -1,3 +1,64 @@
+------------------------------07-08-2024 (Harish)--------------------------------------------
+
+CREATE TABLE employeeeducationHistory (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    userId INT,
+    educationDegree INT,
+    educationSpecialisation VARCHAR(255),
+    educationStartDate DATE,
+    educationCompletionDate DATE,
+    educationInstitute VARCHAR(255),
+    educationAttachments VARCHAR(255),
+    educationRemark VARCHAR(255),
+    educationActivities VARCHAR(255),
+    isHighestEducation BOOLEAN,
+    createdBy INT,
+    createdAt DATETIME,
+    updatedBy INT,
+    updatedAt DATETIME
+);
+
+
+
+ALTER TABLE `hrms_dev`.`employeejobdetailshistory` 
+CHANGE COLUMN `createdAt` `createdAt` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP AFTER `updatedBy`,
+CHANGE COLUMN `jobId` `jobHistoryId` INT NOT NULL AUTO_INCREMENT ,
+CHANGE COLUMN `userId` `userId` INT NOT NULL ,
+CHANGE COLUMN `dateOfJoining` `dateOfJoining` VARCHAR(255) NULL DEFAULT NULL ,
+CHANGE COLUMN `updatedAt` `updatedAt` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP ;
+
+CREATE TABLE employeejobdetailshistory (
+    jobHistoryId INT AUTO_INCREMENT PRIMARY KEY,
+    userId INT,
+    dateOfJoining DATE,
+    probationPeriod VARCHAR(255),
+    languagesSpoken VARCHAR(255),
+    createdAt DATETIME,
+    createdBy INT,
+    updatedBy INT,
+    updatedAt DATETIME
+);
+
+ALTER TABLE `hrms_dev`.`employee` 
+ADD COLUMN `createdBy` INT NULL DEFAULT 1 AFTER `permissionAndAccess`,
+ADD COLUMN `updatedBy` INT NULL DEFAULT 1 AFTER `createdBy`,
+ADD COLUMN `createdAt` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP AFTER `updatedBy`,
+ADD COLUMN `updatedAt` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP AFTER `createdAt`;
+
+
+CREATE TABLE `hrms_dev`.`managerhistory` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `employeeId` INT NOT NULL,
+  `managerId` INT NOT NULL,
+  `fromDate` VARCHAR(255) NOT NULL,
+  `toDate` VARCHAR(255) NOT NULL,
+  `createdBy` INT NOT NULL,
+  `updatedBy` INT NOT NULL,
+  `createdAt` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `updatedAt` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`));
+
+
 ------------------------------22-07-2024 (Harish)-----------------------------------------
 ALTER TABLE `hrms_dev`.`dashboardcard` 
 ADD COLUMN `isCardWorking` INT NULL DEFAULT 0 AFTER `mobileDarkBackgroundColor`;

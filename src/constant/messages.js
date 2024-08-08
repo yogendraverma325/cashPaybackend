@@ -51,7 +51,7 @@ const message = {
     REJECTED: "Leave Request Rejected",
     REVOKED: "Leave Request Revoked",
     REMAINING_LEAVES: "Available Leaves",
-    LEAVE_LIMIT: "Can't apply leave more than 15 days",
+    LEAVE_LIMIT: "Can't apply leave more than # days",
   },
 };
 
