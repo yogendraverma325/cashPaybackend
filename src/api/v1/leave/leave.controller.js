@@ -505,7 +505,6 @@ class LeaveController {
           .format("YYYY-MM-DD");
         let halfDayFor = 0;
         let isHalfDay = 0;
-        console.log("EMP_DATA", EMP_DATA);
         let isDayWorking = await helper.isDayWorking(
           appliedFor,
           EMP_DATA.weekOffId,
@@ -595,6 +594,39 @@ class LeaveController {
       }
       // Perform bulk insert
       await db.employeeLeaveTransactions.bulkCreate(arr);
+
+      const employeeData = await db.employeeMaster.findOne({
+        where: {
+          id: result.employeeId
+        },
+        attributes: ['name', 'email'],
+        include: [{
+          model: db.employeeMaster,
+          as: 'managerData',
+          attributes: ['name', 'email'],
+        }]
+      })
+      const leaveType = await db.leaveMaster.findOne({
+        where: {
+          leaveId: result.leaveAutoId
+        },
+        attributes: ['leaveName']
+      })
+
+      eventEmitter.emit(
+        "leaveRequestMail",
+        JSON.stringify({
+          requesterName: employeeData.dataValues.name,
+          leaveFromDate: result.fromDate,
+          leaveToDate: result.toDate,
+          userRemark: result.message,
+          leaveType: leaveType.dataValues.leaveName,
+          managerName: employeeData.dataValues.managerData.name,
+          managerEmail: employeeData.dataValues.managerData.email,
+          cc: result.recipientsIds
+        })
+      );
+
       return respHelper(res, {
         status: 200,
         data: arr,

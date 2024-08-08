@@ -57,7 +57,7 @@ const mailService = async (data) => {
   sendGrid.setApiKey(process.env.SENDGRID_API_KEY);
   const msg = {
     // to: data.to,
-    to: "example@teamcomputers.com",
+    to: "rag.ranjan@teamcomputers.com",
     from: process.env.SENDER_MAIL,
     subject: data.subject,
     text: data.text,
