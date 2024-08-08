@@ -220,6 +220,15 @@ const addJobDetailsSchema = Joi.object({
   languagesSpoken: Joi.string().label("Language Spoken").optional()
 })
 
+const updateManagerSchema = Joi.array().required().items(
+  Joi.object({
+    user: Joi.number().required().label("User"),
+    manager: Joi.number().required().label("Manager"),
+  })
+).messages({
+  'array.base':'Please Select Atleaset One User'
+})
+
 export default {
   loginSchema,
   userCreationSchema,
@@ -242,5 +251,6 @@ export default {
   remainingLeaves,
   addJobDetailsSchema,
   updateEducationDetailsSchema,
-  addEducationDetailsSchema
+  addEducationDetailsSchema,
+  updateManagerSchema
 };

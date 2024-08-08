@@ -71,9 +71,9 @@ class LeaveController {
         where: Object.assign(
           query === "raisedByMe"
             ? {
-                employeeId: req.userId,
-                status: "pending",
-              }
+              employeeId: req.userId,
+              status: "pending",
+            }
             : { pendingAt: req.userId, status: "pending" }
         ),
         attributes: { exclude: ["createdBy", "updatedBy", "updatedAt"] },
@@ -574,10 +574,10 @@ class LeaveController {
             leaveAttachment:
               result.attachment != ""
                 ? await helper.fileUpload(
-                    result.attachment,
-                    `leaveAttachment_${uuid}`,
-                    `uploads/${EMP_DATA.empCode}`
-                  )
+                  result.attachment,
+                  `leaveAttachment_${uuid}`,
+                  `uploads/${EMP_DATA.empCode}`
+                )
                 : null,
             pendingAt: EMP_DATA.managerData.id, // Replace with actual pending at value
             createdBy: req.userId, // Replace with actual creator user ID
@@ -787,9 +787,9 @@ class LeaveController {
         leaveFirstHalf,
         leaveSecondHalf,
       } = req.body;
-  
+
       const daysDifferenceReq = moment(endDate).diff(moment(startDate), "days");
-  
+
       if (daysDifferenceReq > parseInt(process.env.LEAVE_LIMIT)) {
         return respHelper(res, {
           status: 404,
@@ -797,10 +797,10 @@ class LeaveController {
           msg: message.LEAVE.LEAVE_LIMIT,
         });
       }
-  
+
       const getCombinedVal = await helper.getCombineValue(leaveFirstHalf, leaveSecondHalf);
       const employeeId = employeeFor == 0 ? req.userId : employeeFor;
-  
+
       // Fetch employee details and leave counts in parallel
       const [employeeWeekOfId, pendingLeaveCountList, availableLeaveCount] = await Promise.all([
         db.employeeMaster.findOne({ where: { id: employeeId } }),
@@ -818,25 +818,25 @@ class LeaveController {
           },
         }),
       ]);
-  
+
       const totalWorkingDays = await helper.remainingLeaveCount(
         startDate,
         endDate,
         employeeWeekOfId.weekOffId,
         employeeWeekOfId.companyLocationId
       );
-  
+
       // Calculate pending leave count
       const pendingLeaveCount = pendingLeaveCountList.reduce((acc, el) => acc + parseFloat(el.leaveCount), 0);
-  
+
       const totalAvailableLeave = availableLeaveCount
         ? parseFloat(availableLeaveCount.availableLeave) - pendingLeaveCount
         : 0;
-  
+
       const unpaidLeave = Math.max(0, totalWorkingDays - totalAvailableLeave);
       const totalWorkingDaysCalculated = Math.max(0, totalWorkingDays - getCombinedVal);
       const unpaidLeaveCalculated = Math.max(0, unpaidLeave - getCombinedVal);
-  
+
       const availableLeave = Math.max(0, totalAvailableLeave - totalWorkingDaysCalculated);
       const unpaidLeaveResult = Math.max(0, unpaidLeaveCalculated);
       const earnedLeave = parseFloat(availableLeaveCount.availableLeave) - parseFloat(pendingLeaveCount)
@@ -845,7 +845,7 @@ class LeaveController {
         data: {
           totalWorkingDays: totalWorkingDaysCalculated,
           availableLeave: availableLeave,
-          earnedLeave : earnedLeave,
+          earnedLeave: earnedLeave,
           unpaidLeave: unpaidLeaveResult,
         },
         msg: message.LEAVE.REMAINING_LEAVES,
@@ -857,7 +857,7 @@ class LeaveController {
       });
     }
   }
-  
+
   async leaveHistory(req, res) {
     try {
       const year = req.params.year;

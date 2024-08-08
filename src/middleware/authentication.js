@@ -32,8 +32,8 @@ class Authentication {
                     });
                 }
 
-                 let userData = await helper.checkActiveUser(decoded.user.id);
-               if (!userData) {
+                let userData = await helper.checkActiveUser(decoded.user.id);
+                if (!userData) {
                     return respHelper(res, {
                         status: 401,
                         msg: constant.USER_NOT_EXIST,

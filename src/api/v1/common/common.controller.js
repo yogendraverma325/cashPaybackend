@@ -118,7 +118,7 @@ class commonController {
           data: {},
         });
       }
-    } catch (error) {}
+    } catch (error) { }
   }
 
   async updatePaymentDetails(req, res) {
@@ -264,7 +264,7 @@ class commonController {
           data: {},
         });
       }
-    } catch (error) {}
+    } catch (error) { }
   }
 
   async getFamilyMember(req, res) {
@@ -290,7 +290,7 @@ class commonController {
           data: {},
         });
       }
-    } catch (error) {}
+    } catch (error) { }
   }
 
   async addJobDetails(req, res) {
@@ -569,7 +569,7 @@ class commonController {
 
       await db.educationDetails.update(
         Object.assign(result, {
-          updatedBy:req.userId,
+          updatedBy: req.userId,
           updatedAt: moment(),
         }),
         {
@@ -597,12 +597,12 @@ class commonController {
       });
     }
   }
-   async addEducationDetails(req, res) {
+  async addEducationDetails(req, res) {
     try {
       const result = await validator.addEducationDetailsSchema.validateAsync(
         req.body
       );
-       await db.educationDetails.create(
+      await db.educationDetails.create(
         Object.assign(
           {
             userId: result.userId ? result.userId : req.userId,
@@ -610,7 +610,7 @@ class commonController {
           },
           result,
           {
-            createdBy:req.userId,
+            createdBy: req.userId,
             createdAt: moment(),
           }
         )

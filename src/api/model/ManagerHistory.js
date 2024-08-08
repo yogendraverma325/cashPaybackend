@@ -5,6 +5,9 @@ export default (sequelize, Sequelize) => {
             primaryKey: true,
             autoIncrement: true
         },
+        employeeId: {
+            type: Sequelize.INTEGER
+        },
         managerId: {
             type: Sequelize.INTEGER
         },
