@@ -209,17 +209,31 @@ class commonController {
       const result = await validator.updateFamilyDetailsSchema.validateAsync(
         req.body
       );
+      let getFamilyDetails = await db.familyDetails.findOne({
+        where: { empFamilyDetailsId: result.empFamilyDetailsId },
+      });
+      if (getFamilyDetails) {
+        await db.familyMemberHistory.create({
+          "EmployeeId":getFamilyDetails.EmployeeId,
+          "name":getFamilyDetails.name,
+          "dob":getFamilyDetails.dob,
+          "gender":getFamilyDetails.gender,
+          "mobileNo":getFamilyDetails.mobileNo,
+          "relationWithEmp":getFamilyDetails.relationWithEmp,
+          "createdBy":getFamilyDetails.createdBy,
+          "updatedBy":getFamilyDetails.updatedBy
 
-      await db.familyDetails.update(
-        Object.assign(result, {
-          updatedBy: req.userId,
-          updatedAt: moment(),
-        }),
-        {
-          where: { empFamilyDetailsId: result.empFamilyDetailsId },
-        }
-      );
-
+        });
+        await db.familyDetails.update(
+          Object.assign(result, {
+            updatedBy: req.userId,
+            updatedAt: moment(),
+          }),
+          {
+            where: { empFamilyDetailsId: result.empFamilyDetailsId },
+          }
+        );
+      }
       return respHelper(res, {
         status: 200,
         msg: constant.UPDATE_SUCCESS.replace(
@@ -311,25 +325,26 @@ class commonController {
           ...result,
           ...{ createdBy: existPaymentDetails.createdBy },
           ...{ createdAt: existPaymentDetails.createdAt },
-          ...{ updatedBy: userId },
+          ...{ updatedBy: req.userId },
           ...{ updatedAt: moment() },
           ...{ userId: userId },
           ...{ isActive: 1 },
         };
+        await db.employeeJobDetailsHistory.create(existPaymentDetails);
         await db.jobDetails.update(obj, {
           where: { userId: userId },
         });
 
         return respHelper(res, {
           status: 200,
-          msg: constant.UPDATE_SUCCESS.replace("<module>", "Payment Details"),
+          msg: constant.UPDATE_SUCCESS.replace("<module>", "Job Details"),
         });
       } else {
         let obj = {
           ...result,
-          ...{ createdBy: userId },
+          ...{ createdBy: req.userId },
           ...{ createdAt: moment() },
-          ...{ updatedBy: userId },
+          ...{ updatedBy: req.userId },
           ...{ updatedAt: moment() },
           ...{ userId: userId },
           ...{ isActive: 1 },
@@ -567,22 +582,50 @@ class commonController {
         req.body
       );
 
-      await db.educationDetails.update(
-        Object.assign(result, {
-          updatedBy:req.userId,
-          updatedAt: moment(),
-        }),
-        {
-          where: { educationId: result.educationId },
-        }
-      );
+      let getInfo = await db.educationDetails.findOne({
+        attributes: [
+          "userId",
+          "educationDegree",
+          "educationSpecialisation",
+          "educationStartDate",
+          "educationCompletionDate",
+          "educationInstitute",
+          "educationAttachments",
+          "educationRemark",
+          "isHighestEducation",
+          "createdBy",
+          "updatedBy",
+        ],
+        where: { educationId: result.educationId },
+        raw: true,
+      });
+      if (getInfo) {
+        await db.employeeEducationDetailsHistory.create({
+          userId: getInfo.userId,
+          educationDegree: getInfo.educationDegree,
+          educationSpecialisation: getInfo.educationSpecialisation,
+          educationStartDate: getInfo.educationStartDate,
+          educationCompletionDate: getInfo.educationCompletionDate,
+          educationInstitute: getInfo.educationInstitute,
+          educationAttachments: getInfo.educationAttachments,
+          educationRemark: getInfo.educationRemark,
+          educationActivities: getInfo.educationActivities,
+          isHighestEducation: getInfo.isHighestEducation,
+        });
+        await db.educationDetails.update(
+          Object.assign(result, {
+            updatedBy: req.userId,
+            updatedAt: moment(),
+          }),
+          {
+            where: { educationId: result.educationId },
+          }
+        );
+      }
 
       return respHelper(res, {
         status: 200,
-        msg: constant.UPDATE_SUCCESS.replace(
-          "<module>",
-          "Family Member Details"
-        ),
+        msg: constant.UPDATE_SUCCESS.replace("<module>", "Education Details"),
       });
     } catch (error) {
       console.log(error);
@@ -597,12 +640,12 @@ class commonController {
       });
     }
   }
-   async addEducationDetails(req, res) {
+  async addEducationDetails(req, res) {
     try {
       const result = await validator.addEducationDetailsSchema.validateAsync(
         req.body
       );
-       await db.educationDetails.create(
+      await db.educationDetails.create(
         Object.assign(
           {
             userId: result.userId ? result.userId : req.userId,
@@ -610,7 +653,7 @@ class commonController {
           },
           result,
           {
-            createdBy:req.userId,
+            createdBy: req.userId,
             createdAt: moment(),
           }
         )
