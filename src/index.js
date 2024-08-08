@@ -1,6 +1,6 @@
 import './config/db.config.js'
 import './config/redisDb.config.js'
-import './services/cronService.js';
+// import './services/cronService.js';
 import routes from './routes/routes.js';
 import Server from './common/server.js';
 import app from './common/app.js';

@@ -60,7 +60,7 @@ import weekOffDayMappingMaster from "../api/model/weekOffDayMappingMaster.js";
 import CalenderYear from "../api/model/CalenderYear.js";
 import permissoinandaccess from "../api/model/PermissionAndAccess.js";
 import ManagerHistory from "../api/model/ManagerHistory.js";
-import employeeJobDetailsHistory from "../api/model/employeeJobDetailsHistory.js";
+import employeeJobDetailsHistory from "../api/model/EmployeeJobDetailsHistory.js";
 import EmployeeEducationDetailsHistory from "../api/model/EmployeeEducationDetailsHistory.js";
 import FamilyMemberHistory from "../api/model/FamilyMemberHistory.js";
 import literal from "sequelize";
@@ -80,7 +80,7 @@ const sequelize = new Sequelize(
       timestamps: false,
     },
     pool: {
-      max: 20,
+      max: 200,
       min: 0,
       acquire: 30000,
       idle: 10000,
