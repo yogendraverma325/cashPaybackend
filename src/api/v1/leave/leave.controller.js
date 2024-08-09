@@ -505,7 +505,6 @@ class LeaveController {
           .format("YYYY-MM-DD");
         let halfDayFor = 0;
         let isHalfDay = 0;
-        console.log("EMP_DATA", EMP_DATA);
         let isDayWorking = await helper.isDayWorking(
           appliedFor,
           EMP_DATA.weekOffId,
