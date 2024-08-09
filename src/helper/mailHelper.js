@@ -7,6 +7,10 @@ export default function getAllListeners(eventEmitter) {
         await regularizationRequestMail(input);
     });
 
+    eventEmitter.on('leaveRequestMail', async (input) => {
+        await leaveRequestMail(input);
+    });
+
     eventEmitter.on('resetPasswordMail', async (input) => {
         await resetPasswordMail(input);
     });
@@ -21,8 +25,23 @@ async function regularizationRequestMail(input) {
         const userData = JSON.parse(input)
         await helper.mailService({
             to: userData.managerEmail,
-            subject: `Regularization Request`,
+            subject: `${userData.requesterName} has applied for attendance update`,
             html: await emailTemplate.regularizationRequestMail(userData)
+        })
+    } catch (error) {
+        console.log(error)
+        logger.error(error)
+    }
+}
+
+async function leaveRequestMail(input) {
+    try {
+        const userData = JSON.parse(input)
+        await helper.mailService({
+            to: userData.managerEmail,
+            subject: `${userData.requesterName} has requested for leave`,
+            html: await emailTemplate.leaveRequestMail(userData),
+            cc: (userData.cc).split(",")
         })
     } catch (error) {
         console.log(error)

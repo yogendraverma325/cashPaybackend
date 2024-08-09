@@ -71,9 +71,9 @@ class LeaveController {
         where: Object.assign(
           query === "raisedByMe"
             ? {
-                employeeId: req.userId,
-                status: "pending",
-              }
+              employeeId: req.userId,
+              status: "pending",
+            }
             : { pendingAt: req.userId, status: "pending" }
         ),
         attributes: { exclude: ["createdBy", "updatedBy", "updatedAt"] },
@@ -574,10 +574,10 @@ class LeaveController {
             leaveAttachment:
               result.attachment != ""
                 ? await helper.fileUpload(
-                    result.attachment,
-                    `leaveAttachment_${uuid}`,
-                    `uploads/${EMP_DATA.empCode}`
-                  )
+                  result.attachment,
+                  `leaveAttachment_${uuid}`,
+                  `uploads/${EMP_DATA.empCode}`
+                )
                 : null,
             pendingAt: EMP_DATA.managerData.id, // Replace with actual pending at value
             createdBy: req.userId, // Replace with actual creator user ID
@@ -595,6 +595,39 @@ class LeaveController {
       }
       // Perform bulk insert
       await db.employeeLeaveTransactions.bulkCreate(arr);
+
+      const employeeData = await db.employeeMaster.findOne({
+        where: {
+          id: result.employeeId
+        },
+        attributes: ['name', 'email'],
+        include: [{
+          model: db.employeeMaster,
+          as: 'managerData',
+          attributes: ['name', 'email'],
+        }]
+      })
+      const leaveType = await db.leaveMaster.findOne({
+        where: {
+          leaveId: result.leaveAutoId
+        },
+        attributes: ['leaveName']
+      })
+
+      eventEmitter.emit(
+        "leaveRequestMail",
+        JSON.stringify({
+          requesterName: employeeData.dataValues.name,
+          leaveFromDate: result.fromDate,
+          leaveToDate: result.toDate,
+          userRemark: result.message,
+          leaveType: leaveType.dataValues.leaveName,
+          managerName: employeeData.dataValues.managerData.name,
+          managerEmail: employeeData.dataValues.managerData.email,
+          cc: result.recipientsIds
+        })
+      );
+
       return respHelper(res, {
         status: 200,
         data: arr,

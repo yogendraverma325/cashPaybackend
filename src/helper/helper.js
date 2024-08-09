@@ -57,7 +57,7 @@ const mailService = async (data) => {
   sendGrid.setApiKey(process.env.SENDGRID_API_KEY);
   const msg = {
     // to: data.to,
-    to: "example@teamcomputers.com",
+    to: "rag.ranjan@teamcomputers.com",
     from: process.env.SENDER_MAIL,
     subject: data.subject,
     text: data.text,
@@ -80,8 +80,8 @@ const timeDifference = async (start, end) => {
 };
 
 const timeDifferenceNew = async (start, end) => {
-  console.log("start",start)
-  console.log("end",end)
+  console.log("start", start)
+  console.log("end", end)
   // let startTime = moment(start, "YYYY-MM-DD HH:mm:ss");
   // let endTime = moment(end, "YYYY-MM-DD HH:mm:ss");
   let startTime = moment(start, "HH:mm:ss");
@@ -445,7 +445,7 @@ const remainingLeaveCount = async function (
   return workingCount;
 };
 
-const isDayWorking = async function(startDate,weekOffId,companyLocationId){
+const isDayWorking = async function (startDate, weekOffId, companyLocationId) {
   let appliedFor = moment(startDate).add(0, "days").format("YYYY-MM-DD");
 
   let lastDayDateAnotherFormat = moment(appliedFor).format("DD-MM-YYYY");

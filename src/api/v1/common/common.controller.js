@@ -120,7 +120,7 @@ class commonController {
           data: {},
         });
       }
-    } catch (error) {}
+    } catch (error) { }
   }
 
   async updatePaymentDetails(req, res) {
@@ -279,7 +279,7 @@ class commonController {
           data: {},
         });
       }
-    } catch (error) {}
+    } catch (error) { }
   }
 
   async getFamilyMember(req, res) {
@@ -305,7 +305,7 @@ class commonController {
           data: {},
         });
       }
-    } catch (error) {}
+    } catch (error) { }
   }
 
   async addJobDetails(req, res) {
