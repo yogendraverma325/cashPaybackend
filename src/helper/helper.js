@@ -8,7 +8,7 @@ import bcrypt from "bcrypt";
 
 const generateJwtToken = async (data) => {
   const token = jwt.sign(data, process.env.JWT_KEY, {
-    expiresIn: process.env.JWT_EXPIRY,
+    expiresIn: (data.user.device === 'desktop') ? process.env.JWT_EXPIRY : process.env.JWT_EXPIRY_MOBILE,
   });
   return token;
 };

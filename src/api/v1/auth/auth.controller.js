@@ -7,7 +7,6 @@ import bcrypt from "bcrypt";
 import moment from "moment";
 import fs from 'fs';
 import { cwd } from 'process';
-import DeviceDetector from "device-detector-js";
 
 
 class AuthController {
@@ -15,11 +14,9 @@ class AuthController {
   async login(req, res) {
     try {
 
+      console.log("req device server --->>", req.deviceSource)
+
       const result = await validator.loginSchema.validateAsync(req.body);
-
-      const deviceDetector = new DeviceDetector();
-      const deviceData = deviceDetector.parse(req.headers['user-agent'])
-
       const existUser = await db.employeeMaster.findOne({
         where: { empCode: result.tmc, isActive: 1 },
         include: [
@@ -90,7 +87,7 @@ class AuthController {
       await db.loginDetails.create({
         employeeId: existUser.dataValues.id,
         loginIP: req.headers['x-real-ip'] ? req.headers['x-real-ip'] : await helper.ip(req._remoteAddress),
-        loginDevice: `${deviceData.os ? deviceData.os.name : 'OS Name'} - ${deviceData.device ? deviceData.device.type : 'Device Type'}`,
+        loginDevice: `${req.deviceSource.os ? req.deviceSource.os.name : 'OS Name'} - ${req.deviceSource.device ? req.deviceSource.device.type : 'Device Type'}`,
         createdDt: moment()
       })
 
@@ -99,6 +96,7 @@ class AuthController {
           id: existUser.id,
           name: existUser.name,
           role: existUser.role.name,
+          device: req.deviceSource.device ? req.deviceSource.device.type : 'Other'
         },
       };
 

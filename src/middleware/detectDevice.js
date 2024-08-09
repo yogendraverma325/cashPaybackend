@@ -1,10 +1,9 @@
-import DeviceDetector from "node-device-detector";
+import DeviceDetector from "device-detector-js";
 
 const detectDevice = async (req, res, next) => {
-    const detector = new DeviceDetector();
-    const userAgent = req.get("User-Agent");
-    const result = detector.detect(userAgent);
-    req.deviceSource = JSON.stringify(result);
+    const deviceDetector = new DeviceDetector();
+    const result = deviceDetector.parse(req.headers['user-agent'])
+    req.deviceSource = result;
     next()
 }
 

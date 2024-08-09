@@ -16,11 +16,12 @@ import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express'
 import { swaggerOptions } from './swagger/swaggerDefinition.js';
 import helper from './helper/helper.js';
+import detectDevice from './middleware/detectDevice.js';
 
 app.use(helmet());
 app.use(morgan('dev'));
 app.use(cors())
-app.use('/api', routes)
+app.use('/api', detectDevice, routes)
 
 helper.checkFolder()
 
