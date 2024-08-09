@@ -41,11 +41,12 @@ class Authentication {
                 }
                 const token = await helper.generateJwtToken({ user: decoded.user });
 
-                const detector = new DeviceDetector();
-                const userAgent = req.get("User-Agent");
-                const result = detector.detect(userAgent);
+                // const detector = new DeviceDetector();
+                // const userAgent = req.get("User-Agent");
+                // const result = detector.detect(userAgent);
+                // console.log(result)
                 req.userData = userData;
-                req.deviceSource = JSON.stringify(result);
+                // req.deviceSource = JSON.stringify(result);
                 req.userId = decoded.user.id;
                 req.userRole = decoded.user.role
                 req.sessionToken = token;
