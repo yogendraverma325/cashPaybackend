@@ -958,6 +958,8 @@ class AttendanceController {
             as: "leaveMasterDetails",
             attributes: ["leaveName", "leaveCode"],
           },
+          order:[['employeeLeaveTransactionsId','desc']],
+          limit:1
         }),
         db.shiftMaster.findAll({
           attributes: [

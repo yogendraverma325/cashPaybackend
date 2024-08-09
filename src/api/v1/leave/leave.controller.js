@@ -505,7 +505,6 @@ class LeaveController {
           .format("YYYY-MM-DD");
         let halfDayFor = 0;
         let isHalfDay = 0;
-        console.log("EMP_DATA", EMP_DATA);
         let isDayWorking = await helper.isDayWorking(
           appliedFor,
           EMP_DATA.weekOffId,
@@ -778,11 +777,141 @@ class LeaveController {
   //   }
   // }
 
+  // async leaveRemainingCount(req, res) {
+  //   try {
+  //     console.time("Total Execution Time");
+  //     console.time("Initial Validation");
+
+  //     const {
+  //       leaveAutoId,
+  //       startDate,
+  //       endDate,
+  //       employeeFor,
+  //       leaveFirstHalf,
+  //       leaveSecondHalf,
+  //     } = req.body;
+
+  //     const daysDifferenceReq = moment(endDate).diff(moment(startDate), "days");
+
+  //     if (daysDifferenceReq > parseInt(process.env.LEAVE_LIMIT)) {
+  //       console.timeEnd("Initial Validation");
+  //       console.timeEnd("Total Execution Time");
+  //       return respHelper(res, {
+  //         status: 404,
+  //         data: {},
+  //         msg: message.LEAVE.LEAVE_LIMIT,
+  //       });
+  //     }
+
+  //     console.timeEnd("Initial Validation");
+  //     console.time("Helper Function getCombineValue");
+
+  //     const getCombinedVal = await helper.getCombineValue(
+  //       leaveFirstHalf,
+  //       leaveSecondHalf
+  //     );
+
+  //     console.timeEnd("Helper Function getCombineValue");
+  //     console.time("Database Queries");
+
+  //     const employeeId = employeeFor == 0 ? req.userId : employeeFor;
+
+  //     const employeeData = await db.sequelize.transaction(
+  //       async (transaction) => {
+  //         const employee = await db.employeeMaster.findOne({
+  //           where: { id: employeeId },
+  //           attributes: ["weekOffId", "companyLocationId"],
+  //           transaction,
+  //         });
+
+  //         const pendingLeaves = await db.employeeLeaveTransactions.findAll({
+  //           where: {
+  //             status: "pending",
+  //             employeeId: employeeId,
+  //             leaveAutoId: leaveAutoId,
+  //           },
+  //           attributes: ["leaveCount"],
+  //           transaction,
+  //         });
+
+  //         const leaveMapping = await db.leaveMapping.findOne({
+  //           where: {
+  //             EmployeeId: employeeId,
+  //             leaveAutoId: leaveAutoId,
+  //           },
+  //           attributes: ["availableLeave"],
+  //           transaction,
+  //         });
+
+  //         return { employee, pendingLeaves, leaveMapping };
+  //       }
+  //     );
+
+  //     console.timeEnd("Database Queries");
+  //     console.time("Calculations");
+
+  //     const { employee, pendingLeaves, leaveMapping } = employeeData;
+
+  //     if (!employee) {
+  //       console.timeEnd("Calculations");
+  //       console.timeEnd("Total Execution Time");
+  //       return respHelper(res, {
+  //         status: 200,
+  //         data: {
+  //           totalWorkingDays: 0,
+  //           availableLeave: 0,
+  //           unpaidLeave: 0,
+  //         },
+  //         msg: message.LEAVE.REMAINING_LEAVES,
+  //       });
+  //     }
+
+  //     const totalWorkingDays = await helper.remainingLeaveCount(
+  //       startDate,
+  //       endDate,
+  //       employee.weekOffId,
+  //       employee.companyLocationId
+  //     );
+
+  //     const pendingLeaveCount = pendingLeaves.reduce(
+  //       (acc, el) => acc + parseFloat(el.leaveCount),
+  //       0
+  //     );
+
+  //     const availableLeave = leaveMapping
+  //       ? parseFloat(leaveMapping.availableLeave) - pendingLeaveCount
+  //       : 0;
+  //     const unpaidLeave = Math.max(0, totalWorkingDays - availableLeave);
+  //     const totalWorkingDaysCalculated = Math.max(
+  //       0,
+  //       totalWorkingDays - getCombinedVal
+  //     );
+  //     const unpaidLeaveCalculated = Math.max(0, unpaidLeave - getCombinedVal);
+
+  //     const earnedLeave = Math.max(0, availableLeave);
+  //     const unpaidLeaveResult = Math.max(0, unpaidLeaveCalculated);
+
+  //     console.timeEnd("Calculations");
+  //     console.timeEnd("Total Execution Time");
+
+  //     return respHelper(res, {
+  //       status: 200,
+  //       data: {
+  //         totalWorkingDays: totalWorkingDaysCalculated,
+  //         availableLeave: earnedLeave,
+  //         unpaidLeave: unpaidLeaveResult,
+  //       },
+  //       msg: message.LEAVE.REMAINING_LEAVES,
+  //     });
+  //   } catch (error) {
+  //     console.error(error);
+  //     return res.status(500).json({
+  //       message: "Internal server error",
+  //     });
+  //   }
+  // }
   async leaveRemainingCount(req, res) {
     try {
-      console.time("Total Execution Time");
-      console.time("Initial Validation");
-
       const {
         leaveAutoId,
         startDate,
@@ -795,8 +924,6 @@ class LeaveController {
       const daysDifferenceReq = moment(endDate).diff(moment(startDate), "days");
 
       if (daysDifferenceReq > parseInt(process.env.LEAVE_LIMIT)) {
-        console.timeEnd("Initial Validation");
-        console.timeEnd("Total Execution Time");
         return respHelper(res, {
           status: 404,
           data: {},
@@ -804,103 +931,59 @@ class LeaveController {
         });
       }
 
-      console.timeEnd("Initial Validation");
-      console.time("Helper Function getCombineValue");
-
       const getCombinedVal = await helper.getCombineValue(
         leaveFirstHalf,
         leaveSecondHalf
       );
-
-      console.timeEnd("Helper Function getCombineValue");
-      console.time("Database Queries");
-
       const employeeId = employeeFor == 0 ? req.userId : employeeFor;
 
-      const employeeData = await db.sequelize.transaction(
-        async (transaction) => {
-          const employee = await db.employeeMaster.findOne({
-            where: { id: employeeId },
-            attributes: ["weekOffId", "companyLocationId"],
-            transaction,
-          });
-
-          const pendingLeaves = await db.employeeLeaveTransactions.findAll({
+      // Fetch employee details and leave counts in parallel
+      const [employeeWeekOfId, pendingLeaveCountList, availableLeaveCount] =
+        await Promise.all([
+          db.employeeMaster.findOne({ where: { id: employeeId } }),
+          db.employeeLeaveTransactions.findAll({
             where: {
               status: "pending",
               employeeId: employeeId,
               leaveAutoId: leaveAutoId,
             },
-            attributes: ["leaveCount"],
-            transaction,
-          });
-
-          const leaveMapping = await db.leaveMapping.findOne({
+          }),
+          db.leaveMapping.findOne({
             where: {
               EmployeeId: employeeId,
               leaveAutoId: leaveAutoId,
             },
-            attributes: ["availableLeave"],
-            transaction,
-          });
+          }),
+        ]);
 
-          return { employee, pendingLeaves, leaveMapping };
-        }
-      );
-
-      console.timeEnd("Database Queries");
-      console.time("Calculations");
-
-      const { employee, pendingLeaves, leaveMapping } = employeeData;
-
-      if (!employee) {
-        console.timeEnd("Calculations");
-        console.timeEnd("Total Execution Time");
-        return respHelper(res, {
-          status: 200,
-          data: {
-            totalWorkingDays: 0,
-            availableLeave: 0,
-            unpaidLeave: 0,
-          },
-          msg: message.LEAVE.REMAINING_LEAVES,
-        });
-      }
-
+      // Calculate total working days
       const totalWorkingDays = await helper.remainingLeaveCount(
         startDate,
         endDate,
-        employee.weekOffId,
-        employee.companyLocationId
+        employeeWeekOfId.weekOffId,
+        employeeWeekOfId.companyLocationId
       );
 
-      const pendingLeaveCount = pendingLeaves.reduce(
+      // Calculate pending leave count
+      const pendingLeaveCount = pendingLeaveCountList.reduce(
         (acc, el) => acc + parseFloat(el.leaveCount),
         0
       );
-
-      const availableLeave = leaveMapping
-        ? parseFloat(leaveMapping.availableLeave) - pendingLeaveCount
-        : 0;
-      const unpaidLeave = Math.max(0, totalWorkingDays - availableLeave);
       const totalWorkingDaysCalculated = Math.max(
         0,
         totalWorkingDays - getCombinedVal
       );
-      const unpaidLeaveCalculated = Math.max(0, unpaidLeave - getCombinedVal);
-
-      const earnedLeave = Math.max(0, availableLeave);
-      const unpaidLeaveResult = Math.max(0, unpaidLeaveCalculated);
-
-      console.timeEnd("Calculations");
-      console.timeEnd("Total Execution Time");
+      let countDeductingPending = availableLeaveCount.availableLeave - pendingLeaveCount 
+      let a = totalWorkingDaysCalculated;
+      let b = totalWorkingDaysCalculated < countDeductingPending ? totalWorkingDaysCalculated : countDeductingPending
+      let c = a - b ;
 
       return respHelper(res, {
         status: 200,
         data: {
-          totalWorkingDays: totalWorkingDaysCalculated,
-          availableLeave: earnedLeave,
-          unpaidLeave: unpaidLeaveResult,
+          totalWorkingDays: a,
+          availableLeave: b,
+          unpaidLeave: c < 0 ? 0 : c,
         },
         msg: message.LEAVE.REMAINING_LEAVES,
       });
