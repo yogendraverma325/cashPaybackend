@@ -233,8 +233,33 @@ class UserController {
     }
   }
   async taskBoxCount(req, res) {
-    try {
+    try { 
        let userid=req.userId;
+        const countLeavePending = await db.employeeLeaveTransactions.findAll({
+        where: {
+         employeeId: userid,
+        status: 'pending',
+        },
+        attributes: [
+        'batch_id',
+        [db.sequelize.fn('COUNT', db.sequelize.col('employeeleavetransactionsId')), 'count']
+        ],
+        group: ['batch_id'],
+        });
+
+         const countLeaveAssgined = await db.employeeLeaveTransactions.findAll({
+        where: {
+          pendingAt: userid,
+          status: 'pending',
+        },
+        attributes: [
+        'batch_id',
+        [db.sequelize.fn('COUNT', db.sequelize.col('employeeleavetransactionsId')), 'count']
+        ],
+        group: ['batch_id'],
+        });
+  
+
        let assignedAttCount=await db.regularizationMaster.count({
             where: {
             regularizeManagerId: userid,
@@ -253,8 +278,8 @@ class UserController {
       data:{
         web:{
           leaveData:{
-            raisedByMe:0,
-            assignedToMe:0
+            raisedByMe:countLeavePending.length,
+            assignedToMe:countLeaveAssgined.length,
           },
           attedanceData:{
             raisedByMe:pendingAttCount,
@@ -263,11 +288,11 @@ class UserController {
         },
         mobile:{
           raisedByMe:{
-            leaveData:pendingAttCount,
+            leaveData:countLeavePending.length,
             attedanceData:pendingAttCount
           },
           assignedToMe:{
-            leaveData:pendingAttCount,
+            leaveData:countLeaveAssgined.length,
             attedanceData:assignedAttCount
           }
 
