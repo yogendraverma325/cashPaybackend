@@ -321,8 +321,8 @@ class AttendanceController {
 
       if (
         attendanceData.dataValues.latest_Regularization_Request.length != 0 &&
-        attendanceData.dataValues.latest_Regularization_Request[0].regularizeStatus === "Pending" ||
-        attendanceData.dataValues.latest_Regularization_Request[0].regularizeStatus === "Approved"
+        (attendanceData.dataValues.latest_Regularization_Request[0].regularizeStatus === "Pending" ||
+          attendanceData.dataValues.latest_Regularization_Request[0].regularizeStatus === "Approved")
       ) {
         return respHelper(res, {
           status: 400,
