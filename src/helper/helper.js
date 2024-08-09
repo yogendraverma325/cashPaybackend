@@ -8,7 +8,7 @@ import bcrypt from "bcrypt";
 
 const generateJwtToken = async (data) => {
   const token = jwt.sign(data, process.env.JWT_KEY, {
-    expiresIn: process.env.JWT_EXPIRY,
+    expiresIn: (data.user.device === 'desktop') ? process.env.JWT_EXPIRY : process.env.JWT_EXPIRY_MOBILE,
   });
   return token;
 };
@@ -57,7 +57,7 @@ const mailService = async (data) => {
   sendGrid.setApiKey(process.env.SENDGRID_API_KEY);
   const msg = {
     // to: data.to,
-    to: "rag.ranjan@teamcomputers.com",
+    to: "manishmaurya@teamcomputers.com",
     from: process.env.SENDER_MAIL,
     subject: data.subject,
     text: data.text,
