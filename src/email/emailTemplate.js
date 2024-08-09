@@ -75,7 +75,7 @@ const regularizationRequestMail = async (data) => {
                       </p>
                       <p>
                         <a
-                          href='${process.env.CLIENT_URL}#/TaskBox'
+                          href='${process.env.CLIENT_URL}#/TaskBox?selectedTab=0&selectedMode=assignedToMe'
                           style="
                             padding: 5px 10px;
                             background: #0173c5;
@@ -202,7 +202,7 @@ const leaveRequestMail = async (data) => {
                               <p>Request message : ${data.userRemark}</p>
                               <p>
                                 <a
-                                  href='${process.env.CLIENT_URL}#/TaskBox'
+                                  href='${process.env.CLIENT_URL}#/TaskBox?selectedTab=1&selectedMode=assignedToMe'
                                   style="
                                     padding: 5px 10px;
                                     background: #0173c5;
