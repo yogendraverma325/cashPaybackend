@@ -251,14 +251,28 @@ class UserController {
           return respHelper(res, {
       status: 200,
       data:{
-      leaveData:{
-        raisedByMe:0,
-        assignedToMe:0
-      },
-      attedanceData:{
-        raisedByMe:pendingAttCount,
-        assignedToMe:assignedAttCount
-      },
+        web:{
+          leaveData:{
+            raisedByMe:0,
+            assignedToMe:0
+          },
+          attedanceData:{
+            raisedByMe:pendingAttCount,
+            assignedToMe:assignedAttCount
+          },
+        },
+        mobile:{
+          raisedByMe:{
+            leaveData:pendingAttCount,
+            attedanceData:pendingAttCount
+          },
+          assignedToMe:{
+            leaveData:pendingAttCount,
+            attedanceData:assignedAttCount
+          }
+
+        },
+     
       },
       msg: "Task Box Listed",
       });
