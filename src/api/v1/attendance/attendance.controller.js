@@ -9,10 +9,10 @@ import { Op } from "sequelize";
 import fs from "fs";
 import { cwd } from "process";
 import client from "../../../config/redisDb.config.js";
-var _this=null;
+var _this = null;
 class AttendanceController {
   constructor() {
-    _this=this;
+    _this = this;
   }
 
   async attendance(req, res) {
@@ -964,7 +964,7 @@ class AttendanceController {
             attributes: ["leaveName", "leaveCode"],
           },
           order: [['employeeLeaveTransactionsId', 'desc']],
-          limit: 1
+          //limit: 1
         }),
         db.shiftMaster.findAll({
           attributes: [
@@ -1357,7 +1357,7 @@ class AttendanceController {
         );
       }
 
-      _this.attedanceCronManual(regularizeData.attendanceAutoId,regularizeData.regularizePunchInDate)
+      _this.attedanceCronManual(regularizeData.attendanceAutoId, regularizeData.regularizePunchInDate)
       return respHelper(res, {
         status: 200,
         msg: message.REGULARIZATION_ACTION.replace(
@@ -1737,7 +1737,7 @@ class AttendanceController {
 
               let markHalfDay = null;
               let markHalfDayType = null;
-              if (isHalfDay_late_by == 0 || isHalfDay_total_work==0) {
+              if (isHalfDay_late_by == 0 || isHalfDay_total_work == 0) {
                 markHalfDay = 0;
                 markHalfDayType = 0;
               } else if (isHalfDay_late_by == 1 && isHalfDay_total_work == 1) {
@@ -1770,8 +1770,8 @@ class AttendanceController {
                         .leaveDeductPolicyLateDurationLeaveType, // Replace with actual leave auto ID
                     appliedOn: moment().format("YYYY-MM-DD"), // Replace with actual applied on date
                     appliedFor: lastDayDate, // Replace with actual applied for date
-                    fromDate:lastDayDate,
-                    toDate:lastDayDate,
+                    fromDate: lastDayDate,
+                    toDate: lastDayDate,
                     isHalfDay: markHalfDay, // Replace with actual is half day value (0 or 1)
                     halfDayFor: markHalfDayType, // Replace with actual half day for value
                     leaveCount: markHalfDay == 1 ? 0.5 : 1,
@@ -1781,7 +1781,7 @@ class AttendanceController {
                     pendingAt: EMP_DATA.managerData.id, // Replace with actual pending at value
                     createdBy: singleEmp.id, // Replace with actual creator user ID
                     createdAt: moment(), // Replace with actual creation date
-                    weekOffId:EMP_DATA.weekOffId
+                    weekOffId: EMP_DATA.weekOffId
                   },
                   "id_" + moment().format("YYYYMMDDHHmmss")
                 );
@@ -1855,11 +1855,11 @@ class AttendanceController {
       });
     }
   }
-   async attedanceCronManual(attendanceAutoId,date) {
+  async attedanceCronManual(attendanceAutoId, date) {
     try {
       let lastDayDate = moment(date).format("YYYY-MM-DD");
-            console.log("date",date)
-            console.log("attendanceAutoId",attendanceAutoId)
+      console.log("date", date)
+      console.log("attendanceAutoId", attendanceAutoId)
       let lastDayDateAnotherFormat = moment(date)
         .format("DD-MM-YYYY");
       let parsedDate = moment(lastDayDateAnotherFormat, "DD-MM-YYYY");
@@ -1931,7 +1931,7 @@ class AttendanceController {
             required: false,
             where: {
               attendanceDate: lastDayDate,
-              attendanceAutoId:attendanceAutoId
+              attendanceAutoId: attendanceAutoId
             },
           },
           {
@@ -2071,7 +2071,7 @@ class AttendanceController {
 
               let markHalfDay = null;
               let markHalfDayType = null;
-              if (isHalfDay_late_by == 0 || isHalfDay_total_work==0) {
+              if (isHalfDay_late_by == 0 || isHalfDay_total_work == 0) {
                 markHalfDay = 0;
                 markHalfDayType = 0;
               } else if (isHalfDay_late_by == 1 && isHalfDay_total_work == 1) {
@@ -2091,8 +2091,8 @@ class AttendanceController {
                 markHalfDayType = 2;
               }
 
-              console.log("markHalfDay",markHalfDay)
-               console.log("markHalfDayType",markHalfDayType)
+              console.log("markHalfDay", markHalfDay)
+              console.log("markHalfDayType", markHalfDayType)
               if (markHalfDay != null) {
                 let EMP_DATA = await helper.getEmpProfile(singleEmp.id);
                 await helper.empMarkLeaveOfGivenDate(
@@ -2107,8 +2107,8 @@ class AttendanceController {
                         .leaveDeductPolicyLateDurationLeaveType, // Replace with actual leave auto ID
                     appliedOn: moment().format("YYYY-MM-DD"), // Replace with actual applied on date
                     appliedFor: lastDayDate, // Replace with actual applied for date
-                    fromDate:lastDayDate,
-                    toDate:lastDayDate,
+                    fromDate: lastDayDate,
+                    toDate: lastDayDate,
                     isHalfDay: markHalfDay, // Replace with actual is half day value (0 or 1)
                     halfDayFor: markHalfDayType, // Replace with actual half day for value
                     leaveCount: markHalfDay == 1 ? 0.5 : 1,
@@ -2118,7 +2118,7 @@ class AttendanceController {
                     pendingAt: EMP_DATA.managerData.id, // Replace with actual pending at value
                     createdBy: singleEmp.id, // Replace with actual creator user ID
                     createdAt: moment(), // Replace with actual creation date
-                    weekOffId:EMP_DATA.weekOffId
+                    weekOffId: EMP_DATA.weekOffId
                   },
                   "id_" + moment().format("YYYYMMDDHHmmss")
                 );
