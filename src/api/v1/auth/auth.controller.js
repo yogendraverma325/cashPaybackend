@@ -21,7 +21,7 @@ class AuthController {
       const deviceData = deviceDetector.parse(req.headers['user-agent'])
 
       const existUser = await db.employeeMaster.findOne({
-        where: { empCode: result.tmc,isActive:1 },
+        where: { empCode: result.tmc, isActive: 1 },
         include: [
           {
             model: db.roleMaster,
@@ -57,7 +57,7 @@ class AuthController {
           Object.assign(
             { wrongPasswordCount: existUser.dataValues.wrongPasswordCount + 1 },
             (existUser.dataValues.wrongPasswordCount === 2) ? {
-              accountRecoveryTime: moment().add(24, 'hours')
+              accountRecoveryTime: moment().add(parseInt(process.env.ACCOUNT_RECOVERY_TIME), 'hours')
             } : null
           ), {
           where: {
@@ -86,7 +86,7 @@ class AuthController {
           where: { id: existUser.dataValues.id },
         }
       );
-      
+
       await db.loginDetails.create({
         employeeId: existUser.dataValues.id,
         loginIP: req.headers['x-real-ip'] ? req.headers['x-real-ip'] : await helper.ip(req._remoteAddress),
