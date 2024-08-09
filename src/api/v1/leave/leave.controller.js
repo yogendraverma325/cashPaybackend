@@ -582,11 +582,11 @@ class LeaveController {
             pendingAt: EMP_DATA.managerData.id, // Replace with actual pending at value
             createdBy: req.userId, // Replace with actual creator user ID
             createdAt: moment(), // Replace with actual creation date
-            batch_id: (leaveId==6)?uuidUnpaid:uuid,
+            batch_id: (leaveId == 6) ? uuidUnpaid : uuid,
             weekOffId: EMP_DATA.weekOffId,
             fromDate: req.body.fromDate,
             toDate: req.body.toDate,
-            source: req.deviceSource,
+            source: JSON.stringify(req.deviceSource),
           };
           arr.push(recordData);
           //const record = await db.employeeLeaveTransactions.create(recordData);
@@ -1007,10 +1007,10 @@ class LeaveController {
         0,
         totalWorkingDays - getCombinedVal
       );
-      let countDeductingPending = availableLeaveCount.availableLeave - pendingLeaveCount 
+      let countDeductingPending = availableLeaveCount.availableLeave - pendingLeaveCount
       let a = totalWorkingDaysCalculated;
       let b = totalWorkingDaysCalculated < countDeductingPending ? totalWorkingDaysCalculated : countDeductingPending
-      let c = a - b ;
+      let c = a - b;
 
       return respHelper(res, {
         status: 200,
