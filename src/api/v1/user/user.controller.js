@@ -232,6 +232,46 @@ class UserController {
       });
     }
   }
+  async taskBoxCount(req, res) {
+    try {
+       let userid=req.userId;
+       let assignedAttCount=await db.regularizationMaster.count({
+            where: {
+            regularizeManagerId: userid,
+            regularizeStatus:"Pending",
+            }
+          });
+          let pendingAttCount=await db.regularizationMaster.count({
+            where: {
+              regularizeStatus:"Pending",
+              createdBy: userid
+            }
+          });
+
+          return respHelper(res, {
+      status: 200,
+      data:{
+      leaveData:{
+        raisedByMe:0,
+        assignedToMe:0
+      },
+      attedanceData:{
+        raisedByMe:pendingAttCount,
+        assignedToMe:assignedAttCount
+      },
+      },
+      msg: "Task Box Listed",
+      });
+
+
+    } catch (error) {
+      console.log("error", error);
+      return respHelper(res, {
+        status: 500,
+        data: error,
+      });
+    }
+  }
 }
 
 export default new UserController();

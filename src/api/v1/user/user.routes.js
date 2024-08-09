@@ -25,3 +25,4 @@ export default Express
      .put("/updateEducationDetails", authentication.authenticate, commonController.updateEducationDetails)
      .post("/addEducationDetails", authentication.authenticate, commonController.addEducationDetails)
      .get("/searchEmployee",authentication.authenticate, commonController.searchEmployee)
+    .get("/taskBoxCount", authentication.authenticate, userController.taskBoxCount)
