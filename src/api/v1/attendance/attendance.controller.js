@@ -277,13 +277,41 @@ class AttendanceController {
     try {
       const result = await validator.regularizeRequest.validateAsync(req.body);
 
+      const punchInDateTime = moment(`1970-01-01T${result.punchInTime}`);
+      const punchOutDateTime = moment(`1970-01-01T${result.punchOutTime}`);
+
+      if (
+        result.punchInTime == "00:00:00" ||
+        result.punchOutTime == "00:00:00"
+      ) {
+        return respHelper(res, {
+          status: 400,
+          msg: message.ZERO_TIME,
+        });
+      }
+
+      if (result.punchInTime == result.punchOutTime) {
+        return respHelper(res, {
+          status: 400,
+          msg: message.NOT_SAME,
+        });
+      }
+
+      if (punchOutDateTime.isBefore(punchInDateTime)) {
+        return respHelper(res, {
+          status: 400,
+          msg: message.TIME_LESS, // "PunchOut time can't be less than PunchIn time."
+        });
+      }
+
       if (moment().isBefore(result.fromDate)) {
         return respHelper(res, {
           status: 400,
           msg: message.ATTENDANCE_DATE_CANNOT_AFTER_TODAY,
         });
       }
-
+      console.log(">>>>>>>>>i am here");
+      return;
       let attendanceData = await db.attendanceMaster.findOne({
         where: {
           attendanceAutoId: result.attendanceAutoId,
@@ -851,7 +879,7 @@ class AttendanceController {
         attendanceData,
         monthDays,
         employeeLeaveTransactions,
-        shiftMasters
+        shiftMasters,
       ] = await Promise.all([
         db.holidayCompanyLocationConfiguration.findAll({
           where: { companyLocationId: companyLocationId },
@@ -958,8 +986,8 @@ class AttendanceController {
             as: "leaveMasterDetails",
             attributes: ["leaveName", "leaveCode"],
           },
-          order:[['employeeLeaveTransactionsId','desc']],
-          limit:1
+          order: [["employeeLeaveTransactionsId", "desc"]],
+          //limit:1
         }),
         db.shiftMaster.findAll({
           attributes: [
@@ -973,10 +1001,10 @@ class AttendanceController {
       ]);
 
       // Create a map for shiftMaster data
-    const shiftMasterMap = shiftMasters.reduce((map, shift) => {
-      map[shift.shiftId] = shift;
-      return map;
-    }, {});
+      const shiftMasterMap = shiftMasters.reduce((map, shift) => {
+        map[shift.shiftId] = shift;
+        return map;
+      }, {});
 
       const monthLeaves = await db.employeeLeaveTransactions.findAll({
         attributes: [
@@ -1088,8 +1116,7 @@ class AttendanceController {
           const leaveTransactions = employeeLeaveTransactions.filter(
             (tx) => tx.appliedFor === fullDate
           );
-         const shiftMaster =
-          shiftMasterMap[attendance.attendanceShiftId] || {
+          const shiftMaster = shiftMasterMap[attendance.attendanceShiftId] || {
             shiftId: 0,
             shiftName: "General Shift 2",
             shiftStartTime: "08:30:00",
@@ -1203,7 +1230,6 @@ class AttendanceController {
               attendance.latest_Regularization_Request || [],
             employeeLeaveTransactionDetails: leaveTransactions,
             attendanceShiftEmployee: shiftMaster,
-
           };
         })
       );

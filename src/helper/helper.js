@@ -47,7 +47,7 @@ const checkActiveUser = async (data) => {
     raw: true,
     where: {
       id: data,
-      isActive: 1
+      isActive: 1,
     },
   });
   return existUser;
@@ -80,8 +80,8 @@ const timeDifference = async (start, end) => {
 };
 
 const timeDifferenceNew = async (start, end) => {
-  console.log("start",start)
-  console.log("end",end)
+  console.log("start", start);
+  console.log("end", end);
   // let startTime = moment(start, "YYYY-MM-DD HH:mm:ss");
   // let endTime = moment(end, "YYYY-MM-DD HH:mm:ss");
   let startTime = moment(start, "HH:mm:ss");
@@ -168,10 +168,10 @@ const calculateAverageHours = async (workingHours) => {
 };
 
 const ip = async (data) => {
-  const lastIndex = data.lastIndexOf(':');
+  const lastIndex = data.lastIndexOf(":");
   const result = data.substring(lastIndex + 1);
-  return result
-}
+  return result;
+};
 
 const generateRandomPassword = async () => {
   let length = 8,
@@ -373,7 +373,6 @@ const remainingLeaveCount = async function (
     let parsedDate = moment(lastDayDateAnotherFormat, "DD-MM-YYYY");
     let dayCode = parseInt(moment(appliedFor).format("d")) + 1;
 
-
     let dayOfMonth = parsedDate.date();
     let occurrence = Math.ceil(dayOfMonth / 7);
 
@@ -445,7 +444,7 @@ const remainingLeaveCount = async function (
   return workingCount;
 };
 
-const isDayWorking = async function(startDate,weekOffId,companyLocationId){
+const isDayWorking = async function (startDate, weekOffId, companyLocationId) {
   let appliedFor = moment(startDate).add(0, "days").format("YYYY-MM-DD");
 
   let lastDayDateAnotherFormat = moment(appliedFor).format("DD-MM-YYYY");
@@ -505,8 +504,8 @@ const isDayWorking = async function(startDate,weekOffId,companyLocationId){
   });
 
   if (existEmployees.weekOffDayMappingMasters.length == 0) {
-    let employeeHolidays =
-      await db.holidayCompanyLocationConfiguration.findOne({
+    let employeeHolidays = await db.holidayCompanyLocationConfiguration.findOne(
+      {
         where: { companyLocationId: companyLocationId },
         include: {
           model: db.holidayMaster,
@@ -514,27 +513,199 @@ const isDayWorking = async function(startDate,weekOffId,companyLocationId){
           as: "holidayDetails",
           required: true,
         },
-      });
+      }
+    );
     if (!employeeHolidays) {
       workingCount += 1;
     }
   }
   return workingCount;
-}
+};
 
-const getCombineValue = async function (leaveFirstHalf, leaveSecondHalf) {
+// const getCombineValue = async function (
+//   leaveFirstHalf,
+//   leaveSecondHalf,
+//   startDate,
+//   endDate,
+//   companyLocationId
+// ) {
+//   let combineValue = "0.00";
+// console.log("leaveFirstHalfleaveFirstHalf",leaveFirstHalf)
+// console.log("leaveSecondHalfleaveSecondHalf",leaveSecondHalf)
+// let employeeHolidaysleaveFirstHalf = null
+// let employeeHolidaysleaveSecondHalf = null
+
+// if (leaveFirstHalf == 1 || leaveFirstHalf == 2) {
+//      employeeHolidaysleaveFirstHalf =
+//       await db.holidayCompanyLocationConfiguration.findOne({
+//         where: { companyLocationId: companyLocationId },
+//         include: {
+//           model: db.holidayMaster,
+//           where: { holidayDate: startDate },
+//           as: "holidayDetails",
+//           required: true,
+//         },
+//       });
+//   }
+//   if (leaveSecondHalf == 1 || leaveSecondHalf == 2) {
+//      employeeHolidaysleaveSecondHalf =
+//       await db.holidayCompanyLocationConfiguration.findOne({
+//         where: { companyLocationId: companyLocationId },
+//         include: {
+//           model: db.holidayMaster,
+//           where: { holidayDate: endDate },
+//           as: "holidayDetails",
+//           required: true,
+//         },
+//       });
+//   }
+//    if (employeeHolidaysleaveFirstHalf &&
+//     (leaveFirstHalf === 1 || leaveFirstHalf === 2) && leaveSecondHalf === 0) {
+//     combineValue = "0.00";
+//   }
+//   if (!employeeHolidaysleaveFirstHalf &&
+//     (leaveFirstHalf === 1 || leaveFirstHalf === 2) && leaveSecondHalf === 0) {
+//     combineValue = "0.50";
+//   }
+//   else if (leaveFirstHalf === 0 && (leaveSecondHalf === 1 || leaveSecondHalf === 2) && employeeHolidaysleaveSecondHalf ) {
+//     combineValue = "0.00";
+//   }
+//   else if (leaveFirstHalf === 0 && (leaveSecondHalf === 1 || leaveSecondHalf === 2) && !employeeHolidaysleaveSecondHalf ) {
+//     combineValue = "0.50";
+//   }
+
+//   else if (employeeHolidaysleaveFirstHalf && employeeHolidaysleaveSecondHalf && (leaveFirstHalf === 1 || leaveFirstHalf === 2) &&(leaveSecondHalf === 1 || leaveSecondHalf === 2)) {
+//     combineValue = "0.00";
+//   }
+
+//   else if (!employeeHolidaysleaveFirstHalf && !employeeHolidaysleaveSecondHalf && (leaveFirstHalf === 1 || leaveFirstHalf === 2) &&(leaveSecondHalf === 1 || leaveSecondHalf === 2)) {
+//     combineValue = "1.00";
+//   }
+
+//   else if (!employeeHolidaysleaveFirstHalf && !employeeHolidaysleaveSecondHalf && leaveFirstHalf === 0 && leaveSecondHalf === 0) {
+//     combineValue = "0.00";
+//   }
+
+// //   if(employeeHolidaysleaveFirstHalf && (leaveFirstHalf == 1 || leaveFirstHalf == 2) && leaveSecondHalf === 0){
+// //     valueFirst == "0.00"
+// //   }
+// //   if(!employeeHolidaysleaveFirstHalf && (leaveFirstHalf == 1 || leaveFirstHalf == 2 && leaveSecondHalf === 0) ){
+// //     valueFirst == "0.50"
+// //  }
+// //  if(employeeHolidaysleaveSecondHalf && leaveSecondHalf == 1 || leaveSecondHalf == 2){
+// //   valueFirst == "0.00"
+// // }
+// // if(!employeeHolidaysleaveSecondHalf && leaveSecondHalf == 1 || leaveSecondHalf == 2){
+// //   valueFirst == "0.00"
+// // }
+
+//   // if (!employeeHolidaysleaveFirstHalf && !employeeHolidaysleaveSecondHalf) {
+//   //   console.log(">>>>>>>>>>4");
+//     // if (
+//     //   (leaveFirstHalf === 1 || leaveFirstHalf === 2) && leaveSecondHalf === 0) {
+//     //   combineValue = "0.50";
+//     // } else if (
+//     //   leaveFirstHalf === 0 &&
+//     //   (leaveSecondHalf === 1 || leaveSecondHalf === 2)
+//     // ) {
+//     //   combineValue = "0.50";
+//     // } else if (
+//     //   (leaveFirstHalf === 1 || leaveFirstHalf === 2) &&
+//     //   (leaveSecondHalf === 1 || leaveSecondHalf === 2)
+//     // ) {
+//     //   combineValue = "1.00";
+//     // } else if (leaveFirstHalf === 0 && leaveSecondHalf === 0) {
+//     //   combineValue = "0.00";
+//     // }
+//   // }
+//   console.log("combineValuecombineValue", combineValue);
+//   return combineValue;
+// };
+
+const getCombineValue = async function (
+  leaveFirstHalf,
+  leaveSecondHalf,
+  startDate,
+  endDate,
+  companyLocationId,
+  weekOffId
+) {
   let combineValue = "0.00";
-
-  if ((leaveFirstHalf === 1 || leaveFirstHalf === 2) && leaveSecondHalf === 0) {
-    combineValue = "0.50";
-  } else if (leaveFirstHalf === 0 && (leaveSecondHalf === 1 || leaveSecondHalf === 2)) {
-    combineValue = "0.50";
-  } else if ((leaveFirstHalf === 1 || leaveFirstHalf === 2) && (leaveSecondHalf === 1 || leaveSecondHalf === 2)) {
-    combineValue = "1.00";
-  } else if (leaveFirstHalf === 0 && leaveSecondHalf === 0) {
+  let isDayWorkingStartDate = await isDayWorking(
+    startDate,
+    weekOffId,
+    companyLocationId
+  );
+  let isDayWorkingToDate = await isDayWorking(
+    endDate,
+    weekOffId,
+    companyLocationId
+  );
+ console.log(">>>>>>>>>>>>>",isDayWorkingStartDate,isDayWorkingToDate,leaveFirstHalf,leaveSecondHalf,)
+  if (isDayWorkingStartDate == 0 && isDayWorkingToDate == 0 && leaveFirstHalf == 0 && leaveSecondHalf == 0) {
+    console.log("i am in 1>>>>>>>>")
     combineValue = "0.00";
   }
-
+  if (isDayWorkingStartDate == 1 && isDayWorkingToDate == 1 && leaveFirstHalf == 1 && leaveSecondHalf == 1) {
+    console.log("i am in 2>>>>>>>>")
+    combineValue = "1.00";
+  }
+  if (isDayWorkingStartDate == 1 && isDayWorkingToDate == 0 && leaveFirstHalf == 1 && leaveSecondHalf == 0) {
+    console.log("i am in 3>>>>>>>>")
+    combineValue = "0.50";
+  }
+  if (isDayWorkingStartDate == 0 && isDayWorkingToDate == 1 && leaveFirstHalf == 0 && leaveSecondHalf == 1) {
+    console.log("i am in 4>>>>>>>>")
+    combineValue = "0.50";
+  }
+  if (isDayWorkingStartDate == 1 && isDayWorkingToDate == 0 && leaveFirstHalf == 1 && leaveSecondHalf == 1) {
+    console.log("i am in 5>>>>>>>>")
+    combineValue = "0.50";
+  }
+  if (isDayWorkingStartDate == 1 && isDayWorkingToDate == 0 && leaveFirstHalf == 1 && leaveSecondHalf == 1) {
+    console.log("i am in 6>>>>>>>>")
+    combineValue = "0.50";
+  }
+  if (isDayWorkingStartDate == 0 && isDayWorkingToDate == 1 && leaveFirstHalf == 0 && leaveSecondHalf == 0) {
+    console.log("i am in 7>>>>>>>>")
+    combineValue = "0.00";
+  }
+  if (isDayWorkingStartDate == 1 && isDayWorkingToDate == 0 && leaveFirstHalf == 0 && leaveSecondHalf == 0) {
+    console.log("i am in 8>>>>>>>>")
+    combineValue = "0.00";
+  }
+  if (isDayWorkingStartDate == 1 && isDayWorkingToDate == 0 && leaveFirstHalf == 0 && leaveSecondHalf == 1) {
+    console.log("i am in 9>>>>>>>>")
+    combineValue = "0.00";
+  }
+  if (isDayWorkingStartDate == 0 && isDayWorkingToDate == 1 && leaveFirstHalf == 1 && leaveSecondHalf == 1) {
+    console.log("i am in 10>>>>>>>>")
+    combineValue = "0.50";
+  }
+  if (isDayWorkingStartDate == 1 && isDayWorkingToDate == 1 && leaveFirstHalf == 1 && leaveSecondHalf == 0) {
+    console.log("i am in 11>>>>>>>>")
+    combineValue = "0.50";
+  }
+  if (isDayWorkingStartDate == 1 && isDayWorkingToDate == 1 && leaveFirstHalf == 0 && leaveSecondHalf == 1) {
+    console.log("i am in 12>>>>>>>>")
+    combineValue = "0.50";
+  }
+  if (isDayWorkingStartDate == 1 && isDayWorkingToDate == 1 && leaveFirstHalf == 0 && leaveSecondHalf == 0) {
+    console.log("i am in 13>>>>>>>>")
+    combineValue = "0.00";
+  }
+  if (isDayWorkingStartDate == 0 && isDayWorkingToDate == 0 && leaveFirstHalf == 1 && leaveSecondHalf == 0) {
+    console.log("i am in 14>>>>>>>>")
+    combineValue = "0.00";
+  }
+  if (isDayWorkingStartDate == 0 && isDayWorkingToDate == 0 && leaveFirstHalf == 1 && leaveSecondHalf == 1) {
+    console.log("i am in 15>>>>>>>>")
+    combineValue = "0.00";
+  }
+  if (isDayWorkingStartDate == 0 && isDayWorkingToDate == 0 && leaveFirstHalf == 0 && leaveSecondHalf == 1) {
+    console.log("i am in 16>>>>>>>>")
+    combineValue = "0.00";
+  }
   return combineValue;
 };
 
@@ -557,5 +728,5 @@ export default {
   getCombineValue,
   timeDifferenceNew,
   isDayWorking,
-  ip
+  ip,
 };

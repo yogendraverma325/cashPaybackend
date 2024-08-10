@@ -593,6 +593,13 @@ class LeaveController {
         //const record = await db.employeeLeaveTransactions.bulkCreate(arr);
       }
       // Perform bulk insert
+      if(arr.length == 0){
+        return respHelper(res, {
+          status: 401,
+          data: arr,
+          msg: message.LEAVE.LEAVE_NOT_APPLICABLE,
+        });
+      }
       await db.employeeLeaveTransactions.bulkCreate(arr);
       return respHelper(res, {
         status: 200,
@@ -931,10 +938,13 @@ class LeaveController {
         });
       }
 
-      const getCombinedVal = await helper.getCombineValue(
-        leaveFirstHalf,
-        leaveSecondHalf
-      );
+      // const getCombinedVal = await helper.getCombineValue(
+      //   leaveFirstHalf,
+      //   leaveSecondHalf,
+      //   startDate,
+      //   endDate,
+      //   companyLocationId
+      // );
       const employeeId = employeeFor == 0 ? req.userId : employeeFor;
 
       // Fetch employee details and leave counts in parallel
@@ -963,7 +973,14 @@ class LeaveController {
         employeeWeekOfId.weekOffId,
         employeeWeekOfId.companyLocationId
       );
-
+      const getCombinedVal = await helper.getCombineValue(
+        leaveFirstHalf,
+        leaveSecondHalf,
+        startDate,
+        endDate,
+        employeeWeekOfId.companyLocationId,
+        employeeWeekOfId.weekOffId,
+      );
       // Calculate pending leave count
       const pendingLeaveCount = pendingLeaveCountList.reduce(
         (acc, el) => acc + parseFloat(el.leaveCount),

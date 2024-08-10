@@ -681,43 +681,232 @@ class commonController {
     }
   }
 
-  async searchEmployee(req, res) {
+  async searchReportiee(req, res) {
     try {
-      const { search } = req.query;
-      console.log("search>>>>>>>>>>", search);
-      const EMP_DATA = await db.employeeMaster.findAll({
-        raw: true,
-        nest: true,
-        attributes: ["id", "empCode", "name", "firstName", "lastName", "email"],
-        where: {
-          [Op.or]: [
-            { id: req.userId },
-            { empCode: { [Op.like]: `%${search}%` } },
-            { name: { [Op.like]: `%${search}%` } },
-            { email: { [Op.like]: `%${search}%` } },
-            { "$designationmaster.name$": { [Op.like]: `%${search}%` } },
-            {
-              "$departmentmaster.departmentName$": { [Op.like]: `%${search}%` },
+      const {
+        search,
+        department,
+        designation,
+        buSearch,
+        sbuSearch,
+        areaSearch,
+      } = req.query;
+
+      let buFIlter = {};
+      let sbbuFIlter = {};
+      let functionAreaFIlter = {};
+      let departmentFIlter = {};
+      let designationFIlter = {};
+      const usersData = req.userData;
+
+      const limit = req.query.limit * 1 || 10;
+      const pageNo = req.query.page * 1 || 1;
+      const offset = (pageNo - 1) * limit;
+
+      const cacheKey = `employeeList:${pageNo}:${limit}:${search || ""}:${
+        department || ""
+      }:${designation || ""}:${buSearch || ""}:${sbuSearch || ""}:${
+        areaSearch || ""
+      }`;
+
+      let employeeData = [];
+      if (
+        usersData.role_id != 1 &&
+        usersData.role_id != 2 &&
+        usersData.role_id != 5
+      ) {
+        let permissionAssignTousers = usersData.permissionAndAccess
+          .split(",")
+          .map((el) => parseInt(el));
+        let permissionAndAccess = await db.permissoinandaccess.findAll({
+          where: {
+            role_id: usersData.role_id,
+            isActive: 1,
+            permissoinandaccessId: {
+              [Op.in]: permissionAssignTousers,
             },
-          ],
-        },
+          },
+        }); /// get all permission of access to fetch list with active status as per role
+
+        const buArrayForFilter = permissionAndAccess
+          .filter((obj) => obj.permissionType == "BU")
+          .map((obj) => obj.permissionValue); // checking BU Access
+
+        if (buArrayForFilter.length > 0) {
+          buFIlter.buId = {
+            ///appedning Bu to filter
+            [Op.in]: buArrayForFilter,
+          };
+        }
+
+        const sbuArrayForFilter = permissionAndAccess
+          .filter((obj) => obj.permissionType == "SBU")
+          .map((obj) => obj.permissionValue); // checking SBU Access
+        if (sbuArrayForFilter.length > 0) {
+          sbbuFIlter.sbuId = {
+            ///appedning SBU to filter
+            [Op.in]: sbuArrayForFilter,
+          };
+        }
+
+        const departmentArrayForFilter = permissionAndAccess
+          .filter((obj) => obj.permissionType == "DEPARTMENT")
+          .map((obj) => obj.permissionValue); // checking department Access
+
+        if (departmentArrayForFilter.length > 0) {
+          departmentFIlter.departmentId = {
+            ///appedning department to filter
+            [Op.in]: departmentArrayForFilter,
+          };
+        }
+        const funcareaArrayForFilter = permissionAndAccess
+          .filter((obj) => obj.permissionType == "FUNCAREA")
+          .map((obj) => obj.permissionValue); // checking SBU Access
+
+        if (funcareaArrayForFilter.length > 0) {
+          functionAreaFIlter.functionalAreaId = {
+            ///appedning SBU to filter
+            [Op.in]: funcareaArrayForFilter,
+          };
+        }
+
+        const designationArrayForFilter = permissionAndAccess
+          .filter((obj) => obj.permissionType == "DESIGNATION")
+          .map((obj) => obj.permissionValue); // checking SBU Access
+
+        if (designationArrayForFilter.length > 0) {
+          designationFIlter.designationId = {
+            ///appedning SBU to filter
+            [Op.in]: designationArrayForFilter,
+          };
+        }
+      }
+
+      employeeData = await db.employeeMaster.findAndCountAll({
+        order: [["id", "desc"]],
+        limit,
+        offset,
+        where: Object.assign(
+          search
+            ? {
+                [Op.or]: [
+                  {
+                    empCode: {
+                      [Op.like]: `%${search}%`,
+                    },
+                  },
+                  {
+                    name: {
+                      [Op.like]: `%${search}%`,
+                    },
+                  },
+                  {
+                    email: {
+                      [Op.like]: `%${search}%`,
+                    },
+                  },
+                ],
+                [Op.and]: [
+                  {
+                    isActive:
+                      usersData.role_id == 1 || usersData.role_id == 2
+                        ? [1, 0]
+                        : [1],
+                  },
+                ],
+              }
+            : {
+                [Op.and]: [
+                  {
+                    isActive:
+                      usersData.role_id == 1 || usersData.role_id == 2
+                        ? [1, 0]
+                        : [1],
+                  },
+                ],
+              }
+        ),
+        attributes: [
+          "id",
+          "empCode",
+          "name",
+          "email",
+          "firstName",
+          "lastName",
+          "officeMobileNumber",
+          "buId",
+          "sbuId",
+          "isActive",
+        ],
         include: [
           {
             model: db.designationMaster,
-            required: false,
-            attributes: ["designationId", "name"],
+            seperate: true,
+            attributes: ["name"],
+            where: {
+              ...(designation && {
+                name: { [Op.like]: `%${designation}%` },
+              }),
+              ...designationFIlter,
+            },
           },
           {
             model: db.departmentMaster,
+            seperate: true,
+            attributes: ["departmentName"],
+            where: {
+              ...(department && {
+                departmentName: { [Op.like]: `%${department}%` },
+              }),
+              ...departmentFIlter,
+            },
+          },
+          {
+            model: db.buMaster,
+            seperate: true,
+            attributes: ["buName"],
+            where: {
+              ...(buSearch && { buName: { [Op.like]: `%${buSearch}%` } }),
+              ...buFIlter,
+            },
+          },
+          {
+            model: db.sbuMaster,
+            seperate: true,
+            attributes: ["sbuname"],
+            where: {
+              ...(sbuSearch && {
+                sbuname: { [Op.like]: `%${sbuSearch}%` },
+              }),
+              ...sbbuFIlter,
+            },
+          },
+          {
+            model: db.functionalAreaMaster,
+            seperate: true,
+            attributes: ["functionalAreaName"],
+            where: {
+              ...(areaSearch && {
+                functionalAreaName: { [Op.like]: `%${areaSearch}%` },
+              }),
+              ...functionAreaFIlter,
+            },
+          },
+          {
+            model: db.employeeMaster,
             required: false,
-            attributes: ["departmentId", "departmentCode", "departmentName"],
+            as: "managerData",
+            attributes: ["id", "name", "email", "empCode"],
+          },
+          {
+            model: db.companyLocationMaster,
+            attributes: ["address1", "address2"],
           },
           {
             model: db.employeeMaster,
             as: "reportie",
             required: false,
-            attributes: ["id", "name"],
-            //attributes: { exclude: ["password", "role_id", "designation_id"] },
+            attributes: ["id", "name", "empCode", "email"],
             include: [
               {
                 model: db.roleMaster,
@@ -732,16 +921,15 @@ class commonController {
           },
         ],
       });
-      console.log("emp_data", EMP_DATA);
+
       return respHelper(res, {
         status: 200,
-        data: EMP_DATA,
+        data: employeeData,
       });
     } catch (error) {
-      console.log("error", error);
+      console.log(error);
       return respHelper(res, {
         status: 500,
-        data: error,
       });
     }
   }
