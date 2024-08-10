@@ -646,23 +646,23 @@ const getCombineValue = async function (
     console.log("i am in 1>>>>>>>>")
     combineValue = "0.00";
   }
-  if (isDayWorkingStartDate == 1 && isDayWorkingToDate == 1 && leaveFirstHalf == 1 && leaveSecondHalf == 1) {
+  if (isDayWorkingStartDate == 1 && isDayWorkingToDate == 1 && (leaveFirstHalf == 1 || leaveFirstHalf == 2) && (leaveSecondHalf == 1 || leaveSecondHalf == 2)) {
     console.log("i am in 2>>>>>>>>")
     combineValue = "1.00";
   }
-  if (isDayWorkingStartDate == 1 && isDayWorkingToDate == 0 && leaveFirstHalf == 1 && leaveSecondHalf == 0) {
+  if (isDayWorkingStartDate == 1 && isDayWorkingToDate == 0 && (leaveFirstHalf == 1 || leaveFirstHalf == 2) && leaveSecondHalf == 0) {
     console.log("i am in 3>>>>>>>>")
     combineValue = "0.50";
   }
-  if (isDayWorkingStartDate == 0 && isDayWorkingToDate == 1 && leaveFirstHalf == 0 && leaveSecondHalf == 1) {
+  if (isDayWorkingStartDate == 0 && isDayWorkingToDate == 1 && leaveFirstHalf == 0 && (leaveSecondHalf == 1 || leaveSecondHalf == 2)) {
     console.log("i am in 4>>>>>>>>")
     combineValue = "0.50";
   }
-  if (isDayWorkingStartDate == 1 && isDayWorkingToDate == 0 && leaveFirstHalf == 1 && leaveSecondHalf == 1) {
+  if (isDayWorkingStartDate == 1 && isDayWorkingToDate == 0 && (leaveFirstHalf == 1 || leaveFirstHalf == 2) && (leaveSecondHalf == 1 || leaveSecondHalf == 2)) {
     console.log("i am in 5>>>>>>>>")
     combineValue = "0.50";
   }
-  if (isDayWorkingStartDate == 0 && isDayWorkingToDate == 1 && leaveFirstHalf == 1 && leaveSecondHalf == 0) {
+  if (isDayWorkingStartDate == 0 && isDayWorkingToDate == 1 && (leaveFirstHalf == 1 || leaveFirstHalf == 2) && leaveSecondHalf == 0) {
     console.log("i am in 6>>>>>>>>")
     combineValue = "0.00";
   }
@@ -674,19 +674,19 @@ const getCombineValue = async function (
     console.log("i am in 8>>>>>>>>")
     combineValue = "0.00";
   }
-  if (isDayWorkingStartDate == 1 && isDayWorkingToDate == 0 && leaveFirstHalf == 0 && leaveSecondHalf == 1) {
+  if (isDayWorkingStartDate == 1 && isDayWorkingToDate == 0 && leaveFirstHalf == 0 && (leaveSecondHalf == 1 || leaveSecondHalf == 2)) {
     console.log("i am in 9>>>>>>>>")
     combineValue = "0.00";
   }
-  if (isDayWorkingStartDate == 0 && isDayWorkingToDate == 1 && leaveFirstHalf == 1 && leaveSecondHalf == 1) {
+  if (isDayWorkingStartDate == 0 && isDayWorkingToDate == 1 && (leaveFirstHalf == 1 || leaveFirstHalf == 2) && (leaveSecondHalf == 1 || leaveSecondHalf == 2)) {
     console.log("i am in 10>>>>>>>>")
     combineValue = "0.50";
   }
-  if (isDayWorkingStartDate == 1 && isDayWorkingToDate == 1 && leaveFirstHalf == 1 && leaveSecondHalf == 0) {
+  if (isDayWorkingStartDate == 1 && isDayWorkingToDate == 1 && (leaveFirstHalf == 1 || leaveFirstHalf == 2) && leaveSecondHalf == 0) {
     console.log("i am in 11>>>>>>>>")
     combineValue = "0.50";
   }
-  if (isDayWorkingStartDate == 1 && isDayWorkingToDate == 1 && leaveFirstHalf == 0 && leaveSecondHalf == 1) {
+  if (isDayWorkingStartDate == 1 && isDayWorkingToDate == 1 && leaveFirstHalf == 0 && (leaveSecondHalf == 1 || leaveSecondHalf == 2)) {
     console.log("i am in 12>>>>>>>>")
     combineValue = "0.50";
   }
@@ -694,15 +694,15 @@ const getCombineValue = async function (
     console.log("i am in 13>>>>>>>>")
     combineValue = "0.00";
   }
-  if (isDayWorkingStartDate == 0 && isDayWorkingToDate == 0 && leaveFirstHalf == 1 && leaveSecondHalf == 0) {
+  if (isDayWorkingStartDate == 0 && isDayWorkingToDate == 0 && (leaveFirstHalf == 1 || leaveFirstHalf == 2) && leaveSecondHalf == 0) {
     console.log("i am in 14>>>>>>>>")
     combineValue = "0.00";
   }
-  if (isDayWorkingStartDate == 0 && isDayWorkingToDate == 0 && leaveFirstHalf == 1 && leaveSecondHalf == 1) {
+  if (isDayWorkingStartDate == 0 && isDayWorkingToDate == 0 && (leaveFirstHalf == 1 || leaveFirstHalf == 2) && (leaveSecondHalf == 1 || leaveSecondHalf == 2)) {
     console.log("i am in 15>>>>>>>>")
     combineValue = "0.00";
   }
-  if (isDayWorkingStartDate == 0 && isDayWorkingToDate == 0 && leaveFirstHalf == 0 && leaveSecondHalf == 1) {
+  if (isDayWorkingStartDate == 0 && isDayWorkingToDate == 0 && leaveFirstHalf == 0 && (leaveSecondHalf == 1 || leaveSecondHalf == 2)) {
     console.log("i am in 16>>>>>>>>")
     combineValue = "0.00";
   }
