@@ -662,9 +662,9 @@ const getCombineValue = async function (
     console.log("i am in 5>>>>>>>>")
     combineValue = "0.50";
   }
-  if (isDayWorkingStartDate == 1 && isDayWorkingToDate == 0 && leaveFirstHalf == 1 && leaveSecondHalf == 1) {
+  if (isDayWorkingStartDate == 0 && isDayWorkingToDate == 1 && leaveFirstHalf == 1 && leaveSecondHalf == 0) {
     console.log("i am in 6>>>>>>>>")
-    combineValue = "0.50";
+    combineValue = "0.00";
   }
   if (isDayWorkingStartDate == 0 && isDayWorkingToDate == 1 && leaveFirstHalf == 0 && leaveSecondHalf == 0) {
     console.log("i am in 7>>>>>>>>")
