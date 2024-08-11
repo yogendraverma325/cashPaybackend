@@ -280,10 +280,7 @@ class AttendanceController {
       const punchInDateTime = moment(`1970-01-01T${result.punchInTime}`);
       const punchOutDateTime = moment(`1970-01-01T${result.punchOutTime}`);
 
-      if (
-        result.punchInTime == "00:00:00" ||
-        result.punchOutTime == "00:00:00"
-      ) {
+      if (result.punchInTime == "00:00:00" || result.punchOutTime == "00:00:00") {
         return respHelper(res, {
           status: 400,
           msg: message.ZERO_TIME,
@@ -310,8 +307,6 @@ class AttendanceController {
           msg: message.ATTENDANCE_DATE_CANNOT_AFTER_TODAY,
         });
       }
-      console.log(">>>>>>>>>i am here");
-      return;
       let attendanceData = await db.attendanceMaster.findOne({
         where: {
           attendanceAutoId: result.attendanceAutoId,
