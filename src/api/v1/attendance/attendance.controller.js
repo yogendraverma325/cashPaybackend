@@ -277,8 +277,8 @@ class AttendanceController {
     try {
       const result = await validator.regularizeRequest.validateAsync(req.body);
 
-      const punchInDateTime = moment(`1970-01-01T${result.punchInTime}`);
-      const punchOutDateTime = moment(`1970-01-01T${result.punchOutTime}`);
+      const punchInDateTime = moment(`${result.fromDate}T${result.punchInTime}`);
+      const punchOutDateTime = moment(`${result.toDate}T${result.punchOutTime}`);
 
       if (result.punchInTime == "00:00:00" || result.punchOutTime == "00:00:00") {
         return respHelper(res, {
@@ -307,6 +307,7 @@ class AttendanceController {
           msg: message.ATTENDANCE_DATE_CANNOT_AFTER_TODAY,
         });
       }
+      
       let attendanceData = await db.attendanceMaster.findOne({
         where: {
           attendanceAutoId: result.attendanceAutoId,
