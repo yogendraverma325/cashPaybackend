@@ -1,5 +1,5 @@
 export default (sequelize, Sequelize) => {
-    const employeeEducationHistory = sequelize.define("employeeeducationHistory", {
+    const employeeEducationHistory = sequelize.define("employeeeducationhistory", {
         id: {
             type: Sequelize.INTEGER,
             primaryKey: true,
