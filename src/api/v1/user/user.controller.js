@@ -4,6 +4,7 @@ import commonController from "../common/common.controller.js";
 import helper from "../../../helper/helper.js";
 import validator from "../../../helper/validator.js";
 import { Op } from "sequelize";
+import constant from "../../../constant/messages.js";
 
 class UserController {
   async globalSearch(req, res) {
@@ -217,7 +218,7 @@ class UserController {
 
       return respHelper(res, {
         status: 200,
-        msg: "Password Changed SuccessFully.",
+        msg: constant.PASSWORD_CHANGED,
       });
     } catch (error) {
       console.log(error);
@@ -234,33 +235,33 @@ class UserController {
   }
   async taskBoxCount(req, res) {
     try {
-       let userid=req.userId;
-       let assignedAttCount=await db.regularizationMaster.count({
-            where: {
-            regularizeManagerId: userid,
-            regularizeStatus:"Pending",
-            }
-          });
-          let pendingAttCount=await db.regularizationMaster.count({
-            where: {
-              regularizeStatus:"Pending",
-              createdBy: userid
-            }
-          });
+      let userid = req.userId;
+      let assignedAttCount = await db.regularizationMaster.count({
+        where: {
+          regularizeManagerId: userid,
+          regularizeStatus: "Pending",
+        }
+      });
+      let pendingAttCount = await db.regularizationMaster.count({
+        where: {
+          regularizeStatus: "Pending",
+          createdBy: userid
+        }
+      });
 
-          return respHelper(res, {
-      status: 200,
-      data:{
-      leaveData:{
-        raisedByMe:0,
-        assignedToMe:0
-      },
-      attedanceData:{
-        raisedByMe:pendingAttCount,
-        assignedToMe:assignedAttCount
-      },
-      },
-      msg: "Task Box Listed",
+      return respHelper(res, {
+        status: 200,
+        data: {
+          leaveData: {
+            raisedByMe: 0,
+            assignedToMe: 0
+          },
+          attedanceData: {
+            raisedByMe: pendingAttCount,
+            assignedToMe: assignedAttCount
+          },
+        },
+        msg: "Task Box Listed",
       });
 
 

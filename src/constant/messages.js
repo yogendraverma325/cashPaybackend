@@ -12,12 +12,12 @@ const message = {
   INVALID_TOKEN: "Invalid Token.",
   INSERT_SUCCESS: "Inserted Successfully.",
   SESSION_EXPIRED: "Session Expired, Please Login Again!",
-  INVALID_CREDENTIALS: "Invalid Credentials!",
+  INVALID_CREDENTIALS: "Invalid TMC ID or Password",
   LOGIN_SUCCESS: "Login Successfully.",
   UPDATE_SUCCESS: "<module> Updated Successfully.",
   ALREADY_EXISTS: "<module> Already Exists.",
-  PUNCH_IN_SUCCESS: "Punch In Success.",
-  PUNCH_OUT_SUCCESS: "Punch Out Success.",
+  PUNCH_IN_SUCCESS: "Successfully Punch In.",
+  PUNCH_OUT_SUCCESS: "Successfully Punch Out.",
   ATTENDANCE_NOT_AVAILABLE: "Attendance Data Not Available.",
   MAXIMUM_REGULARIZATION_LIMIT:
     "You have reached maximum regularization limit.",
@@ -25,6 +25,7 @@ const message = {
   REGULARIZE_REQUEST_SUCCESSFULL: "Regularization Requested Successfully.",
   REGULARIZATION_ACTION: "Regularization Request <status>",
   ALREADY_REQUESTED: "<module> Already Requested.",
+  PASSWORD_CHANGED: "Password Changed Successfully.",
   ACCOUNT_LOCKED:
     "Your account has been locked, Please Contact to admin to recover your account.",
   REACHED_WRONG_PASSWORD_LIMIT:

@@ -42,7 +42,7 @@ class Authentication {
                 req.userData = userData;
                 req.userId = decoded.user.id;
                 req.userRole = decoded.user.role
-                req.sessionToken = token;
+                res.token = token;
                 next();
             },
         );

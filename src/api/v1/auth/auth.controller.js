@@ -5,16 +5,11 @@ import respHelper from "../../../helper/respHelper.js";
 import constant from "../../../constant/messages.js";
 import bcrypt from "bcrypt";
 import moment from "moment";
-import fs from 'fs';
-import { cwd } from 'process';
-
 
 class AuthController {
 
   async login(req, res) {
     try {
-
-      console.log("req device server --->>", req.deviceSource)
 
       const result = await validator.loginSchema.validateAsync(req.body);
       const existUser = await db.employeeMaster.findOne({
@@ -105,6 +100,7 @@ class AuthController {
       return respHelper(res, {
         status: 200,
         msg: constant.LOGIN_SUCCESS,
+        token,
         data: {
           emp: existUser,
           tokens: {
