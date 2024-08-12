@@ -5,6 +5,7 @@ import helper from "../../../helper/helper.js";
 import validator from "../../../helper/validator.js";
 import { Op } from "sequelize";
 import constant from "../../../constant/messages.js";
+import fs from 'fs'
 
 class UserController {
   async globalSearch(req, res) {
@@ -234,73 +235,73 @@ class UserController {
     }
   }
   async taskBoxCount(req, res) {
-    try { 
-       let userid=req.userId;
-        const countLeavePending = await db.employeeLeaveTransactions.findAll({
+    try {
+      let userid = req.userId;
+      const countLeavePending = await db.employeeLeaveTransactions.findAll({
         where: {
-         employeeId: userid,
-        status: 'pending',
+          employeeId: userid,
+          status: 'pending',
         },
         attributes: [
-        'batch_id',
-        [db.sequelize.fn('COUNT', db.sequelize.col('employeeleavetransactionsId')), 'count']
+          'batch_id',
+          [db.sequelize.fn('COUNT', db.sequelize.col('employeeleavetransactionsId')), 'count']
         ],
         group: ['batch_id'],
-        });
+      });
 
-         const countLeaveAssgined = await db.employeeLeaveTransactions.findAll({
+      const countLeaveAssgined = await db.employeeLeaveTransactions.findAll({
         where: {
           pendingAt: userid,
           status: 'pending',
         },
         attributes: [
-        'batch_id',
-        [db.sequelize.fn('COUNT', db.sequelize.col('employeeleavetransactionsId')), 'count']
+          'batch_id',
+          [db.sequelize.fn('COUNT', db.sequelize.col('employeeleavetransactionsId')), 'count']
         ],
         group: ['batch_id'],
-        });
-  
+      });
 
-       let assignedAttCount=await db.regularizationMaster.count({
-            where: {
-            regularizeManagerId: userid,
-            regularizeStatus:"Pending",
+
+      let assignedAttCount = await db.regularizationMaster.count({
+        where: {
+          regularizeManagerId: userid,
+          regularizeStatus: "Pending",
+        }
+      });
+      let pendingAttCount = await db.regularizationMaster.count({
+        where: {
+          regularizeStatus: "Pending",
+          createdBy: userid
+        }
+      });
+
+      return respHelper(res, {
+        status: 200,
+        data: {
+          web: {
+            leaveData: {
+              raisedByMe: countLeavePending.length,
+              assignedToMe: countLeaveAssgined.length,
+            },
+            attedanceData: {
+              raisedByMe: pendingAttCount,
+              assignedToMe: assignedAttCount
+            },
+          },
+          mobile: {
+            raisedByMe: {
+              leaveData: countLeavePending.length,
+              attedanceData: pendingAttCount
+            },
+            assignedToMe: {
+              leaveData: countLeaveAssgined.length,
+              attedanceData: assignedAttCount
             }
-          });
-          let pendingAttCount=await db.regularizationMaster.count({
-            where: {
-              regularizeStatus:"Pending",
-              createdBy: userid
-            }
-          });
 
-          return respHelper(res, {
-      status: 200,
-      data:{
-        web:{
-          leaveData:{
-            raisedByMe:countLeavePending.length,
-            assignedToMe:countLeaveAssgined.length,
           },
-          attedanceData:{
-            raisedByMe:pendingAttCount,
-            assignedToMe:assignedAttCount
-          },
-        },
-        mobile:{
-          raisedByMe:{
-            leaveData:countLeavePending.length,
-            attedanceData:pendingAttCount
-          },
-          assignedToMe:{
-            leaveData:countLeaveAssgined.length,
-            attedanceData:assignedAttCount
-          }
 
         },
-     
-      },
-      msg: "Task Box Listed",
+        msg: "Task Box Listed",
       });
 
 
@@ -310,6 +311,57 @@ class UserController {
         status: 500,
         data: error,
       });
+    }
+  }
+
+  async updateProfilePicture(req, res) {
+    try {
+
+      const result = await validator.updateProfilePictureSchema.validateAsync(req.body);
+
+      const existUser = await db.employeeMaster.findOne({
+        raw: true,
+        where: {
+          id: result.user,
+          isActive: 1
+        },
+        attributes: ['empCode', 'profileImage']
+      })
+
+      if (!existUser) {
+        return respHelper(res, {
+          status: 400,
+          msg: constant.USER_NOT_EXIST
+        })
+      }
+
+      const d = Math.floor(Date.now() / 1000);
+      const profilePicture = await helper.fileUpload(
+        result.image,
+        `profileImage_${d}`,
+        `uploads/${existUser.empCode}`
+      )
+
+      await db.employeeMaster.update({
+        profileImage: profilePicture
+      }, {
+        where: {
+          id: result.user,
+        }
+      })
+
+      if (existUser.profileImage) {
+        fs.unlinkSync(existUser.profileImage)
+      }
+
+      return respHelper(res, {
+        status: 200
+      })
+    } catch (error) {
+      console.log(error)
+      return respHelper(res, {
+        status: 500
+      })
     }
   }
 }

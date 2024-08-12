@@ -229,6 +229,11 @@ const updateManagerSchema = Joi.array().required().items(
   'array.base': 'Please Select Atleaset One User'
 })
 
+const updateProfilePictureSchema = Joi.object({
+  user: Joi.number().required().label("User"),
+  image: Joi.string(),
+})
+
 export default {
   loginSchema,
   userCreationSchema,
@@ -252,5 +257,6 @@ export default {
   addJobDetailsSchema,
   updateEducationDetailsSchema,
   addEducationDetailsSchema,
-  updateManagerSchema
+  updateManagerSchema,
+  updateProfilePictureSchema
 };
