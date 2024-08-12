@@ -26,11 +26,9 @@ class MasterController {
       const pageNo = req.query.page * 1 || 1;
       const offset = (pageNo - 1) * limit;
 
-      const cacheKey = `employeeList:${pageNo}:${limit}:${search || ""}:${
-        department || ""
-      }:${designation || ""}:${buSearch || ""}:${sbuSearch || ""}:${
-        areaSearch || ""
-      }`;
+      const cacheKey = `employeeList:${pageNo}:${limit}:${search || ""}:${department || ""
+        }:${designation || ""}:${buSearch || ""}:${sbuSearch || ""}:${areaSearch || ""
+        }`;
 
       let employeeData = [];
       await client.get(cacheKey).then(async (data) => {
@@ -120,42 +118,42 @@ class MasterController {
             where: Object.assign(
               search
                 ? {
-                    [Op.or]: [
-                      {
-                        empCode: {
-                          [Op.like]: `%${search}%`,
-                        },
+                  [Op.or]: [
+                    {
+                      empCode: {
+                        [Op.like]: `%${search}%`,
                       },
-                      {
-                        name: {
-                          [Op.like]: `%${search}%`,
-                        },
+                    },
+                    {
+                      name: {
+                        [Op.like]: `%${search}%`,
                       },
-                      {
-                        email: {
-                          [Op.like]: `%${search}%`,
-                        },
+                    },
+                    {
+                      email: {
+                        [Op.like]: `%${search}%`,
                       },
-                    ],
-                    [Op.and]: [
-                      {
-                        isActive:
-                          usersData.role_id == 1 || usersData.role_id == 2
-                            ? [1, 0]
-                            : [1],
-                      },
-                    ],
-                  }
+                    },
+                  ],
+                  [Op.and]: [
+                    {
+                      isActive:
+                        usersData.role_id == 1 || usersData.role_id == 2
+                          ? [1, 0]
+                          : [1],
+                    },
+                  ],
+                }
                 : {
-                    [Op.and]: [
-                      {
-                        isActive:
-                          usersData.role_id == 1 || usersData.role_id == 2
-                            ? [1, 0]
-                            : [1],
-                      },
-                    ],
-                  }
+                  [Op.and]: [
+                    {
+                      isActive:
+                        usersData.role_id == 1 || usersData.role_id == 2
+                          ? [1, 0]
+                          : [1],
+                    },
+                  ],
+                }
             ),
             attributes: [
               "id",
@@ -227,11 +225,11 @@ class MasterController {
                 model: db.employeeMaster,
                 required: false,
                 as: "managerData",
-                attributes: ["id", "name", "email","empCode"],
+                attributes: ["id", "name", "email", "empCode"],
               },
               {
                 model: db.companyLocationMaster,
-                attributes:["address1","address2"]
+                attributes: ["address1", "address2"]
               }
             ],
           });
@@ -261,20 +259,20 @@ class MasterController {
         where: Object.assign(
           manager
             ? {
-                id: manager,
-                isActive: 1,
-              }
+              id: manager,
+              isActive: 1,
+            }
             : {
-                manager: null,
-                isActive: 1,
-              }
+              manager: null,
+              isActive: 1,
+            }
         ),
         attributes: { exclude: ["password", "role_id", "designation_id"] },
         include: [
           {
             model: db.employeeMaster,
             required: false,
-            attributes: ["id", "name","profileImage"],
+            attributes: ["id", "name", "profileImage"],
             as: "managerData",
             include: [
               {
@@ -522,23 +520,23 @@ class MasterController {
         where: Object.assign(
           stateCode
             ? {
-                stateCode,
-              }
+              stateCode,
+            }
             : {},
           stateName
             ? {
-                stateName,
-              }
+              stateName,
+            }
             : {},
           countryId
             ? {
-                countryId,
-              }
+              countryId,
+            }
             : {},
           regionId
             ? {
-                regionId,
-              }
+              regionId,
+            }
             : {}
         ),
       });
@@ -568,8 +566,8 @@ class MasterController {
         where: Object.assign(
           countryId
             ? {
-                countryId,
-              }
+              countryId,
+            }
             : {}
         ),
       });
@@ -599,8 +597,8 @@ class MasterController {
         where: Object.assign(
           stateId
             ? {
-                stateId,
-              }
+              stateId,
+            }
             : {}
         ),
       });
@@ -922,27 +920,27 @@ class MasterController {
               : [["webPosition", "asc"]],
             attributes: mobile
               ? [
-                  "cardId",
-                  "cardName",
-                  "mobileUrl",
-                  "isCardWorking",
-                  "mobileLightFontColor",
-                  "mobileIcon",
-                  "mobileLightBackgroundColor",
-                  "mobilePosition",
-                  "mobileDarkFontColor",
-                  "mobileDarkBackgroundColor",
-                ]
+                "cardId",
+                "cardName",
+                "mobileUrl",
+                "isCardWorking",
+                "mobileLightFontColor",
+                "mobileIcon",
+                "mobileLightBackgroundColor",
+                "mobilePosition",
+                "mobileDarkFontColor",
+                "mobileDarkBackgroundColor",
+              ]
               : [
-                  "cardId",
-                  "cardName",
-                  "isCardWorking",
-                  "webUrl",
-                  "webFontColor",
-                  "webBackgroundColor",
-                  "webIcon",
-                  "webPosition",
-                ],
+                "cardId",
+                "cardName",
+                "isCardWorking",
+                "webUrl",
+                "webFontColor",
+                "webBackgroundColor",
+                "webIcon",
+                "webPosition",
+              ],
           });
 
           const dashboardJson = JSON.stringify(dashboardData);
@@ -990,14 +988,29 @@ class MasterController {
       const pageNo = req.query.page * 1 || 1;
       const offset = (pageNo - 1) * limit;
 
-      const leaveData = await db.degreeMaster.findAndCountAll({
+      const redisKey = `educationDetails:${limit}:${offset}:${req.userId}`
+      let educationData
+      const redisData = await client.get(redisKey)
+
+      if (redisData) {
+        educationData = JSON.parse(redisData)
+        return respHelper(res, {
+          status: 200,
+          data: educationData,
+        });
+      }
+
+      educationData = await db.degreeMaster.findAndCountAll({
         limit,
         offset,
       });
 
+      const employeeJson = JSON.stringify(educationData);
+      await client.setEx(redisKey, parseInt(process.env.TTL), employeeJson);
+
       return respHelper(res, {
         status: 200,
-        data: leaveData,
+        data: educationData,
       });
     } catch (error) {
       console.log(error);

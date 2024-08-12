@@ -54,6 +54,7 @@ const message = {
     REMAINING_LEAVES: "Available Leaves",
     LEAVE_LIMIT: "Can't apply leave more than # days",
   },
+  PROFILE_PICTURE_UPDATED: "Profile Picture Updated."
 };
 
 export default message;

@@ -355,7 +355,8 @@ class UserController {
       }
 
       return respHelper(res, {
-        status: 200
+        status: 200,
+        msg: constant.PROFILE_PICTURE_UPDATED
       })
     } catch (error) {
       console.log(error)
