@@ -832,7 +832,7 @@ class AttendanceController {
 
   async attendanceList(req, res) {
     try {
-      const user = req.query.user;
+      const user = req.query.user || req.userId;
       const year = req.query.year;
       const month = req.query.month;
       const companyLocationId = req.userData.companyLocationId;
@@ -872,7 +872,7 @@ class AttendanceController {
         }),
         db.attendanceMaster.findAll({
           where: {
-            employeeId: user || req.userId,
+            employeeId: user,
             attendanceDate: {
               [Op.between]: [
                 `${year}-${month}-01`,
@@ -920,7 +920,7 @@ class AttendanceController {
               ],
               where: {
                 status: ["pending", "approved"],
-                employeeId: user || req.userId,
+                employeeId: user,
               },
               include: {
                 model: db.leaveMaster,
@@ -946,7 +946,7 @@ class AttendanceController {
             "appliedFor",
           ],
           where: {
-            employeeId: req.userId,
+            employeeId: user,
             appliedFor: {
               [Op.between]: [
                 `${year}-${month}-01`,
@@ -994,7 +994,7 @@ class AttendanceController {
           ],
         ],
         where: {
-          employeeId: req.userId,
+          employeeId: user,
           status: "approved",
           appliedFor: {
             [db.Sequelize.Op.between]: [startDateLeaves, endDateLeaves],
@@ -1018,7 +1018,7 @@ class AttendanceController {
           ],
         ],
         where: {
-          employeeId: req.userId,
+          employeeId: user,
           status: "approved",
           leaveAutoId: 6,
           appliedFor: {
