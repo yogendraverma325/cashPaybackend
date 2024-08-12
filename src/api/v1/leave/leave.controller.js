@@ -1032,7 +1032,7 @@ class LeaveController {
   async leaveHistory(req, res) {
     try {
       const year = req.params.year;
-      const employeeId = req.userId;
+      const employeeId = req.query.user || req.userId;
       const result = [];
       const grandLeaveTotal = [];
       let grandTotalLeaveCount = 0; // Initialize grand total leave count
