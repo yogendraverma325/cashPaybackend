@@ -5,7 +5,6 @@ import moment from "moment";
 import db from "../config/db.config.js";
 import sendGrid from "@sendgrid/mail";
 import bcrypt from "bcrypt";
-import sharp from "sharp";
 
 const generateJwtToken = async (data) => {
   const token = jwt.sign(data, process.env.JWT_KEY, {
@@ -28,14 +27,14 @@ const fileUpload = async (base64String, fileName, filepath) => {
   const base64Data = base64String.replace(/^data:(.+);base64,/, "");
   const buffer = Buffer.from(base64Data, "base64");
   const finalFilePath = `${dir}/${fileName}.${fileExt}`;
-  if (['jpg', 'jpeg', 'png'].includes(fileExt)) {
-    sharp(buffer).resize(300, 300)
-      .toFormat('jpeg')
-      .jpeg({ quality: 80 })
-      .toFile(finalFilePath);
-  } else {
-    fs.writeFileSync(finalFilePath, buffer);
-  }
+  // if (['jpg', 'jpeg', 'png'].includes(fileExt)) {
+  //   sharp(buffer).resize(300, 300)
+  //     .toFormat('jpeg')
+  //     .jpeg({ quality: 80 })
+  //     .toFile(finalFilePath);
+  // } else {
+  fs.writeFileSync(finalFilePath, buffer);
+  // }
   return finalFilePath;
 };
 
