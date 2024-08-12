@@ -234,34 +234,73 @@ class UserController {
     }
   }
   async taskBoxCount(req, res) {
-    try {
-      let userid = req.userId;
-      let assignedAttCount = await db.regularizationMaster.count({
+    try { 
+       let userid=req.userId;
+        const countLeavePending = await db.employeeLeaveTransactions.findAll({
         where: {
-          regularizeManagerId: userid,
-          regularizeStatus: "Pending",
-        }
-      });
-      let pendingAttCount = await db.regularizationMaster.count({
-        where: {
-          regularizeStatus: "Pending",
-          createdBy: userid
-        }
-      });
+         employeeId: userid,
+        status: 'pending',
+        },
+        attributes: [
+        'batch_id',
+        [db.sequelize.fn('COUNT', db.sequelize.col('employeeleavetransactionsId')), 'count']
+        ],
+        group: ['batch_id'],
+        });
 
-      return respHelper(res, {
-        status: 200,
-        data: {
-          leaveData: {
-            raisedByMe: 0,
-            assignedToMe: 0
+         const countLeaveAssgined = await db.employeeLeaveTransactions.findAll({
+        where: {
+          pendingAt: userid,
+          status: 'pending',
+        },
+        attributes: [
+        'batch_id',
+        [db.sequelize.fn('COUNT', db.sequelize.col('employeeleavetransactionsId')), 'count']
+        ],
+        group: ['batch_id'],
+        });
+  
+
+       let assignedAttCount=await db.regularizationMaster.count({
+            where: {
+            regularizeManagerId: userid,
+            regularizeStatus:"Pending",
+            }
+          });
+          let pendingAttCount=await db.regularizationMaster.count({
+            where: {
+              regularizeStatus:"Pending",
+              createdBy: userid
+            }
+          });
+
+          return respHelper(res, {
+      status: 200,
+      data:{
+        web:{
+          leaveData:{
+            raisedByMe:countLeavePending.length,
+            assignedToMe:countLeaveAssgined.length,
           },
-          attedanceData: {
-            raisedByMe: pendingAttCount,
-            assignedToMe: assignedAttCount
+          attedanceData:{
+            raisedByMe:pendingAttCount,
+            assignedToMe:assignedAttCount
           },
         },
-        msg: "Task Box Listed",
+        mobile:{
+          raisedByMe:{
+            leaveData:countLeavePending.length,
+            attedanceData:pendingAttCount
+          },
+          assignedToMe:{
+            leaveData:countLeaveAssgined.length,
+            attedanceData:assignedAttCount
+          }
+
+        },
+     
+      },
+      msg: "Task Box Listed",
       });
 
 

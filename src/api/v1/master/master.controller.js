@@ -274,7 +274,7 @@ class MasterController {
           {
             model: db.employeeMaster,
             required: false,
-            attributes: ["id", "name"],
+            attributes: ["id", "name","profileImage"],
             as: "managerData",
             include: [
               {
