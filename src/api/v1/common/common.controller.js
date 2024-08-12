@@ -681,7 +681,7 @@ class commonController {
     }
   }
 
-  async searchReportiee(req, res) {
+  async searchEmployee(req, res) {
     try {
       const {
         search,
@@ -710,15 +710,16 @@ class commonController {
       }`;
 
       let employeeData = [];
-      if (
-        usersData.role_id != 1 &&
-        usersData.role_id != 2 &&
-        usersData.role_id != 5
-      ) {
-        let permissionAssignTousers = usersData.permissionAndAccess
-          .split(",")
-          .map((el) => parseInt(el));
-        let permissionAndAccess = await db.permissoinandaccess.findAll({
+      if (usersData.role_id != 1 && usersData.role_id != 2 && usersData.role_id != 5) {
+        let permissionAssignTousers = [];
+  
+        if (usersData.permissionAndAccess) {
+          permissionAssignTousers = usersData.permissionAndAccess
+            .split(",")
+            .map((el) => parseInt(el));
+        }
+        
+          let permissionAndAccess = await db.permissoinandaccess.findAll({
           where: {
             role_id: usersData.role_id,
             isActive: 1,
@@ -782,12 +783,43 @@ class commonController {
         }
       }
 
+      let whereCondtion = Object.assign(
+        {},
+        search
+          ? {} : {
+              [Op.and]: [
+                {
+                  isActive: usersData.role_id == 1 || usersData.role_id == 2 ? [1, 0] : [1],
+                },
+              ],
+            }
+      );
+        if (req.userData.role_id == 3) {
+          whereCondtion = Object.assign({}, whereCondtion, { id: req.userId });
+        }
+
       employeeData = await db.employeeMaster.findAndCountAll({
         order: [["id", "desc"]],
         limit,
         offset,
-        where: Object.assign(
-          search
+        where:whereCondtion,
+        attributes: [
+          "id",
+          "empCode",
+          "name",
+          "email",
+          "firstName",
+          "lastName",
+          "officeMobileNumber",
+          "buId",
+          "sbuId",
+          "isActive",
+        ],
+        include: [
+          {
+            model: db.employeeMaster,
+            attributes: ["id", "name", "empCode", "email"],
+            where: search
             ? {
                 [Op.or]: [
                   {
@@ -808,113 +840,20 @@ class commonController {
                 ],
                 [Op.and]: [
                   {
-                    isActive:
-                      usersData.role_id == 1 || usersData.role_id == 2
-                        ? [1, 0]
-                        : [1],
+                    isActive: usersData.role_id == 1 || usersData.role_id == 2 ? [1, 0] : [1],
                   },
                 ],
-              }
-            : {
-                [Op.and]: [
-                  {
-                    isActive:
-                      usersData.role_id == 1 || usersData.role_id == 2
-                        ? [1, 0]
-                        : [1],
-                  },
-                ],
-              }
-        ),
-        attributes: [
-          "id",
-          "empCode",
-          "name",
-          "email",
-          "firstName",
-          "lastName",
-          "officeMobileNumber",
-          "buId",
-          "sbuId",
-          "isActive",
-        ],
-        include: [
-          {
-            model: db.designationMaster,
-            seperate: true,
-            attributes: ["name"],
-            where: {
-              ...(designation && {
-                name: { [Op.like]: `%${designation}%` },
-              }),
-              ...designationFIlter,
-            },
-          },
-          {
-            model: db.departmentMaster,
-            seperate: true,
-            attributes: ["departmentName"],
-            where: {
-              ...(department && {
-                departmentName: { [Op.like]: `%${department}%` },
-              }),
-              ...departmentFIlter,
-            },
-          },
-          {
-            model: db.buMaster,
-            seperate: true,
-            attributes: ["buName"],
-            where: {
-              ...(buSearch && { buName: { [Op.like]: `%${buSearch}%` } }),
-              ...buFIlter,
-            },
-          },
-          {
-            model: db.sbuMaster,
-            seperate: true,
-            attributes: ["sbuname"],
-            where: {
-              ...(sbuSearch && {
-                sbuname: { [Op.like]: `%${sbuSearch}%` },
-              }),
-              ...sbbuFIlter,
-            },
-          },
-          {
-            model: db.functionalAreaMaster,
-            seperate: true,
-            attributes: ["functionalAreaName"],
-            where: {
-              ...(areaSearch && {
-                functionalAreaName: { [Op.like]: `%${areaSearch}%` },
-              }),
-              ...functionAreaFIlter,
-            },
-          },
-          {
-            model: db.employeeMaster,
-            required: false,
-            as: "managerData",
-            attributes: ["id", "name", "email", "empCode"],
-          },
-          {
-            model: db.companyLocationMaster,
-            attributes: ["address1", "address2"],
-          },
-          {
-            model: db.employeeMaster,
+              }:{},
             as: "reportie",
             required: false,
-            attributes: ["id", "name", "empCode", "email"],
             include: [
               {
                 model: db.roleMaster,
-                required: true,
+                required: false,
               },
               {
                 model: db.designationMaster,
-                required: true,
+                required: false,
                 attributes: ["designationId", "name"],
               },
             ],

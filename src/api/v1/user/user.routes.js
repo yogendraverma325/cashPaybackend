@@ -24,4 +24,4 @@ export default Express
     .post("/addJobDetails", authentication.authenticate, commonController.addJobDetails)
      .put("/updateEducationDetails", authentication.authenticate, commonController.updateEducationDetails)
      .post("/addEducationDetails", authentication.authenticate, commonController.addEducationDetails)
-     .get("/searchReportiee",authentication.authenticate, commonController.searchReportiee)
+     .get("/searchEmployee",authentication.authenticate, commonController.searchEmployee)
