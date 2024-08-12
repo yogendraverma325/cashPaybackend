@@ -281,13 +281,37 @@ class AttendanceController {
     try {
       const result = await validator.regularizeRequest.validateAsync(req.body);
 
+      const punchInDateTime = moment(`${result.fromDate}T${result.punchInTime}`);
+      const punchOutDateTime = moment(`${result.toDate}T${result.punchOutTime}`);
+
+      if (result.punchInTime == "00:00:00" || result.punchOutTime == "00:00:00") {
+        return respHelper(res, {
+          status: 400,
+          msg: message.ZERO_TIME,
+        });
+      }
+
+      if (result.punchInTime == result.punchOutTime) {
+        return respHelper(res, {
+          status: 400,
+          msg: message.NOT_SAME,
+        });
+      }
+
+      if (punchOutDateTime.isBefore(punchInDateTime)) {
+        return respHelper(res, {
+          status: 400,
+          msg: message.TIME_LESS, // "PunchOut time can't be less than PunchIn time."
+        });
+      }
+
       if (moment().isBefore(result.fromDate)) {
         return respHelper(res, {
           status: 400,
           msg: message.ATTENDANCE_DATE_CANNOT_AFTER_TODAY,
         });
       }
-
+      
       let attendanceData = await db.attendanceMaster.findOne({
         where: {
           attendanceAutoId: result.attendanceAutoId,
@@ -856,7 +880,7 @@ class AttendanceController {
         attendanceData,
         monthDays,
         employeeLeaveTransactions,
-        shiftMasters
+        shiftMasters,
       ] = await Promise.all([
         db.holidayCompanyLocationConfiguration.findAll({
           where: { companyLocationId: companyLocationId },
@@ -1208,7 +1232,6 @@ class AttendanceController {
               attendance.latest_Regularization_Request || [],
             employeeLeaveTransactionDetails: leaveTransactions,
             attendanceShiftEmployee: shiftMaster,
-
           };
         })
       );

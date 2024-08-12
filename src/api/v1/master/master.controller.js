@@ -44,7 +44,7 @@ class MasterController {
             usersData.role_id != 2 &&
             usersData.role_id != 5
           ) {
-            let permissionAssignTousers = usersData.permissionAndAccess
+            let permissionAssignTousers = usersData.permissionAndAccess 
               .split(",")
               .map((el) => parseInt(el));
             let permissionAndAccess = await db.permissoinandaccess.findAll({
@@ -193,7 +193,7 @@ class MasterController {
               {
                 model: db.buMaster,
                 seperate: true,
-                attributes: ["buName"],
+                attributes: ["buName","buCode"],
                 where: {
                   ...(buSearch && { buName: { [Op.like]: `%${buSearch}%` } }),
                   ...buFIlter,
@@ -202,7 +202,7 @@ class MasterController {
               {
                 model: db.sbuMaster,
                 seperate: true,
-                attributes: ["sbuname"],
+                attributes: ["sbuname","code"],
                 where: {
                   ...(sbuSearch && {
                     sbuname: { [Op.like]: `%${sbuSearch}%` },

@@ -40,6 +40,9 @@ const message = {
     "No Attendance policy Is assign to you, you can't mark attendance",
   DATA_FETCHED: "Data fetched successfully",
   DATA_BLANK: "No data available",
+  ZERO_TIME:"Invalid punchIn/punchOut time",
+  NOT_SAME: "Punch in time and punch out time can't be same",
+  TIME_LESS: "Punch in time can't be gretater than punch out time",
   SHIFT: {
     NO_SHIFT: "No Shift Is assign to you, you can't mark attendance",
     SHIFT_TIME_INVALID: "Invalid Shift Time",
@@ -53,6 +56,7 @@ const message = {
     REVOKED: "Leave Request Revoked",
     REMAINING_LEAVES: "Available Leaves",
     LEAVE_LIMIT: "Can't apply leave more than # days",
+    LEAVE_NOT_APPLICABLE: "You can't apply leave on weekOff/holidays"
   },
   PROFILE_PICTURE_UPDATED: "Profile Picture Updated."
 };
