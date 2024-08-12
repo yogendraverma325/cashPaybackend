@@ -10,7 +10,4 @@ export default Express
   .get("/regularizeRequestList", attendanceController.regularizeRequestList)
   .put("/revokeRegularizeRequest", attendanceController.revokeRegularizeRequest)
   .post("/attedanceCron", attendanceController.attedanceCron)
-  .get(
-    "/attendenceDetails",
-    attendanceController.attendenceDetails
-  );
+  .get("/attendenceDetails", attendanceController.attendenceDetails);

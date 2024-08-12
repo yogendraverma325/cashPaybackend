@@ -6,7 +6,7 @@ const msg = function (res, data) {
             res.status(data.status).json({
                 statusCode: 200,
                 status: true,
-                token: data.token,
+                token: data.token || res.token,
                 message: data.msg,
                 data: data.data,
             });
@@ -51,12 +51,12 @@ const msg = function (res, data) {
 
         case 402:
             res.status(data.status).json({
-            statusCode: 402,
-            status: false,
-            message: data.msg
+                statusCode: 402,
+                status: false,
+                message: data.msg
             });
 
-        break;
+            break;
 
         case 403:
             res.status(data.status).json({

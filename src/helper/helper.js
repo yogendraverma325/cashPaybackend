@@ -8,7 +8,7 @@ import bcrypt from "bcrypt";
 
 const generateJwtToken = async (data) => {
   const token = jwt.sign(data, process.env.JWT_KEY, {
-    expiresIn: process.env.JWT_EXPIRY,
+    expiresIn: (data.user.device === 'desktop') ? process.env.JWT_EXPIRY : process.env.JWT_EXPIRY_MOBILE,
   });
   return token;
 };
@@ -27,7 +27,14 @@ const fileUpload = async (base64String, fileName, filepath) => {
   const base64Data = base64String.replace(/^data:(.+);base64,/, "");
   const buffer = Buffer.from(base64Data, "base64");
   const finalFilePath = `${dir}/${fileName}.${fileExt}`;
+  // if (['jpg', 'jpeg', 'png'].includes(fileExt)) {
+  //   sharp(buffer).resize(300, 300)
+  //     .toFormat('jpeg')
+  //     .jpeg({ quality: 80 })
+  //     .toFile(finalFilePath);
+  // } else {
   fs.writeFileSync(finalFilePath, buffer);
+  // }
   return finalFilePath;
 };
 
@@ -57,7 +64,7 @@ const mailService = async (data) => {
   sendGrid.setApiKey(process.env.SENDGRID_API_KEY);
   const msg = {
     // to: data.to,
-    to: "example@teamcomputers.com",
+    to: "rag.ranjan@teamcomputers.com",
     from: process.env.SENDER_MAIL,
     subject: data.subject,
     text: data.text,

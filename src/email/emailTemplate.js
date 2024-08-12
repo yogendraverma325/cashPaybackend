@@ -1,66 +1,240 @@
+import moment from "moment"
+
 const regularizationRequestMail = async (data) => {
   return `<!DOCTYPE html>
-    <html lang="en">
-      <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Regularization Request</title>
-        <style>
-          body {
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-            background-color: #f7f8f9;
-            color: #000000;
-          }
-    
-          .title {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 22px;
-            font-weight: 400;
-          }
-    
-          .text {
-            text-align: center;
-            font-size: 14px;
-            line-height: 1.4;
-            margin: 20px 0;
-          }
-    
-          .button-container {
-            text-align: center;
-            margin-bottom: 20px;
-          }
-    
-          .button {
-            display: inline-block;
-            padding: 10px 20px;
-            border-radius: 4px;
-            text-decoration: none;
-          }
-    
-          .green {
-            background-color: #187c06;
-            color: #ffffff;
-          }
-    
-          .red {
-            background-color: #b5103e;
-            color: #ffffff;
-          }
-        </style>
-      </head>
-    
-      <body>
-        <h1 class="title">Regularization Request</h1>
-        <p class="text"><b>${data.requesterName}</b> Requested for Attendance Regularization of <b>${data.attendenceDate}</b></p>
-        <div class="button-container">
-          <a href="#" class="button green">Approve</a>
-          <a href="#" class="button red">Reject</a>
-        </div>
-      </body>
-    </html>`
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Regularization Request</title>
+  </head>
+  <body>
+    <table
+      style="
+        border-collapse: collapse;
+        max-width: 635px;
+        min-width: 550px;
+        width: auto;
+        margin: 0 auto;
+        border: 0.5px solid #eee;
+      "
+      align="center"
+    >
+      <tbody>
+        <tr>
+          <td>
+            <table
+              style="border-collapse: collapse; margin: 0 auto; width: 100%"
+              align="center"
+            >
+              <tbody>
+                <tr style="background: #fff">
+                  <td
+                    colspan="2"
+                    style="padding: 20px; padding-bottom: 0"
+                    valign="top"
+                  >
+                    <table style="width: 100%">
+                      <tbody>
+                        <tr>
+                          <td
+                            colspan="2"
+                            style="
+                              padding-bottom: 20px;
+                              text-align: left;
+                              border-bottom: 1px solid #eee;
+                            "
+                            valign="middle"
+                          >
+                            <img
+                              height="45"
+                              src="https://www.teamcomputers.com/images/logo.png"
+                              alt="Logo"
+                              class="CToWUd"
+                              data-bit="iit"
+                            />
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+                <tr style="min-height: 300px; background: #fff">
+                  <td colspan="2" style="padding: 20px" valign="top">
+                    <div
+                      style="line-height: 1; line-height: 1; line-height: 1.8"
+                    >
+                      <p>Hi <b>${data.managerName}</b>,</p>
+                      <p><br /></p>
+                      <p>
+                        <b>${data.requesterName}</b> has requested for Attendance
+                        Request from ${moment(data.attendenceFromDate).format('MMMM D, YYYY')} to ${moment(data.attendenceToDate).format('MMMM D, YYYY')}. <br />
+                      </p>
+                      <p>
+                        Request message : ${data.userRemark}
+                      </p>
+                      <p>
+                        <a
+                          href='${process.env.CLIENT_URL}#/TaskBox?selectedTab=0&selectedMode=assignedToMe'
+                          style="
+                            padding: 5px 10px;
+                            background: #0173c5;
+                            color: #fff;
+                            text-decoration: none;
+                            border-radius: 2px;
+                            font-size: 14px;
+                            display: inline-block;
+                          "
+                          target="_blank"
+                          >Click Here</a
+                        >
+                        to view the full attendance request<br />
+                      </p>
+                      <p>Regards,</p>
+                      <p>Teams HRMS<br /></p>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </body>
+</html>
+`
+}
+
+const leaveRequestMail = async (data) => {
+  return `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Leave Request</title>
+  </head>
+  <body>
+    <table
+      style="
+        border-collapse: collapse;
+        line-height: 100% !important;
+        width: 100% !important;
+        font-family: sans-serif;
+      "
+      border="0"
+      cellpadding="0"
+      cellspacing="0"
+      align="center"
+    >
+      <tbody>
+        <tr>
+          <td style="padding-top: 20px; padding-bottom: 20px">
+            <table
+              style="
+                border-collapse: collapse;
+                max-width: 635px;
+                min-width: 550px;
+                width: auto;
+                margin: 0 auto;
+                border: 0.5px solid #eee;
+              "
+              align="center"
+            >
+              <tbody>
+                <tr>
+                  <td>
+                    <table
+                      style="
+                        border-collapse: collapse;
+                        margin: 0 auto;
+                        width: 100%;
+                      "
+                      align="center"
+                    >
+                      <tbody>
+                        <tr style="background: #fff">
+                          <td
+                            colspan="2"
+                            style="padding: 20px; padding-bottom: 0"
+                            valign="top"
+                          >
+                            <table style="width: 100%">
+                              <tbody>
+                                <tr>
+                                  <td
+                                    colspan="2"
+                                    style="
+                                      padding-bottom: 20px;
+                                      text-align: left;
+                                      border-bottom: 1px solid #eee;
+                                    "
+                                    valign="middle"
+                                  >
+                                    <img
+                                      height="45"
+                                      src="https://www.teamcomputers.com/images/logo.png"
+                                      alt="Logo"
+                                      class="CToWUd"
+                                      data-bit="iit"
+                                    />
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </td>
+                        </tr>
+                        <tr style="min-height: 300px; background: #fff">
+                          <td colspan="2" style="padding: 20px" valign="top">
+                            <div
+                              style="
+                                line-height: 1;
+                                line-height: 1;
+                                line-height: 1.8;
+                              "
+                            >
+                              <p>Hi <b>${data.managerName}</b>,</p>
+                              <p><br /></p>
+                              <p>
+                                <b>${data.requesterName}</b> has requested for
+                                ${data.leaveType} from ${moment(data.leaveFromDate).format('MMMM D, YYYY')} to ${moment(data.leaveToDate).format('MMMM D, YYYY')}. <br />
+                              </p>
+                              <p>Request message : ${data.userRemark}</p>
+                              <p>
+                                <a
+                                  href='${process.env.CLIENT_URL}#/TaskBox?selectedTab=1&selectedMode=assignedToMe'
+                                  style="
+                                    padding: 5px 10px;
+                                    background: #0173c5;
+                                    color: #fff;
+                                    text-decoration: none;
+                                    border-radius: 2px;
+                                    font-size: 14px;
+                                    display: inline-block;
+                                  "
+                                  target="_blank"
+                                  >Click Here</a
+                                >
+                                to review the full leave request. <br />
+                              </p>
+                              <p><br /></p>
+                              <p>Regards,</p>
+                              <p>Teams HRMS<br /></p>
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </body>
+</html>`
 }
 
 const resetPasswordMail = async (data) => {
@@ -322,5 +496,6 @@ const revokeRegularizeMail = async (data) => {
 export default {
   regularizationRequestMail,
   resetPasswordMail,
-  revokeRegularizeMail
+  revokeRegularizeMail,
+  leaveRequestMail
 }

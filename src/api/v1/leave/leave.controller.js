@@ -71,9 +71,9 @@ class LeaveController {
         where: Object.assign(
           query === "raisedByMe"
             ? {
-                employeeId: req.userId,
-                status: "pending",
-              }
+              employeeId: req.userId,
+              status: "pending",
+            }
             : { pendingAt: req.userId, status: "pending" }
         ),
         attributes: { exclude: ["createdBy", "updatedBy", "updatedAt"] },
@@ -499,6 +499,7 @@ class LeaveController {
       let leaveDays = 0;
       const daysDifference = moment(toDate).diff(moment(fromDate), "days");
       let uuid = "id_" + moment().format("YYYYMMDDHHmmss");
+      let uuidUnpaid = "lwp_id_" + moment().format("YYYYMMDDHHmmss");
       for (let i = -1; i < daysDifference; i++) {
         let appliedFor = moment(fromDate)
           .add(i + 1, "days")
@@ -573,19 +574,19 @@ class LeaveController {
             leaveAttachment:
               result.attachment != ""
                 ? await helper.fileUpload(
-                    result.attachment,
-                    `leaveAttachment_${uuid}`,
-                    `uploads/${EMP_DATA.empCode}`
-                  )
+                  result.attachment,
+                  `leaveAttachment_${uuid}`,
+                  `uploads/${EMP_DATA.empCode}`
+                )
                 : null,
             pendingAt: EMP_DATA.managerData.id, // Replace with actual pending at value
             createdBy: req.userId, // Replace with actual creator user ID
             createdAt: moment(), // Replace with actual creation date
-            batch_id: uuid,
+            batch_id: (leaveId == 6) ? uuidUnpaid : uuid,
             weekOffId: EMP_DATA.weekOffId,
             fromDate: req.body.fromDate,
             toDate: req.body.toDate,
-            source: req.deviceSource,
+            source: JSON.stringify(req.deviceSource),
           };
           arr.push(recordData);
           //const record = await db.employeeLeaveTransactions.create(recordData);
@@ -601,6 +602,39 @@ class LeaveController {
         });
       }
       await db.employeeLeaveTransactions.bulkCreate(arr);
+
+      const employeeData = await db.employeeMaster.findOne({
+        where: {
+          id: result.employeeId
+        },
+        attributes: ['name', 'email'],
+        include: [{
+          model: db.employeeMaster,
+          as: 'managerData',
+          attributes: ['name', 'email'],
+        }]
+      })
+      const leaveType = await db.leaveMaster.findOne({
+        where: {
+          leaveId: result.leaveAutoId
+        },
+        attributes: ['leaveName']
+      })
+
+      eventEmitter.emit(
+        "leaveRequestMail",
+        JSON.stringify({
+          requesterName: employeeData.dataValues.name,
+          leaveFromDate: result.fromDate,
+          leaveToDate: result.toDate,
+          userRemark: result.message,
+          leaveType: leaveType.dataValues.leaveName,
+          managerName: employeeData.dataValues.managerData.name,
+          managerEmail: employeeData.dataValues.managerData.email,
+          cc: result.recipientsIds
+        })
+      );
+
       return respHelper(res, {
         status: 200,
         data: arr,
@@ -990,10 +1024,10 @@ class LeaveController {
         0,
         totalWorkingDays - getCombinedVal
       );
-      let countDeductingPending = availableLeaveCount.availableLeave - pendingLeaveCount 
+      let countDeductingPending = availableLeaveCount.availableLeave - pendingLeaveCount
       let a = totalWorkingDaysCalculated;
       let b = totalWorkingDaysCalculated < countDeductingPending ? totalWorkingDaysCalculated : countDeductingPending
-      let c = a - b ;
+      let c = a - b;
 
       return respHelper(res, {
         status: 200,

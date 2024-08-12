@@ -111,7 +111,7 @@ const db = {};
 db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 db.literal = literal;
-db.QueryTypes=QueryTypes;
+db.QueryTypes = QueryTypes;
 db.employeeMaster = Employee(sequelize, Sequelize);
 db.bandMaster = Band(sequelize, Sequelize);
 db.buMaster = Bu(sequelize, Sequelize);
@@ -174,11 +174,11 @@ db.weekOffMaster = weekOffMaster(sequelize, Sequelize);
 db.weekOffDayMappingMaster = weekOffDayMappingMaster(sequelize, Sequelize);
 db.CalenderYear = CalenderYear(sequelize, Sequelize);
 db.loginDetails = LoginDetails(sequelize, Sequelize)
-db.permissoinandaccess=permissoinandaccess(sequelize, Sequelize);
+db.permissoinandaccess = permissoinandaccess(sequelize, Sequelize);
 db.managerHistory = ManagerHistory(sequelize, Sequelize)
-db.employeeJobDetailsHistory = employeeJobDetailsHistory(sequelize,Sequelize)
-db.employeeEducationDetailsHistory = EmployeeEducationDetailsHistory(sequelize,Sequelize)
-db.familyMemberHistory = FamilyMemberHistory(sequelize,Sequelize)
+db.employeeJobDetailsHistory = employeeJobDetailsHistory(sequelize, Sequelize)
+db.employeeEducationDetailsHistory = EmployeeEducationDetailsHistory(sequelize, Sequelize)
+db.familyMemberHistory = FamilyMemberHistory(sequelize, Sequelize)
 
 db.holidayCompanyLocationConfiguration.hasOne(db.holidayMaster, {
   foreignKey: "holidayId",

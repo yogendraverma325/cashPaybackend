@@ -191,16 +191,18 @@ class AdminController {
 
   async updateManager(req, res) {
     try {
-      for (const iterator of req.body) {
+      const result = await validator.updateManagerSchema.validateAsync(req.body)
+
+      for (const iterator of result) {
         let getInfoEmp = await db.employeeMaster.findOne({
-          attributes: ["id", "empCode", "name", "manager", "createdAt","updatedAt"],
+          attributes: ["id", "empCode", "name", "manager", "createdAt", "updatedAt"],
           where: { id: iterator.user },
-        });       
+        });
         if (getInfoEmp) {
           let createHistory = {
-            employeeId: getInfoEmp.id,
-            managerId: getInfoEmp.manager ? getInfoEmp.manager : 1,
-            fromDate: moment(getInfoEmp.updatedAt).format("YYYY-MM-DD"),
+            employeeId: getInfoEmp.dataValues.id,
+            managerId: getInfoEmp.dataValues.manager ? getInfoEmp.dataValues.manager : 1,
+            fromDate: moment(getInfoEmp.dataValues.createdAt).format("YYYY-MM-DD"),
             toDate: moment().format("YYYY-MM-DD"),
             createdBy: req.userId,
             updatedBy: req.userId,
@@ -228,6 +230,12 @@ class AdminController {
       });
     } catch (error) {
       console.log("error", error);
+      if (error.isJoi) {
+        return respHelper(res, {
+          msg: error.details[0].message,
+          status: 422
+        })
+      }
       return respHelper(res, {
         status: 500,
       });

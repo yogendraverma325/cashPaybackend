@@ -56,7 +56,6 @@ class CronController {
   }
 
   async updateActiveStatus() {
-    console.log("update active sttus")
     const existsUsers = await db.employeeMaster.findAll({
       raw: true,
       where: {

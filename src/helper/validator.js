@@ -41,12 +41,12 @@ const attendanceSchema = Joi.object({
 const regularizeRequest = Joi.object({
   fromDate: Joi.string().trim().label("From Date"),
   toDate: Joi.string().trim().label("To Date"),
-  locationType: Joi.string(),
-  punchInTime: Joi.string(),
-  punchOutTime: Joi.string(),
-  reason: Joi.string(),
+  locationType: Joi.string().label("Location Type"),
+  punchInTime: Joi.string().label("Punch In Time"),
+  punchOutTime: Joi.string().label("Punch Out Time"),
+  reason: Joi.string().label("Reason"),
   attendanceAutoId: Joi.number(),
-  remark: Joi.string(),
+  remark: Joi.string().trim().required().label("Remark"),
 });
 
 const approveRegularizationRequestSchema = Joi.object({
@@ -184,7 +184,7 @@ const leaveRequestSchema = Joi.object({
   firstDayHalf: Joi.number().optional().valid(0, 1, 2),
   lastDayHalf: Joi.number().optional().valid(0, 1, 2),
   reason: Joi.string().optional().max(45),
-  message: Joi.string().optional().max(45),
+  message: Joi.string().trim().required().max(45),
 }).options({ abortEarly: false });
 
 const revoekLeaveRequest = Joi.object({
@@ -220,6 +220,20 @@ const addJobDetailsSchema = Joi.object({
   languagesSpoken: Joi.string().label("Language Spoken").optional()
 })
 
+const updateManagerSchema = Joi.array().required().items(
+  Joi.object({
+    user: Joi.number().required().label("User"),
+    manager: Joi.number().required().label("Manager"),
+  })
+).messages({
+  'array.base': 'Please Select Atleaset One User'
+})
+
+const updateProfilePictureSchema = Joi.object({
+  user: Joi.number().required().label("User"),
+  image: Joi.string(),
+})
+
 export default {
   loginSchema,
   userCreationSchema,
@@ -242,5 +256,7 @@ export default {
   remainingLeaves,
   addJobDetailsSchema,
   updateEducationDetailsSchema,
-  addEducationDetailsSchema
+  addEducationDetailsSchema,
+  updateManagerSchema,
+  updateProfilePictureSchema
 };
