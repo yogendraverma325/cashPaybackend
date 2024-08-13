@@ -1191,7 +1191,7 @@ class LeaveController {
     }
   }
 
-  async leaveDetails(req, res) {
+  async leaveHistoryDetails(req, res) {
     try {
       const { leaveAutoId, month, year, user } = req.query;
       const employeeId = user || req.userId;
