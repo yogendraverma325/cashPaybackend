@@ -1,3 +1,9 @@
+------------------------------ 13-08-2024 (Manish) -----------------------------------------
+
+ALTER TABLE `hrms_dev`.`employeeleavetransactions` 
+ADD COLUMN `managerRemark` VARCHAR(50) NULL DEFAULT NULL AFTER `status`;
+
+
 ------------------------------07-08-2024 (Harish)--------------------------------------------
 
 CREATE TABLE employeeeducationHistory (

@@ -123,6 +123,7 @@ class LeaveController {
         {
           status: result.status,
           updatedBy: req.userId,
+          managerRemark: result.remark != "" ? result.remark : null,
           updatedAt: moment(),
         },
         {
@@ -594,7 +595,7 @@ class LeaveController {
         //const record = await db.employeeLeaveTransactions.bulkCreate(arr);
       }
       // Perform bulk insert
-      if(arr.length == 0){
+      if (arr.length == 0) {
         return respHelper(res, {
           status: 400,
           data: arr,
@@ -621,6 +622,14 @@ class LeaveController {
         attributes: ['leaveName']
       })
 
+      const recipientsEmail = await db.employeeMaster.findAll({
+        raw: true,
+        where: {
+          id: result.recipientsIds.split(",")
+        },
+        attributes: ['email']
+      })
+
       eventEmitter.emit(
         "leaveRequestMail",
         JSON.stringify({
@@ -631,7 +640,7 @@ class LeaveController {
           leaveType: leaveType.dataValues.leaveName,
           managerName: employeeData.dataValues.managerData.name,
           managerEmail: employeeData.dataValues.managerData.email,
-          cc: result.recipientsIds
+          cc: recipientsEmail.map(user => user.email)
         })
       );
 

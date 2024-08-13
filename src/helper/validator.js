@@ -172,6 +172,14 @@ const updateLeaveRequest = Joi.object({
     .required()
     .valid("approved", "rejected")
     .label("status"),
+  remark: Joi.string()
+    .trim()
+    .max(250)
+    .when("status", {
+      is: Joi.number().valid("rejected"),
+      then: Joi.required().label("Remark"),
+      otherwise: Joi.optional().allow("").label("Remark"),
+    }),
 });
 
 const leaveRequestSchema = Joi.object({
