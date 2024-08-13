@@ -1160,6 +1160,7 @@ class LeaveController {
         grandTotalLeaveCount += totalLeaveCountForMonth; // Update grand total leave count
 
         result.push({
+          monthNumber:moment(getMonthName(month), 'MMMM').format('MM'),
           month: getMonthName(month),
           totalMonthLeave: totalLeaveCountForMonth,
           attendanceData: attendanceDataForMonth,
