@@ -63,6 +63,8 @@ import ManagerHistory from "../api/model/ManagerHistory.js";
 import employeeJobDetailsHistory from "../api/model/EmployeeJobDetailsHistory.js";
 import EmployeeEducationDetailsHistory from "../api/model/EmployeeEducationDetailsHistory.js";
 import FamilyMemberHistory from "../api/model/FamilyMemberHistory.js";
+import AttendanceHistory from "../api/model/attendanceHistory.js";
+
 import literal from "sequelize";
 import QueryTypes from "sequelize"
 const sequelize = new Sequelize(
@@ -179,6 +181,7 @@ db.managerHistory = ManagerHistory(sequelize, Sequelize)
 db.employeeJobDetailsHistory = employeeJobDetailsHistory(sequelize, Sequelize)
 db.employeeEducationDetailsHistory = EmployeeEducationDetailsHistory(sequelize, Sequelize)
 db.familyMemberHistory = FamilyMemberHistory(sequelize, Sequelize)
+db.attendanceHistory = AttendanceHistory(sequelize,Sequelize)
 
 db.holidayCompanyLocationConfiguration.hasOne(db.holidayMaster, {
   foreignKey: "holidayId",

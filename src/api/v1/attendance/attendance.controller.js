@@ -176,6 +176,18 @@ class AttendanceController {
           };
 
           await db.attendanceMaster.create(creationObject);
+         
+          await db.attendanceHistory.create({
+            date: currentDate.format("YYYY-MM-DD"),
+            time:currentDate.format("HH:mm:ss"),
+            status:"Punch In",
+            employeeId: req.userId,
+            location: result.location,
+            lat: result.latitude,
+            long: result.longitude,
+            createdBy: req.userId,
+            createdAt: currentDate,
+          })
           return respHelper(res, {
             status: 200,
             msg: message.PUNCH_IN_SUCCESS,
@@ -256,6 +268,18 @@ class AttendanceController {
               },
             }
           );
+          await db.attendanceHistory.create({
+            date: currentDate.format("YYYY-MM-DD"),
+            time:currentDate.format("HH:mm:ss"),
+            status: "Punch Out",
+            employeeId: req.userId,
+            location: result.location,
+            lat: result.latitude,
+            long: result.longitude,
+            updatedBy: req.userId,
+            updatedAt: currentDate,
+
+          })
         }
 
         return respHelper(res, {
