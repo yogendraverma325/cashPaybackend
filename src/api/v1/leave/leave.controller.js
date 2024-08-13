@@ -596,7 +596,7 @@ class LeaveController {
       // Perform bulk insert
       if (arr.length == 0) {
         return respHelper(res, {
-          status: 401,
+          status: 400,
           data: arr,
           msg: message.LEAVE.LEAVE_NOT_APPLICABLE,
         });
