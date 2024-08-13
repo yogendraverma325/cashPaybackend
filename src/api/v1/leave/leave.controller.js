@@ -1150,6 +1150,7 @@ class LeaveController {
           totalLeaveCountForMonth += parseFloat(leaveCount);
 
           attendanceDataForMonth.push({
+            leaveAutoId:leave.leaveId,
             leaveType: leave.leaveName,
             leaveCode: leave.leaveCode,
             totalLeaveCount: leaveCount,
