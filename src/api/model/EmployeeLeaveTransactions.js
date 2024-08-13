@@ -46,7 +46,10 @@ export default (sequelize, Sequelize) => {
       message: {
         type: Sequelize.STRING,
       },
-       batch_id: {
+      managerRemark: {
+        type: Sequelize.STRING
+      },
+      batch_id: {
         type: Sequelize.STRING,
       },
       pendingAt: {
@@ -58,12 +61,12 @@ export default (sequelize, Sequelize) => {
       leaveAttachment: {
         type: Sequelize.STRING,
       },
-        leaveCount: {
+      leaveCount: {
         type: Sequelize.DECIMAL(10, 1),
         defaltValue: 0,
       },
       weekOffId: {
-      type: Sequelize.INTEGER,
+        type: Sequelize.INTEGER,
       },
       source: {
         type: Sequelize.STRING,

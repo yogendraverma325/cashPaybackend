@@ -71,9 +71,9 @@ class LeaveController {
         where: Object.assign(
           query === "raisedByMe"
             ? {
-                employeeId: req.userId,
-                status: "pending",
-              }
+              employeeId: req.userId,
+              status: "pending",
+            }
             : { pendingAt: req.userId, status: "pending" }
         ),
         attributes: { exclude: ["createdBy", "updatedBy", "updatedAt"] },
@@ -123,6 +123,7 @@ class LeaveController {
         {
           status: result.status,
           updatedBy: req.userId,
+          managerRemark: result.remark != "" ? result.remark : null,
           updatedAt: moment(),
         },
         {
@@ -574,10 +575,10 @@ class LeaveController {
             leaveAttachment:
               result.attachment != ""
                 ? await helper.fileUpload(
-                    result.attachment,
-                    `leaveAttachment_${uuid}`,
-                    `uploads/${EMP_DATA.empCode}`
-                  )
+                  result.attachment,
+                  `leaveAttachment_${uuid}`,
+                  `uploads/${EMP_DATA.empCode}`
+                )
                 : null,
             pendingAt: EMP_DATA.managerData.id, // Replace with actual pending at value
             createdBy: req.userId, // Replace with actual creator user ID
@@ -623,6 +624,14 @@ class LeaveController {
         attributes: ["leaveName"],
       });
 
+      const recipientsEmail = await db.employeeMaster.findAll({
+        raw: true,
+        where: {
+          id: result.recipientsIds.split(",")
+        },
+        attributes: ['email']
+      })
+
       eventEmitter.emit(
         "leaveRequestMail",
         JSON.stringify({
@@ -633,7 +642,7 @@ class LeaveController {
           leaveType: leaveType.dataValues.leaveName,
           managerName: employeeData.dataValues.managerData.name,
           managerEmail: employeeData.dataValues.managerData.email,
-          cc: result.recipientsIds,
+          cc: recipientsEmail.map(user => user.email)
         })
       );
 
@@ -1150,7 +1159,7 @@ class LeaveController {
           totalLeaveCountForMonth += parseFloat(leaveCount);
 
           attendanceDataForMonth.push({
-            leaveAutoId:leave.leaveId,
+            leaveAutoId: leave.leaveId,
             leaveType: leave.leaveName,
             leaveCode: leave.leaveCode,
             totalLeaveCount: leaveCount,
@@ -1160,7 +1169,7 @@ class LeaveController {
         grandTotalLeaveCount += totalLeaveCountForMonth; // Update grand total leave count
 
         result.push({
-          monthNumber:moment(getMonthName(month), 'MMMM').format('MM'),
+          monthNumber: moment(getMonthName(month), 'MMMM').format('MM'),
           month: getMonthName(month),
           totalMonthLeave: totalLeaveCountForMonth,
           attendanceData: attendanceDataForMonth,
@@ -1196,7 +1205,7 @@ class LeaveController {
     try {
       const { leaveAutoId, month, year, user } = req.query;
       const employeeId = user || req.userId;
-    
+
       const whereCondtion = {
         employeeId: employeeId,
         leaveAutoId: leaveAutoId,
@@ -1218,7 +1227,7 @@ class LeaveController {
           exclude: ["createdBy", "createdAt", "updatedBy", "updatedAt"],
         },
         where: whereCondtion,
-        order:[['appliedFor','desc']]
+        order: [['appliedFor', 'desc']]
       });
       return respHelper(res, {
         status: 200,

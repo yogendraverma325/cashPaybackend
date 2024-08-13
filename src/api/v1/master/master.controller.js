@@ -44,9 +44,12 @@ class MasterController {
             usersData.role_id != 2 &&
             usersData.role_id != 5
           ) {
-            let permissionAssignTousers = usersData.permissionAndAccess 
-              .split(",")
-              .map((el) => parseInt(el));
+            let permissionAssignTousers=[];
+            if( usersData.permissionAndAccess ){
+        permissionAssignTousers = usersData.permissionAndAccess 
+                    .split(",")
+                    .map((el) => parseInt(el));
+            }
             let permissionAndAccess = await db.permissoinandaccess.findAll({
               where: {
                 role_id: usersData.role_id,

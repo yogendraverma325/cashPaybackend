@@ -697,173 +697,176 @@ class commonController {
       let functionAreaFIlter = {};
       let departmentFIlter = {};
       let designationFIlter = {};
+        let empFilters={};
       const usersData = req.userData;
 
       const limit = req.query.limit * 1 || 10;
       const pageNo = req.query.page * 1 || 1;
       const offset = (pageNo - 1) * limit;
 
-      const cacheKey = `employeeList:${pageNo}:${limit}:${search || ""}:${
-        department || ""
-      }:${designation || ""}:${buSearch || ""}:${sbuSearch || ""}:${
-        areaSearch || ""
-      }`;
+      const cacheKey = `employeeList:${pageNo}:${limit}:${search || ""}:${department || ""
+        }:${designation || ""}:${buSearch || ""}:${sbuSearch || ""}:${areaSearch || ""
+        }`;
 
       let employeeData = [];
-      if (usersData.role_id != 1 && usersData.role_id != 2 && usersData.role_id != 5) {
-        let permissionAssignTousers = [];
-  
-        if (usersData.permissionAndAccess) {
-          permissionAssignTousers = usersData.permissionAndAccess
-            .split(",")
-            .map((el) => parseInt(el));
-        }
-        
-          let permissionAndAccess = await db.permissoinandaccess.findAll({
-          where: {
-            role_id: usersData.role_id,
-            isActive: 1,
-            permissoinandaccessId: {
-              [Op.in]: permissionAssignTousers,
-            },
-          },
-        }); /// get all permission of access to fetch list with active status as per role
-
-        const buArrayForFilter = permissionAndAccess
-          .filter((obj) => obj.permissionType == "BU")
-          .map((obj) => obj.permissionValue); // checking BU Access
-
-        if (buArrayForFilter.length > 0) {
-          buFIlter.buId = {
-            ///appedning Bu to filter
-            [Op.in]: buArrayForFilter,
-          };
-        }
-
-        const sbuArrayForFilter = permissionAndAccess
-          .filter((obj) => obj.permissionType == "SBU")
-          .map((obj) => obj.permissionValue); // checking SBU Access
-        if (sbuArrayForFilter.length > 0) {
-          sbbuFIlter.sbuId = {
-            ///appedning SBU to filter
-            [Op.in]: sbuArrayForFilter,
-          };
-        }
-
-        const departmentArrayForFilter = permissionAndAccess
-          .filter((obj) => obj.permissionType == "DEPARTMENT")
-          .map((obj) => obj.permissionValue); // checking department Access
-
-        if (departmentArrayForFilter.length > 0) {
-          departmentFIlter.departmentId = {
-            ///appedning department to filter
-            [Op.in]: departmentArrayForFilter,
-          };
-        }
-        const funcareaArrayForFilter = permissionAndAccess
-          .filter((obj) => obj.permissionType == "FUNCAREA")
-          .map((obj) => obj.permissionValue); // checking SBU Access
-
-        if (funcareaArrayForFilter.length > 0) {
-          functionAreaFIlter.functionalAreaId = {
-            ///appedning SBU to filter
-            [Op.in]: funcareaArrayForFilter,
-          };
-        }
-
-        const designationArrayForFilter = permissionAndAccess
-          .filter((obj) => obj.permissionType == "DESIGNATION")
-          .map((obj) => obj.permissionValue); // checking SBU Access
-
-        if (designationArrayForFilter.length > 0) {
-          designationFIlter.designationId = {
-            ///appedning SBU to filter
-            [Op.in]: designationArrayForFilter,
-          };
-        }
-      }
-
-      let whereCondtion = Object.assign(
-        {},
-        search
-          ? {} : {
-              [Op.and]: [
-                {
-                  isActive: usersData.role_id == 1 || usersData.role_id == 2 ? [1, 0] : [1],
+      await client.get(cacheKey).then(async (data) => {
+        if (data) {
+          employeeData = JSON.parse(data);
+          return respHelper(res, {
+            status: 200,
+            data: employeeData,
+          });
+        } else {
+          console.log("usersData.role_id",usersData.role_id)
+          let  myReportyList = await db.employeeMaster.findAll({
+                where:{
+                manager: req.userId
                 },
-              ],
-            }
-      );
-        if (req.userData.role_id == 3) {
-          whereCondtion = Object.assign({}, whereCondtion, { id: req.userId });
-        }
+                attributes: [
+                "id"
+                ],
+                });
 
-      employeeData = await db.employeeMaster.findAndCountAll({
-        order: [["id", "desc"]],
-        limit,
-        offset,
-        where:whereCondtion,
-        attributes: [
-          "id",
-          "empCode",
-          "name",
-          "email",
-          "firstName",
-          "lastName",
-          "officeMobileNumber",
-          "buId",
-          "sbuId",
-          "isActive",
-        ],
-        include: [
-          {
-            model: db.employeeMaster,
-            attributes: ["id", "name", "empCode", "email"],
-            where: search
-            ? {
-                [Op.or]: [
-                  {
-                    empCode: {
-                      [Op.like]: `%${search}%`,
+                let final=myReportyList.map((singleEmp)=>singleEmp.id);
+                 empFilters.id = {
+                  ///appedning SBU to filter
+                  [Op.in]:final,
+              };
+          console.log("empFilters",empFilters)
+
+          employeeData = await db.employeeMaster.findAndCountAll({
+            order: [["id", "desc"]],
+            limit,
+            offset,
+            where: Object.assign(
+              search
+                ? {
+                  [Op.or]: [
+                    {
+                      empCode: {
+                        [Op.like]: `%${search}%`,
+                      },
                     },
-                  },
-                  {
-                    name: {
-                      [Op.like]: `%${search}%`,
+                    {
+                      name: {
+                        [Op.like]: `%${search}%`,
+                      },
                     },
-                  },
-                  {
-                    email: {
-                      [Op.like]: `%${search}%`,
+                    {
+                      email: {
+                        [Op.like]: `%${search}%`,
+                      },
                     },
-                  },
-                ],
-                [Op.and]: [
-                  {
-                    isActive: usersData.role_id == 1 || usersData.role_id == 2 ? [1, 0] : [1],
-                  },
-                ],
-              }:{},
-            as: "reportie",
-            required: false,
+                  ],
+                  [Op.and]: [
+                    {
+                      isActive:
+                        usersData.role_id == 1 || usersData.role_id == 2
+                          ? [1, 0]
+                          : [1],
+                      ...(empFilters)
+                    },
+                  ],
+                }
+                : {
+                  [Op.and]: [
+                    {
+                      isActive:
+                        usersData.role_id == 1 || usersData.role_id == 2
+                          ? [1, 0]
+                          : [1],
+                          ...(empFilters)
+                    },
+                  ],
+                }
+            ),
+            attributes: [
+              "id",
+              "empCode",
+              "name",
+              "email",
+              "firstName",
+              "lastName",
+              "officeMobileNumber",
+              "buId",
+              "sbuId",
+              "isActive",
+            ],
             include: [
               {
-                model: db.roleMaster,
-                required: false,
+                model: db.designationMaster,
+                seperate: true,
+                attributes: ["name"],
+                where: {
+                  ...(designation && {
+                    name: { [Op.like]: `%${designation}%` },
+                  }),
+                  ...designationFIlter,
+                },
               },
               {
-                model: db.designationMaster,
-                required: false,
-                attributes: ["designationId", "name"],
+                model: db.departmentMaster,
+                seperate: true,
+                attributes: ["departmentName"],
+                where: {
+                  ...(department && {
+                    departmentName: { [Op.like]: `%${department}%` },
+                  }),
+                  ...departmentFIlter,
+                },
               },
+              {
+                model: db.buMaster,
+                seperate: true,
+                attributes: ["buName","buCode"],
+                where: {
+                  ...(buSearch && { buName: { [Op.like]: `%${buSearch}%` } }),
+                  ...buFIlter,
+                },
+              },
+              {
+                model: db.sbuMaster,
+                seperate: true,
+                attributes: ["sbuname","code"],
+                where: {
+                  ...(sbuSearch && {
+                    sbuname: { [Op.like]: `%${sbuSearch}%` },
+                  }),
+                  ...sbbuFIlter,
+                },
+              },
+              {
+                model: db.functionalAreaMaster,
+                seperate: true,
+                attributes: ["functionalAreaName"],
+                where: {
+                  ...(areaSearch && {
+                    functionalAreaName: { [Op.like]: `%${areaSearch}%` },
+                  }),
+                  ...functionAreaFIlter,
+                },
+              },
+              {
+                model: db.employeeMaster,
+                required: false,
+                as: "managerData",
+                attributes: ["id", "name", "email", "empCode"],
+              },
+              {
+                model: db.companyLocationMaster,
+                attributes: ["address1", "address2"]
+              }
             ],
-          },
-        ],
-      });
+          });
 
-      return respHelper(res, {
-        status: 200,
-        data: employeeData,
+          const employeeJson = JSON.stringify(employeeData);
+          await client.setEx(cacheKey, parseInt(process.env.TTL), employeeJson); // Cache for 2.3 minutes
+
+          return respHelper(res, {
+            status: 200,
+            data: employeeData,
+          });
+        }
       });
     } catch (error) {
       console.log(error);

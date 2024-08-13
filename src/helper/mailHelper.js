@@ -41,7 +41,7 @@ async function leaveRequestMail(input) {
             to: userData.managerEmail,
             subject: `${userData.requesterName} has requested for leave`,
             html: await emailTemplate.leaveRequestMail(userData),
-            cc: (userData.cc).split(",")
+            cc: userData.cc
         })
     } catch (error) {
         console.log(error)
