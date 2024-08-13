@@ -10,4 +10,5 @@ export default Express.Router()
   .post("/requestForLeave", LeaveController.requestForLeave)
   .post("/revokeLeaveRequest", LeaveController.revokeLeaveRequest)
   .post("/leaveRemainingCount", authentication.authenticate, LeaveController.leaveRemainingCount)
-  .get("/leaveHistory/:year", authentication.authenticate, LeaveController.leaveHistory);
+  .get("/leaveHistory/:year", authentication.authenticate, LeaveController.leaveHistory)
+  .get("/leaveDetails", authentication.authenticate, LeaveController.leaveDetails)

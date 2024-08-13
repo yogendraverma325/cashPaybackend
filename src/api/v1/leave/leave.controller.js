@@ -71,9 +71,9 @@ class LeaveController {
         where: Object.assign(
           query === "raisedByMe"
             ? {
-              employeeId: req.userId,
-              status: "pending",
-            }
+                employeeId: req.userId,
+                status: "pending",
+              }
             : { pendingAt: req.userId, status: "pending" }
         ),
         attributes: { exclude: ["createdBy", "updatedBy", "updatedAt"] },
@@ -574,15 +574,15 @@ class LeaveController {
             leaveAttachment:
               result.attachment != ""
                 ? await helper.fileUpload(
-                  result.attachment,
-                  `leaveAttachment_${uuid}`,
-                  `uploads/${EMP_DATA.empCode}`
-                )
+                    result.attachment,
+                    `leaveAttachment_${uuid}`,
+                    `uploads/${EMP_DATA.empCode}`
+                  )
                 : null,
             pendingAt: EMP_DATA.managerData.id, // Replace with actual pending at value
             createdBy: req.userId, // Replace with actual creator user ID
             createdAt: moment(), // Replace with actual creation date
-            batch_id: (leaveId == 6) ? uuidUnpaid : uuid,
+            batch_id: leaveId == 6 ? uuidUnpaid : uuid,
             weekOffId: EMP_DATA.weekOffId,
             fromDate: req.body.fromDate,
             toDate: req.body.toDate,
@@ -594,7 +594,7 @@ class LeaveController {
         //const record = await db.employeeLeaveTransactions.bulkCreate(arr);
       }
       // Perform bulk insert
-      if(arr.length == 0){
+      if (arr.length == 0) {
         return respHelper(res, {
           status: 401,
           data: arr,
@@ -605,21 +605,23 @@ class LeaveController {
 
       const employeeData = await db.employeeMaster.findOne({
         where: {
-          id: result.employeeId
+          id: result.employeeId,
         },
-        attributes: ['name', 'email'],
-        include: [{
-          model: db.employeeMaster,
-          as: 'managerData',
-          attributes: ['name', 'email'],
-        }]
-      })
+        attributes: ["name", "email"],
+        include: [
+          {
+            model: db.employeeMaster,
+            as: "managerData",
+            attributes: ["name", "email"],
+          },
+        ],
+      });
       const leaveType = await db.leaveMaster.findOne({
         where: {
-          leaveId: result.leaveAutoId
+          leaveId: result.leaveAutoId,
         },
-        attributes: ['leaveName']
-      })
+        attributes: ["leaveName"],
+      });
 
       eventEmitter.emit(
         "leaveRequestMail",
@@ -631,7 +633,7 @@ class LeaveController {
           leaveType: leaveType.dataValues.leaveName,
           managerName: employeeData.dataValues.managerData.name,
           managerEmail: employeeData.dataValues.managerData.email,
-          cc: result.recipientsIds
+          cc: result.recipientsIds,
         })
       );
 
@@ -1013,7 +1015,7 @@ class LeaveController {
         startDate,
         endDate,
         employeeWeekOfId.companyLocationId,
-        employeeWeekOfId.weekOffId,
+        employeeWeekOfId.weekOffId
       );
       // Calculate pending leave count
       const pendingLeaveCount = pendingLeaveCountList.reduce(
@@ -1024,9 +1026,13 @@ class LeaveController {
         0,
         totalWorkingDays - getCombinedVal
       );
-      let countDeductingPending = availableLeaveCount.availableLeave - pendingLeaveCount
+      let countDeductingPending =
+        availableLeaveCount.availableLeave - pendingLeaveCount;
       let a = totalWorkingDaysCalculated;
-      let b = totalWorkingDaysCalculated < countDeductingPending ? totalWorkingDaysCalculated : countDeductingPending
+      let b =
+        totalWorkingDaysCalculated < countDeductingPending
+          ? totalWorkingDaysCalculated
+          : countDeductingPending;
       let c = a - b;
 
       return respHelper(res, {
@@ -1175,6 +1181,46 @@ class LeaveController {
               : grandLeaveTotal[0].totalMonthLeave,
           monthWiseLeaves: result,
         },
+      });
+    } catch (error) {
+      console.log(error);
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+
+  async leaveDetails(req, res) {
+    try {
+      const { leaveAutoId, month, year, user } = req.query;
+      const employeeId = user || req.userId;
+    
+      const whereCondtion = {
+        employeeId: employeeId,
+        leaveAutoId: leaveAutoId,
+        status: "approved",
+        appliedFor: {
+          [Op.and]: [
+            { [Op.gte]: `${year}-${month}-01` },
+            {
+              [Op.lte]: `${year}-${month}-${moment(
+                `${year}-${month}`,
+                "YYYY-MM"
+              ).daysInMonth()}`,
+            },
+          ],
+        },
+      };
+      const attendanceData = await db.employeeLeaveTransactions.findAll({
+        attributes: {
+          exclude: ["createdBy", "createdAt", "updatedBy", "updatedAt"],
+        },
+        where: whereCondtion,
+        order:[['appliedFor','desc']]
+      });
+      return respHelper(res, {
+        status: 200,
+        data: attendanceData,
       });
     } catch (error) {
       console.log(error);
