@@ -311,7 +311,7 @@ class AttendanceController {
           msg: message.ATTENDANCE_DATE_CANNOT_AFTER_TODAY,
         });
       }
-      
+
       let attendanceData = await db.attendanceMaster.findOne({
         where: {
           attendanceAutoId: result.attendanceAutoId,
@@ -1283,29 +1283,33 @@ class AttendanceController {
             include: [
               {
                 model: db.employeeMaster,
-                attributes: ["attendancePolicyId"],
-                include: [
-                  {
-                    model: db.shiftMaster,
-                    required: false,
-                    attributes: [
-                      "shiftId",
-                      "shiftName",
-                      "shiftStartTime",
-                      "shiftEndTime",
-                      "isOverNight",
-                    ],
-                    where: {
-                      isActive: true,
-                    },
+                attributes: ["attendancePolicyId", 'name', 'email'],
+                include: [{
+                  model: db.employeeMaster,
+                  as: 'managerData',
+                  attributes: ['name']
+                },
+                {
+                  model: db.shiftMaster,
+                  required: false,
+                  attributes: [
+                    "shiftId",
+                    "shiftName",
+                    "shiftStartTime",
+                    "shiftEndTime",
+                    "isOverNight",
+                  ],
+                  where: {
+                    isActive: true,
                   },
-                  {
-                    model: db.attendancePolicymaster,
-                    attributes: ["graceTimeClockIn"],
-                    where: {
-                      isActive: true,
-                    },
+                },
+                {
+                  model: db.attendancePolicymaster,
+                  attributes: ["graceTimeClockIn"],
+                  where: {
+                    isActive: true,
                   },
+                },
                 ],
               },
             ],
@@ -1379,6 +1383,16 @@ class AttendanceController {
           }
         );
       }
+
+      const obj = {
+        email: regularizeData['attendancemaster.employee.email'],
+        status: result.status ? "Approved" : "Rejected",
+        fromDate: regularizeData.regularizePunchInDate,
+        toDate: regularizeData.regularizePunchOutDate,
+        managerName: regularizeData['attendancemaster.employee.managerData.name'],
+        requesterName: regularizeData['attendancemaster.employee.name']
+      }
+      eventEmitter.emit('regularizeAckMail', JSON.stringify(obj))
 
       _this.attedanceCronManual(regularizeData.attendanceAutoId, regularizeData.regularizePunchInDate)
       return respHelper(res, {

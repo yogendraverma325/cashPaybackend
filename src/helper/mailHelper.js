@@ -18,6 +18,10 @@ export default function getAllListeners(eventEmitter) {
     eventEmitter.on('revokeRegularizationMail', async (input) => {
         await revokeRegularizationMail(input);
     });
+
+    eventEmitter.on("regularizeAckMail", async (input) => {
+        await regularizeAckMail(input)
+    })
 }
 
 async function regularizationRequestMail(input) {
@@ -70,6 +74,20 @@ async function revokeRegularizationMail(input) {
             to: userData.email,
             subject: `Regularization Request Revoked`,
             html: await emailTemplate.revokeRegularizeMail(userData)
+        })
+    } catch (error) {
+        console.log(error)
+        logger.error(error)
+    }
+}
+
+async function regularizeAckMail(input) {
+    try {
+        const userData = JSON.parse(input)
+        await helper.mailService({
+            to: userData.email,
+            subject: `Your attendance update request has been ${userData.status}.`,
+            html: await emailTemplate.regularizationAcknowledgement(userData)
         })
     } catch (error) {
         console.log(error)
