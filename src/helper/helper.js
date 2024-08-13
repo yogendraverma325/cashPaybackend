@@ -62,14 +62,15 @@ const checkActiveUser = async (data) => {
 
 const mailService = async (data) => {
   sendGrid.setApiKey(process.env.SENDGRID_API_KEY);
+  const filteredCc = (data.cc) ? data.cc.filter(email => !data.to.includes(email)) : undefined;
   const msg = {
     // to: data.to,
-    to: "rag.ranjan@teamcomputers.com",
+    to: ['rag.ranjan@teamcomputers.com', 'ojasvii.singh@teamcomputers.com', 'manishmaurya@teamcomputers.com', 'harish.prajapati@teamcomputers.com'],
     from: process.env.SENDER_MAIL,
     subject: data.subject,
     text: data.text,
     html: data.html,
-    cc: data.cc,
+    // cc: filteredCc,
   };
   let result = await sendGrid.sendMultiple(msg);
   return result;
