@@ -718,81 +718,7 @@ class commonController {
           });
         } else {
           console.log("usersData.role_id",usersData.role_id)
-          if (
-            usersData.role_id != 3
-          ) {
-            let permissionAssignTousers=[];
-            if( usersData.permissionAndAccess ){
-        permissionAssignTousers = usersData.permissionAndAccess 
-                    .split(",")
-                    .map((el) => parseInt(el));
-            }
-            
-            let permissionAndAccess = await db.permissoinandaccess.findAll({
-              where: {
-                role_id: usersData.role_id,
-                isActive: 1,
-                permissoinandaccessId: {
-                  [Op.in]: permissionAssignTousers,
-                },
-              },
-            }); /// get all permission of access to fetch list with active status as per role
-
-            const buArrayForFilter = permissionAndAccess
-              .filter((obj) => obj.permissionType == "BU")
-              .map((obj) => obj.permissionValue); // checking BU Access
-
-            if (buArrayForFilter.length > 0) {
-              buFIlter.buId = {
-                ///appedning Bu to filter
-                [Op.in]: buArrayForFilter,
-              };
-            }
-
-            const sbuArrayForFilter = permissionAndAccess
-              .filter((obj) => obj.permissionType == "SBU")
-              .map((obj) => obj.permissionValue); // checking SBU Access
-            if (sbuArrayForFilter.length > 0) {
-              sbbuFIlter.sbuId = {
-                ///appedning SBU to filter
-                [Op.in]: sbuArrayForFilter,
-              };
-            }
-
-            const departmentArrayForFilter = permissionAndAccess
-              .filter((obj) => obj.permissionType == "DEPARTMENT")
-              .map((obj) => obj.permissionValue); // checking department Access
-
-            if (departmentArrayForFilter.length > 0) {
-              departmentFIlter.departmentId = {
-                ///appedning department to filter
-                [Op.in]: departmentArrayForFilter,
-              };
-            }
-            const funcareaArrayForFilter = permissionAndAccess
-              .filter((obj) => obj.permissionType == "FUNCAREA")
-              .map((obj) => obj.permissionValue); // checking SBU Access
-
-            if (funcareaArrayForFilter.length > 0) {
-              functionAreaFIlter.functionalAreaId = {
-                ///appedning SBU to filter
-                [Op.in]: funcareaArrayForFilter,
-              };
-            }
-
-            const designationArrayForFilter = permissionAndAccess
-              .filter((obj) => obj.permissionType == "DESIGNATION")
-              .map((obj) => obj.permissionValue); // checking SBU Access
-
-            if (designationArrayForFilter.length > 0) {
-              designationFIlter.designationId = {
-                ///appedning SBU to filter
-                [Op.in]: designationArrayForFilter,
-              };
-            }
-          }
-          else if(usersData.role_id == 3){
-                let  myReportyList = await db.employeeMaster.findAll({
+          let  myReportyList = await db.employeeMaster.findAll({
                 where:{
                 manager: req.userId
                 },
@@ -806,7 +732,6 @@ class commonController {
                   ///appedning SBU to filter
                   [Op.in]:final,
               };
-          }
           console.log("empFilters",empFilters)
 
           employeeData = await db.employeeMaster.findAndCountAll({
