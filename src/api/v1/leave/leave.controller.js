@@ -1227,9 +1227,9 @@ class LeaveController {
           exclude: ["createdBy", "createdAt", "updatedBy", "updatedAt"],
         },
         where: whereCondtion,
-        include:[{
-          model:db.leaveMaster,
-          attributes:['leaveId','leaveName','leaveCode'],
+        include: [{
+          model: db.leaveMaster,
+          attributes: ['leaveId', 'leaveName', 'leaveCode'],
           as: "leaveMasterDetails",
         }],
         order: [['appliedFor', 'desc']]
