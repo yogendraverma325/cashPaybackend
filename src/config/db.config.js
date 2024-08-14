@@ -63,7 +63,7 @@ import ManagerHistory from "../api/model/ManagerHistory.js";
 import employeeJobDetailsHistory from "../api/model/EmployeeJobDetailsHistory.js";
 import EmployeeEducationDetailsHistory from "../api/model/EmployeeEducationDetailsHistory.js";
 import FamilyMemberHistory from "../api/model/FamilyMemberHistory.js";
-import AttendanceHistory from "../api/model/attendanceHistory.js";
+import AttendanceHistory from "../api/model/AttendanceHistory.js";
 
 import literal from "sequelize";
 import QueryTypes from "sequelize"
