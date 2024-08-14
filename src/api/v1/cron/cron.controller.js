@@ -1,7 +1,6 @@
 import { Op } from "sequelize";
 import db from "../../../config/db.config.js";
 import moment from "moment";
-import LeaveMapping from "../../model/LeaveMapping.js";
 
 class CronController {
   async updateAttendance() {
@@ -97,6 +96,31 @@ class CronController {
     } else {
       console.log("not found");
     }
+  }
+
+  async updateManager() {
+    const managerData = await db.managerHistory.findAll({
+      raw: true,
+      where: {
+        fromDate: moment().format("YYYY-MM-DD")
+      }
+    })
+
+    if (managerData.length != 0) {
+      for (const element of managerData) {
+        await db.employeeMaster.update({
+          manager: element.managerId,
+        }, {
+          where: {
+            id: element.employeeId
+          }
+        })
+      }
+    }
+    else {
+      console.log(`No Data Found for ${moment().format("YYYY-MM-DD")} (Update Manager Cron)`)
+    }
+
   }
 }
 

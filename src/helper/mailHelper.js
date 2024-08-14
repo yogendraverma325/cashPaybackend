@@ -22,6 +22,10 @@ export default function getAllListeners(eventEmitter) {
     eventEmitter.on("regularizeAckMail", async (input) => {
         await regularizeAckMail(input)
     })
+
+    eventEmitter.on("leaveAckMail", async (input) => {
+        await leaveAckMail(input)
+    })
 }
 
 async function regularizationRequestMail(input) {
@@ -88,6 +92,20 @@ async function regularizeAckMail(input) {
             to: userData.email,
             subject: `Your attendance update request has been ${userData.status}.`,
             html: await emailTemplate.regularizationAcknowledgement(userData)
+        })
+    } catch (error) {
+        console.log(error)
+        logger.error(error)
+    }
+}
+
+async function leaveAckMail(input) {
+    try {
+        const userData = JSON.parse(input)
+        await helper.mailService({
+            to: userData.email,
+            subject: `Your leave request has been ${userData.status}.`,
+            html: await emailTemplate.leaveAcknowledgement(userData)
         })
     } catch (error) {
         console.log(error)

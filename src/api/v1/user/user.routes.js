@@ -20,7 +20,7 @@ export default Express
     .post("/addPaymentDetails", authentication.authenticate, commonController.addPaymentDetails)
     .get("/leave", authentication.authenticate, commonController.addPaymentDetails)
     .post("/changePassword", authentication.authenticate, userController.changePassword)
-    .get("/globalSearch/:search", userController.globalSearch)
+    .get("/globalSearch/:search", authentication.authenticate, userController.globalSearch)
     .post("/addJobDetails", authentication.authenticate, commonController.addJobDetails)
     .put("/updateEducationDetails", authentication.authenticate, commonController.updateEducationDetails)
     .post("/addEducationDetails", authentication.authenticate, commonController.addEducationDetails)
