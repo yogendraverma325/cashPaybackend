@@ -233,6 +233,7 @@ const updateManagerSchema = Joi.array().required().items(
   Joi.object({
     user: Joi.number().required().label("User"),
     manager: Joi.number().required().label("Manager"),
+    date: Joi.string().allow("").label("Date")
   })
 ).messages({
   'array.base': 'Please Select Atleaset One User'

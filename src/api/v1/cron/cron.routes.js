@@ -5,3 +5,4 @@ export default Express
     .Router()
     .get("/attendanceCron", cronController.updateAttendance)
     .get("/unlockAccount", cronController.updateActiveStatus)
+    .get("/updateManager", cronController.updateManager)

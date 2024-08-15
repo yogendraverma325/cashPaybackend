@@ -101,6 +101,7 @@ class LeaveController {
       });
     }
   }
+
   async updateLeaveRequest(req, res) {
     try {
       const result = await validator.updateLeaveRequest.validateAsync(req.body);
@@ -203,6 +204,38 @@ class LeaveController {
           // }
         }
       }
+
+      const leaveTransactionDetails = await db.employeeLeaveTransactions.findOne({
+        raw: true,
+        where: {
+          employeeleavetransactionsId: leaveIds[0]
+        },
+        include: [{
+          model: db.employeeMaster,
+          attributes: ['name', 'email'],
+          include: [{
+            model: db.employeeMaster,
+            as: 'managerData',
+            attributes: ['name']
+          }]
+        }, {
+          model: db.leaveMaster,
+          as: 'leaveMasterDetails',
+          attributes: ['leaveName']
+        }],
+        attributes: ['fromDate', 'toDate']
+      })
+
+      const obj = {
+        email: leaveTransactionDetails['employee.email'],
+        status: result.status === 'approved' ? "Approved" : "Rejected",
+        fromDate: leaveTransactionDetails.fromDate,
+        toDate: leaveTransactionDetails.toDate,
+        leaveType: leaveTransactionDetails['leaveMasterDetails.leaveName'],
+        managerName: leaveTransactionDetails['employee.managerData.name'],
+        requesterName: leaveTransactionDetails['employee.name']
+      }
+      eventEmitter.emit('leaveAckMail', JSON.stringify(obj))
 
       return respHelper(res, {
         status: 200,
