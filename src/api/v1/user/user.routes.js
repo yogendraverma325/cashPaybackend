@@ -27,3 +27,5 @@ export default Express
     .get("/searchEmployee", authentication.authenticate, commonController.searchEmployee)
     .get("/taskBoxCount", authentication.authenticate, userController.taskBoxCount)
     .put("/updateProfilePicture", authentication.authenticate, userController.updateProfilePicture)
+    .post("/updateEmergencyContact", authentication.authenticate, commonController.updateEmergencyContact)
+

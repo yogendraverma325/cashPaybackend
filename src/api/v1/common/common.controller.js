@@ -875,6 +875,65 @@ class commonController {
       });
     }
   }
+
+  async updateEmergencyContact(req, res) {
+    try {
+      const result = await validator.emergencyContactDetails.validateAsync(
+        req.body
+      );
+      const userId = result.userId > 0 ? result.userId : req.userId;
+      const getEmergencyContact = await db.emergencyDetails.findOne({
+        raw: true,
+        where: {
+          userId: userId,
+        },
+      });
+
+      if (getEmergencyContact) {
+        let obj = {
+          ...result,
+          ...{ userId: userId },
+          ...{ updatedBy: req.userId },
+          ...{ updatedAt: moment() },
+          ...{ isActive: 1 },
+        };
+        await db.emergencyDetails.update(obj, {
+          where: { userId: userId },
+        });
+
+        return respHelper(res, {
+          status: 200,
+          msg: constant.UPDATE_SUCCESS.replace("<module>", "Emergency Details"),
+        });
+      } else {
+        let obj = {
+          ...result,
+          ...{ createdBy: req.userId },
+          ...{ createdAt: moment() },
+          ...{ userId: userId },
+          ...{ isActive: 1 },
+        };
+        await db.emergencyDetails.create(obj);
+
+        return respHelper(res, {
+          status: 200,
+          msg: constant.DETAILS_ADDED.replace("<module>", "Emergency Details"),
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      logger.error(error);
+      if (error.isJoi === true) {
+        return respHelper(res, {
+          status: 422,
+          msg: error.details[0].message,
+        });
+      }
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
 }
 
 export default new commonController();

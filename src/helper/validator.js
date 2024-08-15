@@ -243,6 +243,14 @@ const updateProfilePictureSchema = Joi.object({
   image: Joi.string(),
 })
 
+const emergencyContactDetails = Joi.object({
+  userId: Joi.number().label("User ID"),
+  emergencyContactName: Joi.string().label("Emergency Contact Name").optional(),
+  emergencyContactNumber: Joi.string().label("Emergency Contact Number").optional(),
+  emergencyContactRelation: Joi.string().label("Emergency Contact Relation").optional()
+})
+
+
 export default {
   loginSchema,
   userCreationSchema,
@@ -267,5 +275,6 @@ export default {
   updateEducationDetailsSchema,
   addEducationDetailsSchema,
   updateManagerSchema,
-  updateProfilePictureSchema
+  updateProfilePictureSchema,
+  emergencyContactDetails
 };
