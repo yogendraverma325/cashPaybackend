@@ -214,9 +214,9 @@ const leaveRequestMail = async (data) => {
                               <p>Request message : ${data.userRemark}</p>
                               <p>
                                 <a
-                                  href='${
+                                  href="${
                                     process.env.CLIENT_URL
-                                  }#/TaskBox?selectedTab=1&selectedMode=assignedToMe'
+                                  }#/TaskBox?selectedTab=1&selectedMode=assignedToMe"
                                   style="
                                     padding: 5px 10px;
                                     background: #0173c5;

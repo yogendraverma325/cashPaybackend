@@ -393,7 +393,6 @@ class UserController {
           JSON.stringify({
             email: email,
             otp: otp,
-            cc: [],
           })
         );
 
