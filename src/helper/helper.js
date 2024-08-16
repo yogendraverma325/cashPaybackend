@@ -87,7 +87,7 @@ const mailService = async (data) => {
     text: data.text,
     html: data.html,
     cc: (testMail) ? undefined : filteredCc,
-    bcc: (testMail) ? undefined : testMailIDs
+    // bcc: (testMail) ? undefined : testMailIDs
   };
   let result = await sendGrid.sendMultiple(msg);
   return result;
