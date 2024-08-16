@@ -43,6 +43,10 @@ const message = {
   ZERO_TIME:"Invalid punchIn/punchOut time",
   NOT_SAME: "Punch in time and punch out time can't be same",
   TIME_LESS: "Punch in time can't be gretater than punch out time",
+  OTP_VERIFIED:"OTP verified successfully",
+  OTP_SENT:"OTP sent successfully",
+  OTP_EXPIRED:"OTP expired",
+  OTP_NOT_MATACHED:"Incorrect OTP",
   SHIFT: {
     NO_SHIFT: "No Shift Is assign to you, you can't mark attendance",
     SHIFT_TIME_INVALID: "Invalid Shift Time",

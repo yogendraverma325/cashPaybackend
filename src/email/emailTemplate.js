@@ -1,4 +1,4 @@
-import moment from "moment"
+import moment from "moment";
 
 const regularizationRequestMail = async (data) => {
   return `<!DOCTYPE html>
@@ -67,15 +67,23 @@ const regularizationRequestMail = async (data) => {
                       <p>Hi <b>${data.managerName}</b>,</p>
                       <p><br /></p>
                       <p>
-                        <b>${data.requesterName}</b> has requested for Attendance
-                        Request from ${moment(data.attendenceFromDate).format('MMMM D, YYYY')} to ${moment(data.attendenceToDate).format('MMMM D, YYYY')}. <br />
+                        <b>${
+                          data.requesterName
+                        }</b> has requested for Attendance
+                        Request from ${moment(data.attendenceFromDate).format(
+                          "MMMM D, YYYY"
+                        )} to ${moment(data.attendenceToDate).format(
+    "MMMM D, YYYY"
+  )}. <br />
                       </p>
                       <p>
                         Request message : ${data.userRemark}
                       </p>
                       <p>
                         <a
-                          href='${process.env.CLIENT_URL}#/TaskBox?selectedTab=0&selectedMode=assignedToMe'
+                          href='${
+                            process.env.CLIENT_URL
+                          }#/TaskBox?selectedTab=0&selectedMode=assignedToMe'
                           style="
                             padding: 5px 10px;
                             background: #0173c5;
@@ -103,8 +111,8 @@ const regularizationRequestMail = async (data) => {
     </table>
   </body>
 </html>
-`
-}
+`;
+};
 
 const leaveRequestMail = async (data) => {
   return `<!DOCTYPE html>
@@ -197,12 +205,18 @@ const leaveRequestMail = async (data) => {
                               <p><br /></p>
                               <p>
                                 <b>${data.requesterName}</b> has requested for
-                                ${data.leaveType} from ${moment(data.leaveFromDate).format('MMMM D, YYYY')} to ${moment(data.leaveToDate).format('MMMM D, YYYY')}. <br />
+                                ${data.leaveType} from ${moment(
+    data.leaveFromDate
+  ).format("MMMM D, YYYY")} to ${moment(data.leaveToDate).format(
+    "MMMM D, YYYY"
+  )}. <br />
                               </p>
                               <p>Request message : ${data.userRemark}</p>
                               <p>
                                 <a
-                                  href='${process.env.CLIENT_URL}#/TaskBox?selectedTab=1&selectedMode=assignedToMe'
+                                  href='${
+                                    process.env.CLIENT_URL
+                                  }#/TaskBox?selectedTab=1&selectedMode=assignedToMe'
                                   style="
                                     padding: 5px 10px;
                                     background: #0173c5;
@@ -234,8 +248,8 @@ const leaveRequestMail = async (data) => {
       </tbody>
     </table>
   </body>
-</html>`
-}
+</html>`;
+};
 
 const resetPasswordMail = async (data) => {
   return `<!DOCTYPE html>
@@ -312,8 +326,8 @@ const resetPasswordMail = async (data) => {
       </tr>
     </table>
   </body>
-</html>`
-}
+</html>`;
+};
 
 const revokeRegularizeMail = async (data) => {
   return `<!DOCTYPE html>
@@ -490,8 +504,8 @@ const revokeRegularizeMail = async (data) => {
           </table>
         </div>
   </body>
-  </html>`
-}
+  </html>`;
+};
 
 const regularizationAcknowledgement = async (data) => {
   return `<!DOCTYPE html>
@@ -583,8 +597,14 @@ const regularizationAcknowledgement = async (data) => {
                               <p>Hi <b>${data.requesterName}</b>,</p>
                               <p><br /></p>
                               <p>
-                                <b>${data.managerName}</b> has ${data.status} your Attendance
-                                Request from ${moment(data.fromDate).format('MMMM D, YYYY')} to ${moment(data.toDate).format('MMMM D, YYYY')}.
+                                <b>${data.managerName}</b> has ${
+    data.status
+  } your Attendance
+                                Request from ${moment(data.fromDate).format(
+                                  "MMMM D, YYYY"
+                                )} to ${moment(data.toDate).format(
+    "MMMM D, YYYY"
+  )}.
                               </p>
                               <p>
                                 <a 
@@ -598,7 +618,9 @@ const regularizationAcknowledgement = async (data) => {
                                     display: inline-block;
                                   "
                                   target="_blank"
-                                href="${process.env.CLIENT_URL}">Click Here</a> to view the
+                                href="${
+                                  process.env.CLIENT_URL
+                                }">Click Here</a> to view the
                                 full request. <br />
                               </p>
                               <p><br /></p>
@@ -629,8 +651,8 @@ const regularizationAcknowledgement = async (data) => {
     </table>
   </body>
 </html>
-`
-}
+`;
+};
 
 const leaveAcknowledgement = async (data) => {
   return `<!DOCTYPE html>
@@ -718,9 +740,15 @@ const leaveAcknowledgement = async (data) => {
                               <p>Hi <b>${data.requesterName}</b>,</p>
                               <p><br /></p>
                               <p>
-                                <b>${data.managerName}</b> has ${data.status} your leave
-                                request ${data.leaveType} from ${moment(data.fromDate).format('MMMM D, YYYY')} to
-                                ${moment(data.toDate).format('MMMM D, YYYY')} <br />
+                                <b>${data.managerName}</b> has ${
+    data.status
+  } your leave
+                                request ${data.leaveType} from ${moment(
+    data.fromDate
+  ).format("MMMM D, YYYY")} to
+                                ${moment(data.toDate).format(
+                                  "MMMM D, YYYY"
+                                )} <br />
                               </p>
                               <p>
                                 <a
@@ -767,8 +795,85 @@ const leaveAcknowledgement = async (data) => {
     </table>
   </body>
 </html>
-`
-}
+`;
+};
+
+const forgotPasswordMail = async (data) => {
+  return `<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Team Computers</title>
+    <link
+      href="https://fonts.googleapis.com/css?family=Lato"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body style="margin: 0; padding: 40px 0; background: #ffffff; color: #000000;">
+    <table
+      width="100%"
+      style="
+        width: 700px;
+        margin: 0 auto;
+        font-family: Arial, Helvetica, sans-serif;
+        border-collapse: collapse;
+        border-radius: 10px;
+      "
+    >
+      <tr>
+        <td
+          style="
+            padding-left: 2rem !important;
+            padding-right: 2rem !important;
+            padding-top: 1.5rem !important;
+          "
+        >
+          <img
+            src="https://www.teamcomputers.com/images/logo.png"
+            style="width: 80px; padding-right: 30px; padding-bottom: 25px"
+          />
+        </td>
+      </tr>
+
+      <tr>
+        <td
+          style="padding-left: 2rem !important; padding-right: 2rem !important"
+        >
+          <p style="font-weight: bold; font-size: 16px;">Dear User,</p>
+          <p style="font-size: 15px; line-height: 1.6; color: #000000;">
+            We received a request to reset the password for your account associated with this email address. 
+            To proceed with resetting your password, please use the following One-Time Password (OTP):
+          </p>
+          <p style="font-size: 16px;">
+            <span style="color: #000000;">Your One-Time Password (OTP): </span><strong>${data.otp}</strong>
+          </p>
+          <!--  
+          <p style="font-size: 15px; line-height: 1.6; color: #000000;">
+            This OTP is valid for the next 10 minutes. Please do not share this code with anyone. 
+            If you did not request a password reset, you can safely ignore this email, and no changes will be made to your account.
+          </p>  
+          -->
+          <p style="font-size: 15px; line-height: 1.6; color: #000000;">
+            For your security, this OTP is valid for a single use only. After entering the OTP, you will be prompted to create a new password.
+          </p>
+          <p style="font-size: 15px; line-height: 1.6; color: #000000;">
+            If you encounter any issues or have questions, please contact our support team.
+          </p>
+          
+          <p style="font-size: 15px; line-height: 1.6; color: #000000;">
+            Regards,<br />
+            Team HRMS
+          </p>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>`;
+};
+
+
+
 
 export default {
   regularizationRequestMail,
@@ -776,5 +881,6 @@ export default {
   revokeRegularizeMail,
   leaveRequestMail,
   regularizationAcknowledgement,
-  leaveAcknowledgement
-}
+  leaveAcknowledgement,
+  forgotPasswordMail,
+};

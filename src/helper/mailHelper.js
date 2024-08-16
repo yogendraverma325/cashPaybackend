@@ -26,6 +26,10 @@ export default function getAllListeners(eventEmitter) {
     eventEmitter.on("leaveAckMail", async (input) => {
         await leaveAckMail(input)
     })
+
+    eventEmitter.on("forgotPasswordMail", async (input) => {
+        await forgotPassword(input)
+    })
 }
 
 async function regularizationRequestMail(input) {
@@ -111,4 +115,20 @@ async function leaveAckMail(input) {
         console.log(error)
         logger.error(error)
     }
+}
+
+async function forgotPassword(input){
+    try {
+        const userData = JSON.parse(input)
+        await helper.mailService({
+            to: userData.email,
+            subject: `Your One-Time Password (OTP)`,
+            html: await emailTemplate.forgotPasswordMail(userData)
+        })
+
+    } catch (error) {
+        console.log(error.response.body)
+        logger.error(error)
+    }
+
 }
