@@ -17,7 +17,7 @@ const generateJwtToken = async (data) => {
 };
 
 const generateJwtOTPEncrypt = async (data) => {
-  const token = jwt.sign(data, process.env.JWT_KEY, { expiresIn: '1m' });
+  const token = jwt.sign(data, process.env.JWT_KEY, { expiresIn: '10m' });
   return token
 };
 
