@@ -58,7 +58,9 @@ const message = {
     LEAVE_LIMIT: "Can't apply leave more than # days",
     LEAVE_NOT_APPLICABLE: "You can't apply leave on weekOff/holidays"
   },
-  PROFILE_PICTURE_UPDATED: "Profile Picture Updated."
+  PROFILE_PICTURE_UPDATED: "Profile Picture Updated.",
+  UPDATE_FAILURE: "<module> Not Updated.",
+  DELETE_FAILURE: "<module> Not Deleted.",
 };
 
 export default message;

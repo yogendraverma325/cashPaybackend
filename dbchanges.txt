@@ -198,3 +198,11 @@ CHANGE COLUMN `attendanceLocationType` `attendancePunchInLocationType` VARCHAR(5
 
 ALTER TABLE `hrms`.`attendancemaster` 
 ADD COLUMN `attendanceDate` DATE NULL DEFAULT NULL AFTER `attendanceShiftId`;
+
+
+Jay Prakash Singh
+
+Date 16-08-2024
+
+ALTER TABLE `hrms_live`.`companytypemaster` 
+ADD COLUMN `isDeleted` TINYINT(1) NULL DEFAULT 0 AFTER `isActive`;
