@@ -119,6 +119,16 @@ class CommonService {
         }
     }
 
+    async count(model, query) {
+
+        const count = await model.count({
+            where: query,
+        });
+
+        return count;
+
+    }
+
 }
 
 export default new CommonService();

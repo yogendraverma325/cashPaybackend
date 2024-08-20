@@ -37,9 +37,11 @@ class CommonController {
     async companyTypeList(req, res) {
         try {
             let model = db.companyTypeMaster;
-            let query = { 'isActive': 1 };
+            let query = { 'isDeleted': 0 };
             let response = await service.list(model, query);
-            return respHelper(res, response);
+            let count = await service.count(model, query);
+            let obj = { 'rows': response.data, 'count': count };
+            return respHelper(res, { 'status': response.status, 'msg': response.msg, 'data': obj });
 
         } catch (error) {
             logger.error(error);
@@ -156,7 +158,7 @@ class CommonController {
     async bandList(req, res) {
         try {
             let model = db.bandMaster;
-            let query = { 'isActive': 1 };
+            let query = { 'isDeleted': 0 };
             let response = await service.list(model, query);
             return respHelper(res, response);
 
