@@ -534,9 +534,21 @@ class commonController {
   async getCalendar(req, res) {
     try {
       let userData = req.userData;
+
+      let employeeData
+      if (req.query.user) {
+        employeeData = await db.employeeMaster.findOne({
+          raw: true,
+          where: {
+            id: req.query.user
+          },
+          attributes: ['companyLocationId']
+        })
+      }
+
       const holidayData = await db.holidayCompanyLocationConfiguration.findAll({
         where: {
-          companyLocationId: userData.companyLocationId,
+          companyLocationId: (req.query.user) ? employeeData.companyLocationId : userData.companyLocationId,
         },
         include: [
           {
@@ -697,7 +709,7 @@ class commonController {
       let functionAreaFIlter = {};
       let departmentFIlter = {};
       let designationFIlter = {};
-        let empFilters={};
+      let empFilters = {};
       const usersData = req.userData;
 
       const limit = req.query.limit * 1 || 10;
@@ -717,22 +729,22 @@ class commonController {
             data: employeeData,
           });
         } else {
-          console.log("usersData.role_id",usersData.role_id)
-          let  myReportyList = await db.employeeMaster.findAll({
-                where:{
-                manager: req.userId
-                },
-                attributes: [
-                "id"
-                ],
-                });
+          console.log("usersData.role_id", usersData.role_id)
+          let myReportyList = await db.employeeMaster.findAll({
+            where: {
+              manager: req.userId
+            },
+            attributes: [
+              "id"
+            ],
+          });
 
-                let final=myReportyList.map((singleEmp)=>singleEmp.id);
-                 empFilters.id = {
-                  ///appedning SBU to filter
-                  [Op.in]:final,
-              };
-          console.log("empFilters",empFilters)
+          let final = myReportyList.map((singleEmp) => singleEmp.id);
+          empFilters.id = {
+            ///appedning SBU to filter
+            [Op.in]: final,
+          };
+          console.log("empFilters", empFilters)
 
           employeeData = await db.employeeMaster.findAndCountAll({
             order: [["id", "desc"]],
@@ -775,7 +787,7 @@ class commonController {
                         usersData.role_id == 1 || usersData.role_id == 2
                           ? [1, 0]
                           : [1],
-                          ...(empFilters)
+                      ...(empFilters)
                     },
                   ],
                 }
@@ -818,7 +830,7 @@ class commonController {
               {
                 model: db.buMaster,
                 seperate: true,
-                attributes: ["buName","buCode"],
+                attributes: ["buName", "buCode"],
                 where: {
                   ...(buSearch && { buName: { [Op.like]: `%${buSearch}%` } }),
                   ...buFIlter,
@@ -827,7 +839,7 @@ class commonController {
               {
                 model: db.sbuMaster,
                 seperate: true,
-                attributes: ["sbuname","code"],
+                attributes: ["sbuname", "code"],
                 where: {
                   ...(sbuSearch && {
                     sbuname: { [Op.like]: `%${sbuSearch}%` },

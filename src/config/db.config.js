@@ -181,7 +181,7 @@ db.managerHistory = ManagerHistory(sequelize, Sequelize)
 db.employeeJobDetailsHistory = employeeJobDetailsHistory(sequelize, Sequelize)
 db.employeeEducationDetailsHistory = EmployeeEducationDetailsHistory(sequelize, Sequelize)
 db.familyMemberHistory = FamilyMemberHistory(sequelize, Sequelize)
-db.attendanceHistory = AttendanceHistory(sequelize,Sequelize)
+db.attendanceHistory = AttendanceHistory(sequelize, Sequelize)
 
 db.holidayCompanyLocationConfiguration.hasOne(db.holidayMaster, {
   foreignKey: "holidayId",
