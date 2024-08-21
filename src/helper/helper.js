@@ -357,6 +357,7 @@ const empLeaveDetails = async function (userId, type) {
   return leaveData;
 };
 const empMarkLeaveOfGivenDate = async function (userId, inputData, batch) {
+  inputData.source='system_generated';
   let empLeave = await empLeaveDetails(userId, inputData.leaveAutoId);
   if (inputData.leaveAutoId != 6) {
     let pendingLeaveCountList = await db.employeeLeaveTransactions.findAll({
