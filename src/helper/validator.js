@@ -46,7 +46,7 @@ const regularizeRequest = Joi.object({
   punchOutTime: Joi.string().label("Punch Out Time"),
   reason: Joi.string().label("Reason"),
   attendanceAutoId: Joi.number(),
-  remark: Joi.string().trim().required().label("Remark"),
+  remark: Joi.string().trim().required().max(100).label("Remark"),
 });
 
 const approveRegularizationRequestSchema = Joi.object({
@@ -54,7 +54,7 @@ const approveRegularizationRequestSchema = Joi.object({
   regularizeId: Joi.number(),
   remark: Joi.string()
     .trim()
-    .max(250)
+    .max(100)
     .when("status", {
       is: Joi.number().valid(0),
       then: Joi.required().label("Remark"),
@@ -104,6 +104,7 @@ const updateFamilyDetailsSchema = Joi.object({
   mobileNo: Joi.string().trim().label("Mobile Number"),
   relationWithEmp: Joi.string().trim().label("Relation"),
 });
+
 const addEducationDetailsSchema = Joi.object({
   educationCompletionDate: Joi.date().iso().required(),
   educationDegree: Joi.number().integer().required(),
@@ -112,7 +113,6 @@ const addEducationDetailsSchema = Joi.object({
   educationStartDate: Joi.date().iso().required(),
   userId: Joi.number().integer().required()
 });
-
 
 const updateEducationDetailsSchema = Joi.object({
   educationActivities: Joi.string().allow('N/A', null).required(),
@@ -172,15 +172,14 @@ const updateLeaveRequest = Joi.object({
     .required()
     .valid("approved", "rejected")
     .label("status"),
-  remark: Joi.optional().allow("").label("Remark")
-  // remark: Joi.string()
-  //   .trim()
-  //   .max(250)
-  //   .when("status", {
-  //     is: Joi.number().valid("rejected"),
-  //     then: Joi.required().label("Remark"),
-  //     otherwise: Joi.optional().allow("").label("Remark"),
-  //   }),
+  remark: Joi.string()
+    .trim()
+    .max(100)
+    .when("status", {
+      is: Joi.string().valid("rejected"),
+      then: Joi.required().label("Remark"),
+      otherwise: Joi.optional().allow("").label("Remark"),
+    }),
 });
 
 const leaveRequestSchema = Joi.object({
@@ -193,7 +192,7 @@ const leaveRequestSchema = Joi.object({
   firstDayHalf: Joi.number().optional().valid(0, 1, 2),
   lastDayHalf: Joi.number().optional().valid(0, 1, 2),
   reason: Joi.string().optional().max(45),
-  message: Joi.string().trim().required().max(45),
+  message: Joi.string().trim().required().max(100).label("Message"),
 }).options({ abortEarly: false });
 
 const revoekLeaveRequest = Joi.object({
@@ -251,6 +250,10 @@ const emergencyContactDetails = Joi.object({
   emergencyContactRelation: Joi.string().label("Emergency Contact Relation").optional()
 })
 
+const forgotPasswordSchema = Joi.object({
+  email: Joi.string().email().required().label("Email")
+})
+
 
 export default {
   loginSchema,
@@ -277,5 +280,6 @@ export default {
   addEducationDetailsSchema,
   updateManagerSchema,
   updateProfilePictureSchema,
-  emergencyContactDetails
+  emergencyContactDetails,
+  forgotPasswordSchema
 };

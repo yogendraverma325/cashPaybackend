@@ -382,23 +382,28 @@ class UserController {
 
   async forgotPassword(req, res) {
     try {
-      const email = req.body.email;
+      const result = await validator.forgotPasswordSchema.validateAsync(req.body)
+
       const getEmployee = await db.employeeMaster.findOne({
-        where: { email: email, isActive: 1 },
+        where: {
+          email: result.email,
+          isActive: 1
+        },
       });
+
       if (getEmployee) {
         const otp = await helper.generateOTP(6);
         eventEmitter.emit(
           "forgotPasswordMail",
           JSON.stringify({
-            email: email,
+            email: result.email,
             otp: otp,
           })
         );
 
         const deocdeOTP = await helper.generateJwtOTPEncrypt({
           id: getEmployee.id,
-          email: email,
+          email: result.email,
           otp: otp,
         });
         return respHelper(res, {
@@ -409,12 +414,18 @@ class UserController {
       } else {
         return respHelper(res, {
           status: 400,
-          msg: constant.NOT_FOUND.replace("<module>", "Not found"),
+          msg: constant.INVALID.replace("<module>", "Email ID"),
           data: {},
         });
       }
     } catch (error) {
       console.log(error);
+      if (error.isJoi === true) {
+        return respHelper(res, {
+          status: 422,
+          msg: error.details[0].message
+        });
+      }
       return respHelper(res, {
         status: 500,
       });
