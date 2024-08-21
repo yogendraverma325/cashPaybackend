@@ -855,7 +855,7 @@ const forgotPasswordMail = async (data) => {
           </p>  
           -->
           <p style="font-size: 15px; line-height: 1.6; color: #000000;">
-            For your security, this OTP is valid for a single use only. After entering the OTP, you will be prompted to create a new password.
+            For your security, this OTP is valid for 5 minutes. After entering the OTP, you will be prompted to create a new password.
           </p>
           <p style="font-size: 15px; line-height: 1.6; color: #000000;">
             If you encounter any issues or have questions, please contact our support team.

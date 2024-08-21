@@ -17,7 +17,7 @@ const generateJwtToken = async (data) => {
 };
 
 const generateJwtOTPEncrypt = async (data) => {
-  const token = jwt.sign(data, process.env.JWT_KEY, { expiresIn: '10m' });
+  const token = jwt.sign(data, process.env.JWT_KEY, { expiresIn: '5m' });
   return token
 };
 
@@ -357,7 +357,7 @@ const empLeaveDetails = async function (userId, type) {
   return leaveData;
 };
 const empMarkLeaveOfGivenDate = async function (userId, inputData, batch) {
-  inputData.source='system_generated';
+  inputData.source = 'system_generated';
   let empLeave = await empLeaveDetails(userId, inputData.leaveAutoId);
   if (inputData.leaveAutoId != 6) {
     let pendingLeaveCountList = await db.employeeLeaveTransactions.findAll({
