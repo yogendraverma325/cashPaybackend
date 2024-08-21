@@ -20,3 +20,12 @@ export default Express
     .put("/band/:id", authorization('ADMIN', 'SUPERADMIN'), commonController.updateBand)
     .patch("/band/:id", authorization('ADMIN', 'SUPERADMIN'), commonController.changeStatusOfBand)
     .delete("/band/:id", authorization('ADMIN', 'SUPERADMIN'), commonController.deleteOfBand)
+
+     // job level master routes
+     .post("/job-level", authorization('ADMIN', 'SUPERADMIN'), commonController.createJobLevel)
+     .get("/job-level-list", authorization('ADMIN', 'SUPERADMIN'), commonController.jobLevelList)
+     .get("/job-level-details/:id", authorization('ADMIN', 'SUPERADMIN'), commonController.jobLevelDetails)
+     .put("/job-level/:id", authorization('ADMIN', 'SUPERADMIN'), commonController.updateJobLevel)
+     .patch("/job-level/:id", authorization('ADMIN', 'SUPERADMIN'), commonController.changeStatusOfJobLevel)
+     .delete("/job-level/:id", authorization('ADMIN', 'SUPERADMIN'), commonController.deleteOfJobLevel)
+ 

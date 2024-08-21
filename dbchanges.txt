@@ -206,3 +206,9 @@ Date 16-08-2024
 
 ALTER TABLE `hrms_live`.`companytypemaster` 
 ADD COLUMN `isDeleted` TINYINT(1) NULL DEFAULT 0 AFTER `isActive`;
+
+ALTER TABLE `hrms_live`.`bandmaster` 
+ADD COLUMN `isDeleted` TINYINT(1) NULL DEFAULT 0 AFTER `isActive`;
+
+ALTER TABLE `hrms_dev`.`joblevelmaster` 
+ADD COLUMN `isDeleted` TINYINT(1) NULL DEFAULT 0 AFTER `isActive`;

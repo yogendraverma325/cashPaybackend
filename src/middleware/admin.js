@@ -9,7 +9,13 @@ const bandMasterSchema = Joi.object({
     bandDesc: Joi.string().allow('').label("Band Description")
 });
 
+const jobLevelMasterSchema = Joi.object({
+  jobLevelName: Joi.string().required().label("Job Level Name"),
+  jobLevelCode: Joi.string().allow('').label("job Level Code")
+});
+
 export default {
     companyTypeMasterSchema,
-    bandMasterSchema
+    bandMasterSchema,
+    jobLevelMasterSchema
 };

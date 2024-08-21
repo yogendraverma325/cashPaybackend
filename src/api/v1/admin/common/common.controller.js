@@ -245,6 +245,128 @@ class CommonController {
             });
         }
     }
+
+    /**
+     * CRUD of Job Level Master
+     * 
+    */
+
+    async createJobLevel(req, res) {
+        try {
+            const result = await validator.jobLevelMasterSchema.validateAsync(req.body);
+            let model = db.jobLevelMaster;
+            let query = { 'jobLevelName': result.jobLevelName, 'jobLevelCode': result.jobLevelCode };
+            let moduleName = "Job Level";
+            let response = await service.create(model, result, query, moduleName);
+            return respHelper(res, response);
+
+        } catch (error) {
+            logger.error(error);
+            if (error.isJoi === true) {
+                return respHelper(res, {
+                    status: 422,
+                    msg: error.details[0].message,
+                });
+            }
+            return respHelper(res, {
+                status: 500,
+            });
+        }
+    }
+
+    async jobLevelList(req, res) {
+        try {
+            let model = db.jobLevelMaster;
+            let query = { 'isDeleted': 0 };
+            let response = await service.list(model, query);
+            return respHelper(res, response);
+
+        } catch (error) {
+            logger.error(error);
+            return respHelper(res, {
+                status: 500,
+            });
+        }
+    }
+
+    async jobLevelDetails(req, res) {
+        try {
+            let model = db.jobLevelMaster;
+            let id = req.params.id;
+            let query = { 'jobLevelId': id };
+            let response = await service.details(model, query);
+            return respHelper(res, response);
+
+        } catch (error) {
+            logger.error(error);
+            return respHelper(res, {
+                status: 500,
+            });
+        }
+    }
+
+    async updateJobLevel(req, res) {
+        try {
+            const result = await validator.jobLevelMasterSchema.validateAsync(req.body);
+            let model = db.jobLevelMaster;
+            let query = { jobLevelId: req.params.id };
+            let response = await service.update(model, result, query);
+            return respHelper(res, response);
+
+        } catch (error) {
+            logger.error(error);
+            if (error.isJoi === true) {
+                return respHelper(res, {
+                    status: 422,
+                    msg: error.details[0].message,
+                });
+            }
+            return respHelper(res, {
+                status: 500,
+            });
+        }
+    }
+
+    async changeStatusOfJobLevel(req, res) {
+        try {
+            let model = db.jobLevelMaster;
+            let query = { jobLevelId: req.params.id };
+            let response = await service.changeStatus(model, query);
+            return respHelper(res, response);
+
+        } catch (error) {
+            logger.error(error);
+            if (error.isJoi === true) {
+                return respHelper(res, {
+                    status: 422,
+                    msg: error.details[0].message,
+                });
+            }
+            return respHelper(res, {
+                status: 500,
+            });
+        }
+    }
+
+    async deleteOfJobLevel(req, res) {
+        try {
+            let model = db.jobLevelMaster;
+            let query = { jobLevelId: req.params.id };
+            let updateMetaData = { 'isDeleted': 1 };
+            let moduleName = 'Job Level';
+            console.log(query)
+            let response = await service.delete(model, updateMetaData, query, moduleName);
+            return respHelper(res, response);
+
+        } catch (error) {
+            logger.error(error);
+            return respHelper(res, {
+                status: 500,
+            });
+        }
+    }
+
+    // close class
 }
 
 
