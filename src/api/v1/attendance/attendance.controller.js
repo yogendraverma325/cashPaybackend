@@ -132,12 +132,6 @@ class AttendanceController {
           ); // Add buffer time  to the selected time if buffer allow
 
           const finalShiftStartTime = shiftStartTime.format("HH:mm");
-
-          // to be removed 
-          console.log("final shift time --->>", finalShiftStartTime)
-          console.log("current time --->>", currentDate.format("HH:mm"))
-
-
           if (currentDate.format("HH:mm") < finalShiftStartTime) {
             // campare shift time and current time inclu
             return respHelper(res, {
@@ -182,11 +176,11 @@ class AttendanceController {
           };
 
           await db.attendanceMaster.create(creationObject);
-
+         
           await db.attendanceHistory.create({
             date: currentDate.format("YYYY-MM-DD"),
-            time: currentDate.format("HH:mm:ss"),
-            status: "Punch In",
+            time:currentDate.format("HH:mm:ss"),
+            status:"Punch In",
             employeeId: req.userId,
             location: result.location,
             lat: result.latitude,
@@ -276,7 +270,7 @@ class AttendanceController {
           );
           await db.attendanceHistory.create({
             date: currentDate.format("YYYY-MM-DD"),
-            time: currentDate.format("HH:mm:ss"),
+            time:currentDate.format("HH:mm:ss"),
             status: "Punch Out",
             employeeId: req.userId,
             location: result.location,
