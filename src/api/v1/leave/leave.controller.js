@@ -8,6 +8,7 @@ import eventEmitter from "../../../services/eventService.js";
 import { Op, fn, col } from "sequelize";
 import fs from "fs";
 import { cwd } from "process";
+import e from "express";
 var _this = this;
 
 class LeaveController {
@@ -697,6 +698,7 @@ class LeaveController {
       });
     }
   }
+
   async revokeLeaveRequest(req, res) {
     try {
       const result = await validator.revoekLeaveRequest.validateAsync(req.body);
@@ -726,6 +728,41 @@ class LeaveController {
           },
         }
       );
+
+      const employeeData = await db.employeeLeaveTransactions.findOne({
+        raw: true,
+        where: {
+          employeeLeaveTransactionsId: leaveIds[0],
+        },
+        attributes: ['fromDate', "toDate"],
+        include: [
+          {
+            model: db.leaveMaster,
+            as: "leaveMasterDetails",
+            attributes: ["leaveName", 'leaveCode'],
+          },
+          {
+            model: db.employeeMaster,
+            attributes: ['name'],
+            include: [{
+              model: db.employeeMaster,
+              as: "managerData",
+              attributes: ['name', "email"],
+            }]
+          }
+        ]
+      })
+
+      const obj = {
+        empName: employeeData['employee.name'],
+        managerName: employeeData['employee.managerData.name'],
+        managerEmail: employeeData['employee.managerData.email'],
+        leaveType: `${employeeData['leaveMasterDetails.leaveName']} (${employeeData['leaveMasterDetails.leaveCode']})`,
+        fromDate: employeeData.fromDate,
+        toDate: employeeData.toDate,
+      }
+
+      eventEmitter.emit('revokeLeaveRequest', JSON.stringify(obj))
 
       return respHelper(res, {
         status: 200,

@@ -176,11 +176,11 @@ class AttendanceController {
           };
 
           await db.attendanceMaster.create(creationObject);
-         
+
           await db.attendanceHistory.create({
             date: currentDate.format("YYYY-MM-DD"),
-            time:currentDate.format("HH:mm:ss"),
-            status:"Punch In",
+            time: currentDate.format("HH:mm:ss"),
+            status: "Punch In",
             employeeId: req.userId,
             location: result.location,
             lat: result.latitude,
@@ -270,7 +270,7 @@ class AttendanceController {
           );
           await db.attendanceHistory.create({
             date: currentDate.format("YYYY-MM-DD"),
-            time:currentDate.format("HH:mm:ss"),
+            time: currentDate.format("HH:mm:ss"),
             status: "Punch Out",
             employeeId: req.userId,
             location: result.location,
@@ -1556,13 +1556,10 @@ class AttendanceController {
       eventEmitter.emit(
         "revokeRegularizationMail",
         JSON.stringify({
-          name: `${regularizeData.dataValues.attendancemaster.employee.name} (${regularizeData.dataValues.attendancemaster.employee.empCode})`,
-          email: regularizeData.dataValues.attendancemaster.employee.email,
-          attendanceDate: moment(
-            regularizeData.dataValues.attendancemaster.attendanceDate
-          ).format("MMMM DD, YYYY"),
-          managerName: `${regularizeData.dataValues.attendancemaster.employee.managerData.name} (${regularizeData.dataValues.attendancemaster.employee.managerData.empCode})`,
-          // email: regularizeData.dataValues.attendancemaster.employee.managerData.email
+          name: regularizeData.dataValues.attendancemaster.employee.name,
+          attendanceDate: regularizeData.dataValues.attendancemaster.attendanceDate,
+          managerName: regularizeData.dataValues.attendancemaster.employee.managerData.name,
+          email: regularizeData.dataValues.attendancemaster.employee.managerData.email
         })
       );
 

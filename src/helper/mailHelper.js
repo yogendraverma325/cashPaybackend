@@ -30,6 +30,10 @@ export default function getAllListeners(eventEmitter) {
     eventEmitter.on("forgotPasswordMail", async (input) => {
         await forgotPassword(input)
     })
+
+    eventEmitter.on("revokeLeaveRequest", async (input) => {
+        await revokeLeaveRequest(input)
+    })
 }
 
 async function regularizationRequestMail(input) {
@@ -80,7 +84,7 @@ async function revokeRegularizationMail(input) {
         const userData = JSON.parse(input)
         await helper.mailService({
             to: userData.email,
-            subject: `Regularization Request Revoked`,
+            subject: `${userData.name} has revoked own attendance request`,
             html: await emailTemplate.revokeRegularizeMail(userData)
         })
     } catch (error) {
@@ -117,13 +121,29 @@ async function leaveAckMail(input) {
     }
 }
 
-async function forgotPassword(input){
+async function forgotPassword(input) {
     try {
         const userData = JSON.parse(input)
         await helper.mailService({
             to: userData.email,
             subject: `Your One-Time Password (OTP)`,
             html: await emailTemplate.forgotPasswordMail(userData)
+        })
+
+    } catch (error) {
+        console.log(error.response.body)
+        logger.error(error)
+    }
+
+}
+
+async function revokeLeaveRequest(input) {
+    try {
+        const userData = JSON.parse(input)
+        await helper.mailService({
+            to: userData.managerEmail,
+            subject: `${userData.empName} has Revoked own leave request`,
+            html: await emailTemplate.revokeLeaveRequestMail(userData)
         })
 
     } catch (error) {
