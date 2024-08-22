@@ -129,6 +129,22 @@ class CommonService {
 
     }
 
+    async aggregate(model, aggregate) {
+        let result = {};
+
+        const docs = await model.findAll(aggregate);
+
+        if (docs.length > 0) {
+            result = { status: 200, msg: constant.DATA_FETCHED, data: docs };
+            return result;
+        }
+
+        else {
+            result = { status: 404, msg: constant.DATA_BLANK, data: docs };
+            return result;
+        }
+    }
+
 }
 
 export default new CommonService();

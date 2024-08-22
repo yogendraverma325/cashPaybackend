@@ -3,6 +3,8 @@ import validator from "../../../../middleware/admin.js";
 import logger from "../../../../helper/logger.js";
 import respHelper from "../../../../helper/respHelper.js";
 import service from "./common.service.js";
+import Pagination from "../../../../helper/pagination.js";
+import { Op } from "sequelize";
 
 class CommonController {
 
@@ -37,8 +39,24 @@ class CommonController {
     async companyTypeList(req, res) {
         try {
             let model = db.companyTypeMaster;
-            let query = { 'isDeleted': 0 };
-            let response = await service.list(model, query);
+            let page = parseInt(req.query.page) || 1;
+            let search = req.query.search || '';
+            let pageLimit = parseInt(req.query.limit) || Pagination.perPage;
+
+            let query = { 
+                'isDeleted': 0,
+                ...(search && { 'typeName': { [Op.like]: `%${search}%` } })
+            };
+
+            let aggregate = {
+                where: query,
+                attributes: ['companyTypeId', 'typeName', 'createdAt', 'isActive'],
+                order: [[ "companyTypeId", "DESC" ]],
+                limit: pageLimit,
+                offset: (page - 1) * pageLimit
+            }
+
+            let response = await service.aggregate(model, aggregate);
             let count = await service.count(model, query);
             let obj = { 'rows': response.data, 'count': count };
             return respHelper(res, { 'status': response.status, 'msg': response.msg, 'data': obj });
@@ -158,9 +176,27 @@ class CommonController {
     async bandList(req, res) {
         try {
             let model = db.bandMaster;
-            let query = { 'isDeleted': 0 };
-            let response = await service.list(model, query);
-            return respHelper(res, response);
+            let page = parseInt(req.query.page) || 1;
+            let search = req.query.search || '';
+            let pageLimit = parseInt(req.query.limit) || Pagination.perPage;
+
+            let query = { 
+                'isDeleted': 0,
+                ...(search && { 'bandCode': { [Op.like]: `%${search}%` } })
+            };
+
+            let aggregate = {
+                where: query,
+                attributes: ['bandId', 'bandCode', 'bandDesc', 'createdAt', 'isActive'],
+                order: [[ "bandId", "DESC" ]],
+                limit: pageLimit,
+                offset: (page - 1) * pageLimit
+            }
+
+            let response = await service.aggregate(model, aggregate);
+            let count = await service.count(model, query);
+            let obj = { 'rows': response.data, 'count': count };
+            return respHelper(res, { 'status': response.status, 'msg': response.msg, 'data': obj });
 
         } catch (error) {
             logger.error(error);
@@ -277,9 +313,27 @@ class CommonController {
     async jobLevelList(req, res) {
         try {
             let model = db.jobLevelMaster;
-            let query = { 'isDeleted': 0 };
-            let response = await service.list(model, query);
-            return respHelper(res, response);
+            let page = parseInt(req.query.page) || 1;
+            let search = req.query.search || '';
+            let pageLimit = parseInt(req.query.limit) || Pagination.perPage;
+
+            let query = { 
+                'isDeleted': 0,
+                ...(search && { 'jobLevelName': { [Op.like]: `%${search}%` } })
+            };
+
+            let aggregate = {
+                where: query,
+                attributes: ['jobLevelId', 'jobLevelName', 'jobLevelCode', 'createdAt', 'isActive'],
+                order: [[ "jobLevelId", "DESC" ]],
+                limit: pageLimit,
+                offset: (page - 1) * pageLimit
+            }
+
+            let response = await service.aggregate(model, aggregate);
+            let count = await service.count(model, query);
+            let obj = { 'rows': response.data, 'count': count };
+            return respHelper(res, { 'status': response.status, 'msg': response.msg, 'data': obj });
 
         } catch (error) {
             logger.error(error);
