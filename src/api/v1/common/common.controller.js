@@ -211,6 +211,26 @@ class commonController {
       const result = await validator.updateFamilyDetailsSchema.validateAsync(
         req.body
       );
+      const user = req.query.user || req.userId
+
+      const existFamilyMember = await db.familyDetails.findOne({
+        raw: true,
+        where: {
+          EmployeeId: user,
+          empFamilyDetailsId: {
+            [Op.ne]: result.empFamilyDetailsId
+          },
+          name: result.name
+        }
+      })
+
+      if (existFamilyMember) {
+        return respHelper(res, {
+          status: 400,
+          msg: constant.ALREADY_EXISTS.replace('<module>', 'Family Member')
+        })
+      }
+
       let getFamilyDetails = await db.familyDetails.findOne({
         where: { empFamilyDetailsId: result.empFamilyDetailsId },
       });
