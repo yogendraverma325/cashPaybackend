@@ -142,7 +142,10 @@ class LeaveController {
 
           if (existingRecord) {
             await db.attendanceMaster.update(
-              { employeeLeaveTransactionsId: leaveID },
+              {
+                employeeLeaveTransactionsId: leaveID,
+                attendancePresentStatus: "leave"
+              },
               {
                 where: {
                   attendanceDate: existingRecord.appliedFor,
