@@ -1416,7 +1416,7 @@ class AttendanceController {
         managerName: regularizeData['attendancemaster.employee.managerData.name'],
         requesterName: regularizeData['attendancemaster.employee.name']
       }
-      eventEmitter.emit('regularizeAckMail', JSON.stringify(obj))
+       eventEmitter.emit('regularizeAckMail', JSON.stringify(obj))
 
       _this.attedanceCronManual(regularizeData.attendanceAutoId, regularizeData.regularizePunchInDate)
       return respHelper(res, {
@@ -1773,24 +1773,27 @@ class AttendanceController {
                   timeWorkDuration.minutes() +
                   timeWorkDuration.seconds() / 60;
 
-                if (
-                  totalMinutesTotalHoursMinutes <
-                  singleEmp.attendancePolicymaster
-                    .leaveDeductPolicyWorkDurationHalfDayTime &&
-                  totalMinutesTotalHoursMinutes <
-                  singleEmp.attendancePolicymaster
-                    .leaveDeductPolicyWorkDurationFullDayTime
-                ) {
-                  isHalfDay_total_work = 0;
-                  halfDayFor_total_work = 0;
-                } else if (
-                  totalMinutesTotalHoursMinutes <
-                  singleEmp.attendancePolicymaster
-                    .leaveDeductPolicyWorkDurationHalfDayTime
-                ) {
-                  isHalfDay_total_work = 1;
-                  halfDayFor_total_work = 1;
-                }
+                  if (
+                    totalMinutesTotalHoursMinutes <
+                    singleEmp.attendancePolicymaster
+                      .leaveDeductPolicyWorkDurationHalfDayTime &&
+                    totalMinutesTotalHoursMinutes <
+                    singleEmp.attendancePolicymaster
+                      .leaveDeductPolicyWorkDurationFullDayTime
+                  ) {
+                    isHalfDay_total_work = 0;
+                    halfDayFor_total_work = 0;
+                  } else if (
+                    totalMinutesTotalHoursMinutes >
+                    singleEmp.attendancePolicymaster
+                      .leaveDeductPolicyWorkDurationHalfDayTime  &&
+                      totalMinutesTotalHoursMinutes <
+                      singleEmp.attendancePolicymaster
+                        .leaveDeductPolicyWorkDurationFullDayTime
+                  ) {
+                    isHalfDay_total_work = 1;
+                    halfDayFor_total_work = 1;
+                  }
               }
 
               let markHalfDay = null;
@@ -2107,6 +2110,8 @@ class AttendanceController {
                   timeWorkDuration.minutes() +
                   timeWorkDuration.seconds() / 60;
 
+                  console.log("totalMinutesTotalHoursMinutes",totalMinutesTotalHoursMinutes);
+
                 if (
                   totalMinutesTotalHoursMinutes <
                   singleEmp.attendancePolicymaster
@@ -2118,9 +2123,12 @@ class AttendanceController {
                   isHalfDay_total_work = 0;
                   halfDayFor_total_work = 0;
                 } else if (
-                  totalMinutesTotalHoursMinutes <
+                  totalMinutesTotalHoursMinutes >
                   singleEmp.attendancePolicymaster
-                    .leaveDeductPolicyWorkDurationHalfDayTime
+                    .leaveDeductPolicyWorkDurationHalfDayTime  &&
+                    totalMinutesTotalHoursMinutes <
+                    singleEmp.attendancePolicymaster
+                      .leaveDeductPolicyWorkDurationFullDayTime
                 ) {
                   isHalfDay_total_work = 1;
                   halfDayFor_total_work = 1;
@@ -2149,8 +2157,8 @@ class AttendanceController {
                 markHalfDayType = 2;
               }
 
-              console.log("markHalfDay", markHalfDay)
-              console.log("markHalfDayType", markHalfDayType)
+
+           
               if (markHalfDay != null) {
                 let EMP_DATA = await helper.getEmpProfile(singleEmp.id);
                 await helper.empMarkLeaveOfGivenDate(
