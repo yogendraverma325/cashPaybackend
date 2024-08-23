@@ -1,3 +1,9 @@
+------------------------------- 
+
+ALTER TABLE `hrms_dev`.`leavemapping` 
+ADD COLUMN `utilizedThisYear` DECIMAL(10,2) NULL DEFAULT NULL AFTER `annualAllotment`;
+
+
 ------------------------------13-08-2024 (Harish)-------------------------------------------
 
 CREATE TABLE `hrms_dev`.`attendanceHistory` (

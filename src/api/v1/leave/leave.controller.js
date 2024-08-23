@@ -161,7 +161,7 @@ class LeaveController {
 
               if (lwpLeave) {
                 await db.leaveMapping.increment(
-                  { accruedThisYear: parseFloat(existingRecord.leaveCount) },
+                  { utilizedThisYear: parseFloat(existingRecord.leaveCount) },
                   {
                     where: {
                       EmployeeId: existingRecord.employeeId,
@@ -174,14 +174,15 @@ class LeaveController {
                   EmployeeId: existingRecord.employeeId,
                   leaveAutoId: existingRecord.leaveAutoId,
                   availableLeave: 0,
-                  accruedThisYear: parseFloat(existingRecord.leaveCount),
+                  utilizedThisYear: parseFloat(existingRecord.leaveCount),
                   creditedFromLastYear: 0,
                   annualAllotment: 0,
+                  accruedThisYear: 0
                 });
               }
             } else {
               await db.leaveMapping.increment(
-                { accruedThisYear: parseFloat(existingRecord.leaveCount) },
+                { utilizedThisYear: parseFloat(existingRecord.leaveCount) },
                 {
                   where: {
                     EmployeeId: existingRecord.employeeId,

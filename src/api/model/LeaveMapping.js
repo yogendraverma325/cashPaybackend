@@ -23,6 +23,9 @@ export default (sequelize, Sequelize) => {
         annualAllotment: {
             type: Sequelize.DECIMAL(10, 2)
         },
+        utilizedThisYear: {
+            type: Sequelize.DECIMAL(10, 2)
+        },
     })
     return leaveMapping
 }
