@@ -22,9 +22,6 @@ export default (sequelize, Sequelize) => {
         },
         isActive: {
             type: Sequelize.BOOLEAN
-        },
-        isDeleted: {
-            type: Sequelize.BOOLEAN
         }
     })
     return companyTypeMaster

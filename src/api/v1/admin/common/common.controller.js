@@ -44,7 +44,6 @@ class CommonController {
             let pageLimit = parseInt(req.query.limit) || Pagination.perPage;
 
             let query = { 
-                'isDeleted': 0,
                 ...(search && { 'typeName': { [Op.like]: `%${search}%` } })
             };
 
@@ -181,7 +180,6 @@ class CommonController {
             let pageLimit = parseInt(req.query.limit) || Pagination.perPage;
 
             let query = { 
-                'isDeleted': 0,
                 ...(search && { 'bandCode': { [Op.like]: `%${search}%` } })
             };
 
@@ -318,7 +316,6 @@ class CommonController {
             let pageLimit = parseInt(req.query.limit) || Pagination.perPage;
 
             let query = { 
-                'isDeleted': 0,
                 ...(search && { 'jobLevelName': { [Op.like]: `%${search}%` } })
             };
 
