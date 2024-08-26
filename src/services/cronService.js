@@ -21,9 +21,10 @@ cron.schedule("* * * * *", async () => {
     cronController.updateActiveStatus()
 });
 
-// cron.schedule("* * * * *", async () => {
-//     cronController.EarnedLeaveCreditCron()
-// });
+cron.schedule("*/30 * * * *", async () => {
+    console.log("cron is running in very seconds")
+    cronController.EarnedLeaveCreditCron()
+});
 
 
 export default cron
