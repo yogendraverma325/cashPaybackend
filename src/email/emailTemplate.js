@@ -43,15 +43,20 @@ const regularizationRequestMail = async (data) => {
                               padding-bottom: 20px;
                               text-align: left;
                               border-bottom: 1px solid #eee;
+                              width: 100%;
                             "
                             valign="middle"
                           >
                             <img
                               height="45"
-                              src="https://www.teamcomputers.com/images/logo.png"
+                              src="${process.env.PROXY_URL}/api/uploads/assets/team-new.png"
                               alt="Logo"
-                              class="CToWUd"
-                              data-bit="iit"
+                            />
+                            <img
+                              height="45"
+                              src="${process.env.PROXY_URL}/api/uploads/assets/tara_small.png"
+                              alt="Logo"
+                               style="float:right"
                             />
                           </td>
                         </tr>
@@ -65,7 +70,6 @@ const regularizationRequestMail = async (data) => {
                       style="line-height: 1; line-height: 1; line-height: 1.8"
                     >
                       <p>Hi <b>${data.managerName}</b>,</p>
-                      <p><br /></p>
                       <p>
                         <b>${data.requesterName
     }</b> has requested for Attendance
@@ -169,22 +173,27 @@ const leaveRequestMail = async (data) => {
                               <tbody>
                                 <tr>
                                   <td
-                                    colspan="2"
-                                    style="
-                                      padding-bottom: 20px;
-                                      text-align: left;
-                                      border-bottom: 1px solid #eee;
-                                    "
-                                    valign="middle"
-                                  >
-                                    <img
-                                      height="45"
-                                      src="https://www.teamcomputers.com/images/logo.png"
-                                      alt="Logo"
-                                      class="CToWUd"
-                                      data-bit="iit"
-                                    />
-                                  </td>
+                            colspan="2"
+                            style="
+                              padding-bottom: 20px;
+                              text-align: left;
+                              border-bottom: 1px solid #eee;
+                              width: 100%;
+                            "
+                            valign="middle"
+                          >
+                            <img
+                              height="45"
+                              src="${process.env.PROXY_URL}/api/uploads/assets/team-new.png"
+                              alt="Logo"
+                            />
+                            <img
+                              height="45"
+                              src="${process.env.PROXY_URL}/api/uploads/assets/tara_small.png"
+                              alt="Logo"
+                               style="float:right"
+                            />
+                          </td>
                                 </tr>
                               </tbody>
                             </table>
@@ -200,7 +209,6 @@ const leaveRequestMail = async (data) => {
                               "
                             >
                               <p>Hi <b>${data.managerName}</b>,</p>
-                              <p><br /></p>
                               <p>
                                 <b>${data.requesterName}</b> has requested for
                                 ${data.leaveType} from ${moment(
@@ -383,20 +391,27 @@ const revokeRegularizeMail = async (data) => {
                               <tbody>
                                 <tr>
                                   <td
-                                    colspan="2"
-                                    style="
-                                      padding-bottom: 20px;
-                                      text-align: left;
-                                      border-bottom: 1px solid #eee;
-                                    "
-                                    valign="middle"
-                                  >
-                                    <img
-                                      height="45"
-                                      alt="Logo"
-                                      src="https://www.teamcomputers.com/images/logo.png"
-                                    />
-                                  </td>
+                            colspan="2"
+                            style="
+                              padding-bottom: 20px;
+                              text-align: left;
+                              border-bottom: 1px solid #eee;
+                              width: 100%;
+                            "
+                            valign="middle"
+                          >
+                            <img
+                              height="45"
+                              src="${process.env.PROXY_URL}/api/uploads/assets/team-new.png"
+                              alt="Logo"
+                            />
+                            <img
+                              height="45"
+                              src="${process.env.PROXY_URL}/api/uploads/assets/tara_small.png"
+                              alt="Logo"
+                               style="float:right"
+                            />
+                          </td>
                                 </tr>
                               </tbody>
                             </table>
@@ -412,7 +427,6 @@ const revokeRegularizeMail = async (data) => {
                               "
                             >
                               <p>Hi <b>${data.managerName}</b>,</p>
-                              <p><br /></p>
                               <p>
                                 <b>${data.name}</b> has Revoked own
                                 attendance request of ${moment(data.attendanceDate).format("MMMM D, YYYY")}<br />
@@ -522,22 +536,27 @@ const regularizationAcknowledgement = async (data) => {
                               <tbody>
                                 <tr>
                                   <td
-                                    colspan="2"
-                                    style="
-                                      padding-bottom: 20px;
-                                      text-align: left;
-                                      border-bottom: 1px solid #eee;
-                                    "
-                                    valign="middle"
-                                  >
-                                    <img
-                                      height="45"
-                                       src="https://www.teamcomputers.com/images/logo.png"
-                                      alt="Logo"
-                                      class="CToWUd"
-                                      data-bit="iit"
-                                    />
-                                  </td>
+                            colspan="2"
+                            style="
+                              padding-bottom: 20px;
+                              text-align: left;
+                              border-bottom: 1px solid #eee;
+                              width: 100%;
+                            "
+                            valign="middle"
+                          >
+                            <img
+                              height="45"
+                              src="${process.env.PROXY_URL}/api/uploads/assets/team-new.png"
+                              alt="Logo"
+                            />
+                            <img
+                              height="45"
+                              src="${process.env.PROXY_URL}/api/uploads/assets/tara_small.png"
+                              alt="Logo"
+                               style="float:right"
+                            />
+                          </td>
                                 </tr>
                               </tbody>
                             </table>
@@ -553,7 +572,7 @@ const regularizationAcknowledgement = async (data) => {
                               "
                             >
                               <p>Hi <b>${data.requesterName}</b>,</p>
-                              <p><br /></p>
+                              
                               <p>
                                 <b>${data.managerName}</b> has ${data.status
     } your Attendance
@@ -666,18 +685,27 @@ const leaveAcknowledgement = async (data) => {
                               <tbody>
                                 <tr>
                                   <td
-                                    colspan="2"
-                                    style="
-                                      padding-bottom: 20px;
-                                      text-align: left;
-                                      border-bottom: 1px solid #eee;
-                                    "
-                                    valign="middle"
-                                  >
-                                    <img height="45" alt="Logo"
-                                     src="https://www.teamcomputers.com/images/logo.png"
-                                    />
-                                  </td>
+                            colspan="2"
+                            style="
+                              padding-bottom: 20px;
+                              text-align: left;
+                              border-bottom: 1px solid #eee;
+                              width: 100%;
+                            "
+                            valign="middle"
+                          >
+                            <img
+                              height="45"
+                              src="${process.env.PROXY_URL}/api/uploads/assets/team-new.png"
+                              alt="Logo"
+                            />
+                            <img
+                              height="45"
+                              src="${process.env.PROXY_URL}/api/uploads/assets/tara_small.png"
+                              alt="Logo"
+                               style="float:right"
+                            />
+                          </td>
                                 </tr>
                               </tbody>
                             </table>
@@ -693,7 +721,7 @@ const leaveAcknowledgement = async (data) => {
                               "
                             >
                               <p>Hi <b>${data.requesterName}</b>,</p>
-                              <p><br /></p>
+                             
                               <p>
                                 <b>${data.managerName}</b> has ${data.status
     } your leave
@@ -883,16 +911,27 @@ const revokeLeaveRequestMail = async (data) => {
                               <tbody>
                                 <tr>
                                   <td
-                                    colspan="2"
-                                    style="
-                                      padding-bottom: 20px;
-                                      text-align: left;
-                                      border-bottom: 1px solid #eee;
-                                    "
-                                    valign="middle"
-                                  >
-                                    <img height="45" alt="Logo" src="https://www.teamcomputers.com/images/logo.png"/>
-                                  </td>
+                            colspan="2"
+                            style="
+                              padding-bottom: 20px;
+                              text-align: left;
+                              border-bottom: 1px solid #eee;
+                              width: 100%;
+                            "
+                            valign="middle"
+                          >
+                            <img
+                              height="45"
+                              src="${process.env.PROXY_URL}/api/uploads/assets/team-new.png"
+                              alt="Logo"
+                            />
+                            <img
+                              height="45"
+                              src="${process.env.PROXY_URL}/api/uploads/assets/tara_small.png"
+                              alt="Logo"
+                               style="float:right"
+                            />
+                          </td>
                                 </tr>
                               </tbody>
                             </table>
@@ -908,7 +947,7 @@ const revokeLeaveRequestMail = async (data) => {
                               "
                             >
                               <p>Hi <b>${data.managerName}</b>,</p>
-                              <p><br /></p>
+                              
                               <p>
                                 <b>${data.empName}</b> has Revoked the own leave
                                 request ${data.leaveType} from ${moment(data.fromDate).format(
