@@ -88,11 +88,18 @@ class CronController {
     });
 
     if (earnedLeaveDetails) {
-      let value = parseFloat(earnedLeaveDetails.iterationDistribution).toFixed(2);
-      await db.leaveMapping.increment("availableLeave", {
-        by: value,
-        where: { leaveAutoId: 1 },
-      });
+      let value = parseFloat(earnedLeaveDetails.iterationDistribution).toFixed(
+        2
+      );
+      await db.leaveMapping.update(
+        {
+          availableLeave: db.sequelize.literal(`availableLeave + ${value}`),
+          accruedThisYear: db.sequelize.literal(`accruedThisYear + ${value}`),
+        },
+        {
+          where: { leaveAutoId: 1, EmployeeId: 848 },
+        }
+      );
     } else {
       console.log("not found");
     }
@@ -102,25 +109,30 @@ class CronController {
     const managerData = await db.managerHistory.findAll({
       raw: true,
       where: {
-        fromDate: moment().format("YYYY-MM-DD")
-      }
-    })
+        fromDate: moment().format("YYYY-MM-DD"),
+      },
+    });
 
     if (managerData.length != 0) {
       for (const element of managerData) {
-        await db.employeeMaster.update({
-          manager: element.managerId,
-        }, {
-          where: {
-            id: element.employeeId
+        await db.employeeMaster.update(
+          {
+            manager: element.managerId,
+          },
+          {
+            where: {
+              id: element.employeeId,
+            },
           }
-        })
+        );
       }
+    } else {
+      console.log(
+        `No Data Found for ${moment().format(
+          "YYYY-MM-DD"
+        )} (Update Manager Cron)`
+      );
     }
-    else {
-      console.log(`No Data Found for ${moment().format("YYYY-MM-DD")} (Update Manager Cron)`)
-    }
-
   }
 }
 
