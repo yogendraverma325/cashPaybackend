@@ -202,13 +202,7 @@ ADD COLUMN `attendanceDate` DATE NULL DEFAULT NULL AFTER `attendanceShiftId`;
 
 Jay Prakash Singh
 
-Date 16-08-2024
+Date 27-08-2024
 
-ALTER TABLE `hrms_live`.`companytypemaster` 
-ADD COLUMN `isDeleted` TINYINT(1) NULL DEFAULT 0 AFTER `isActive`;
+Add new column as "startingIndex" in employeetypemaster table
 
-ALTER TABLE `hrms_live`.`bandmaster` 
-ADD COLUMN `isDeleted` TINYINT(1) NULL DEFAULT 0 AFTER `isActive`;
-
-ALTER TABLE `hrms_dev`.`joblevelmaster` 
-ADD COLUMN `isDeleted` TINYINT(1) NULL DEFAULT 0 AFTER `isActive`;

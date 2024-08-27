@@ -10,24 +10,35 @@ const loginSchema = Joi.object({
 const userCreationSchema = Joi.object({
   name: Joi.string().trim().required().label("Name"),
   email: Joi.string().trim().email().required().label("Email"),
+  personalEmail: Joi.string().trim().email().required().label("Personal Email"),
   firstName: Joi.string().trim().required().label("First Name"),
   lastName: Joi.string().trim().required().label("Last Name"),
-  officeMobileNumber: Joi.string()
-    .trim()
-    .length(10)
-    .label("Office Mobile Number"),
-  personalMobileNumber: Joi.string()
-    .trim()
-    .length(10)
-    .required()
-    .label("Office Mobile Number"),
+
+  panNo: Joi.string().trim().required().label("PAN Number"),
+  esicNo: Joi.string().trim().required().label("ESIC Number"),
+  uanNo: Joi.string().trim().required().label("UAN Number"),
+  pfNo: Joi.string().trim().required().label("PF Number"),
+  employeeType: Joi.string().trim().required().label("Employee Type"),
+  image: Joi.string(),
+
+  officeMobileNumber: Joi.string().trim().length(10).label("Office Mobile Number"),
+  personalMobileNumber: Joi.string().trim().length(10).required().label("Office Mobile Number"),
+  dateOfJoining: Joi.string().trim().label("Date Of Joining"),
   manager: Joi.number().required().label("Manager"),
   designation_id: Joi.number().required().label("Designation"),
   functionalAreaId: Joi.number().required().label("Functional Area"),
   buId: Joi.number().required().label("Business Unit"),
+
+  sbuId: Joi.number().required().label("Sub Business Unit"),
+  shiftId: Joi.number().required().label("Shift"),
   departmentId: Joi.number().required().label("Department"),
   companyId: Joi.number().required().label("Company"),
-  image: Joi.string(),
+  buHRId: Joi.number().required().label("Business Unit HR"),
+  buHeadId: Joi.number().required().label("Business Unit Head"),
+
+  attendancePolicyId: Joi.number().required().label("Attendance Policy"),
+  companyLocationId: Joi.number().required().label("Company Location"),
+  weekOffId: Joi.number().required().label("Week Off")
 });
 
 const attendanceSchema = Joi.object({

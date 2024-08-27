@@ -28,6 +28,7 @@ class AdminController {
       }
 
       const maxCode = await db.employeeMaster.max("empCode");
+      console.log(maxCode)
       const salt = await bcrypt.genSalt(10);
 
       result.password = await bcrypt.hash("test1234", salt);

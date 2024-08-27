@@ -2,6 +2,9 @@ import { Op } from "sequelize";
 import db from "../../../config/db.config.js";
 import respHelper from "../../../helper/respHelper.js";
 import client from "../../../config/redisDb.config.js";
+import Pagination from "../../../helper/pagination.js";
+import logger from "../../../helper/logger.js";
+
 
 class MasterController {
   async employee(req, res) {
@@ -1020,6 +1023,65 @@ class MasterController {
       return respHelper(res, {
         status: 500,
       });
+    }
+  }
+
+  async roles(req, res) {
+    try {
+      const limit = req.query.limit * 1 || Pagination.perPage;
+      const pageNo = req.query.page * 1 || 1;
+      const offset = (pageNo - 1) * limit;
+      
+      const rolesData = await db.roleMaster.findAndCountAll({ limit, offset });
+      return respHelper(res, { status: 200, data: rolesData });
+    }
+    catch(error) {
+      logger.error('ERROR WHILE GETTING ROLES', error);
+      return respHelper(res, { status: 500, });
+    }
+  }
+
+  async shift(req, res) {
+    try {
+      const limit = req.query.limit * 1 || Pagination.perPage;
+      const pageNo = req.query.page * 1 || 1;
+      const offset = (pageNo - 1) * limit;
+
+      const shiftData = await db.shiftMaster.findAndCountAll({ limit, offset });
+      return respHelper(res, { status: 200, data: shiftData });
+    }
+    catch(error) {
+      logger.error('ERROR WHILE GETTING SHIFT MASTER', error);
+      return respHelper(res, { status: 500, });
+    }
+  }
+
+  async attendancePlicy(req, res) {
+    try {
+      const limit = req.query.limit * 1 || 1;
+      const pageNo = req.query.page * 1 || 1;
+      const offset = (pageNo - 1) * limit;
+
+      const attendanceData = await db.attendanceMaster.findAndCountAll({ limit, offset });
+      return respHelper(res, { status: 200, data: attendanceData });
+    }
+    catch(error) {
+      logger.error('ERROR WHILE GETTING ATTENDANCE DATA', error);
+      return respHelper(res, { status: 500, });
+    }
+  }
+
+  async weekoff(req, res) {
+    try {
+      const limit = req.query.limit * 1 || Pagination.perPage;
+      const pageNo = req.query.page * 1 || 1;
+      const offset = (pageNo - 1) * limit;
+      let weekoffData = await db.weekOffMaster.findAndCountAll({ limit, offset });
+      return respHelper(res, { status: 200, data: weekoffData });
+    }
+    catch(error) {
+      logger.error('ERROR WHILE GETTING WEEK OFF DATA', error);
+      return respHelper(res, { status: 500, })
     }
   }
 }

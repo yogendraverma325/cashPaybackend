@@ -61,6 +61,7 @@ const message = {
   PROFILE_PICTURE_UPDATED: "Profile Picture Updated.",
   UPDATE_FAILURE: "<module> Not Updated.",
   DELETE_FAILURE: "<module> Not Deleted.",
+  INVALID_ID: "Invalid <module> Id"
 };
 
 export default message;

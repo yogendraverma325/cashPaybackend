@@ -1,6 +1,7 @@
 import Express from 'express';
 import masterController from './master.controller.js'
 import authentication from '../../../middleware/authentication.js';
+import authorization from '../../../middleware/authorization.js';
 
 export default Express
     .Router()
@@ -31,3 +32,8 @@ export default Express
     .get("/dashboardCard", masterController.dashboardCard)
     .get("/leave", masterController.leaveMaster)
     .get("/educations", masterController.educationMaster)
+
+    .get("/roles", authorization('ADMIN', 'SUPERADMIN'), masterController.roles)
+    .get("/shift", masterController.shift)
+    .get("/attendance-policy", masterController.attendancePlicy)
+    .get("/weekoff", masterController.weekoff)
