@@ -70,44 +70,13 @@ class AuthController {
         });
       }
 
-      delete existUser.dataValues.password;
-
-      await db.employeeMaster.update(
-        { lastLogin: moment(), wrongPasswordCount: 0 },
-        {
-          where: { id: existUser.dataValues.id },
-        }
-      );
-
-      await db.loginDetails.create({
-        employeeId: existUser.dataValues.id,
-        loginIP: req.headers['x-real-ip'] ? req.headers['x-real-ip'] : await helper.ip(req._remoteAddress),
-        loginDevice: `${req.deviceSource.os ? req.deviceSource.os.name : 'OS Name'} - ${req.deviceSource.device ? req.deviceSource.device.type : 'Device Type'}`,
-        createdDt: moment()
-      })
-
-      const payload = {
-        user: {
-          id: existUser.id,
-          name: existUser.name,
-          role: existUser.role.name,
-          device: req.deviceSource.device ? req.deviceSource.device.type : 'Other'
-        },
-      };
-
-      const token = await helper.generateJwtToken(payload);
+      const loggedInUser = await validateUser(req, existUser)
 
       return respHelper(res, {
         status: 200,
         msg: constant.LOGIN_SUCCESS,
-        token,
-        data: {
-          emp: existUser,
-          tokens: {
-            accessToken: token,
-            refreshToken: token,
-          },
-        },
+        token: loggedInUser.token,
+        data: loggedInUser.userData
       });
     } catch (error) {
       console.log(error);
@@ -123,6 +92,90 @@ class AuthController {
     }
   }
 
+  async sso(req, res) {
+    try {
+      const existUser = await db.employeeMaster.findOne({
+        where: { empCode: req.user[0], isActive: 1 },
+        include: [
+          {
+            model: db.roleMaster,
+          },
+          {
+            model: db.designationMaster,
+            attributes: ["designationId", "name"],
+          }
+        ],
+      });
+
+      if (!existUser) {
+        return respHelper(res, {
+          status: 404,
+          msg: constant.USER_NOT_EXIST,
+        });
+      }
+
+      if (existUser.dataValues.accountRecoveryTime) {
+        return respHelper(res, {
+          status: 404,
+          msg: constant.ACCOUNT_LOCKED
+        })
+      }
+
+      const loggedInUser = await validateUser(req, existUser)
+
+      return respHelper(res, {
+        status: 200,
+        msg: constant.LOGIN_SUCCESS,
+        token: loggedInUser.token,
+        data: loggedInUser.userData
+      });
+
+    } catch (error) {
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+}
+
+const validateUser = async (req, existUser) => {
+  delete existUser.dataValues.password;
+
+  await db.employeeMaster.update(
+    { lastLogin: moment(), wrongPasswordCount: 0 },
+    {
+      where: { id: existUser.dataValues.id },
+    }
+  );
+
+  await db.loginDetails.create({
+    employeeId: existUser.dataValues.id,
+    loginIP: req.headers['x-real-ip'] || await helper.ip(req._remoteAddress),
+    loginDevice: `${req.deviceSource.os ? req.deviceSource.os.name : 'OS Name'} - ${req.deviceSource.device ? req.deviceSource.device.type : 'Device Type'}`,
+    createdDt: moment()
+  });
+
+  const payload = {
+    user: {
+      id: existUser.id,
+      name: existUser.name,
+      role: existUser.role.name,
+      device: req.deviceSource.device ? req.deviceSource.device.type : 'Other'
+    },
+  };
+
+  const token = await helper.generateJwtToken(payload);
+
+  return {
+    token,
+    userData: {
+      emp: existUser,
+      tokens: {
+        accessToken: token,
+        refreshToken: token,
+      }
+    }
+  }
 }
 
 export default new AuthController();

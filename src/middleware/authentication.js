@@ -48,34 +48,35 @@ class Authentication {
         );
     }
 
-    // async sso(req, res, next) {
-    //     const token = req.headers['sso-token'];
-    //     if (!token) {
-    //         return respHelper(res, {
-    //             status: 401,
-    //             msg: constant.NOT_LOGGED_IN,
-    //         });
-    //     }
-    //     try {
-    //         const authenticatedUser = jwt.decode(token, { algorithms: ['HS256'] });
-    //         const expiryTime = new Date(authenticatedUser.exp);
-    //         const currentTime = new Date().getTime() / 1000;
-    //         if (expiryTime > currentTime) {
-    //             req.user = authenticatedUser.sub;
-    //             next();
-    //         } else {
-    //             return respHelper(res, {
-    //                 status: 401,
-    //                 msg: constant.SESSION_EXPIRED,
-    //             });
-    //         }
-    //     } catch (error) {
-    //         return respHelper(res, {
-    //             status: 401,
-    //             msg: constant.INVALID_TOKEN,
-    //         });
-    //     }
-    // }
+    async sso(req, res, next) {
+        const token = req.headers['ssotoken'];
+        if (!token) {
+            return respHelper(res, {
+                status: 401,
+                msg: constant.NOT_LOGGED_IN,
+            });
+        }
+        try {
+            const authenticatedUser = jwt.decode(token, { algorithms: ['HS256'] });
+            const expiryTime = new Date(authenticatedUser.exp);
+            const currentTime = new Date().getTime() / 1000;
+            if (expiryTime > currentTime) {
+                req.user = authenticatedUser.sub;
+                next();
+            }
+            else {
+                return respHelper(res, {
+                    status: 401,
+                    msg: constant.SESSION_EXPIRED,
+                });
+            }
+        } catch (error) {
+            return respHelper(res, {
+                status: 401,
+                msg: constant.INVALID_TOKEN,
+            });
+        }
+    }
 }
 
 export default new Authentication();
