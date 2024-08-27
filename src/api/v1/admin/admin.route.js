@@ -23,3 +23,4 @@ export default Express
     .put("/updateManager", authorization('ADMIN', 'BUHR', 'HR_OPS', 'SUPERADMIN'), adminController.updateManager)
     .post("/addJobDetails", authorization('ADMIN', 'BUHR', 'HR_OPS', 'SUPERADMIN'), commonController.addJobDetails)
     .get("/searchEmployee", authorization('ADMIN', 'BUHR', 'HR_OPS', 'SUPERADMIN'), commonController.searchEmployee)
+    .post("/updateEmergencyContact", authorization('ADMIN', 'BUHR', 'HR_OPS', 'SUPERADMIN'), commonController.updateEmergencyContact)

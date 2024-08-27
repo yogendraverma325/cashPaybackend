@@ -176,6 +176,18 @@ class AttendanceController {
           };
 
           await db.attendanceMaster.create(creationObject);
+
+          await db.attendanceHistory.create({
+            date: currentDate.format("YYYY-MM-DD"),
+            time: currentDate.format("HH:mm:ss"),
+            status: "Punch In",
+            employeeId: req.userId,
+            location: result.location,
+            lat: result.latitude,
+            long: result.longitude,
+            createdBy: req.userId,
+            createdAt: currentDate,
+          })
           return respHelper(res, {
             status: 200,
             msg: message.PUNCH_IN_SUCCESS,
@@ -256,6 +268,18 @@ class AttendanceController {
               },
             }
           );
+          await db.attendanceHistory.create({
+            date: currentDate.format("YYYY-MM-DD"),
+            time: currentDate.format("HH:mm:ss"),
+            status: "Punch Out",
+            employeeId: req.userId,
+            location: result.location,
+            lat: result.latitude,
+            long: result.longitude,
+            updatedBy: req.userId,
+            updatedAt: currentDate,
+
+          })
         }
 
         return respHelper(res, {
@@ -311,7 +335,7 @@ class AttendanceController {
           msg: message.ATTENDANCE_DATE_CANNOT_AFTER_TODAY,
         });
       }
-      
+
       let attendanceData = await db.attendanceMaster.findOne({
         where: {
           attendanceAutoId: result.attendanceAutoId,
@@ -1283,29 +1307,33 @@ class AttendanceController {
             include: [
               {
                 model: db.employeeMaster,
-                attributes: ["attendancePolicyId"],
-                include: [
-                  {
-                    model: db.shiftMaster,
-                    required: false,
-                    attributes: [
-                      "shiftId",
-                      "shiftName",
-                      "shiftStartTime",
-                      "shiftEndTime",
-                      "isOverNight",
-                    ],
-                    where: {
-                      isActive: true,
-                    },
+                attributes: ["attendancePolicyId", 'name', 'email'],
+                include: [{
+                  model: db.employeeMaster,
+                  as: 'managerData',
+                  attributes: ['name']
+                },
+                {
+                  model: db.shiftMaster,
+                  required: false,
+                  attributes: [
+                    "shiftId",
+                    "shiftName",
+                    "shiftStartTime",
+                    "shiftEndTime",
+                    "isOverNight",
+                  ],
+                  where: {
+                    isActive: true,
                   },
-                  {
-                    model: db.attendancePolicymaster,
-                    attributes: ["graceTimeClockIn"],
-                    where: {
-                      isActive: true,
-                    },
+                },
+                {
+                  model: db.attendancePolicymaster,
+                  attributes: ["graceTimeClockIn"],
+                  where: {
+                    isActive: true,
                   },
+                },
                 ],
               },
             ],
@@ -1379,6 +1407,16 @@ class AttendanceController {
           }
         );
       }
+
+      const obj = {
+        email: regularizeData['attendancemaster.employee.email'],
+        status: result.status ? "Approved" : "Rejected",
+        fromDate: regularizeData.regularizePunchInDate,
+        toDate: regularizeData.regularizePunchOutDate,
+        managerName: regularizeData['attendancemaster.employee.managerData.name'],
+        requesterName: regularizeData['attendancemaster.employee.name']
+      }
+       eventEmitter.emit('regularizeAckMail', JSON.stringify(obj))
 
       _this.attedanceCronManual(regularizeData.attendanceAutoId, regularizeData.regularizePunchInDate)
       return respHelper(res, {
@@ -1518,13 +1556,10 @@ class AttendanceController {
       eventEmitter.emit(
         "revokeRegularizationMail",
         JSON.stringify({
-          name: `${regularizeData.dataValues.attendancemaster.employee.name} (${regularizeData.dataValues.attendancemaster.employee.empCode})`,
-          email: regularizeData.dataValues.attendancemaster.employee.email,
-          attendanceDate: moment(
-            regularizeData.dataValues.attendancemaster.attendanceDate
-          ).format("MMMM DD, YYYY"),
-          managerName: `${regularizeData.dataValues.attendancemaster.employee.managerData.name} (${regularizeData.dataValues.attendancemaster.employee.managerData.empCode})`,
-          // email: regularizeData.dataValues.attendancemaster.employee.managerData.email
+          name: regularizeData.dataValues.attendancemaster.employee.name,
+          attendanceDate: regularizeData.dataValues.attendancemaster.attendanceDate,
+          managerName: regularizeData.dataValues.attendancemaster.employee.managerData.name,
+          email: regularizeData.dataValues.attendancemaster.employee.managerData.email
         })
       );
 
@@ -1738,24 +1773,27 @@ class AttendanceController {
                   timeWorkDuration.minutes() +
                   timeWorkDuration.seconds() / 60;
 
-                if (
-                  totalMinutesTotalHoursMinutes <
-                  singleEmp.attendancePolicymaster
-                    .leaveDeductPolicyWorkDurationHalfDayTime &&
-                  totalMinutesTotalHoursMinutes <
-                  singleEmp.attendancePolicymaster
-                    .leaveDeductPolicyWorkDurationFullDayTime
-                ) {
-                  isHalfDay_total_work = 0;
-                  halfDayFor_total_work = 0;
-                } else if (
-                  totalMinutesTotalHoursMinutes <
-                  singleEmp.attendancePolicymaster
-                    .leaveDeductPolicyWorkDurationHalfDayTime
-                ) {
-                  isHalfDay_total_work = 1;
-                  halfDayFor_total_work = 1;
-                }
+                  if (
+                    totalMinutesTotalHoursMinutes <
+                    singleEmp.attendancePolicymaster
+                      .leaveDeductPolicyWorkDurationHalfDayTime &&
+                    totalMinutesTotalHoursMinutes <
+                    singleEmp.attendancePolicymaster
+                      .leaveDeductPolicyWorkDurationFullDayTime
+                  ) {
+                    isHalfDay_total_work = 0;
+                    halfDayFor_total_work = 0;
+                  } else if (
+                    totalMinutesTotalHoursMinutes >
+                    singleEmp.attendancePolicymaster
+                      .leaveDeductPolicyWorkDurationHalfDayTime  &&
+                      totalMinutesTotalHoursMinutes <
+                      singleEmp.attendancePolicymaster
+                        .leaveDeductPolicyWorkDurationFullDayTime
+                  ) {
+                    isHalfDay_total_work = 1;
+                    halfDayFor_total_work = 1;
+                  }
               }
 
               let markHalfDay = null;
@@ -2072,6 +2110,8 @@ class AttendanceController {
                   timeWorkDuration.minutes() +
                   timeWorkDuration.seconds() / 60;
 
+                  console.log("totalMinutesTotalHoursMinutes",totalMinutesTotalHoursMinutes);
+
                 if (
                   totalMinutesTotalHoursMinutes <
                   singleEmp.attendancePolicymaster
@@ -2083,9 +2123,12 @@ class AttendanceController {
                   isHalfDay_total_work = 0;
                   halfDayFor_total_work = 0;
                 } else if (
-                  totalMinutesTotalHoursMinutes <
+                  totalMinutesTotalHoursMinutes >
                   singleEmp.attendancePolicymaster
-                    .leaveDeductPolicyWorkDurationHalfDayTime
+                    .leaveDeductPolicyWorkDurationHalfDayTime  &&
+                    totalMinutesTotalHoursMinutes <
+                    singleEmp.attendancePolicymaster
+                      .leaveDeductPolicyWorkDurationFullDayTime
                 ) {
                   isHalfDay_total_work = 1;
                   halfDayFor_total_work = 1;
@@ -2114,8 +2157,8 @@ class AttendanceController {
                 markHalfDayType = 2;
               }
 
-              console.log("markHalfDay", markHalfDay)
-              console.log("markHalfDayType", markHalfDayType)
+
+           
               if (markHalfDay != null) {
                 let EMP_DATA = await helper.getEmpProfile(singleEmp.id);
                 await helper.empMarkLeaveOfGivenDate(

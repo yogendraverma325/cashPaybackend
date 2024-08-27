@@ -211,6 +211,26 @@ class commonController {
       const result = await validator.updateFamilyDetailsSchema.validateAsync(
         req.body
       );
+      const user = req.query.user || req.userId
+
+      const existFamilyMember = await db.familyDetails.findOne({
+        raw: true,
+        where: {
+          EmployeeId: user,
+          empFamilyDetailsId: {
+            [Op.ne]: result.empFamilyDetailsId
+          },
+          name: result.name
+        }
+      })
+
+      if (existFamilyMember) {
+        return respHelper(res, {
+          status: 400,
+          msg: constant.ALREADY_EXISTS.replace('<module>', 'Family Member')
+        })
+      }
+
       let getFamilyDetails = await db.familyDetails.findOne({
         where: { empFamilyDetailsId: result.empFamilyDetailsId },
       });
@@ -534,9 +554,21 @@ class commonController {
   async getCalendar(req, res) {
     try {
       let userData = req.userData;
+
+      let employeeData
+      if (req.query.user) {
+        employeeData = await db.employeeMaster.findOne({
+          raw: true,
+          where: {
+            id: req.query.user
+          },
+          attributes: ['companyLocationId']
+        })
+      }
+
       const holidayData = await db.holidayCompanyLocationConfiguration.findAll({
         where: {
-          companyLocationId: userData.companyLocationId,
+          companyLocationId: (req.query.user) ? employeeData.companyLocationId : userData.companyLocationId,
         },
         include: [
           {
@@ -697,7 +729,7 @@ class commonController {
       let functionAreaFIlter = {};
       let departmentFIlter = {};
       let designationFIlter = {};
-        let empFilters={};
+      let empFilters = {};
       const usersData = req.userData;
 
       const limit = req.query.limit * 1 || 10;
@@ -717,22 +749,22 @@ class commonController {
             data: employeeData,
           });
         } else {
-          console.log("usersData.role_id",usersData.role_id)
-          let  myReportyList = await db.employeeMaster.findAll({
-                where:{
-                manager: req.userId
-                },
-                attributes: [
-                "id"
-                ],
-                });
+          console.log("usersData.role_id", usersData.role_id)
+          let myReportyList = await db.employeeMaster.findAll({
+            where: {
+              manager: req.userId
+            },
+            attributes: [
+              "id"
+            ],
+          });
 
-                let final=myReportyList.map((singleEmp)=>singleEmp.id);
-                 empFilters.id = {
-                  ///appedning SBU to filter
-                  [Op.in]:final,
-              };
-          console.log("empFilters",empFilters)
+          let final = myReportyList.map((singleEmp) => singleEmp.id);
+          empFilters.id = {
+            ///appedning SBU to filter
+            [Op.in]: final,
+          };
+          console.log("empFilters", empFilters)
 
           employeeData = await db.employeeMaster.findAndCountAll({
             order: [["id", "desc"]],
@@ -775,7 +807,7 @@ class commonController {
                         usersData.role_id == 1 || usersData.role_id == 2
                           ? [1, 0]
                           : [1],
-                          ...(empFilters)
+                      ...(empFilters)
                     },
                   ],
                 }
@@ -818,7 +850,7 @@ class commonController {
               {
                 model: db.buMaster,
                 seperate: true,
-                attributes: ["buName","buCode"],
+                attributes: ["buName", "buCode"],
                 where: {
                   ...(buSearch && { buName: { [Op.like]: `%${buSearch}%` } }),
                   ...buFIlter,
@@ -827,7 +859,7 @@ class commonController {
               {
                 model: db.sbuMaster,
                 seperate: true,
-                attributes: ["sbuname","code"],
+                attributes: ["sbuname", "code"],
                 where: {
                   ...(sbuSearch && {
                     sbuname: { [Op.like]: `%${sbuSearch}%` },
@@ -870,6 +902,65 @@ class commonController {
       });
     } catch (error) {
       console.log(error);
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+
+  async updateEmergencyContact(req, res) {
+    try {
+      const result = await validator.emergencyContactDetails.validateAsync(
+        req.body
+      );
+      const userId = result.userId > 0 ? result.userId : req.userId;
+      const getEmergencyContact = await db.emergencyDetails.findOne({
+        raw: true,
+        where: {
+          userId: userId,
+        },
+      });
+
+      if (getEmergencyContact) {
+        let obj = {
+          ...result,
+          ...{ userId: userId },
+          ...{ updatedBy: req.userId },
+          ...{ updatedAt: moment() },
+          ...{ isActive: 1 },
+        };
+        await db.emergencyDetails.update(obj, {
+          where: { userId: userId },
+        });
+
+        return respHelper(res, {
+          status: 200,
+          msg: constant.UPDATE_SUCCESS.replace("<module>", "Emergency Details"),
+        });
+      } else {
+        let obj = {
+          ...result,
+          ...{ createdBy: req.userId },
+          ...{ createdAt: moment() },
+          ...{ userId: userId },
+          ...{ isActive: 1 },
+        };
+        await db.emergencyDetails.create(obj);
+
+        return respHelper(res, {
+          status: 200,
+          msg: constant.DETAILS_ADDED.replace("<module>", "Emergency Details"),
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      logger.error(error);
+      if (error.isJoi === true) {
+        return respHelper(res, {
+          status: 422,
+          msg: error.details[0].message,
+        });
+      }
       return respHelper(res, {
         status: 500,
       });

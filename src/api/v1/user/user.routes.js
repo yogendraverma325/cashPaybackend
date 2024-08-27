@@ -20,10 +20,16 @@ export default Express
     .post("/addPaymentDetails", authentication.authenticate, commonController.addPaymentDetails)
     .get("/leave", authentication.authenticate, commonController.addPaymentDetails)
     .post("/changePassword", authentication.authenticate, userController.changePassword)
-    .get("/globalSearch/:search", userController.globalSearch)
+    .get("/globalSearch/:search", authentication.authenticate, userController.globalSearch)
     .post("/addJobDetails", authentication.authenticate, commonController.addJobDetails)
     .put("/updateEducationDetails", authentication.authenticate, commonController.updateEducationDetails)
     .post("/addEducationDetails", authentication.authenticate, commonController.addEducationDetails)
     .get("/searchEmployee", authentication.authenticate, commonController.searchEmployee)
     .get("/taskBoxCount", authentication.authenticate, userController.taskBoxCount)
     .put("/updateProfilePicture", authentication.authenticate, userController.updateProfilePicture)
+    .post("/updateEmergencyContact", authentication.authenticate, commonController.updateEmergencyContact)
+    .post("/forgotPassword", userController.forgotPassword)
+    .post("/verifyOTP",userController.verifyOTP)
+    .put("/resetPassword",userController.resetPassword)
+
+    

@@ -18,6 +18,22 @@ export default function getAllListeners(eventEmitter) {
     eventEmitter.on('revokeRegularizationMail', async (input) => {
         await revokeRegularizationMail(input);
     });
+
+    eventEmitter.on("regularizeAckMail", async (input) => {
+        await regularizeAckMail(input)
+    })
+
+    eventEmitter.on("leaveAckMail", async (input) => {
+        await leaveAckMail(input)
+    })
+
+    eventEmitter.on("forgotPasswordMail", async (input) => {
+        await forgotPassword(input)
+    })
+
+    eventEmitter.on("revokeLeaveRequest", async (input) => {
+        await revokeLeaveRequest(input)
+    })
 }
 
 async function regularizationRequestMail(input) {
@@ -68,11 +84,71 @@ async function revokeRegularizationMail(input) {
         const userData = JSON.parse(input)
         await helper.mailService({
             to: userData.email,
-            subject: `Regularization Request Revoked`,
+            subject: `${userData.name} has revoked own attendance request`,
             html: await emailTemplate.revokeRegularizeMail(userData)
         })
     } catch (error) {
         console.log(error)
         logger.error(error)
     }
+}
+
+async function regularizeAckMail(input) {
+    try {
+        const userData = JSON.parse(input)
+        await helper.mailService({
+            to: userData.email,
+            subject: `Your attendance update request has been ${userData.status}.`,
+            html: await emailTemplate.regularizationAcknowledgement(userData)
+        })
+    } catch (error) {
+        console.log(error)
+        logger.error(error)
+    }
+}
+
+async function leaveAckMail(input) {
+    try {
+        const userData = JSON.parse(input)
+        await helper.mailService({
+            to: userData.email,
+            subject: `Your leave request has been ${userData.status}.`,
+            html: await emailTemplate.leaveAcknowledgement(userData)
+        })
+    } catch (error) {
+        console.log(error)
+        logger.error(error)
+    }
+}
+
+async function forgotPassword(input) {
+    try {
+        const userData = JSON.parse(input)
+        await helper.mailService({
+            to: userData.email,
+            subject: `Your One-Time Password (OTP)`,
+            html: await emailTemplate.forgotPasswordMail(userData)
+        })
+
+    } catch (error) {
+        console.log(error.response.body)
+        logger.error(error)
+    }
+
+}
+
+async function revokeLeaveRequest(input) {
+    try {
+        const userData = JSON.parse(input)
+        await helper.mailService({
+            to: userData.managerEmail,
+            subject: `${userData.empName} has Revoked own leave request`,
+            html: await emailTemplate.revokeLeaveRequestMail(userData)
+        })
+
+    } catch (error) {
+        console.log(error.response.body)
+        logger.error(error)
+    }
+
 }

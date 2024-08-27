@@ -5,7 +5,8 @@ import helper from "../../../helper/helper.js";
 import validator from "../../../helper/validator.js";
 import { Op } from "sequelize";
 import constant from "../../../constant/messages.js";
-import fs from 'fs'
+import eventEmitter from "../../../services/eventService.js";
+import fs from "fs";
 
 class UserController {
   async globalSearch(req, res) {
@@ -21,14 +22,16 @@ class UserController {
             { name: { [Op.like]: `%${search}%` } },
             { email: { [Op.like]: `%${search}%` } },
             { "$designationmaster.name$": { [Op.like]: `%${search}%` } },
-            { "$departmentmaster.departmentName$": { [Op.like]: `%${search}%` } },
+            {
+              "$departmentmaster.departmentName$": { [Op.like]: `%${search}%` },
+            },
           ],
         },
         include: [
           {
             model: db.designationMaster,
             required: false,
-            attributes: ["designationId", 'name'],
+            attributes: ["designationId", "name"],
           },
           {
             model: db.departmentMaster,
@@ -240,39 +243,50 @@ class UserController {
       const countLeavePending = await db.employeeLeaveTransactions.findAll({
         where: {
           employeeId: userid,
-          status: 'pending',
+          status: "pending",
         },
         attributes: [
-          'batch_id',
-          [db.sequelize.fn('COUNT', db.sequelize.col('employeeleavetransactionsId')), 'count']
+          "batch_id",
+          [
+            db.sequelize.fn(
+              "COUNT",
+              db.sequelize.col("employeeleavetransactionsId")
+            ),
+            "count",
+          ],
         ],
-        group: ['batch_id'],
+        group: ["batch_id"],
       });
 
       const countLeaveAssgined = await db.employeeLeaveTransactions.findAll({
         where: {
           pendingAt: userid,
-          status: 'pending',
+          status: "pending",
         },
         attributes: [
-          'batch_id',
-          [db.sequelize.fn('COUNT', db.sequelize.col('employeeleavetransactionsId')), 'count']
+          "batch_id",
+          [
+            db.sequelize.fn(
+              "COUNT",
+              db.sequelize.col("employeeleavetransactionsId")
+            ),
+            "count",
+          ],
         ],
-        group: ['batch_id'],
+        group: ["batch_id"],
       });
-
 
       let assignedAttCount = await db.regularizationMaster.count({
         where: {
           regularizeManagerId: userid,
           regularizeStatus: "Pending",
-        }
+        },
       });
       let pendingAttCount = await db.regularizationMaster.count({
         where: {
           regularizeStatus: "Pending",
-          createdBy: userid
-        }
+          createdBy: userid,
+        },
       });
 
       return respHelper(res, {
@@ -285,26 +299,22 @@ class UserController {
             },
             attedanceData: {
               raisedByMe: pendingAttCount,
-              assignedToMe: assignedAttCount
+              assignedToMe: assignedAttCount,
             },
           },
           mobile: {
             raisedByMe: {
               leaveData: countLeavePending.length,
-              attedanceData: pendingAttCount
+              attedanceData: pendingAttCount,
             },
             assignedToMe: {
               leaveData: countLeaveAssgined.length,
-              attedanceData: assignedAttCount
-            }
-
+              attedanceData: assignedAttCount,
+            },
           },
-
         },
         msg: "Task Box Listed",
       });
-
-
     } catch (error) {
       console.log("error", error);
       return respHelper(res, {
@@ -316,23 +326,24 @@ class UserController {
 
   async updateProfilePicture(req, res) {
     try {
-
-      const result = await validator.updateProfilePictureSchema.validateAsync(req.body);
+      const result = await validator.updateProfilePictureSchema.validateAsync(
+        req.body
+      );
 
       const existUser = await db.employeeMaster.findOne({
         raw: true,
         where: {
           id: result.user,
-          isActive: 1
+          isActive: 1,
         },
-        attributes: ['empCode', 'profileImage']
-      })
+        attributes: ["empCode", "profileImage"],
+      });
 
       if (!existUser) {
         return respHelper(res, {
           status: 400,
-          msg: constant.USER_NOT_EXIST
-        })
+          msg: constant.USER_NOT_EXIST,
+        });
       }
 
       const d = Math.floor(Date.now() / 1000);
@@ -340,29 +351,138 @@ class UserController {
         result.image,
         `profileImage_${d}`,
         `uploads/${existUser.empCode}`
-      )
+      );
 
-      await db.employeeMaster.update({
-        profileImage: profilePicture
-      }, {
-        where: {
-          id: result.user,
+      await db.employeeMaster.update(
+        {
+          profileImage: profilePicture,
+        },
+        {
+          where: {
+            id: result.user,
+          },
         }
-      })
+      );
 
       if (existUser.profileImage) {
-        fs.unlinkSync(existUser.profileImage)
+        fs.unlinkSync(existUser.profileImage);
       }
 
       return respHelper(res, {
         status: 200,
-        msg: constant.PROFILE_PICTURE_UPDATED
-      })
+        msg: constant.PROFILE_PICTURE_UPDATED,
+      });
     } catch (error) {
-      console.log(error)
+      console.log(error);
       return respHelper(res, {
-        status: 500
-      })
+        status: 500,
+      });
+    }
+  }
+
+  async forgotPassword(req, res) {
+    try {
+      const result = await validator.forgotPasswordSchema.validateAsync(req.body)
+
+      const getEmployee = await db.employeeMaster.findOne({
+        where: {
+          email: result.email,
+          isActive: 1
+        },
+      });
+
+      if (getEmployee) {
+        const otp = await helper.generateOTP(6);
+        eventEmitter.emit(
+          "forgotPasswordMail",
+          JSON.stringify({
+            email: result.email,
+            otp: otp,
+          })
+        );
+
+        const deocdeOTP = await helper.generateJwtOTPEncrypt({
+          id: getEmployee.id,
+          email: result.email,
+          otp: otp,
+        });
+        return respHelper(res, {
+          status: 200,
+          msg: constant.OTP_SENT,
+          data: deocdeOTP,
+        });
+      } else {
+        return respHelper(res, {
+          status: 400,
+          msg: constant.INVALID.replace("<module>", "Email ID"),
+          data: {},
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      if (error.isJoi === true) {
+        return respHelper(res, {
+          status: 422,
+          msg: error.details[0].message
+        });
+      }
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+
+  async verifyOTP(req, res) {
+    try {
+      const { data, otp } = req.body;
+      const compareOTP = await helper.generateJwtOTPDecrypt(data);
+      if (compareOTP) {
+        if (compareOTP.otp == otp) {
+          return respHelper(res, {
+            status: 200,
+            msg: constant.OTP_VERIFIED,
+            data: { id: compareOTP.id },
+          });
+        } else {
+          return respHelper(res, {
+            status: 400,
+            msg: constant.OTP_NOT_MATACHED,
+            data: {},
+          });
+        }
+      } else {
+        return respHelper(res, {
+          status: 400,
+          msg: constant.OTP_EXPIRED,
+          data: {},
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      return respHelper(res, {
+        status: 400,
+        msg: constant.OTP_EXPIRED,
+        data: {},
+      });
+    }
+  }
+
+  async resetPassword(req, res) {
+    try {
+      const { id, newPassword } = req.body;
+      await db.employeeMaster.update(
+        { password: await helper.encryptPassword(newPassword) },
+        { where: { id: id } }
+      );
+      return respHelper(res, {
+        status: 200,
+        msg: constant.PASSWORD_CHANGED,
+      });
+    } catch (error) {
+      console.log(error);
+      return respHelper(res, {
+        status: 500,
+      });
     }
   }
 }
