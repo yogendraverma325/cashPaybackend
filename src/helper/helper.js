@@ -82,7 +82,10 @@ const mailService = async (data) => {
   const testMailIDs = ['manishmaurya@teamcomputers.com']
   const msg = {
     to: (testMail) ? testMailIDs : data.to,
-    from: process.env.SENDER_MAIL,
+    from: {
+      email: process.env.SENDER_MAIL,
+      name: process.env.SENDER_NAME
+    },
     subject: data.subject,
     text: data.text,
     html: data.html,
