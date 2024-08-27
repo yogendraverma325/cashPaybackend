@@ -18,8 +18,8 @@ const userCreationSchema = Joi.object({
   esicNo: Joi.string().trim().required().label("ESIC Number"),
   uanNo: Joi.string().trim().required().label("UAN Number"),
   pfNo: Joi.string().trim().required().label("PF Number"),
-  employeeType: Joi.string().trim().required().label("Employee Type"),
-  image: Joi.string(),
+  employeeType: Joi.number().required().label("Employee Type"),
+  image: Joi.string().allow(""),
 
   officeMobileNumber: Joi.string().trim().length(10).label("Office Mobile Number"),
   personalMobileNumber: Joi.string().trim().length(10).required().label("Office Mobile Number"),

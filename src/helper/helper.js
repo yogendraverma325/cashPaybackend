@@ -8,23 +8,9 @@ import bcrypt from "bcrypt";
 
 const generateJwtToken = async (data) => {
   const token = jwt.sign(data, process.env.JWT_KEY, {
-    expiresIn:
-      data.user.device === "desktop"
-        ? process.env.JWT_EXPIRY
-        : process.env.JWT_EXPIRY_MOBILE,
+    expiresIn: (data.user.device === 'desktop') ? process.env.JWT_EXPIRY : process.env.JWT_EXPIRY_MOBILE,
   });
   return token;
-};
-
-const generateJwtOTPEncrypt = async (data) => {
-  const token = jwt.sign(data, process.env.JWT_KEY, { expiresIn: '5m' });
-  return token
-};
-
-const generateJwtOTPDecrypt = async (token) => {
-  const decoded = jwt.verify(token, process.env.JWT_KEY);
-  return decoded
-
 };
 
 const fileUpload = async (base64String, fileName, filepath) => {
@@ -38,9 +24,11 @@ const fileUpload = async (base64String, fileName, filepath) => {
     base64String.indexOf("/") + 1,
     base64String.indexOf(";")
   );
+  
   const base64Data = base64String.replace(/^data:(.+);base64,/, "");
   const buffer = Buffer.from(base64Data, "base64");
   const finalFilePath = `${dir}/${fileName}.${fileExt}`;
+
   // if (['jpg', 'jpeg', 'png'].includes(fileExt)) {
   //   sharp(buffer).resize(300, 300)
   //     .toFormat('jpeg')
@@ -77,23 +65,18 @@ const checkActiveUser = async (data) => {
 const mailService = async (data) => {
   sendGrid.setApiKey(process.env.SENDGRID_API_KEY);
   const filteredCc = (data.cc) ? data.cc.filter(email => !data.to.includes(email)) : undefined;
-
-  const testMail = parseInt(process.env.TEST_MAIL)
-  const testMailIDs = ['manishmaurya@teamcomputers.com']
   const msg = {
-    to: (testMail) ? testMailIDs : data.to,
+    // to: data.to,
+    to: [''],
     from: process.env.SENDER_MAIL,
     subject: data.subject,
     text: data.text,
     html: data.html,
-    cc: (testMail) ? undefined : filteredCc,
-    // bcc: (testMail) ? undefined : testMailIDs
+    // cc: filteredCc,
   };
   let result = await sendGrid.sendMultiple(msg);
   return result;
 };
-
-
 
 const timeDifference = async (start, end) => {
   let startTime = moment(start, "YYYY-MM-DD HH:mm:ss");
@@ -357,7 +340,6 @@ const empLeaveDetails = async function (userId, type) {
   return leaveData;
 };
 const empMarkLeaveOfGivenDate = async function (userId, inputData, batch) {
-  inputData.source = 'system_generated';
   let empLeave = await empLeaveDetails(userId, inputData.leaveAutoId);
   if (inputData.leaveAutoId != 6) {
     let pendingLeaveCountList = await db.employeeLeaveTransactions.findAll({
@@ -585,71 +567,29 @@ const getCombineValue = async function (
     weekOffId,
     companyLocationId
   );
-  if (
-    isDayWorkingStartDate == 1 &&
-    isDayWorkingToDate == 1 &&
-    (leaveFirstHalf == 1 || leaveFirstHalf == 2) &&
-    (leaveSecondHalf == 1 || leaveSecondHalf == 2)
-  ) {
+  if (isDayWorkingStartDate == 1 && isDayWorkingToDate == 1 && (leaveFirstHalf == 1 || leaveFirstHalf == 2) && (leaveSecondHalf == 1 || leaveSecondHalf == 2)) {
     combineValue = "1.00";
   }
-  if (
-    isDayWorkingStartDate == 1 &&
-    isDayWorkingToDate == 0 &&
-    (leaveFirstHalf == 1 || leaveFirstHalf == 2) &&
-    leaveSecondHalf == 0
-  ) {
+  if (isDayWorkingStartDate == 1 && isDayWorkingToDate == 0 && (leaveFirstHalf == 1 || leaveFirstHalf == 2) && leaveSecondHalf == 0) {
     combineValue = "0.50";
   }
-  if (
-    isDayWorkingStartDate == 0 &&
-    isDayWorkingToDate == 1 &&
-    leaveFirstHalf == 0 &&
-    (leaveSecondHalf == 1 || leaveSecondHalf == 2)
-  ) {
+  if (isDayWorkingStartDate == 0 && isDayWorkingToDate == 1 && leaveFirstHalf == 0 && (leaveSecondHalf == 1 || leaveSecondHalf == 2)) {
     combineValue = "0.50";
   }
-  if (
-    isDayWorkingStartDate == 1 &&
-    isDayWorkingToDate == 0 &&
-    (leaveFirstHalf == 1 || leaveFirstHalf == 2) &&
-    (leaveSecondHalf == 1 || leaveSecondHalf == 2)
-  ) {
+  if (isDayWorkingStartDate == 1 && isDayWorkingToDate == 0 && (leaveFirstHalf == 1 || leaveFirstHalf == 2) && (leaveSecondHalf == 1 || leaveSecondHalf == 2)) {
     combineValue = "0.50";
   }
-  if (
-    isDayWorkingStartDate == 0 &&
-    isDayWorkingToDate == 1 &&
-    (leaveFirstHalf == 1 || leaveFirstHalf == 2) &&
-    (leaveSecondHalf == 1 || leaveSecondHalf == 2)
-  ) {
+  if (isDayWorkingStartDate == 0 && isDayWorkingToDate == 1 && (leaveFirstHalf == 1 || leaveFirstHalf == 2) && (leaveSecondHalf == 1 || leaveSecondHalf == 2)) {
     combineValue = "0.50";
   }
-  if (
-    isDayWorkingStartDate == 1 &&
-    isDayWorkingToDate == 1 &&
-    (leaveFirstHalf == 1 || leaveFirstHalf == 2) &&
-    leaveSecondHalf == 0
-  ) {
+  if (isDayWorkingStartDate == 1 && isDayWorkingToDate == 1 && (leaveFirstHalf == 1 || leaveFirstHalf == 2) && leaveSecondHalf == 0) {
     combineValue = "0.50";
   }
-  if (
-    isDayWorkingStartDate == 1 &&
-    isDayWorkingToDate == 1 &&
-    leaveFirstHalf == 0 &&
-    (leaveSecondHalf == 1 || leaveSecondHalf == 2)
-  ) {
+  if (isDayWorkingStartDate == 1 && isDayWorkingToDate == 1 && leaveFirstHalf == 0 && (leaveSecondHalf == 1 || leaveSecondHalf == 2)) {
     combineValue = "0.50";
   }
 
   return combineValue;
-};
-
-const generateOTP = async function (length) {
-  const min = Math.pow(10, length - 1);
-  const max = Math.pow(10, length) - 1;
-
-  return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
 export default {
@@ -672,7 +612,4 @@ export default {
   timeDifferenceNew,
   isDayWorking,
   ip,
-  generateOTP,
-  generateJwtOTPEncrypt,
-  generateJwtOTPDecrypt
 };

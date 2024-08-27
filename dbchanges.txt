@@ -226,5 +226,10 @@ Jay Prakash Singh
 
 Date 27-08-2024
 
-Add new column as "startingIndex" in employeetypemaster table
+ALTER TABLE `hrms_live`.`employeetypemaster` 
+ADD COLUMN `startingIndex` INT NULL DEFAULT 0 AFTER `parentEmpTypeId`;
+
+also modal
+
+add new column in employee modal of source code as "dateOfJoining"
 

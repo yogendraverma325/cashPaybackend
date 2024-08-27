@@ -5,7 +5,7 @@ import authorization from '../../../middleware/authorization.js';
 
 export default Express
     .Router()
-    .post("/addEmployee", authorization('ADMIN', 'BUHR', 'HR_OPS', 'SUPERADMIN'), adminController.addEmployee)
+    .post("/addEmployee",  adminController.addEmployee)
     .get("/dashboardCard/:for", authorization('ADMIN', 'BUHR', 'HR_OPS', 'SUPERADMIN', 'USER'), adminController.dashboardCard)
     .post("/unlockAccount", authorization('ADMIN', 'BUHR', 'HR_OPS', 'SUPERADMIN', 'USER'), adminController.unlockAccount)
     .post("/resetPassword", authorization('ADMIN', 'BUHR', 'HR_OPS', 'SUPERADMIN', 'USER'), adminController.resetPassword)
