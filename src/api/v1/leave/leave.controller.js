@@ -72,9 +72,9 @@ class LeaveController {
         where: Object.assign(
           query === "raisedByMe"
             ? {
-              employeeId: req.userId,
-              status: "pending",
-            }
+                employeeId: req.userId,
+                status: "pending",
+              }
             : { pendingAt: req.userId, status: "pending" }
         ),
         attributes: { exclude: ["createdBy", "updatedBy", "updatedAt"] },
@@ -144,7 +144,7 @@ class LeaveController {
             await db.attendanceMaster.update(
               {
                 employeeLeaveTransactionsId: leaveID,
-                attendancePresentStatus: "leave"
+                attendancePresentStatus: "leave",
               },
               {
                 where: {
@@ -180,7 +180,7 @@ class LeaveController {
                   utilizedThisYear: parseFloat(existingRecord.leaveCount),
                   creditedFromLastYear: 0,
                   annualAllotment: 0,
-                  accruedThisYear: 0
+                  accruedThisYear: 0,
                 });
               }
             } else {
@@ -210,37 +210,43 @@ class LeaveController {
         }
       }
 
-      const leaveTransactionDetails = await db.employeeLeaveTransactions.findOne({
-        raw: true,
-        where: {
-          employeeleavetransactionsId: leaveIds[0]
-        },
-        include: [{
-          model: db.employeeMaster,
-          attributes: ['name', 'email'],
-          include: [{
-            model: db.employeeMaster,
-            as: 'managerData',
-            attributes: ['name']
-          }]
-        }, {
-          model: db.leaveMaster,
-          as: 'leaveMasterDetails',
-          attributes: ['leaveName']
-        }],
-        attributes: ['fromDate', 'toDate']
-      })
+      const leaveTransactionDetails =
+        await db.employeeLeaveTransactions.findOne({
+          raw: true,
+          where: {
+            employeeleavetransactionsId: leaveIds[0],
+          },
+          include: [
+            {
+              model: db.employeeMaster,
+              attributes: ["name", "email"],
+              include: [
+                {
+                  model: db.employeeMaster,
+                  as: "managerData",
+                  attributes: ["name"],
+                },
+              ],
+            },
+            {
+              model: db.leaveMaster,
+              as: "leaveMasterDetails",
+              attributes: ["leaveName"],
+            },
+          ],
+          attributes: ["fromDate", "toDate"],
+        });
 
       const obj = {
-        email: leaveTransactionDetails['employee.email'],
-        status: result.status === 'approved' ? "Approved" : "Rejected",
+        email: leaveTransactionDetails["employee.email"],
+        status: result.status === "approved" ? "Approved" : "Rejected",
         fromDate: leaveTransactionDetails.fromDate,
         toDate: leaveTransactionDetails.toDate,
-        leaveType: leaveTransactionDetails['leaveMasterDetails.leaveName'],
-        managerName: leaveTransactionDetails['employee.managerData.name'],
-        requesterName: leaveTransactionDetails['employee.name']
-      }
-      eventEmitter.emit('leaveAckMail', JSON.stringify(obj))
+        leaveType: leaveTransactionDetails["leaveMasterDetails.leaveName"],
+        managerName: leaveTransactionDetails["employee.managerData.name"],
+        requesterName: leaveTransactionDetails["employee.name"],
+      };
+      eventEmitter.emit("leaveAckMail", JSON.stringify(obj));
 
       return respHelper(res, {
         status: 200,
@@ -613,10 +619,10 @@ class LeaveController {
             leaveAttachment:
               result.attachment != ""
                 ? await helper.fileUpload(
-                  result.attachment,
-                  `leaveAttachment_${uuid}`,
-                  `uploads/${EMP_DATA.empCode}`
-                )
+                    result.attachment,
+                    `leaveAttachment_${uuid}`,
+                    `uploads/${EMP_DATA.empCode}`
+                  )
                 : null,
             pendingAt: EMP_DATA.managerData.id, // Replace with actual pending at value
             createdBy: req.userId, // Replace with actual creator user ID
@@ -665,10 +671,10 @@ class LeaveController {
       const recipientsEmail = await db.employeeMaster.findAll({
         raw: true,
         where: {
-          id: result.recipientsIds.split(",")
+          id: result.recipientsIds.split(","),
         },
-        attributes: ['email']
-      })
+        attributes: ["email"],
+      });
 
       eventEmitter.emit(
         "leaveRequestMail",
@@ -680,7 +686,7 @@ class LeaveController {
           leaveType: leaveType.dataValues.leaveName,
           managerName: employeeData.dataValues.managerData.name,
           managerEmail: employeeData.dataValues.managerData.email,
-          cc: recipientsEmail.map(user => user.email)
+          cc: recipientsEmail.map((user) => user.email),
         })
       );
 
@@ -738,35 +744,37 @@ class LeaveController {
         where: {
           employeeLeaveTransactionsId: leaveIds[0],
         },
-        attributes: ['fromDate', "toDate"],
+        attributes: ["fromDate", "toDate"],
         include: [
           {
             model: db.leaveMaster,
             as: "leaveMasterDetails",
-            attributes: ["leaveName", 'leaveCode'],
+            attributes: ["leaveName", "leaveCode"],
           },
           {
             model: db.employeeMaster,
-            attributes: ['name'],
-            include: [{
-              model: db.employeeMaster,
-              as: "managerData",
-              attributes: ['name', "email"],
-            }]
-          }
-        ]
-      })
+            attributes: ["name"],
+            include: [
+              {
+                model: db.employeeMaster,
+                as: "managerData",
+                attributes: ["name", "email"],
+              },
+            ],
+          },
+        ],
+      });
 
       const obj = {
-        empName: employeeData['employee.name'],
-        managerName: employeeData['employee.managerData.name'],
-        managerEmail: employeeData['employee.managerData.email'],
-        leaveType: `${employeeData['leaveMasterDetails.leaveName']} (${employeeData['leaveMasterDetails.leaveCode']})`,
+        empName: employeeData["employee.name"],
+        managerName: employeeData["employee.managerData.name"],
+        managerEmail: employeeData["employee.managerData.email"],
+        leaveType: `${employeeData["leaveMasterDetails.leaveName"]} (${employeeData["leaveMasterDetails.leaveCode"]})`,
         fromDate: employeeData.fromDate,
         toDate: employeeData.toDate,
-      }
+      };
 
-      eventEmitter.emit('revokeLeaveRequest', JSON.stringify(obj))
+      eventEmitter.emit("revokeLeaveRequest", JSON.stringify(obj));
 
       return respHelper(res, {
         status: 200,
@@ -1243,7 +1251,7 @@ class LeaveController {
         grandTotalLeaveCount += totalLeaveCountForMonth; // Update grand total leave count
 
         result.push({
-          monthNumber: moment(getMonthName(month), 'MMMM').format('MM'),
+          monthNumber: moment(getMonthName(month), "MMMM").format("MM"),
           month: getMonthName(month),
           totalMonthLeave: totalLeaveCountForMonth,
           attendanceData: attendanceDataForMonth,
@@ -1301,12 +1309,14 @@ class LeaveController {
           exclude: ["createdBy", "createdAt", "updatedBy", "updatedAt"],
         },
         where: whereCondtion,
-        include: [{
-          model: db.leaveMaster,
-          attributes: ['leaveId', 'leaveName', 'leaveCode'],
-          as: "leaveMasterDetails",
-        }],
-        order: [['appliedFor', 'desc']]
+        include: [
+          {
+            model: db.leaveMaster,
+            attributes: ["leaveId", "leaveName", "leaveCode"],
+            as: "leaveMasterDetails",
+          },
+        ],
+        order: [["appliedFor", "desc"]],
       });
       return respHelper(res, {
         status: 200,
@@ -1319,6 +1329,55 @@ class LeaveController {
       });
     }
   }
+
+  async leaveIdUpdateForOffRole(req, res) {
+    try {
+      // Step 1: Fetch employee IDs with employeeType = 4
+      const employees = await db.employeeMaster.findAll({
+        attributes: ['id'],
+        where: {
+          employeeType: 3,
+        },
+
+        raw: true, // Fetch only raw data (no sequelize model wrapping)
+      });
+  console.log("employeesemployeesemployees",employees)
+      // Step 2: Extract the employee IDs into an array
+      const employeeIds = employees.map(emp => emp.id);
+
+      if (employeeIds.length > 0) {
+        // Step 3: Update the leaveMapping table for those employees
+        await db.leaveMapping.update(
+          { leaveAutoId:6, availableLeave: 0 },
+          {
+            where: {
+              EmployeeId: {
+                [Op.in]: employeeIds,
+              },
+            },
+          }
+        );
+  
+        return respHelper(res, {
+          status: 200,
+          message: "Leave updated successfully",
+        });
+      } else {
+        return respHelper(res, {
+          status: 404,
+          message: "No employees found with employeeType = 4",
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      return respHelper(res, {
+        status: 500,
+        message: "Internal Server Error",
+      });
+    }
+  }
+  
+  
 
   //working fine
   // async leaveHistory(req, res) {

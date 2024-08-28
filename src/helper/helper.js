@@ -5,6 +5,7 @@ import moment from "moment";
 import db from "../config/db.config.js";
 import sendGrid from "@sendgrid/mail";
 import bcrypt from "bcrypt";
+import { Op } from "sequelize";
 
 const generateJwtToken = async (data) => {
   const token = jwt.sign(data, process.env.JWT_KEY, {
@@ -17,14 +18,13 @@ const generateJwtToken = async (data) => {
 };
 
 const generateJwtOTPEncrypt = async (data) => {
-  const token = jwt.sign(data, process.env.JWT_KEY, { expiresIn: '5m' });
-  return token
+  const token = jwt.sign(data, process.env.JWT_KEY, { expiresIn: "5m" });
+  return token;
 };
 
 const generateJwtOTPDecrypt = async (token) => {
   const decoded = jwt.verify(token, process.env.JWT_KEY);
-  return decoded
-
+  return decoded;
 };
 
 const fileUpload = async (base64String, fileName, filepath) => {
@@ -76,24 +76,24 @@ const checkActiveUser = async (data) => {
 
 const mailService = async (data) => {
   sendGrid.setApiKey(process.env.SENDGRID_API_KEY);
-  const filteredCc = (data.cc) ? data.cc.filter(email => !data.to.includes(email)) : undefined;
+  const filteredCc = data.cc
+    ? data.cc.filter((email) => !data.to.includes(email))
+    : undefined;
 
-  const testMail = parseInt(process.env.TEST_MAIL)
-  const testMailIDs = ['manishmaurya@teamcomputers.com']
+  const testMail = parseInt(process.env.TEST_MAIL);
+  const testMailIDs = ["manishmaurya@teamcomputers.com"];
   const msg = {
-    to: (testMail) ? testMailIDs : data.to,
+    to: testMail ? testMailIDs : data.to,
     from: process.env.SENDER_MAIL,
     subject: data.subject,
     text: data.text,
     html: data.html,
-    cc: (testMail) ? undefined : filteredCc,
+    cc: testMail ? undefined : filteredCc,
     // bcc: (testMail) ? undefined : testMailIDs
   };
   let result = await sendGrid.sendMultiple(msg);
   return result;
 };
-
-
 
 const timeDifference = async (start, end) => {
   let startTime = moment(start, "YYYY-MM-DD HH:mm:ss");
@@ -326,6 +326,52 @@ const getEmpProfile = async (EMP_ID) => {
 const empLeaveDetails = async function (userId, type) {
   let leaveData = 0;
   if (type == 0) {
+    let countApproved = await db.employeeLeaveTransactions.findAll({
+      attributes: [
+        [
+          db.Sequelize.fn("sum", db.Sequelize.col("leaveCount")),
+          "totalLeaveCount",
+        ],
+      ],
+      where: { EmployeeId: userId, status: "approved" },
+      raw: true,
+    });
+
+    let countPending = await db.employeeLeaveTransactions.findAll({
+      attributes: [
+        [
+          db.Sequelize.fn("sum", db.Sequelize.col("leaveCount")),
+          "totalLeaveCount",
+        ],
+      ],
+      where: { EmployeeId: userId, status: "pending" },
+      raw: true,
+    });
+
+    let countSystemDeducting = await db.employeeLeaveTransactions.findAll({
+      attributes: [
+        [
+          db.Sequelize.fn("sum", db.Sequelize.col("leaveCount")),
+          "totalLeaveCount",
+        ],
+      ],
+      where: {
+        EmployeeId: userId,
+        [Op.or]: [{ source: null }, { source: "system_generated" }],
+      },
+      raw: true,
+    });
+
+    let totalLeaveCountApproved = countApproved
+      ? countApproved[0].totalLeaveCount || "0"
+      : 0;
+    let totalLeaveCountPending = countPending
+      ? countPending[0].totalLeaveCount || "0"
+      : 0;
+    let totalLeaveCountSystemDeducting = countSystemDeducting
+      ? countSystemDeducting[0].totalLeaveCount || "0"
+      : 0;
+
     leaveData = await db.leaveMapping.findAll({
       where: {
         EmployeeId: userId,
@@ -345,6 +391,15 @@ const empLeaveDetails = async function (userId, type) {
         },
       ],
     });
+    // Check if leaveData is an array and process each item
+    leaveData.forEach((item) => {
+      if (item.leaveAutoId === 6 && item.leavemaster) {
+        item.leavemaster.dataValues.countApproved = totalLeaveCountApproved;
+        item.leavemaster.dataValues.countPending = totalLeaveCountPending;
+        item.leavemaster.dataValues.countSystemDeducting =
+          totalLeaveCountSystemDeducting;
+      }
+    });
   } else {
     leaveData = await db.leaveMapping.findOne({
       where: {
@@ -352,12 +407,65 @@ const empLeaveDetails = async function (userId, type) {
         leaveAutoId: type,
       },
     });
+    // If leaveData is an object, handle it directly
+    if (leaveData && leaveData.leaveAutoId === 6 && leaveData.leavemaster) {
+      let countApproved = await db.employeeLeaveTransactions.findAll({
+        attributes: [
+          [
+            db.Sequelize.fn("sum", db.Sequelize.col("leaveCount")),
+            "totalLeaveCount",
+          ],
+        ],
+        where: { EmployeeId: userId, status: "approved" },
+        raw: true,
+      });
+
+      let countPending = await db.employeeLeaveTransactions.findAll({
+        attributes: [
+          [
+            db.Sequelize.fn("sum", db.Sequelize.col("leaveCount")),
+            "totalLeaveCount",
+          ],
+        ],
+        where: { EmployeeId: userId, status: "pending" },
+        raw: true,
+      });
+
+      let countSystemDeducting = await db.employeeLeaveTransactions.findAll({
+        attributes: [
+          [
+            db.Sequelize.fn("sum", db.Sequelize.col("leaveCount")),
+            "totalLeaveCount",
+          ],
+        ],
+        where: {
+          EmployeeId: userId,
+          [Op.or]: [{ source: null }, { source: "system_generated" }],
+        },
+        raw: true,
+      });
+      let totalLeaveCountApproved = countApproved
+        ? countApproved[0].totalLeaveCount || "0"
+        : 0;
+      let totalLeaveCountPending = countPending
+        ? countPending[0].totalLeaveCount || "0"
+        : 0;
+      let totalLeaveCountSystemDeducting = countSystemDeducting
+        ? countSystemDeducting[0].totalLeaveCount || "0"
+        : 0;
+
+      leaveData.leavemaster.dataValues.countApproved = totalLeaveCountApproved;
+      leaveData.leavemaster.dataValues.countPending = totalLeaveCountPending;
+      leaveData.leavemaster.dataValues.countSystemDeducting =
+        totalLeaveCountSystemDeducting;
+    }
   }
 
   return leaveData;
 };
+
 const empMarkLeaveOfGivenDate = async function (userId, inputData, batch) {
-  inputData.source = 'system_generated';
+  inputData.source = "system_generated";
   let empLeave = await empLeaveDetails(userId, inputData.leaveAutoId);
   if (inputData.leaveAutoId != 6) {
     let pendingLeaveCountList = await db.employeeLeaveTransactions.findAll({
@@ -674,5 +782,5 @@ export default {
   ip,
   generateOTP,
   generateJwtOTPEncrypt,
-  generateJwtOTPDecrypt
+  generateJwtOTPDecrypt,
 };
