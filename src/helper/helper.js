@@ -83,8 +83,11 @@ const mailService = async (data) => {
   const testMail = parseInt(process.env.TEST_MAIL);
   const testMailIDs = ["manishmaurya@teamcomputers.com"];
   const msg = {
-    to: testMail ? testMailIDs : data.to,
-    from: process.env.SENDER_MAIL,
+    to: (testMail) ? testMailIDs : data.to,
+    from: {
+      email: process.env.SENDER_MAIL,
+      name: process.env.SENDER_NAME
+    },
     subject: data.subject,
     text: data.text,
     html: data.html,
