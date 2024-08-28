@@ -8,6 +8,9 @@ export default (sequelize, Sequelize) => {
         empTypeCode: {
             type: Sequelize.STRING,
         },
+        emptypename: {
+            type: Sequelize.STRING
+        },
         parentEmpTypeId: {
             type: Sequelize.INTEGER,
         },
