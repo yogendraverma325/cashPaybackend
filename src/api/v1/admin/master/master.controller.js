@@ -1,8 +1,8 @@
 import db from "../../../../config/db.config.js";
-import validator from "../../../../middleware/admin.js";
+import validator from "../../../../helper/adminValidator.js";
 import logger from "../../../../helper/logger.js";
 import respHelper from "../../../../helper/respHelper.js";
-import service from "./common.service.js";
+import service from "./master.service.js";
 import Pagination from "../../../../helper/pagination.js";
 import { Op } from "sequelize";
 

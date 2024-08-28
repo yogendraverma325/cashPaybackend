@@ -1,5 +1,5 @@
 import Express from 'express';
-import commonController from '../common/common.controller.js';
+import commonController from './master.controller.js';
 import authorization from '../../../../middleware/authorization.js';
 
 export default Express

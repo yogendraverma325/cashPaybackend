@@ -11,7 +11,7 @@ import masterExportRoutes from "../api/v1/master/export.routes.js";
 import rateLimit from "../middleware/rateLimit.js";
 import commanRoutes from "../api/v1/common/comman.routes.js";
 import leave from "../api/v1/leave/leave.routes.js";
-import adminCommonRoutes from "../api/v1/admin/common/common.route.js";
+import adminMasterRoutes from "../api/v1/admin/master/master.route.js";
 import cronRoutes from "../api/v1/cron/cron.routes.js";
 
 const router = express.Router();
@@ -31,7 +31,7 @@ router.use("/payment", paymentRoutes);
 router.use("/attendance", authentication.authenticate, attendanceRoutes);
 router.use("/comman", authentication.authenticate, commanRoutes);
 router.use("/leave", authentication.authenticate, leave);
-router.use("/admin/master", authentication.authenticate, adminCommonRoutes);
+router.use("/admin/master", authentication.authenticate, adminMasterRoutes);
 
 router.use("/cron", cronRoutes)
 
