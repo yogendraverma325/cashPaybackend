@@ -1669,6 +1669,9 @@ class AttendanceController {
           {
             model: db.weekOffMaster,
             required: true,
+            where: {
+                isActive: 1,
+              },
             include: [
               {
                 model: db.weekOffDayMappingMaster,
@@ -1836,7 +1839,7 @@ class AttendanceController {
                     isHalfDay: markHalfDay, // Replace with actual is half day value (0 or 1)
                     halfDayFor: markHalfDayType, // Replace with actual half day for value
                     leaveCount: markHalfDay == 1 ? 0.5 : 1,
-                    status: "pending", // Replace with actual status
+                    status: (isHalfDay_total_work == null)?"pending":"approved", // Replace with actual status
                     reason: "Late By/ Work Duration", // Replace with actual reason
                     message: "Late By/ Work Duration",
                     pendingAt: EMP_DATA.managerData.id, // Replace with actual pending at value
@@ -1844,7 +1847,7 @@ class AttendanceController {
                     createdAt: moment(), // Replace with actual creation date
                     weekOffId: EMP_DATA.weekOffId
                   },
-                  "id_" + moment().format("YYYYMMDDHHmmss")
+                  "id_" + moment().format("YYYYMMDDHHmmss")+singleEmp.id
                 );
               }
             } else {
