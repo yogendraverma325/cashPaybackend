@@ -5,11 +5,8 @@ import message from "../../../constant/messages.js";
 import validator from "../../../helper/validator.js";
 import helper from "../../../helper/helper.js";
 import eventEmitter from "../../../services/eventService.js";
-import { Op, fn, col } from "sequelize";
-import fs from "fs";
-import { cwd } from "process";
-import e from "express";
-import { raw } from "mysql2";
+import { Op } from "sequelize";
+
 var _this = this;
 
 class LeaveController {
@@ -73,9 +70,9 @@ class LeaveController {
         where: Object.assign(
           query === "raisedByMe"
             ? {
-                employeeId: req.userId,
-                status: "pending",
-              }
+              employeeId: req.userId,
+              status: "pending",
+            }
             : { pendingAt: req.userId, status: "pending" }
         ),
         attributes: { exclude: ["createdBy", "updatedBy", "updatedAt"] },
@@ -620,10 +617,10 @@ class LeaveController {
             leaveAttachment:
               result.attachment != ""
                 ? await helper.fileUpload(
-                    result.attachment,
-                    `leaveAttachment_${uuid}`,
-                    `uploads/${EMP_DATA.empCode}`
-                  )
+                  result.attachment,
+                  `leaveAttachment_${uuid}`,
+                  `uploads/${EMP_DATA.empCode}`
+                )
                 : null,
             pendingAt: EMP_DATA.managerData.id, // Replace with actual pending at value
             createdBy: req.userId, // Replace with actual creator user ID
@@ -1143,7 +1140,7 @@ class LeaveController {
       });
     }
   }
-  
+
   async leaveHistory(req, res) {
     try {
       const year = req.params.year;
@@ -1168,17 +1165,17 @@ class LeaveController {
       });
 
       idFromLeaveTransaction.forEach(item => leaveAutoIds.add(item.leaveAutoId));
-      
+
       const currentMappedIds = await db.leaveMapping.findAll({
         attributes: ["leaveAutoId"],
         where: { EmployeeId: employeeId },
         raw: true
       });
-      
+
       currentMappedIds.forEach(item => leaveAutoIds.add(item.leaveAutoId));
-      
+
       const uniqueMappedIds = Array.from(leaveAutoIds);
-      
+
       const leaveMasterDetails = await db.leaveMaster.findAll({
         attributes: ["leaveId", "leaveName", "leaveCode"],
         raw: true,
