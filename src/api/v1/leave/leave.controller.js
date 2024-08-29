@@ -1343,7 +1343,6 @@ class LeaveController {
       });
       // Step 2: Extract the employee IDs into an array
       const employeeIds = employees.map(emp => emp.id);
-console.log("employeeIdsemployeeIds",employeeIds)
       if (employeeIds.length > 0) {
         // Step 3: Update the leaveMapping table for those employees
         await db.leaveMapping.update(
