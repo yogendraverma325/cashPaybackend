@@ -9,6 +9,7 @@ import { Op, fn, col } from "sequelize";
 import fs from "fs";
 import { cwd } from "process";
 import e from "express";
+import { raw } from "mysql2";
 var _this = this;
 
 class LeaveController {
@@ -1158,10 +1159,32 @@ class LeaveController {
         return date.toLocaleString("default", { month: "long" });
       };
 
-      // Fetch all leaveMaster details once
+      const leaveAutoIds = new Set();
+
+      const idFromLeaveTransaction = await db.employeeLeaveTransactions.findAll({
+        attributes: ["leaveAutoId"],
+        where: { employeeId: employeeId },
+        raw: true
+      });
+
+      idFromLeaveTransaction.forEach(item => leaveAutoIds.add(item.leaveAutoId));
+      
+      const currentMappedIds = await db.leaveMapping.findAll({
+        attributes: ["leaveAutoId"],
+        where: { EmployeeId: employeeId },
+        raw: true
+      });
+      
+      currentMappedIds.forEach(item => leaveAutoIds.add(item.leaveAutoId));
+      
+      const uniqueMappedIds = Array.from(leaveAutoIds);
+      
       const leaveMasterDetails = await db.leaveMaster.findAll({
         attributes: ["leaveId", "leaveName", "leaveCode"],
         raw: true,
+        where: {
+          leaveId: uniqueMappedIds
+        },
       });
 
       // Create a map for leaveId to leaveName
@@ -1334,7 +1357,7 @@ class LeaveController {
     try {
       // Step 1: Fetch employee IDs with employeeType = 4
       const employees = await db.employeeMaster.findAll({
-        attributes: ['id'],
+        attributes: ["id"],
         where: {
           employeeType: 3,
         },
@@ -1342,11 +1365,11 @@ class LeaveController {
         raw: true, // Fetch only raw data (no sequelize model wrapping)
       });
       // Step 2: Extract the employee IDs into an array
-      const employeeIds = employees.map(emp => emp.id);
+      const employeeIds = employees.map((emp) => emp.id);
       if (employeeIds.length > 0) {
         // Step 3: Update the leaveMapping table for those employees
         await db.leaveMapping.update(
-          { leaveAutoId:6, availableLeave: req.body.availableLeave },
+          { leaveAutoId: 6, availableLeave: req.body.availableLeave },
           {
             where: {
               EmployeeId: {
@@ -1355,7 +1378,7 @@ class LeaveController {
             },
           }
         );
-  
+
         return respHelper(res, {
           status: 200,
           message: "Leave updated successfully",
@@ -1374,8 +1397,6 @@ class LeaveController {
       });
     }
   }
-  
-  
 
   //working fine
   // async leaveHistory(req, res) {
