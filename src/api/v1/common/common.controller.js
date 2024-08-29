@@ -736,7 +736,7 @@ class commonController {
       const pageNo = req.query.page * 1 || 1;
       const offset = (pageNo - 1) * limit;
 
-      const cacheKey = `employeeList:${pageNo}:${limit}:${search || ""}:${department || ""
+      const cacheKey = `employeeList:${req.userId}:${pageNo}:${limit}:${search || ""}:${department || ""
         }:${designation || ""}:${buSearch || ""}:${sbuSearch || ""}:${areaSearch || ""
         }`;
 
