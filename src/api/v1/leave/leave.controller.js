@@ -1143,7 +1143,7 @@ class LeaveController {
       });
     }
   }
-
+  
   async leaveHistory(req, res) {
     try {
       const year = req.params.year;
