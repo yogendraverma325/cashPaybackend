@@ -25,6 +25,12 @@ export default (sequelize, Sequelize) => {
         },
         isActive: {
             type: Sequelize.BOOLEAN
+        },
+        headId: {
+            type: Sequelize.INTEGER
+        },
+        buHrId: {
+            type: Sequelize.INTEGER
         }
     })
     return buMapping

@@ -83,10 +83,10 @@ const mailService = async (data) => {
   const testMail = parseInt(process.env.TEST_MAIL);
   const testMailIDs = ["manishmaurya@teamcomputers.com"];
   const msg = {
-    to: (testMail) ? testMailIDs : data.to,
+    to: testMail ? testMailIDs : data.to,
     from: {
       email: process.env.SENDER_MAIL,
-      name: process.env.SENDER_NAME
+      name: process.env.SENDER_NAME,
     },
     subject: data.subject,
     text: data.text,
@@ -305,18 +305,18 @@ const getEmpProfile = async (EMP_ID) => {
           },
         ],
       },
-      {
-        model: db.employeeMaster,
-        required: false,
-        attributes: ["id", "name"],
-        as: "buHeadData",
-      },
-      {
-        model: db.employeeMaster,
-        required: false,
-        attributes: ["id", "name"],
-        as: "buhrData",
-      },
+      // {
+      //   model: db.employeeMaster,
+      //   required: false,
+      //   attributes: ["id", "name"],
+      //   as: "buHeadData",
+      // },
+      // {
+      //   model: db.employeeMaster,
+      //   required: false,
+      //   attributes: ["id", "name"],
+      //   as: "buhrData",
+      // },
       {
         model: db.companyLocationMaster,
         required: false,
@@ -324,6 +324,26 @@ const getEmpProfile = async (EMP_ID) => {
       },
     ],
   });
+  if (EMP_DATA) {
+    const headAndHrData = await db.buMapping.findOne({
+      where: { buId: EMP_DATA.buId, companyId: EMP_DATA.companyId },
+      include:[{
+        model:db.employeeMaster,
+        attributes:['id','name'],
+        as:"buHeadData"
+      },{
+        model:db.employeeMaster,
+        attributes:['id','name'],
+        as:"buhrData"
+      }]
+    });
+
+    if (headAndHrData) {
+      EMP_DATA.dataValues.buHeadData = headAndHrData.buHeadData;
+      EMP_DATA.dataValues.buhrData = headAndHrData.buhrData;
+    }
+  }
+
   return EMP_DATA;
 };
 const empLeaveDetails = async function (userId, type) {
@@ -336,7 +356,7 @@ const empLeaveDetails = async function (userId, type) {
           "totalLeaveCount",
         ],
       ],
-      where: { EmployeeId: userId, status: "approved",leaveAutoId:6 },
+      where: { EmployeeId: userId, status: "approved", leaveAutoId: 6 },
       raw: true,
     });
 
@@ -347,7 +367,7 @@ const empLeaveDetails = async function (userId, type) {
           "totalLeaveCount",
         ],
       ],
-      where: { EmployeeId: userId, status: "pending",leaveAutoId:6 },
+      where: { EmployeeId: userId, status: "pending", leaveAutoId: 6 },
       raw: true,
     });
 
@@ -360,7 +380,7 @@ const empLeaveDetails = async function (userId, type) {
       ],
       where: {
         EmployeeId: userId,
-        leaveAutoId:6,
+        leaveAutoId: 6,
         [Op.or]: [{ source: null }, { source: "system_generated" }],
       },
       raw: true,
@@ -420,7 +440,7 @@ const empLeaveDetails = async function (userId, type) {
             "totalLeaveCount",
           ],
         ],
-        where: { EmployeeId: userId, status: "approved",leaveAutoId:6 },
+        where: { EmployeeId: userId, status: "approved", leaveAutoId: 6 },
         raw: true,
       });
 
@@ -431,7 +451,7 @@ const empLeaveDetails = async function (userId, type) {
             "totalLeaveCount",
           ],
         ],
-        where: { EmployeeId: userId, status: "pending",leaveAutoId:6 },
+        where: { EmployeeId: userId, status: "pending", leaveAutoId: 6 },
         raw: true,
       });
 
@@ -444,7 +464,7 @@ const empLeaveDetails = async function (userId, type) {
         ],
         where: {
           EmployeeId: userId,
-          leaveAutoId:6,
+          leaveAutoId: 6,
           [Op.or]: [{ source: null }, { source: "system_generated" }],
         },
         raw: true,
