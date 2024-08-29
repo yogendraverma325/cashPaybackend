@@ -1341,14 +1341,13 @@ class LeaveController {
 
         raw: true, // Fetch only raw data (no sequelize model wrapping)
       });
-  console.log("employeesemployeesemployees",employees)
       // Step 2: Extract the employee IDs into an array
       const employeeIds = employees.map(emp => emp.id);
-
+console.log("employeeIdsemployeeIds",employeeIds)
       if (employeeIds.length > 0) {
         // Step 3: Update the leaveMapping table for those employees
         await db.leaveMapping.update(
-          { leaveAutoId:6, availableLeave: 0 },
+          { leaveAutoId:6, availableLeave: req.body.availableLeave },
           {
             where: {
               EmployeeId: {
