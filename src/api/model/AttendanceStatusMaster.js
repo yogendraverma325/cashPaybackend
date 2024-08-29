@@ -13,7 +13,19 @@ export default (sequelize, Sequelize) => {
         },
         colorCode: {
             type: Sequelize.STRING(45),
-        }
+        },
+        createdAt: {
+            type: Sequelize.DATE,
+        },
+        updatedBy: {
+            type: Sequelize.INTEGER,
+        },
+        updatedAt: {
+            type: Sequelize.DATE,
+        },
+        isActive: {
+            type: Sequelize.BOOLEAN,
+        },
     });
     return AttendanceStatusMaster
 }

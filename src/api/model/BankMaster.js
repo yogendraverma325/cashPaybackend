@@ -22,6 +22,9 @@ export default (sequelize, Sequelize) => {
         },
         updatedAt: {
             type: Sequelize.DATE
+        },
+        isActive: {
+            type: Sequelize.BOOLEAN
         }
     })
     return bankMaster

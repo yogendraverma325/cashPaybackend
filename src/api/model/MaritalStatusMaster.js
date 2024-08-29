@@ -10,6 +10,21 @@ export default (sequelize, Sequelize) => {
         },
         code: {
             type: DataTypes.STRING(45)
+        },
+        createdBy: {
+            type: Sequelize.INTEGER
+        },
+        createdAt: {
+            type: Sequelize.DATE
+        },
+        updatedBy: {
+            type: Sequelize.INTEGER
+        },
+        updatedAt: {
+            type: Sequelize.DATE
+        },
+        isActive: {
+            type: Sequelize.BOOLEAN
         }
     })
     return maritalStatusMaster

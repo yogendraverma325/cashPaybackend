@@ -26,6 +26,21 @@ export default (sequelize, Sequelize) => {
         utilizedThisYear: {
             type: Sequelize.DECIMAL(10, 2)
         },
+        createdBy: {
+            type: Sequelize.INTEGER
+        },
+        createdAt: {
+            type: Sequelize.DATE
+        },
+        updatedBy: {
+            type: Sequelize.INTEGER
+        },
+        updatedAt: {
+            type: Sequelize.DATE
+        },
+        isActive: {
+            type: Sequelize.BOOLEAN
+        }
     })
     return leaveMapping
 }

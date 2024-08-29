@@ -52,6 +52,15 @@ export default (sequelize, Sequelize) => {
         },
         createdAt: {
             type: Sequelize.DATE
+        },
+        updatedBy: {
+            type: Sequelize.INTEGER
+        },
+        updatedAt: {
+            type: Sequelize.DATE
+        },
+        isActive: {
+            type: Sequelize.BOOLEAN
         }
     })
     return paySlips
