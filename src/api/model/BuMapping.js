@@ -11,6 +11,12 @@ export default (sequelize, Sequelize) => {
         companyId: {
             type: Sequelize.INTEGER
         },
+        headId:{
+            type: Sequelize.INTEGER  
+        },
+        buHrId:{
+            type: Sequelize.INTEGER   
+        }
     })
     return buMapping
 }
