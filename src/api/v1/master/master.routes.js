@@ -37,3 +37,6 @@ export default Express
     .get("/shift", masterController.shift)
     .get("/attendance-policy", masterController.attendancePlicy)
     .get("/weekoff", masterController.weekoff)
+    .get("/sbu", masterController.sbu)
+    .get("/buhr", masterController.buhr)
+    .get("/employees", masterController.employees)
