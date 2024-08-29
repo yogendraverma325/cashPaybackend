@@ -419,7 +419,7 @@ const empLeaveDetails = async function (userId, type) {
             "totalLeaveCount",
           ],
         ],
-        where: { EmployeeId: userId, status: "approved" },
+        where: { EmployeeId: userId, status: "approved",leaveAutoId:6 },
         raw: true,
       });
 
@@ -430,7 +430,7 @@ const empLeaveDetails = async function (userId, type) {
             "totalLeaveCount",
           ],
         ],
-        where: { EmployeeId: userId, status: "pending" },
+        where: { EmployeeId: userId, status: "pending",leaveAutoId:6 },
         raw: true,
       });
 
@@ -443,6 +443,7 @@ const empLeaveDetails = async function (userId, type) {
         ],
         where: {
           EmployeeId: userId,
+          leaveAutoId:6,
           [Op.or]: [{ source: null }, { source: "system_generated" }],
         },
         raw: true,
