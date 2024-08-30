@@ -14,6 +14,9 @@ export default (sequelize, Sequelize) => {
     email: {
       type: Sequelize.STRING(255),
     },
+    personalEmail: {
+      type: Sequelize.STRING(255),
+    },
     firstName: {
       type: Sequelize.STRING(255),
     },
