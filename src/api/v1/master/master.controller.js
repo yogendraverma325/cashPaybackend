@@ -1044,7 +1044,11 @@ class MasterController {
 
   async shift(req, res) {
     try {
-      let query = { 'isActive': 1 };
+      let searchKey = req.query.searchKey;
+      let query = { 'isActive': 1,
+        ...(searchKey && { 'shiftName': { [Op.like]: `%${searchKey}%` } })
+      };
+
       const shiftData = await db.shiftMaster.findAll({ where: query, attributes: ['shiftId', 'shiftName'] });
       return respHelper(res, { status: 200, data: shiftData });
     }
@@ -1056,8 +1060,11 @@ class MasterController {
 
   async attendancePlicy(req, res) {
     try {
-      let query = { 'isActive': 1 };
-      const attendanceData = await db.attendanceMaster.findAll({ where: query, attributes: ['attendanceId', 'attendanceName'] });
+      let searchKey = req.query.searchKey;
+      let query = { 'isActive': 1,
+        ...(searchKey && { 'policyName': { [Op.like]: `%${searchKey}%` } })
+      };
+      const attendanceData = await db.attendancePolicymaster.findAll({ where: query, attributes: ['attendancePolicyId', 'policyName'] });
       return respHelper(res, { status: 200, data: attendanceData });
     }
     catch (error) {
@@ -1068,7 +1075,10 @@ class MasterController {
 
   async weekoff(req, res) {
     try {
-      let query = { 'isActive': 1 };
+      let searchKey = req.query.searchKey;
+      let query = { 'isActive': 1,
+        ...(searchKey && { 'weekOffName': { [Op.like]: `%${searchKey}%` } })
+      };
       let weekoffData = await db.weekOffMaster.findAll({ where: query, attributes: ['weekOffId', 'weekOffName'] });
       return respHelper(res, { status: 200, data: weekoffData });
     }
@@ -1101,51 +1111,27 @@ class MasterController {
 
   async buhr(req, res) {
     try {
-      let TMC = req.query.TMC;
-      let query = {
-        'role_id': 4, 'isActive': 1,
-        ...(TMC && { 'empCode': TMC })
-      };
-
-      const buhrData = await db.employeeMaster.findAll({ where: query, attributes: ['id', 'empCode', 'name'] });
-
-      return respHelper(res, {
-        status: 200,
-        data: buhrData,
-      });
-
-    } catch (error) {
-      logger.error("Error while getting buhr list", error);
-      return respHelper(res, {
-        status: 500,
-      });
-    }
-  }
-
-  // get employee list for select BU head and manager
-  async employees(req, res) {
-    try {
-      let TMC = req.query.TMC;
-      if (req.query && TMC) {
-        let query = { 'isActive': 1, 'empCode': TMC };
-
-        const employeeData = await db.employeeMaster.findAll({ where: query, attributes: ['id', 'empCode', 'name'] });
-
+      let searchKey = req.query.searchKey;
+      if(searchKey) {
+        let query = { 'role_id': 4, 'isActive': 1, [Op.or]: [{ 'empCode': { [Op.like]: `%${searchKey}%`} }, { 'name': { [Op.like]: `%${searchKey}%` }} ] };
+  
+        const buhrData = await db.employeeMaster.findAll({ where: query, attributes: ['id', 'empCode', 'name'] });
         return respHelper(res, {
           status: 200,
-          data: employeeData,
+          data: buhrData,
         });
+
       }
       else {
         return respHelper(res, {
           status: 422,
-          msg: "TMC is required",
+          msg: "TMC or name is missing",
           data: [],
         });
       }
 
     } catch (error) {
-      logger.error("Error while getting employee list", error);
+      logger.error("Error while getting buhr list", error);
       return respHelper(res, {
         status: 500,
       });
