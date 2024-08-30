@@ -1,15 +1,15 @@
 export default (sequelize, Sequelize) => {
-    const departmentMapping = sequelize.define("departmentmapping", {
-        departmentMappingId: {
-            type: Sequelize.INTEGER,
-            primaryKey: true,
-            autoIncrement: true
+    const maritalStatusMaster = sequelize.define("maritalstatusmaster", {
+        maritalstatusmasterId: {
+            type: DataTypes.INTEGER,
+            autoIncrement: true,
+            primaryKey: true
         },
-        departmentId: {
-            type: Sequelize.INTEGER
+        name: {
+            type: DataTypes.STRING(45)
         },
-        sbuMappingId: {
-            type: Sequelize.INTEGER
+        code: {
+            type: DataTypes.STRING(45)
         },
         createdBy: {
             type: Sequelize.INTEGER
@@ -27,5 +27,5 @@ export default (sequelize, Sequelize) => {
             type: Sequelize.BOOLEAN
         }
     })
-    return departmentMapping
+    return maritalStatusMaster
 }

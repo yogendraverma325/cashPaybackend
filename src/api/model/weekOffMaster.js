@@ -8,9 +8,21 @@ export default (sequelize, Sequelize) => {
     weekOffName: {
       type: Sequelize.STRING(255),
     },
-    isActive: {
-      type: Sequelize.BOOLEAN,
+    createdAt: {
+      type: Sequelize.DATE
     },
+    createdBy: {
+      type: Sequelize.INTEGER,
+    },
+    updatedBy: {
+      type: Sequelize.INTEGER,
+    },
+    updatedAt: {
+      type: Sequelize.DATE
+    },
+    isActive: {
+      type: Sequelize.BOOLEAN
+    }
   });
   return weekOffMaster;
 };

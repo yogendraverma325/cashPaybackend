@@ -17,6 +17,21 @@ export default (sequelize, Sequelize) => {
     fullDate: {
       type: Sequelize.STRING,
     },
+    createdBy: {
+      type: Sequelize.INTEGER
+    },
+    createdAt: {
+      type: Sequelize.DATE
+    },
+    updatedBy: {
+      type: Sequelize.INTEGER
+    },
+    updatedAt: {
+      type: Sequelize.DATE
+    },
+    isActive: {
+      type: Sequelize.BOOLEAN
+    }
   });
   return calenderYear;
 };
