@@ -101,7 +101,7 @@ const regularizationRequestMail = async (data) => {
                         to view the full attendance request<br />
                       </p>
                       <p>Regards,</p>
-                      <p>Teams TARA<br /></p>
+                      <p>TARA HRMS<br /></p>
                     </div>
                   </td>
                 </tr>
@@ -238,7 +238,7 @@ const leaveRequestMail = async (data) => {
                               </p>
                               <p><br /></p>
                               <p>Regards,</p>
-                              <p>Teams TARA<br /></p>
+                              <p>TARA HRMS<br /></p>
                             </div>
                           </td>
                         </tr>
@@ -450,7 +450,7 @@ const revokeRegularizeMail = async (data) => {
                               </p>
                               <p><br /></p>
                               <p>Regards,</p>
-                              <p>Team TARA<br /></p>
+                              <p>TARA HRMS<br /></p>
                             </div>
                             <table
                               style="
@@ -599,7 +599,7 @@ const regularizationAcknowledgement = async (data) => {
                               </p>
                               <p><br /></p>
                               <p>Regards,</p>
-                              <p>Teams TARA<br /></p>
+                              <p>TARA HRMS<br /></p>
                             </div>
                             <table
                               style="
@@ -751,7 +751,7 @@ const leaveAcknowledgement = async (data) => {
                               </p>
                               <p><br /></p>
                               <p>Regards,</p>
-                              <p>Team TARA<br /></p>
+                              <p>TARA HRMS<br /></p>
                             </div>
                             <table
                               style="
@@ -845,7 +845,7 @@ const forgotPasswordMail = async (data) => {
           
           <p style="font-size: 15px; line-height: 1.6; color: #000000;">
             Regards,<br />
-            Team TARA
+            TARA HRMS
           </p>
         </td>
       </tr>
@@ -975,7 +975,7 @@ const revokeLeaveRequestMail = async (data) => {
                               </p>
                               <p><br /></p>
                               <p>Regards,</p>
-                              <p>Team TARA<br /></p>
+                              <p>TARA HRMS<br /></p>
                             </div>
                             <table
                               style="
