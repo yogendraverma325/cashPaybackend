@@ -70,6 +70,9 @@ export default (sequelize, Sequelize) => {
     createdAt: {
       type: Sequelize.DATE,
     },
+    createdBy: {
+      type: Sequelize.INTEGER,
+    },
     updatedBy: {
       type: Sequelize.INTEGER,
     },
