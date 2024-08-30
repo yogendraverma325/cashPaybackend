@@ -327,18 +327,22 @@ const getEmpProfile = async (EMP_ID) => {
   if (EMP_DATA) {
     const headAndHrData = await db.buMapping.findOne({
       where: { buId: EMP_DATA.buId, companyId: EMP_DATA.companyId },
-      include:[{
-        model:db.employeeMaster,
-        attributes:['id','name'],
-        as:"buHeadData"
-      },{
-        model:db.employeeMaster,
-        attributes:['id','name'],
-        as:"buhrData"
-      }]
+      include: [
+        {
+          model: db.employeeMaster,
+          attributes: ["id", "name"],
+          as: "buHeadData",
+        },
+        {
+          model: db.employeeMaster,
+          attributes: ["id", "name"],
+          as: "buhrData",
+        },
+      ],
     });
 
     if (headAndHrData) {
+      console.log("");
       EMP_DATA.dataValues.buHeadData = headAndHrData.buHeadData;
       EMP_DATA.dataValues.buhrData = headAndHrData.buhrData;
     }
