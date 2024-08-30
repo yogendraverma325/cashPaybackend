@@ -11,3 +11,5 @@ export default (sequelize, Sequelize) => {
     })
     return businessLogic
 }
+
+//not in use

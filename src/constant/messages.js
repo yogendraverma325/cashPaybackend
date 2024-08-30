@@ -26,6 +26,7 @@ const message = {
   REGULARIZATION_ACTION: "Regularization Request <status>",
   ALREADY_REQUESTED: "<module> Already Requested.",
   PASSWORD_CHANGED: "Password Changed Successfully.",
+  NOT_LOGGED_IN: "Please Login Again.",
   ACCOUNT_LOCKED:
     "Your account has been locked, Please Contact to admin to recover your account.",
   REACHED_WRONG_PASSWORD_LIMIT:
