@@ -5,12 +5,23 @@ import moment from "moment";
 import db from "../config/db.config.js";
 import sendGrid from "@sendgrid/mail";
 import bcrypt from "bcrypt";
+import { Op } from "sequelize";
 
 const generateJwtToken = async (data) => {
   const token = jwt.sign(data, process.env.JWT_KEY, {
     expiresIn: (data.user.device === 'desktop') ? process.env.JWT_EXPIRY : process.env.JWT_EXPIRY_MOBILE,
   });
   return token;
+};
+
+const generateJwtOTPEncrypt = async (data) => {
+  const token = jwt.sign(data, process.env.JWT_KEY, { expiresIn: "5m" });
+  return token;
+};
+
+const generateJwtOTPDecrypt = async (token) => {
+  const decoded = jwt.verify(token, process.env.JWT_KEY);
+  return decoded;
 };
 
 const fileUpload = async (base64String, fileName, filepath) => {
@@ -64,15 +75,23 @@ const checkActiveUser = async (data) => {
 
 const mailService = async (data) => {
   sendGrid.setApiKey(process.env.SENDGRID_API_KEY);
-  const filteredCc = (data.cc) ? data.cc.filter(email => !data.to.includes(email)) : undefined;
+  const filteredCc = data.cc
+    ? data.cc.filter((email) => !data.to.includes(email))
+    : undefined;
+
+  const testMail = parseInt(process.env.TEST_MAIL);
+  const testMailIDs = ["manishmaurya@teamcomputers.com"];
   const msg = {
-    // to: data.to,
-    to: [''],
-    from: process.env.SENDER_MAIL,
+    to: testMail ? testMailIDs : data.to,
+    from: {
+      email: process.env.SENDER_MAIL,
+      name: process.env.SENDER_NAME,
+    },
     subject: data.subject,
     text: data.text,
     html: data.html,
-    // cc: filteredCc,
+    cc: testMail ? undefined : filteredCc,
+    // bcc: (testMail) ? undefined : testMailIDs
   };
   let result = await sendGrid.sendMultiple(msg);
   return result;
@@ -285,18 +304,18 @@ const getEmpProfile = async (EMP_ID) => {
           },
         ],
       },
-      {
-        model: db.employeeMaster,
-        required: false,
-        attributes: ["id", "name"],
-        as: "buHeadData",
-      },
-      {
-        model: db.employeeMaster,
-        required: false,
-        attributes: ["id", "name"],
-        as: "buhrData",
-      },
+      // {
+      //   model: db.employeeMaster,
+      //   required: false,
+      //   attributes: ["id", "name"],
+      //   as: "buHeadData",
+      // },
+      // {
+      //   model: db.employeeMaster,
+      //   required: false,
+      //   attributes: ["id", "name"],
+      //   as: "buhrData",
+      // },
       {
         model: db.companyLocationMaster,
         required: false,
@@ -304,11 +323,81 @@ const getEmpProfile = async (EMP_ID) => {
       },
     ],
   });
+  if (EMP_DATA) {
+    const headAndHrData = await db.buMapping.findOne({
+      where: { buId: EMP_DATA.buId, companyId: EMP_DATA.companyId },
+      include: [
+        {
+          model: db.employeeMaster,
+          attributes: ["id", "name"],
+          as: "buHeadData",
+        },
+        {
+          model: db.employeeMaster,
+          attributes: ["id", "name"],
+          as: "buhrData",
+        },
+      ],
+    });
+
+    if (headAndHrData) {
+      EMP_DATA.dataValues.buHeadData = headAndHrData.buHeadData;
+      EMP_DATA.dataValues.buhrData = headAndHrData.buhrData;
+    }
+  }
+
   return EMP_DATA;
 };
 const empLeaveDetails = async function (userId, type) {
   let leaveData = 0;
   if (type == 0) {
+    let countApproved = await db.employeeLeaveTransactions.findAll({
+      attributes: [
+        [
+          db.Sequelize.fn("sum", db.Sequelize.col("leaveCount")),
+          "totalLeaveCount",
+        ],
+      ],
+      where: { EmployeeId: userId, status: "approved", leaveAutoId: 6 },
+      raw: true,
+    });
+
+    let countPending = await db.employeeLeaveTransactions.findAll({
+      attributes: [
+        [
+          db.Sequelize.fn("sum", db.Sequelize.col("leaveCount")),
+          "totalLeaveCount",
+        ],
+      ],
+      where: { EmployeeId: userId, status: "pending", leaveAutoId: 6 },
+      raw: true,
+    });
+
+    let countSystemDeducting = await db.employeeLeaveTransactions.findAll({
+      attributes: [
+        [
+          db.Sequelize.fn("sum", db.Sequelize.col("leaveCount")),
+          "totalLeaveCount",
+        ],
+      ],
+      where: {
+        EmployeeId: userId,
+        leaveAutoId: 6,
+        [Op.or]: [{ source: null }, { source: "system_generated" }],
+      },
+      raw: true,
+    });
+
+    let totalLeaveCountApproved = countApproved
+      ? countApproved[0].totalLeaveCount || "0"
+      : 0;
+    let totalLeaveCountPending = countPending
+      ? countPending[0].totalLeaveCount || "0"
+      : 0;
+    let totalLeaveCountSystemDeducting = countSystemDeducting
+      ? countSystemDeducting[0].totalLeaveCount || "0"
+      : 0;
+
     leaveData = await db.leaveMapping.findAll({
       where: {
         EmployeeId: userId,
@@ -328,6 +417,15 @@ const empLeaveDetails = async function (userId, type) {
         },
       ],
     });
+    // Check if leaveData is an array and process each item
+    leaveData.forEach((item) => {
+      if (item.leaveAutoId === 6 && item.leavemaster) {
+        item.leavemaster.dataValues.countApproved = totalLeaveCountApproved;
+        item.leavemaster.dataValues.countPending = totalLeaveCountPending;
+        item.leavemaster.dataValues.countSystemDeducting =
+          totalLeaveCountSystemDeducting;
+      }
+    });
   } else {
     leaveData = await db.leaveMapping.findOne({
       where: {
@@ -335,11 +433,66 @@ const empLeaveDetails = async function (userId, type) {
         leaveAutoId: type,
       },
     });
+    // If leaveData is an object, handle it directly
+    if (leaveData && leaveData.leaveAutoId === 6 && leaveData.leavemaster) {
+      let countApproved = await db.employeeLeaveTransactions.findAll({
+        attributes: [
+          [
+            db.Sequelize.fn("sum", db.Sequelize.col("leaveCount")),
+            "totalLeaveCount",
+          ],
+        ],
+        where: { EmployeeId: userId, status: "approved", leaveAutoId: 6 },
+        raw: true,
+      });
+
+      let countPending = await db.employeeLeaveTransactions.findAll({
+        attributes: [
+          [
+            db.Sequelize.fn("sum", db.Sequelize.col("leaveCount")),
+            "totalLeaveCount",
+          ],
+        ],
+        where: { EmployeeId: userId, status: "pending", leaveAutoId: 6 },
+        raw: true,
+      });
+
+      let countSystemDeducting = await db.employeeLeaveTransactions.findAll({
+        attributes: [
+          [
+            db.Sequelize.fn("sum", db.Sequelize.col("leaveCount")),
+            "totalLeaveCount",
+          ],
+        ],
+        where: {
+          EmployeeId: userId,
+          leaveAutoId: 6,
+          [Op.or]: [{ source: null }, { source: "system_generated" }],
+        },
+        raw: true,
+      });
+      let totalLeaveCountApproved = countApproved
+        ? countApproved[0].totalLeaveCount || "0"
+        : 0;
+      let totalLeaveCountPending = countPending
+        ? countPending[0].totalLeaveCount || "0"
+        : 0;
+      let totalLeaveCountSystemDeducting = countSystemDeducting
+        ? countSystemDeducting[0].totalLeaveCount || "0"
+        : 0;
+
+      leaveData.leavemaster.dataValues.countApproved = totalLeaveCountApproved;
+      leaveData.leavemaster.dataValues.countPending = totalLeaveCountPending;
+      leaveData.leavemaster.dataValues.countSystemDeducting =
+        totalLeaveCountSystemDeducting;
+    }
   }
 
   return leaveData;
 };
+
 const empMarkLeaveOfGivenDate = async function (userId, inputData, batch) {
+  inputData.source = "system_generated";
   let empLeave = await empLeaveDetails(userId, inputData.leaveAutoId);
   if (inputData.leaveAutoId != 6) {
     let pendingLeaveCountList = await db.employeeLeaveTransactions.findAll({
@@ -592,6 +745,13 @@ const getCombineValue = async function (
   return combineValue;
 };
 
+const generateOTP = async function (length) {
+  const min = Math.pow(10, length - 1);
+  const max = Math.pow(10, length) - 1;
+
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+};
+
 export default {
   generateJwtToken,
   checkFolder,
@@ -612,4 +772,7 @@ export default {
   timeDifferenceNew,
   isDayWorking,
   ip,
+  generateOTP,
+  generateJwtOTPEncrypt,
+  generateJwtOTPDecrypt,
 };

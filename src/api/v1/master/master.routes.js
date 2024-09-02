@@ -39,3 +39,4 @@ export default Express
     .get("/weekoff", masterController.weekoff)
     .get("/sbu", masterController.sbu)
     .get("/buhr", masterController.buhr)
+    .get("/buhead", masterController.buhead)

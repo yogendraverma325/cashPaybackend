@@ -10,6 +10,21 @@ export default (sequelize, Sequelize) => {
         },
         buMappingId: {
             type: Sequelize.INTEGER
+        },
+        createdAt: {
+            type: Sequelize.DATE
+        },
+        createdBy: {
+            type: Sequelize.INTEGER,
+        },
+        updatedBy: {
+            type: Sequelize.INTEGER,
+        },
+        updatedAt: {
+            type: Sequelize.DATE
+        },
+        isActive: {
+            type: Sequelize.BOOLEAN
         }
     })
     return sbuMapping

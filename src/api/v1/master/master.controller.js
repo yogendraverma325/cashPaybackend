@@ -1111,27 +1111,39 @@ class MasterController {
 
   async buhr(req, res) {
     try {
-      let searchKey = req.query.searchKey;
-      if(searchKey) {
-        let query = { 'role_id': 4, 'isActive': 1, [Op.or]: [{ 'empCode': { [Op.like]: `%${searchKey}%`} }, { 'name': { [Op.like]: `%${searchKey}%` }} ] };
-  
-        const buhrData = await db.employeeMaster.findAll({ where: query, attributes: ['id', 'empCode', 'name'] });
-        return respHelper(res, {
-          status: 200,
-          data: buhrData,
-        });
+      const buMappingId = req.query.buMappingId;
+      let query = { buMappingId: buMappingId };
+      let subQuery = { 'isActive': 1 };
 
-      }
-      else {
-        return respHelper(res, {
-          status: 422,
-          msg: "TMC or name is missing",
-          data: [],
-        });
-      }
+      const buhrData = await db.buMapping.findAll({ where: query, include: [{ model: db.employeeMaster, where: subQuery, attributes: ['id', 'name'], as: 'buhrData' }] });
 
+      return respHelper(res, {
+        status: 200,
+        data: buhrData,
+      });
     } catch (error) {
       logger.error("Error while getting buhr list", error);
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+
+  async buhead(req, res) {
+    try {
+      const buMappingId = req.query.buMappingId;
+      let query = { buMappingId: buMappingId };
+      let subQuery = { 'isActive': 1 };
+
+      const buheadData = await db.buMapping.findAll({ where: query, include: [{ model: db.employeeMaster, where: subQuery, attributes: ['id', 'name'], as: 'buHeadData' }] });
+
+      return respHelper(res, {
+        status: 200,
+        data: buheadData,
+      });
+
+    } catch (error) {
+      logger.error("Error while getting buhead list", error);
       return respHelper(res, {
         status: 500,
       });

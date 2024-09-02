@@ -5,10 +5,8 @@ import message from "../../../constant/messages.js";
 import validator from "../../../helper/validator.js";
 import helper from "../../../helper/helper.js";
 import eventEmitter from "../../../services/eventService.js";
-import { Op, fn, col } from "sequelize";
-import fs from "fs";
-import { cwd } from "process";
-import e from "express";
+import { Op } from "sequelize";
+
 var _this = this;
 
 class LeaveController {
@@ -144,7 +142,7 @@ class LeaveController {
             await db.attendanceMaster.update(
               {
                 employeeLeaveTransactionsId: leaveID,
-                attendancePresentStatus: "leave"
+                attendancePresentStatus: "leave",
               },
               {
                 where: {
@@ -180,7 +178,7 @@ class LeaveController {
                   utilizedThisYear: parseFloat(existingRecord.leaveCount),
                   creditedFromLastYear: 0,
                   annualAllotment: 0,
-                  accruedThisYear: 0
+                  accruedThisYear: 0,
                 });
               }
             } else {
@@ -210,37 +208,43 @@ class LeaveController {
         }
       }
 
-      const leaveTransactionDetails = await db.employeeLeaveTransactions.findOne({
-        raw: true,
-        where: {
-          employeeleavetransactionsId: leaveIds[0]
-        },
-        include: [{
-          model: db.employeeMaster,
-          attributes: ['name', 'email'],
-          include: [{
-            model: db.employeeMaster,
-            as: 'managerData',
-            attributes: ['name']
-          }]
-        }, {
-          model: db.leaveMaster,
-          as: 'leaveMasterDetails',
-          attributes: ['leaveName']
-        }],
-        attributes: ['fromDate', 'toDate']
-      })
+      const leaveTransactionDetails =
+        await db.employeeLeaveTransactions.findOne({
+          raw: true,
+          where: {
+            employeeleavetransactionsId: leaveIds[0],
+          },
+          include: [
+            {
+              model: db.employeeMaster,
+              attributes: ["name", "email"],
+              include: [
+                {
+                  model: db.employeeMaster,
+                  as: "managerData",
+                  attributes: ["name"],
+                },
+              ],
+            },
+            {
+              model: db.leaveMaster,
+              as: "leaveMasterDetails",
+              attributes: ["leaveName"],
+            },
+          ],
+          attributes: ["fromDate", "toDate"],
+        });
 
       const obj = {
-        email: leaveTransactionDetails['employee.email'],
-        status: result.status === 'approved' ? "Approved" : "Rejected",
+        email: leaveTransactionDetails["employee.email"],
+        status: result.status === "approved" ? "Approved" : "Rejected",
         fromDate: leaveTransactionDetails.fromDate,
         toDate: leaveTransactionDetails.toDate,
-        leaveType: leaveTransactionDetails['leaveMasterDetails.leaveName'],
-        managerName: leaveTransactionDetails['employee.managerData.name'],
-        requesterName: leaveTransactionDetails['employee.name']
-      }
-      eventEmitter.emit('leaveAckMail', JSON.stringify(obj))
+        leaveType: leaveTransactionDetails["leaveMasterDetails.leaveName"],
+        managerName: leaveTransactionDetails["employee.managerData.name"],
+        requesterName: leaveTransactionDetails["employee.name"],
+      };
+      eventEmitter.emit("leaveAckMail", JSON.stringify(obj));
 
       return respHelper(res, {
         status: 200,
@@ -665,10 +669,10 @@ class LeaveController {
       const recipientsEmail = await db.employeeMaster.findAll({
         raw: true,
         where: {
-          id: result.recipientsIds.split(",")
+          id: result.recipientsIds.split(","),
         },
-        attributes: ['email']
-      })
+        attributes: ["email"],
+      });
 
       eventEmitter.emit(
         "leaveRequestMail",
@@ -680,7 +684,7 @@ class LeaveController {
           leaveType: leaveType.dataValues.leaveName,
           managerName: employeeData.dataValues.managerData.name,
           managerEmail: employeeData.dataValues.managerData.email,
-          cc: recipientsEmail.map(user => user.email)
+          cc: recipientsEmail.map((user) => user.email),
         })
       );
 
@@ -738,35 +742,37 @@ class LeaveController {
         where: {
           employeeLeaveTransactionsId: leaveIds[0],
         },
-        attributes: ['fromDate', "toDate"],
+        attributes: ["fromDate", "toDate"],
         include: [
           {
             model: db.leaveMaster,
             as: "leaveMasterDetails",
-            attributes: ["leaveName", 'leaveCode'],
+            attributes: ["leaveName", "leaveCode"],
           },
           {
             model: db.employeeMaster,
-            attributes: ['name'],
-            include: [{
-              model: db.employeeMaster,
-              as: "managerData",
-              attributes: ['name', "email"],
-            }]
-          }
-        ]
-      })
+            attributes: ["name"],
+            include: [
+              {
+                model: db.employeeMaster,
+                as: "managerData",
+                attributes: ["name", "email"],
+              },
+            ],
+          },
+        ],
+      });
 
       const obj = {
-        empName: employeeData['employee.name'],
-        managerName: employeeData['employee.managerData.name'],
-        managerEmail: employeeData['employee.managerData.email'],
-        leaveType: `${employeeData['leaveMasterDetails.leaveName']} (${employeeData['leaveMasterDetails.leaveCode']})`,
+        empName: employeeData["employee.name"],
+        managerName: employeeData["employee.managerData.name"],
+        managerEmail: employeeData["employee.managerData.email"],
+        leaveType: `${employeeData["leaveMasterDetails.leaveName"]} (${employeeData["leaveMasterDetails.leaveCode"]})`,
         fromDate: employeeData.fromDate,
         toDate: employeeData.toDate,
-      }
+      };
 
-      eventEmitter.emit('revokeLeaveRequest', JSON.stringify(obj))
+      eventEmitter.emit("revokeLeaveRequest", JSON.stringify(obj));
 
       return respHelper(res, {
         status: 200,
@@ -1150,10 +1156,32 @@ class LeaveController {
         return date.toLocaleString("default", { month: "long" });
       };
 
-      // Fetch all leaveMaster details once
+      const leaveAutoIds = new Set();
+
+      const idFromLeaveTransaction = await db.employeeLeaveTransactions.findAll({
+        attributes: ["leaveAutoId"],
+        where: { employeeId: employeeId },
+        raw: true
+      });
+
+      idFromLeaveTransaction.forEach(item => leaveAutoIds.add(item.leaveAutoId));
+
+      const currentMappedIds = await db.leaveMapping.findAll({
+        attributes: ["leaveAutoId"],
+        where: { EmployeeId: employeeId },
+        raw: true
+      });
+
+      currentMappedIds.forEach(item => leaveAutoIds.add(item.leaveAutoId));
+
+      const uniqueMappedIds = Array.from(leaveAutoIds);
+
       const leaveMasterDetails = await db.leaveMaster.findAll({
         attributes: ["leaveId", "leaveName", "leaveCode"],
         raw: true,
+        where: {
+          leaveId: uniqueMappedIds
+        },
       });
 
       // Create a map for leaveId to leaveName
@@ -1243,7 +1271,7 @@ class LeaveController {
         grandTotalLeaveCount += totalLeaveCountForMonth; // Update grand total leave count
 
         result.push({
-          monthNumber: moment(getMonthName(month), 'MMMM').format('MM'),
+          monthNumber: moment(getMonthName(month), "MMMM").format("MM"),
           month: getMonthName(month),
           totalMonthLeave: totalLeaveCountForMonth,
           attendanceData: attendanceDataForMonth,
@@ -1301,12 +1329,14 @@ class LeaveController {
           exclude: ["createdBy", "createdAt", "updatedBy", "updatedAt"],
         },
         where: whereCondtion,
-        include: [{
-          model: db.leaveMaster,
-          attributes: ['leaveId', 'leaveName', 'leaveCode'],
-          as: "leaveMasterDetails",
-        }],
-        order: [['appliedFor', 'desc']]
+        include: [
+          {
+            model: db.leaveMaster,
+            attributes: ["leaveId", "leaveName", "leaveCode"],
+            as: "leaveMasterDetails",
+          },
+        ],
+        order: [["appliedFor", "desc"]],
       });
       return respHelper(res, {
         status: 200,
@@ -1316,6 +1346,51 @@ class LeaveController {
       console.log(error);
       return respHelper(res, {
         status: 500,
+      });
+    }
+  }
+
+  async leaveIdUpdateForOffRole(req, res) {
+    try {
+      // Step 1: Fetch employee IDs with employeeType = 4
+      const employees = await db.employeeMaster.findAll({
+        attributes: ["id"],
+        where: {
+          employeeType: 3,
+        },
+
+        raw: true, // Fetch only raw data (no sequelize model wrapping)
+      });
+      // Step 2: Extract the employee IDs into an array
+      const employeeIds = employees.map((emp) => emp.id);
+      if (employeeIds.length > 0) {
+        // Step 3: Update the leaveMapping table for those employees
+        await db.leaveMapping.update(
+          { leaveAutoId: 6, availableLeave: req.body.availableLeave },
+          {
+            where: {
+              EmployeeId: {
+                [Op.in]: employeeIds,
+              },
+            },
+          }
+        );
+
+        return respHelper(res, {
+          status: 200,
+          message: "Leave updated successfully",
+        });
+      } else {
+        return respHelper(res, {
+          status: 404,
+          message: "No employees found with employeeType = 4",
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      return respHelper(res, {
+        status: 500,
+        message: "Internal Server Error",
       });
     }
   }

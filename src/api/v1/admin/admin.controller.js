@@ -67,6 +67,7 @@ class AdminController {
   
         return respHelper(res, {
           status: 200,
+          msg: "Account has been created successfully.",
         });
       }
       else {

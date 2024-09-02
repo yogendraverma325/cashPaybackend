@@ -146,7 +146,7 @@ const updatePaymentDetailsSchema = Joi.object({
   paymentBankIfsc: Joi.string()
     .trim()
     .required()
-    .max(11)
+    .max(20)
     .label("Bank Ifsc Code"),
   paymentHolderName: Joi.string()
     .trim()
@@ -161,7 +161,7 @@ const addPaymentDetailsSchema = Joi.object({
   paymentBankIfsc: Joi.string()
     .trim()
     .required()
-    .max(18)
+    .max(20)
     .label("Bank Ifsc Code"),
   paymentHolderName: Joi.string()
     .trim()

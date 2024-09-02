@@ -5,6 +5,8 @@ import respHelper from "../../../helper/respHelper.js";
 import constant from "../../../constant/messages.js";
 import bcrypt from "bcrypt";
 import moment from "moment";
+import axios from "axios";
+import FormData from "form-data";
 
 class AuthController {
 
@@ -12,6 +14,16 @@ class AuthController {
     try {
 
       const result = await validator.loginSchema.validateAsync(req.body);
+
+      const formData = new FormData();
+      formData.append("uname", result.tmc);
+      formData.append("pass", result.password);
+      let dataRes = await axios({
+        method: 'post',
+        url: 'https://wap.teamcomputers.com/emaauth/api/AD/Validatelogin',
+        data: formData
+      });
+
       const existUser = await db.employeeMaster.findOne({
         where: { empCode: result.tmc, isActive: 1 },
         include: [
@@ -39,35 +51,38 @@ class AuthController {
         });
       }
 
-      const comparePass = await bcrypt.compare(
-        result.password,
-        existUser.password
-      );
+      if (!dataRes.data.status) {
 
-      if (!comparePass) {
-        await db.employeeMaster.update(
-          Object.assign(
-            { wrongPasswordCount: existUser.dataValues.wrongPasswordCount + 1 },
-            (existUser.dataValues.wrongPasswordCount === 2) ? {
-              accountRecoveryTime: moment().add(parseInt(process.env.ACCOUNT_RECOVERY_TIME), 'hours')
-            } : null
-          ), {
-          where: {
-            id: existUser.dataValues.id
+        const comparePass = await bcrypt.compare(
+          result.password,
+          existUser.password
+        );
+
+        if (!comparePass) {
+          await db.employeeMaster.update(
+            Object.assign(
+              { wrongPasswordCount: existUser.dataValues.wrongPasswordCount + 1 },
+              (existUser.dataValues.wrongPasswordCount === 2) ? {
+                accountRecoveryTime: moment().add(parseInt(process.env.ACCOUNT_RECOVERY_TIME), 'hours')
+              } : null
+            ), {
+            where: {
+              id: existUser.dataValues.id
+            }
+          })
+
+          if (existUser.dataValues.wrongPasswordCount === (parseInt(process.env.WRONG_PASSWORD_LIMIT) - 1)) {
+            return respHelper(res, {
+              status: 404,
+              msg: constant.REACHED_WRONG_PASSWORD_LIMIT,
+            });
           }
-        })
 
-        if (existUser.dataValues.wrongPasswordCount === (parseInt(process.env.WRONG_PASSWORD_LIMIT) - 1)) {
           return respHelper(res, {
             status: 404,
-            msg: constant.REACHED_WRONG_PASSWORD_LIMIT,
+            msg: constant.INVALID_CREDENTIALS,
           });
         }
-
-        return respHelper(res, {
-          status: 404,
-          msg: constant.INVALID_CREDENTIALS,
-        });
       }
 
       const loggedInUser = await validateUser(req, existUser)
@@ -78,6 +93,7 @@ class AuthController {
         token: loggedInUser.token,
         data: loggedInUser.userData
       });
+
     } catch (error) {
       console.log(error);
       if (error.isJoi === true) {
