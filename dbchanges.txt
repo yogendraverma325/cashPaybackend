@@ -1,3 +1,42 @@
+-------------------------------------2024-08-30-----------------------------------------------
+
+CREATE TABLE `hrms_live`.`unioncodemaster` (
+  `unioncodeId` INT NOT NULL AUTO_INCREMENT,
+  `unionCode` VARCHAR(100) NULL,
+  `createdAt` DATETIME NULL DEFAULT NULL,
+  `createdBy` INT NULL DEFAULT NULL,
+  `updatedAt` DATETIME NULL DEFAULT NULL,
+  `updatedBy` INT NULL DEFAULT NULL,
+  `isActive` TINYINT NULL DEFAULT NULL,
+  PRIMARY KEY (`unioncodeId`));
+
+
+ALTER TABLE `hrms_live`.`salutationmaster` 
+ADD COLUMN `isActive` TINYINT NULL AFTER `updatedBy`;
+
+CREATE TABLE `hrms_live`.`salutationmaster` (
+  `salutationId` INT NOT NULL AUTO_INCREMENT,
+  `salutation` VARCHAR(45) NULL,
+  `createdAt` DATETIME NULL DEFAULT NULL,
+  `createdBy` INT NULL DEFAULT NULL,
+  `updatedAt` DATETIME NULL DEFAULT NULL,
+  `updatedBy` INT NULL DEFAULT NULL,
+  PRIMARY KEY (`salutationId`));
+
+
+
+ALTER TABLE `hrms_live`.`employee` 
+ADD COLUMN `salutation` VARCHAR(100) NULL DEFAULT 'NA' AFTER `pfNo`,
+ADD COLUMN `adhrNo` VARCHAR(255) NULL DEFAULT NULL AFTER `salutation`,
+ADD COLUMN `drivingLicence` VARCHAR(255) NULL DEFAULT NULL AFTER `adhrNo`;
+
+ALTER TABLE `hrms_live`.`employeeemergencycontact` 
+ADD COLUMN `emergencyBloodGroup` VARCHAR(45) NULL DEFAULT NULL AFTER `emergencyContactRelation`;
+
+ALTER TABLE `hrms_live`.`employeebiographicaldetails` 
+ADD COLUMN `maritalStatusSince` VARCHAR(100) NULL DEFAULT 'NA' AFTER `maritalStatus`;
+
+
 ------------------------------- 
 
 ALTER TABLE `hrms_dev`.`leavemapping` 
