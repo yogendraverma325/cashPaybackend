@@ -23,7 +23,6 @@ const userCreationSchema = Joi.object({
 
   officeMobileNumber: Joi.string().trim().length(10).label("Office Mobile Number"),
   personalMobileNumber: Joi.string().trim().length(10).required().label("Office Mobile Number"),
-  dateOfJoining: Joi.string().trim().label("Date Of Joining"),
   manager: Joi.number().required().label("Manager"),
   designation_id: Joi.number().required().label("Designation"),
   functionalAreaId: Joi.number().required().label("Functional Area"),
