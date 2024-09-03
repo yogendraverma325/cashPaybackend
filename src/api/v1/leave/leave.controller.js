@@ -1059,7 +1059,7 @@ class LeaveController {
         return respHelper(res, {
           status: 404,
           data: {},
-          msg: message.LEAVE.LEAVE_LIMIT,
+          msg: message.LEAVE.LEAVE_LIMIT.replace("#", process.env.LEAVE_LIMIT),
         });
       }
 
