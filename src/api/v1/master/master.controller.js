@@ -621,7 +621,7 @@ class MasterController {
       if(companyId) {
         let query = { 'isActive': 1, 'companyId': companyId };
         const companyLocationData =
-          await db.companyLocationMaster.findAll({ where: query, attributes: ['companyLocationId', 'address1'] });
+          await db.companyLocationMaster.findAll({ where: query, attributes: ['companyLocationId', 'address1'], include: [{ model: db.pinCodeMaster, attributes: ['pincode'] }, { model: db.cityMaster, attributes: ['cityName'] }] });
   
         return respHelper(res, {
           status: 200,

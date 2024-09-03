@@ -397,4 +397,7 @@ db.employeeMaster.hasMany(db.loginDetails, { foreignKey: "employeeId", sourceKey
 db.buMapping.hasOne(db.employeeMaster, { foreignKey: "id", sourceKey: "headId",as: "buHeadData"});
 db.buMapping.hasOne(db.employeeMaster, { foreignKey: "id", sourceKey: "buHrId",as: "buhrData"});
 
+db.companyLocationMaster.hasOne(db.cityMaster, { foreignKey: "cityId", sourceKey: "cityId" });
+db.companyLocationMaster.hasOne(db.pinCodeMaster, { foreignKey: "pincodeId", sourceKey: "pincodeId" });
+
 export default db;
