@@ -2176,7 +2176,7 @@ class AttendanceController {
                     isHalfDay: markHalfDay, // Replace with actual is half day value (0 or 1)
                     halfDayFor: markHalfDayType, // Replace with actual half day for value
                     leaveCount: markHalfDay == 1 ? 0.5 : 1,
-                    status: "pending", // Replace with actual status
+                    status: (isHalfDay_total_work == null)?"pending":"approved", // Replace with actual status
                     reason: "Late By/ Work Duration", // Replace with actual reason
                     message: "Late By/ Work Duration",
                     pendingAt: EMP_DATA.managerData.id, // Replace with actual pending at value
