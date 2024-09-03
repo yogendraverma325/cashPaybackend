@@ -5,7 +5,8 @@ import moment from "moment";
 import db from "../config/db.config.js";
 import sendGrid from "@sendgrid/mail";
 import bcrypt from "bcrypt";
-import { Op } from "sequelize";
+import { Op, where } from "sequelize";
+import eventEmitter from "../services/eventService.js";
 
 const generateJwtToken = async (data) => {
   const token = jwt.sign(data, process.env.JWT_KEY, {
@@ -518,6 +519,40 @@ const empMarkLeaveOfGivenDate = async function (userId, inputData, batch) {
     }
     inputData.batch_id = batch;
     await db.employeeLeaveTransactions.create(inputData);
+
+    const leaveDeductionData = await db.employeeMaster.findOne({
+      raw: true,
+      where: {
+        id: inputData.employeeId
+      },
+      attributes: ['name', 'email'],
+      include: [{
+        model: db.shiftMaster,
+        attributes: ['shiftStartTime', 'shiftEndTime']
+      }]
+    })
+
+    console.log(leaveDeductionData)
+
+    const leaveData = await db.leaveMaster.findOne({
+      raw: true,
+      where: {
+        leaveId: inputData.leaveAutoId
+      },
+      attributes: ['leaveName']
+    })
+    console.log(inputData)
+    eventEmitter.emit("autoLeaveDeductionMail", JSON.stringify({
+      email: leaveDeductionData.email,
+      name: leaveDeductionData.name,
+      date: inputData.appliedFor,
+      shiftStartTime: leaveDeductionData['shiftMaster.shiftStartTime'],
+      shiftEndTime: leaveDeductionData['shiftMaster.shiftEndTime'],
+      leaveType: leaveData.leaveName,
+      leaveDuration: (inputData.leaveCount === 0.5) ? "Half Day" : "Full Day",
+      punchInTime: "09:15:00",
+      punchOutTime: "17:53:00"
+    }))
   }
   return 1;
 };
