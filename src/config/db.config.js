@@ -64,7 +64,7 @@ import employeeJobDetailsHistory from "../api/model/EmployeeJobDetailsHistory.js
 import EmployeeEducationDetailsHistory from "../api/model/EmployeeEducationDetailsHistory.js";
 import FamilyMemberHistory from "../api/model/FamilyMemberHistory.js";
 import AttendanceHistory from "../api/model/AttendanceHistory.js";
-
+import SeparationMaster from "../api/model/SeparationMaster.js";
 import literal from "sequelize";
 import QueryTypes from "sequelize"
 const sequelize = new Sequelize(
@@ -182,6 +182,7 @@ db.employeeJobDetailsHistory = employeeJobDetailsHistory(sequelize, Sequelize)
 db.employeeEducationDetailsHistory = EmployeeEducationDetailsHistory(sequelize, Sequelize)
 db.familyMemberHistory = FamilyMemberHistory(sequelize, Sequelize)
 db.attendanceHistory = AttendanceHistory(sequelize, Sequelize)
+db.separationMaster = SeparationMaster(sequelize, Sequelize)
 
 db.holidayCompanyLocationConfiguration.hasOne(db.holidayMaster, {
   foreignKey: "holidayId",
@@ -394,7 +395,7 @@ db.employeeMaster.hasOne(db.companyLocationMaster, {
 });
 
 db.employeeMaster.hasMany(db.loginDetails, { foreignKey: "employeeId", sourceKey: "id" })
-db.buMapping.hasOne(db.employeeMaster, { foreignKey: "id", sourceKey: "headId",as: "buHeadData"});
-db.buMapping.hasOne(db.employeeMaster, { foreignKey: "id", sourceKey: "buHrId",as: "buhrData"});
+db.buMapping.hasOne(db.employeeMaster, { foreignKey: "id", sourceKey: "headId", as: "buHeadData" });
+db.buMapping.hasOne(db.employeeMaster, { foreignKey: "id", sourceKey: "buHrId", as: "buhrData" });
 
 export default db;

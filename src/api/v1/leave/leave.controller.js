@@ -506,7 +506,10 @@ class LeaveController {
         }
         inputs = leaveCountForDates.filter((el) => {
           if (el.appliedFor == appliedFor) {
-            if (el.isHalfDay == 1) {
+            if(el.status=='rejected'){
+                return false;
+            }else{
+          if (el.isHalfDay == 1) {
               if (halfDayFor == 0) {
                 return true;
               } else {
@@ -519,6 +522,8 @@ class LeaveController {
             } else {
               return true;
             }
+            }
+          
           } else {
             return true;
           }
@@ -1059,7 +1064,7 @@ class LeaveController {
         return respHelper(res, {
           status: 404,
           data: {},
-          msg: message.LEAVE.LEAVE_LIMIT,
+          msg: message.LEAVE.LEAVE_LIMIT.replace("#", process.env.LEAVE_LIMIT),
         });
       }
 
@@ -1111,6 +1116,7 @@ class LeaveController {
         (acc, el) => acc + parseFloat(el.leaveCount),
         0
       );
+      console.log("pendingLeaveCount",pendingLeaveCount)
       const totalWorkingDaysCalculated = Math.max(
         0,
         totalWorkingDays - getCombinedVal
@@ -1122,7 +1128,10 @@ class LeaveController {
         totalWorkingDaysCalculated < countDeductingPending
           ? totalWorkingDaysCalculated
           : countDeductingPending;
-      let c = a - b;
+      let c =(b)>0 ?a - b:a;
+      console.log("c",c)
+       console.log("b",b)
+        console.log("a",a)
 
       return respHelper(res, {
         status: 200,

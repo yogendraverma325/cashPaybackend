@@ -343,7 +343,6 @@ const getEmpProfile = async (EMP_ID) => {
     });
 
     if (headAndHrData) {
-      console.log("");
       EMP_DATA.dataValues.buHeadData = headAndHrData.buHeadData;
       EMP_DATA.dataValues.buhrData = headAndHrData.buhrData;
     }
