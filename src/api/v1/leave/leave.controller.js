@@ -1116,6 +1116,7 @@ class LeaveController {
         (acc, el) => acc + parseFloat(el.leaveCount),
         0
       );
+      console.log("pendingLeaveCount",pendingLeaveCount)
       const totalWorkingDaysCalculated = Math.max(
         0,
         totalWorkingDays - getCombinedVal
@@ -1127,7 +1128,10 @@ class LeaveController {
         totalWorkingDaysCalculated < countDeductingPending
           ? totalWorkingDaysCalculated
           : countDeductingPending;
-      let c = a - b;
+      let c =(b)>0 ?a - b:a;
+      console.log("c",c)
+       console.log("b",b)
+        console.log("a",a)
 
       return respHelper(res, {
         status: 200,
