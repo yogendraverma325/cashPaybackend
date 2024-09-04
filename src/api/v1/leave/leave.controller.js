@@ -506,7 +506,10 @@ class LeaveController {
         }
         inputs = leaveCountForDates.filter((el) => {
           if (el.appliedFor == appliedFor) {
-            if (el.isHalfDay == 1) {
+            if(el.status=='rejected'){
+                return false;
+            }else{
+          if (el.isHalfDay == 1) {
               if (halfDayFor == 0) {
                 return true;
               } else {
@@ -519,6 +522,8 @@ class LeaveController {
             } else {
               return true;
             }
+            }
+          
           } else {
             return true;
           }

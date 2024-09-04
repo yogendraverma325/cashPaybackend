@@ -225,6 +225,7 @@ class AttendanceController {
             existEmployee.attendancePolicymaster.bufferTimePost,
             "minutes"
           ); // Add buffer time  to the selected time if buffer allow
+            console.log("withGraceTime", graceTime);
 
           const withGraceTime = graceTime.format("HH:mm");
           console.log("finalShiftStartTime", finalShiftStartTime);
@@ -1731,9 +1732,10 @@ class AttendanceController {
                 );
 
                 // Calculate the total minutes
-                const totalMinutesLateMinutes =
+                let  totalMinutesLateMinutes =
                   time.hours() * 60 + time.minutes() + time.seconds() / 60;
 
+        totalMinutesLateMinutes=totalMinutesLateMinutes+singleEmp.attendancePolicymaster.graceTimeClockIn; // Adjust Grace time with late by for leave calculation
                 if (
                   totalMinutesLateMinutes >=
                   singleEmp.attendancePolicymaster
@@ -2068,8 +2070,10 @@ class AttendanceController {
                 );
 
                 // Calculate the total minutes
-                const totalMinutesLateMinutes =
+                let  totalMinutesLateMinutes =
                   time.hours() * 60 + time.minutes() + time.seconds() / 60;
+
+            totalMinutesLateMinutes=totalMinutesLateMinutes+singleEmp.attendancePolicymaster.graceTimeClockIn; // Adjust Grace time with late by for leave calculation
 
                 if (
                   totalMinutesLateMinutes >=
