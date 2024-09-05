@@ -359,7 +359,9 @@ const empLeaveDetails = async function (userId, type) {
           "totalLeaveCount",
         ],
       ],
-      where: { EmployeeId: userId, status: "approved", leaveAutoId: 6 },
+      where: { EmployeeId: userId, status: "approved", leaveAutoId: 6, source: {
+              [Op.ne]: "system_generated",
+            }, },
       raw: true,
     });
 
@@ -384,6 +386,7 @@ const empLeaveDetails = async function (userId, type) {
       where: {
         EmployeeId: userId,
         leaveAutoId: 6,
+        status: "approved",
         [Op.or]: [{ source: null }, { source: "system_generated" }],
       },
       raw: true,
@@ -443,9 +446,14 @@ const empLeaveDetails = async function (userId, type) {
             "totalLeaveCount",
           ],
         ],
-        where: { EmployeeId: userId, status: "approved", leaveAutoId: 6 },
+        where: { EmployeeId: userId, status: "approved", leaveAutoId: 6,
+           source: {
+              [Op.ne]: "system_generated",
+            },
+         },
         raw: true,
       });
+      console.log("countApproved",countApproved)
 
       let countPending = await db.employeeLeaveTransactions.findAll({
         attributes: [
@@ -494,9 +502,12 @@ const empLeaveDetails = async function (userId, type) {
 
 const empMarkLeaveOfGivenDate = async function (userId, inputData, batch) {
   inputData.source = "system_generated";
-  let empLeave = await empLeaveDetails(userId, inputData.leaveAutoId);
+  console.log("inputData",inputData)
+   console.log("inputData",inputData.leaveAutoId)
   if (inputData.leaveAutoId != 6) {
-    let pendingLeaveCountList = await db.employeeLeaveTransactions.findAll({
+    let empLeave = await empLeaveDetails(userId, inputData.leaveAutoId);
+    if(empLeave){
+ let pendingLeaveCountList = await db.employeeLeaveTransactions.findAll({
       where: {
         status: "pending",
         employeeId: userId,
@@ -515,9 +526,15 @@ const empMarkLeaveOfGivenDate = async function (userId, inputData, batch) {
     ) {
       inputData.leaveAutoId = 6;
     }
-    inputData.batch_id = batch;
-    await db.employeeLeaveTransactions.create(inputData);
+    }else{
+     inputData.leaveAutoId = 6;
+    }
+    
+  }else{
+    inputData.leaveAutoId = 6;
   }
+  inputData.batch_id = batch;
+   await db.employeeLeaveTransactions.create(inputData);
   return 1;
 };
 
