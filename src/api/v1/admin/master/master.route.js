@@ -28,4 +28,3 @@ export default Express
      .put("/job-level/:id", authorization('ADMIN', 'SUPERADMIN'), commonController.updateJobLevel)
      .patch("/job-level/:id", authorization('ADMIN', 'SUPERADMIN'), commonController.changeStatusOfJobLevel)
      .delete("/job-level/:id", authorization('ADMIN', 'SUPERADMIN'), commonController.deleteOfJobLevel)
- 

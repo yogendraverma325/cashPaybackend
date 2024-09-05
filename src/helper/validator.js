@@ -264,6 +264,47 @@ const forgotPasswordSchema = Joi.object({
   email: Joi.string().email().required().label("Email")
 })
 
+const onboardEmployeeSchema = Joi.object({
+  name: Joi.string().trim().required().label("Name"),
+  email: Joi.string().trim().email().required().label("Email"),
+  personalEmail: Joi.string().trim().email().required().label("Personal Email"),
+  firstName: Joi.string().trim().required().label("First Name"),
+  middleName: Joi.string().trim().allow('').label("Middle Name"),
+  lastName: Joi.string().trim().allow('').label("Last Name"),
+
+  panNo: Joi.string().trim().required().label("PAN Number"),
+  uanNo: Joi.string().trim().allow('').label("UAN Number"),
+  pfNo: Joi.string().trim().allow('').label("PF Number"),
+  employeeType: Joi.number().required().label("Employee Type"),
+  image: Joi.string().allow(""),
+
+  officeMobileNumber: Joi.string().trim().length(10).label("Office Mobile Number"),
+  personalMobileNumber: Joi.string().trim().length(10).required().label("Office Mobile Number"),
+  dateOfJoining: Joi.string().required().label("Date Of Joining"),
+  manager: Joi.number().required().label("Manager"),
+  designation_id: Joi.number().required().label("Designation"),
+  functionalAreaId: Joi.number().required().label("Functional Area"),
+  buId: Joi.number().required().label("Business Unit"),
+
+  sbuId: Joi.number().required().label("Sub Business Unit"),
+  shiftId: Joi.number().required().label("Shift"),
+  departmentId: Joi.number().required().label("Department"),
+  companyId: Joi.number().required().label("Company"),
+  buHRId: Joi.number().required().label("Business Unit HR"),
+  buHeadId: Joi.number().required().label("Business Unit Head"),
+  attendancePolicyId: Joi.number().required().label("Attendance Policy"),
+  companyLocationId: Joi.number().required().label("Company Location"),
+  weekOffId: Joi.number().required().label("Week Off"),
+
+  gender: Joi.string().required().label("Gender"),
+  maritalStatus: Joi.string().required().label("Marital Status"),
+  countryId: Joi.number().required().label("Country"),
+  probationId: Joi.number().required().label("Probation"),
+  dateOfBirth: Joi.string().required().label("Date Of Birth"),
+  newCustomerName: Joi.string().required().label("Customer Name"),
+  IQTestApplicable: Joi.string().required().label("IQ Test Applicable"),
+  positionType: Joi.string().required().label("Position Type")
+});
 
 export default {
   loginSchema,
@@ -291,5 +332,6 @@ export default {
   updateManagerSchema,
   updateProfilePictureSchema,
   emergencyContactDetails,
-  forgotPasswordSchema
+  forgotPasswordSchema,
+  onboardEmployeeSchema
 };

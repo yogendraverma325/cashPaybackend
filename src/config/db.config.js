@@ -64,6 +64,7 @@ import employeeJobDetailsHistory from "../api/model/EmployeeJobDetailsHistory.js
 import EmployeeEducationDetailsHistory from "../api/model/EmployeeEducationDetailsHistory.js";
 import FamilyMemberHistory from "../api/model/FamilyMemberHistory.js";
 import AttendanceHistory from "../api/model/AttendanceHistory.js";
+import EmployeeStaging from "../api/model/EmployeeStaging.js";
 
 import literal from "sequelize";
 import QueryTypes from "sequelize"
@@ -182,6 +183,7 @@ db.employeeJobDetailsHistory = employeeJobDetailsHistory(sequelize, Sequelize)
 db.employeeEducationDetailsHistory = EmployeeEducationDetailsHistory(sequelize, Sequelize)
 db.familyMemberHistory = FamilyMemberHistory(sequelize, Sequelize)
 db.attendanceHistory = AttendanceHistory(sequelize, Sequelize)
+db.employeeStagingMaster = EmployeeStaging(sequelize, Sequelize);
 
 db.holidayCompanyLocationConfiguration.hasOne(db.holidayMaster, {
   foreignKey: "holidayId",
@@ -399,5 +401,53 @@ db.buMapping.hasOne(db.employeeMaster, { foreignKey: "id", sourceKey: "buHrId",a
 
 db.companyLocationMaster.hasOne(db.cityMaster, { foreignKey: "cityId", sourceKey: "cityId" });
 db.companyLocationMaster.hasOne(db.pinCodeMaster, { foreignKey: "pincodeId", sourceKey: "pincodeId" });
+
+db.employeeStagingMaster.hasMany(db.employeeStagingMaster, {
+  foreignKey: "manager",
+  sourceKey: "id",
+  as: "reportie",
+});
+db.employeeStagingMaster.hasOne(db.employeeStagingMaster, {
+  foreignKey: "id",
+  sourceKey: "manager",
+  as: "managerData",
+});
+db.employeeStagingMaster.hasOne(db.roleMaster, {
+  foreignKey: "role_id",
+  sourceKey: "role_id",
+});
+db.employeeStagingMaster.hasOne(db.designationMaster, {
+  foreignKey: "designationId",
+  sourceKey: "designation_id",
+});
+db.employeeStagingMaster.hasOne(db.functionalAreaMaster, {
+  foreignKey: "functionalAreaId",
+  sourceKey: "functionalAreaId",
+});
+db.employeeStagingMaster.hasOne(db.buMaster, {
+  foreignKey: "buId",
+  sourceKey: "buId",
+});
+db.employeeStagingMaster.hasOne(db.sbuMaster, {
+  foreignKey: "sbuId",
+  sourceKey: "sbuId",
+});
+db.employeeStagingMaster.hasOne(db.departmentMaster, {
+  foreignKey: "departmentId",
+  sourceKey: "departmentId",
+});
+db.employeeStagingMaster.hasOne(db.companyMaster, {
+  foreignKey: "companyId",
+  sourceKey: "companyId",
+});
+db.employeeStagingMaster.hasOne(db.shiftMaster, {
+  foreignKey: "shiftId",
+  sourceKey: "shiftId",
+});
+db.employeeStagingMaster.hasOne(db.companyLocationMaster, {
+  foreignKey: "companyLocationId",
+  sourceKey: "companyLocationId",
+});
+
 
 export default db;
