@@ -72,7 +72,7 @@ const bankDetailsSchema = Joi.object({
 
 const unlockAccountSchema = Joi.object({
   employeeCode: Joi.string().trim().required().label("Employee Code"),
-});
+});  
 
 const updateBiographicalDetailsSchema = Joi.object({
   userId: Joi.number().label("User ID"),
