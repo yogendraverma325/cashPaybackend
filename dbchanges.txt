@@ -1,4 +1,157 @@
+//-------------------------------------2024-09-05------------------------------------------//
+ALTER TABLE `hrms_live`.`employee` 
+ADD COLUMN `dataCardAdmin` INT NULL DEFAULT NULL AFTER `mbtiType`,
+ADD COLUMN `visitingCardAdmin` INT NULL DEFAULT NULL AFTER `dataCardAdmin`,
+ADD COLUMN `workstationAdmin` INT NULL DEFAULT NULL AFTER `visitingCardAdmin`,
+ADD COLUMN `lastIncrementDate` VARCHAR(255) NULL DEFAULT NULL AFTER `workstationAdmin`,
+ADD COLUMN `iqTestApplicable` INT NULL DEFAULT NULL AFTER `lastIncrementDate`,
+ADD COLUMN `mobileAdmin` INT NULL DEFAULT NULL AFTER `iqTestApplicable`,
+ADD COLUMN `recruiterName` VARCHAR(255) NULL DEFAULT NULL AFTER `mobileAdmin`;
+ADD COLUMN `costId` INT NULL DEFAULT NULL AFTER `recruiterName`;
+
+
+ALTER TABLE `hrms_live`.`hrletters` 
+ADD COLUMN `documentType` INT NULL DEFAULT NULL AFTER `userId`;
+
+CREATE TABLE `hrms_live`.`hrdocumentmaster` (
+  `documentId` INT NOT NULL AUTO_INCREMENT,
+  `documentName` VARCHAR(255) NULL DEFAULT NULL,
+  `typeUpdate` INT NULL,
+  `createdAt` DATETIME NULL DEFAULT NULL,
+  `createdBy` INT NULL DEFAULT NULL,
+  `updatedAt` DATETIME NULL DEFAULT NULL,
+  `updatedBy` INT NULL DEFAULT NULL,
+  `isActive` TINYINT(1) NULL DEFAULT 1,
+  PRIMARY KEY (`documentId`));
+
+//-------------------------------------2024-09-04-------------------------------------------//
+
+CREATE TABLE `hrms_live`.`hrletters` (
+  `letterId` INT NOT NULL AUTO_INCREMENT,
+  `userId` INT NULL DEFAULT NULL,
+  `meritPlanningLetters` VARCHAR(255) NULL DEFAULT NULL,
+  `confirmationLetters` VARCHAR(255) NULL DEFAULT NULL,
+  `pipLetters` VARCHAR(255) NULL DEFAULT NULL,
+  `bgvReport` VARCHAR(255) NULL DEFAULT NULL,
+  `employmentRelated` VARCHAR(255) NULL DEFAULT NULL,
+  `insuranceCards` VARCHAR(255) NULL DEFAULT NULL,
+  `createdAt` DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
+  `createdBy` INT NULL DEFAULT NULL,
+  `updatedAt` DATETIME NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `updatedBy` INT NULL DEFAULT NULL,
+  `isActive` tinyint NULL DEFAULT NULL,
+  PRIMARY KEY (`letterId`));
+
+
+CREATE TABLE `hrms_live`.`employeecertificates` (
+  `certificateId` INT NOT NULL AUTO_INCREMENT,
+  `userId` INT NULL DEFAULT NULL,
+  `certification` TEXT NULL,
+  `expiryDate` TEXT NULL,
+  `programName` TEXT NULL,
+  `skillProduct` TEXT NULL,
+  `oem` TEXT NULL,
+  `completionStatus` VARCHAR(255) NULL,
+  `certificationAndValidityFirst` TEXT NULL,
+  `certificationAndValiditySecond` TEXT NULL,
+  `createdAt` DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
+  `createdBy` INT NULL,
+  `updatedAt` DATETIME NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `updatedBy` INT NULL,
+  `isActive` tinyint NULL,
+  PRIMARY KEY (`certificateId`));
+
+
+
+CREATE TABLE `hrms_live`.`employeeworkexperience` (
+  `workExperienceId` INT NOT NULL AUTO_INCREMENT,
+  `userId` INT NULL DEFAULT NULL,
+  `companyName` TEXT NULL DEFAULT NULL,
+  `jobTitle` TEXT NULL DEFAULT NULL,
+  `jobLocation` VARCHAR(255) NULL DEFAULT NULL,
+  `currentlyWorking` TINYINT NULL DEFAULT NULL,
+  `fromDate` DATE NULL DEFAULT NULL,
+  `toDate` DATE NULL DEFAULT NULL,
+  `jobSummary` TEXT NULL DEFAULT NULL,
+  `Skills` TEXT NULL DEFAULT NULL,
+  `experienceletter` VARCHAR(255) NULL DEFAULT NULL,
+  `createdAt` DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
+  `createdBy` INT NULL,
+  `updatedAt` DATETIME NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `updatedBy` INT NULL,
+   `isActive` tinyint NULL,
+  PRIMARY KEY (`workExperienceId`));
+
+
+ALTER TABLE `hrms_live`.`employee` 
+ADD COLUMN `abstractReasoning` TEXT NULL DEFAULT NULL AFTER `passportImg`,
+ADD COLUMN `numericalSequences` TEXT NULL DEFAULT NULL AFTER `abstractReasoning`,
+ADD COLUMN `numericalCalculation` TEXT NULL DEFAULT NULL AFTER `numericalSequences`,
+ADD COLUMN `mbtiType` TEXT NULL DEFAULT NULL AFTER `numericalCalculation`;
+
+
+ALTER TABLE `hrms_live`.`employeejobdetails` 
+ADD COLUMN `lwfDesignation` INT NULL DEFAULT NULL AFTER `isActive`,
+ADD COLUMN `lwfState` INT NULL DEFAULT NULL AFTER `lwfDesignation`,
+ADD COLUMN `restrictCompanyPf` TINYINT NULL DEFAULT NULL AFTER `lwfState`,
+ADD COLUMN `pranNumber` TEXT NULL DEFAULT NULL AFTER `restrictCompanyPf`,
+ADD COLUMN `npsNumber` TEXT NULL DEFAULT NULL AFTER `pranNumber`;
+
+
+ALTER TABLE `hrms_live`.`employeefamilydetails` 
+ADD COLUMN `memberAddress` VARCHAR(255) NULL DEFAULT NULL AFTER `relationWithEmp`;
+
+ALTER TABLE `hrms_live`.`employeepaymentdetails` 
+ADD COLUMN `ptApplicability` TINYINT NULL DEFAULT NULL AFTER `paymentAttachment`,
+ADD COLUMN `ptStateId` INT NULL DEFAULT NULL AFTER `ptApplicability`,
+ADD COLUMN `ptLocationId` INT NULL DEFAULT NULL AFTER `ptStateId`,
+ADD COLUMN `tdsApplicability` TINYINT NULL DEFAULT NULL AFTER `ptLocationId`,
+ADD COLUMN `itrFiling` TINYINT NULL DEFAULT NULL AFTER `tdsApplicability`;
+ADD COLUMN `status` VARCHAR(155) NULL DEFAULT pending AFTER `itrFiling`;
+
+
+ALTER TABLE `hrms_live`.`employee` 
+ADD COLUMN `panImg` VARCHAR(255) NULL AFTER `panNo`,
+ADD COLUMN `dlImage` VARCHAR(255) NULL AFTER `drivingLicence`;
+
+//-------------------------------------2024-09-03--------------------------------------------
+
+ALTER TABLE `hrms_live`.`employee` 
+ADD COLUMN `middleName` VARCHAR(255) NULL DEFAULT NULL AFTER `firstName`;
+
 -------------------------------------2024-08-30-----------------------------------------------
+CREATE TABLE `hrms_live`.`employeeaddress` (
+  `addressId` INT NOT NULL AUTO_INCREMENT,
+  `employeeId` INT NULL,
+  `addressType` INT NULL,
+  `currentHouse` VARCHAR(255) NULL DEFAULT NULL,
+  `currentStreet` VARCHAR(255) NULL DEFAULT NULL,
+  `currentStateId` INT NULL DEFAULT NULL,
+  `currentCityId` INT NULL DEFAULT NULL,
+  `currentCountryId` INT NULL DEFAULT NULL,
+  `currentPincodeId` INT NULL DEFAULT NULL,
+  `currentLandmark` VARCHAR(255) NULL DEFAULT NULL,
+  `permanentCityId` INT NULL DEFAULT NULL,
+  `permanentStateId` INT NULL DEFAULT NULL,
+  `permanentCountryId` INT NULL DEFAULT NULL,
+  `permanentPincodeId` INT NULL DEFAULT NULL,
+  `permanentStreet` VARCHAR(255) NULL DEFAULT NULL,
+  `permanentHouse` VARCHAR(255) NULL DEFAULT NULL,
+  `permanentLandmark` VARCHAR(255) NULL DEFAULT NULL,
+  `emergencyStreet` VARCHAR(255) NULL DEFAULT NULL,
+  `emergencyHouse` VARCHAR(255) NULL DEFAULT NULL,
+  `emergencyCityId` INT NULL DEFAULT NULL,
+  `emergencyStateId` INT NULL DEFAULT NULL,
+  `emergencyCountryId` INT NULL DEFAULT NULL,
+  `emergencyPincodeId` INT NULL DEFAULT NULL,
+  `emergencyLandmark` VARCHAR(255) NULL DEFAULT NULL,
+  `createdAt` DATETIME NULL DEFAULT NULL,
+  `createdBy` INT NULL DEFAULT NULL,
+  `updatedAt` DATETIME NULL DEFAULT NULL,
+  `updatedBy` INT NULL DEFAULT NULL,
+  PRIMARY KEY (`addressId`));
+
+
 
 CREATE TABLE `hrms_live`.`unioncodemaster` (
   `unioncodeId` INT NOT NULL AUTO_INCREMENT,
@@ -24,17 +177,41 @@ CREATE TABLE `hrms_live`.`salutationmaster` (
   PRIMARY KEY (`salutationId`));
 
 
-
-ALTER TABLE `hrms_live`.`employee` 
-ADD COLUMN `salutation` VARCHAR(100) NULL DEFAULT 'NA' AFTER `pfNo`,
-ADD COLUMN `adhrNo` VARCHAR(255) NULL DEFAULT NULL AFTER `salutation`,
-ADD COLUMN `drivingLicence` VARCHAR(255) NULL DEFAULT NULL AFTER `adhrNo`;
+ALTER TABLE employee
+ADD COLUMN middleName VARCHAR(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL AFTER firstName,
+ADD COLUMN salutationId INT DEFAULT NULL AFTER name,
+ADD COLUMN adhrNo VARCHAR(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL AFTER permissionAndAccess,
+ADD COLUMN drivingLicence VARCHAR(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL AFTER adhrNo,
+ADD COLUMN adhrFront VARCHAR(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL AFTER drivingLicence,
+ADD COLUMN adhrBack VARCHAR(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL AFTER adhrFront,
+ADD COLUMN passportNumber VARCHAR(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL AFTER adhrBack,
+ADD COLUMN passportImg VARCHAR(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL AFTER passportNumber;
+ADD COLUMN panImg VARCHAR(255) NULL AFTER `panNo,
+ADD COLUMN dlImg VARCHAR(255) NULL AFTER drivingLicence;
 
 ALTER TABLE `hrms_live`.`employeeemergencycontact` 
 ADD COLUMN `emergencyBloodGroup` VARCHAR(45) NULL DEFAULT NULL AFTER `emergencyContactRelation`;
 
 ALTER TABLE `hrms_live`.`employeebiographicaldetails` 
-ADD COLUMN `maritalStatusSince` VARCHAR(100) NULL DEFAULT 'NA' AFTER `maritalStatus`;
+ADD COLUMN `maritalStatusSince` VARCHAR(255) NULL DEFAULT NULL AFTER `backgroundVerification`;
+
+ALTER TABLE employeejobdetails
+ADD COLUMN unionId INT DEFAULT NULL AFTER languageSpoken,
+ADD COLUMN bandId INT DEFAULT NULL AFTER unionId,
+ADD COLUMN gradeId INT DEFAULT NULL AFTER bandId,
+ADD COLUMN jobLevelId INT DEFAULT NULL AFTER gradeId,
+ADD COLUMN residentEng TINYINT DEFAULT NULL AFTER jobLevelId,
+ADD COLUMN customerName VARCHAR(255) DEFAULT NULL AFTER residentEng,
+ADD COLUMN epsApplicability TINYINT DEFAULT NULL AFTER customerName,
+ADD COLUMN esicApplicable TINYINT DEFAULT NULL AFTER epsApplicability,
+ADD COLUMN lwfApplicable TINYINT DEFAULT NULL AFTER esicApplicable,
+ADD COLUMN pfRestricted TINYINT DEFAULT NULL AFTER lwfApplicable,
+ADD COLUMN pfApplicability TINYINT DEFAULT NULL AFTER pfRestricted,
+ADD COLUMN epfApplicable TINYINT DEFAULT NULL AFTER pfApplicability,
+ADD COLUMN esicNumber TEXT AFTER epfApplicable,
+ADD COLUMN pfNumber TEXT AFTER esicNumber,
+ADD COLUMN uanNumber TEXT AFTER pfNumber;
+
 
 
 ------------------------------- 

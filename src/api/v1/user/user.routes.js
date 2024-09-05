@@ -31,5 +31,15 @@ export default Express
     .post("/forgotPassword", userController.forgotPassword)
     .post("/verifyOTP",userController.verifyOTP)
     .put("/resetPassword",userController.resetPassword)
+    .post("/updateAddress",authentication.authenticate,commonController.updateAddress)
+    .get("/getSalutation",commonController.getSalutation)
+    .put("/uploadDocument",authentication.authenticate,commonController.uploadDocument)
+    .put("/updateEmployeeInfo",authentication.authenticate,commonController.updateEmployeeInfo)
+    .post("/addWorkExperience",authentication.authenticate,commonController.addWorkExperience)
+    .put("/updateWorkExperience",authentication.authenticate,commonController.updateWorkExperience)
+    .post("/uploadHrDocuments",authentication.authenticate,commonController.uploadHrDocuments)
+    .post("/addCertificates",authentication.authenticate,commonController.addCertificates)
+    .put("/updateCertificates",authentication.authenticate,commonController.updateCertificates)
+
 
     

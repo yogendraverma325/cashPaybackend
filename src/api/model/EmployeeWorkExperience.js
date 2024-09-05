@@ -1,6 +1,6 @@
 export default (sequelize, Sequelize) => {
-    const employeePaymentDetails = sequelize.define("employeepaymentdetails", {
-        paymentId: {
+    const employeeWorkExperience = sequelize.define("employeeworkexperience", {
+        workExperienceId: {
             type: Sequelize.INTEGER,
             primaryKey: true,
             autoIncrement: true
@@ -8,37 +8,31 @@ export default (sequelize, Sequelize) => {
         userId: {
             type: Sequelize.INTEGER
         },
-        paymentAccountNumber: {
+        companyName: {
             type: Sequelize.STRING
         },
-        paymentBankName: {
+        jobTitle: {
             type: Sequelize.STRING
         },
-        paymentBankIfsc: {
+        jobLocation: {
             type: Sequelize.STRING
         },
-        paymentHolderName: {
-            type: Sequelize.STRING
-        },
-        paymentAttachment: {
-            type: Sequelize.STRING
-        },
-        ptApplicability:{
+        currentlyWorking: {
             type: Sequelize.BOOLEAN
         },
-        ptStateId:{
-            type: Sequelize.INTEGER
+        fromDate: {
+            type: Sequelize.STRING
         },
-        ptLocationId:{
-            type: Sequelize.INTEGER
+        toDate: {
+            type: Sequelize.STRING
         },
-        tdsApplicability:{
-            type: Sequelize.BOOLEAN
+        jobSummary: {
+            type: Sequelize.STRING
         },
-        itrFiling:{
-            type: Sequelize.BOOLEAN
+        Skills: {
+            type: Sequelize.STRING
         },
-        status:{
+        experienceletter: {
             type: Sequelize.STRING
         },
         createdAt: {
@@ -57,5 +51,5 @@ export default (sequelize, Sequelize) => {
             type: Sequelize.BOOLEAN
         }
     })
-    return employeePaymentDetails
+    return employeeWorkExperience
 }

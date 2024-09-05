@@ -31,3 +31,4 @@ export default Express
     .get("/dashboardCard", masterController.dashboardCard)
     .get("/leave", masterController.leaveMaster)
     .get("/educations", masterController.educationMaster)
+    .get("/hrDocument", masterController.hrDocumentMaster)

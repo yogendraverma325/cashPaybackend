@@ -14,6 +14,9 @@ export default (sequelize, Sequelize) => {
         maritalStatus: {
             type: Sequelize.INTEGER
         },
+        maritalStatusSince:{
+            type: Sequelize.STRING
+        },
         mobileAccess: {
             type: Sequelize.BOOLEAN
         },

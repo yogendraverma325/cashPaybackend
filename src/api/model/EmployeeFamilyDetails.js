@@ -23,6 +23,9 @@ export default (sequelize, Sequelize) => {
         relationWithEmp: {
             type: Sequelize.STRING,
         },
+        memberAddress:{
+            type: Sequelize.STRING,
+        },
         createdAt: {
             type: Sequelize.DATE
         },

@@ -508,7 +508,7 @@ class MasterController {
 
   async state(req, res) {
     try {
-      const limit = req.query.limit * 1 || 10;
+      const limit = req.query.limit * 1 || 200;
       const pageNo = req.query.page * 1 || 1;
       const offset = (pageNo - 1) * limit;
 
@@ -516,7 +516,6 @@ class MasterController {
       const stateName = req.query.stateName;
       const countryId = req.query.countryId;
       const regionId = req.query.regionId;
-
       const stateData = await db.stateMaster.findAndCountAll({
         limit,
         offset,
@@ -589,7 +588,7 @@ class MasterController {
 
   async city(req, res) {
     try {
-      const limit = req.query.limit * 1 || 10;
+      const limit = req.query.limit * 1 || 200;
       const pageNo = req.query.page * 1 || 1;
       const offset = (pageNo - 1) * limit;
       const stateId = req.query.stateId;
@@ -831,11 +830,12 @@ class MasterController {
 
   async pincode(req, res) {
     try {
-      const limit = req.query.limit * 1 || 10;
+      const limit = req.query.limit * 1 || 1000;
       const pageNo = req.query.page * 1 || 1;
       const offset = (pageNo - 1) * limit;
-
+      const cityId = req.query.cityId
       const pinCodeData = await db.pinCodeMaster.findAndCountAll({
+        where:{cityId:cityId},
         limit,
         offset,
       });
@@ -1014,6 +1014,21 @@ class MasterController {
       return respHelper(res, {
         status: 200,
         data: educationData,
+      });
+    } catch (error) {
+      console.log(error);
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+
+  async hrDocumentMaster(req, res) {
+    try {
+      const docData = await db.hrDocumentMaster.findAll({attributes:['documentId','documentName','typeUpdate']});
+      return respHelper(res, {
+        status: 200,
+        data: docData,
       });
     } catch (error) {
       console.log(error);

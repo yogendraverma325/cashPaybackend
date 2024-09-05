@@ -24,3 +24,5 @@ export default Express
     .post("/addJobDetails", authorization('ADMIN', 'BUHR', 'HR_OPS', 'SUPERADMIN'), commonController.addJobDetails)
     .get("/searchEmployee", authorization('ADMIN', 'BUHR', 'HR_OPS', 'SUPERADMIN'), commonController.searchEmployee)
     .post("/updateEmergencyContact", authorization('ADMIN', 'BUHR', 'HR_OPS', 'SUPERADMIN'), commonController.updateEmergencyContact)
+    .post("/updateAddress", authorization('ADMIN', 'BUHR', 'HR_OPS', 'SUPERADMIN'), commonController.updateAddress)
+    .get("/getSalutation",authorization('ADMIN', 'BUHR', 'HR_OPS', 'SUPERADMIN'),commonController.getSalutation)
