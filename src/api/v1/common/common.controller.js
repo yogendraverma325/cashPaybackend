@@ -183,7 +183,7 @@ class commonController {
           ...result,
           EmployeeId: userId,
           createdBy: req.userData.role_id != 3 ? req.userId : result.userId,
-          updatedBy: req.userData.role_id != 3 ? req.userId : result.userId,
+          // updatedBy: req.userData.role_id != 3 ? req.userId : result.userId,
         };
 
         await db.familyDetails.create(obj);
@@ -357,7 +357,7 @@ class commonController {
           ...{ createdBy: existPaymentDetails.createdBy },
           ...{ createdAt: existPaymentDetails.createdAt },
           ...{ updatedBy: req.userId },
-          ...{ updatedAt: moment() },
+          ...{ updatedAt:moment().format("YYYY-MM-DD HH:mm:ss") },
           ...{ userId: userId },
           ...{ isActive: 1 },
         };
@@ -368,13 +368,13 @@ class commonController {
 
         return respHelper(res, {
           status: 200,
-          msg: constant.UPDATE_SUCCESS.replace("<module>", "Job Details"),
+          msg: constant.UPDATE_SUCCESS.replace("<module>", "Details"),
         });
       } else {
         let obj = {
           ...result,
           ...{ createdBy: req.userId },
-          ...{ createdAt: moment() },
+          ...{ createdAt: moment().format("YYYY-MM-DD HH:mm:ss") },
           ...{ updatedBy: req.userId },
           ...{ updatedAt: moment() },
           ...{ userId: userId },
@@ -384,7 +384,7 @@ class commonController {
 
         return respHelper(res, {
           status: 200,
-          msg: constant.DETAILS_ADDED.replace("<module>", "Payment Details"),
+          msg: constant.DETAILS_ADDED.replace("<module>", "Details"),
         });
       }
     } catch (error) {
@@ -1094,7 +1094,7 @@ class commonController {
 
   async uploadDocument(req, res) {
     try {
-      const userId = req.body.employeeId > 0 ? req.body.employeeId : req.userId;
+      const userId = req.body.userId > 0 ? req.body.userId : req.userId;
       const existUser = await db.employeeMaster.findOne({ where: { id: userId } });
       const d = Math.floor(Date.now() / 1000);
   
@@ -1118,12 +1118,17 @@ class commonController {
         const panImg = await helper.fileUpload(req.body.panImg, `pan${d}`, `uploads/${existUser.empCode}`);
         updateFields.panImg = panImg;
       }
+      if (req.body.passportImg) {
+        const passportImg = await helper.fileUpload(req.body.passportImg, `passport${d}`, `uploads/${existUser.empCode}`);
+        updateFields.passportImg = passportImg;
+      }
   
       // Update the employeeMaster table only with the fields that were uploaded
       await db.employeeMaster.update(updateFields, { where: { id: userId } });
   
       return respHelper(res, {
         status: 200,
+        msg: constant.UPDATE_SUCCESS.replace("<module>", "Details"),
       });
     } catch (error) {
       console.log("error", error);
@@ -1360,6 +1365,35 @@ class commonController {
       status: 500,
       data: error,
     });
+    }
+  }
+
+  async updateContactInfo(req,res){
+    try {
+      const result = await validator.updateContactInfo.validateAsync(req.body);
+      const userId = result.userId == 0 ? req.userId : result.userId;
+      await db.employeeMaster.update({
+        ...result,
+        updatedBy:userId,
+        updatedAt:moment().format("YYYY-MM-DD HH:mm:ss"),
+      }, 
+        { where: { id: userId } 
+      });
+  
+      return respHelper(res, {
+        status: 200,
+        msg: constant.UPDATE_SUCCESS.replace(
+          "<module>",
+           "Details"
+        ),
+      });
+  
+    } catch (error) {
+      console.log("error",error)
+      return respHelper(res, {
+        status: 500,
+        data: error,
+      });
     }
   }
 }

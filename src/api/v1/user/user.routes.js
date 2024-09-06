@@ -40,6 +40,7 @@ export default Express
     .post("/uploadHrDocuments",authentication.authenticate,commonController.uploadHrDocuments)
     .post("/addCertificates",authentication.authenticate,commonController.addCertificates)
     .put("/updateCertificates",authentication.authenticate,commonController.updateCertificates)
+    .put("/updateContactInfo",authentication.authenticate,commonController.updateContactInfo)
 
 
     

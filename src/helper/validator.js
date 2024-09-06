@@ -92,22 +92,22 @@ const updateBiographicalDetailsSchema = Joi.object({
 
 const addFamilyDetailsSchema = Joi.object({
   userId: Joi.number().label("User ID"),
-  name: Joi.string().required().trim().label("Name"),
-  dob: Joi.string().trim().label("DOB"),
-  gender: Joi.string().trim().label("Gender"),
-  mobileNo: Joi.string().trim().label("Mobile Number"),
-  relationWithEmp: Joi.string().trim().label("Relation"),
-  memberAddress: Joi.string().trim().label("Address"),
+  name: Joi.string().required().trim().label("Name").optional(),
+  dob: Joi.string().trim().label("DOB").optional(),
+  gender: Joi.string().trim().label("Gender").optional(),
+  mobileNo: Joi.string().trim().label("Mobile Number").optional(),
+  relationWithEmp: Joi.string().trim().label("Relation").optional(),
+  memberAddress: Joi.string().trim().label("Address").optional()
 });
 
 const updateFamilyDetailsSchema = Joi.object({
-  empFamilyDetailsId: Joi.number().required(),
-  name: Joi.string().required().trim().label("Name"),
-  dob: Joi.string().trim().label("DOB"),
-  gender: Joi.string().trim().label("Gender"),
-  mobileNo: Joi.string().trim().label("Mobile Number"),
-  relationWithEmp: Joi.string().trim().label("Relation"),
-  memberAddress: Joi.string().trim().label("Address"),
+  empFamilyDetailsId: Joi.number().required().required(),
+  name: Joi.string().required().trim().label("Name").optional(),
+  dob: Joi.string().trim().label("DOB").optional(),
+  gender: Joi.string().trim().label("Gender").optional(),
+  mobileNo: Joi.string().trim().label("Mobile Number").optional(),
+  relationWithEmp: Joi.string().trim().label("Relation").optional(),
+  memberAddress: Joi.string().trim().label("Address").optional(),
 });
 
 const addEducationDetailsSchema = Joi.object({
@@ -240,7 +240,9 @@ const addJobDetailsSchema = Joi.object({
   userId: Joi.number().label("User ID"),
   dateOfJoining: Joi.string().label("Date Of Joining").optional(),
   probationPeriod: Joi.string().label("Probation Period").optional(),
-  languagesSpoken: Joi.string().label("Language Spoken").optional()
+  languagesSpoken: Joi.string().label("Language Spoken").optional(),
+  esicNumber:Joi.string().label("ESIC Number").allow("").optional(),
+  uanNumber:Joi.string().label("UAN Number").allow("").optional()
 })
 
 const updateManagerSchema = Joi.array().required().items(
@@ -262,7 +264,8 @@ const emergencyContactDetails = Joi.object({
   userId: Joi.number().label("User ID"),
   emergencyContactName: Joi.string().label("Emergency Contact Name").optional(),
   emergencyContactNumber: Joi.string().label("Emergency Contact Number").optional(),
-  emergencyContactRelation: Joi.string().label("Emergency Contact Relation").optional()
+  emergencyContactRelation: Joi.string().label("Emergency Contact Relation").optional(),
+  emergencyBloodGroup:Joi.string().label("Blood Group").optional()
 })
 
 const forgotPasswordSchema = Joi.object({
@@ -309,7 +312,7 @@ const updateemployeeWorkInfo = Joi.object({
 })
 
 const addEmployeeCertificates = Joi.object({
-  userId: Joi.number().label("User ID").optional(),
+  userId: Joi.number().label("User ID").required(),
   certification:Joi.string().label("certification").optional(),
   expiryDate:Joi.string().label("Expiry Date").optional(),
   programName:Joi.string().label("Program Name").optional(),
@@ -321,6 +324,7 @@ const addEmployeeCertificates = Joi.object({
 })
 
 const updateEmployeeCertificates = Joi.object({
+  userId: Joi.number().label("User ID").optional(),
   certificateId: Joi.number().label("User ID").optional(),
   certification:Joi.string().label("certification").optional(),
   expiryDate:Joi.string().label("Expiry Date").optional(),
@@ -330,6 +334,13 @@ const updateEmployeeCertificates = Joi.object({
   completionStatus:Joi.string().label("Status").optional(),
   certificationAndValidityFirst:Joi.string().label("Certification And Validity").optional(),
   certificationAndValiditySecond:Joi.string().label("Certification And Validity").optional(),
+})
+
+const updateContactInfo = Joi.object({
+  userId: Joi.number().label("User ID").required(),
+  personalEmail: Joi.string().label("Personal Email").required(),
+  officeMobileNumber:Joi.string().label("Office Mobile Number").allow("").required(),
+  personalMobileNumber:Joi.string().label("Personal Mobile Number").required()
 })
 
 export default {
@@ -363,5 +374,6 @@ export default {
   addemployeeWorkInfo,
   updateemployeeWorkInfo,
   addEmployeeCertificates,
-  updateEmployeeCertificates
+  updateEmployeeCertificates,
+  updateContactInfo
 };
