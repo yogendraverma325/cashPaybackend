@@ -29,6 +29,7 @@ class AuthController {
         include: [
           {
             model: db.roleMaster,
+            attributes: ['role_id', 'name']
           },
           {
             model: db.designationMaster,

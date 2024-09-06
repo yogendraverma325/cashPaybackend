@@ -64,7 +64,8 @@ const message = {
     LEAVE_NOT_APPLICABLE: "You can't apply leave on weekOff/holidays"
   },
   PROFILE_PICTURE_UPDATED: "Profile Picture Updated.",
-  INVALID: "Invalid <module>"
+  INVALID: "Invalid <module>",
+  SEPARATION_INITIATED: 'Separation Initiated'
 };
 
 export default message;

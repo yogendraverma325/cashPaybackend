@@ -950,11 +950,7 @@ const revokeLeaveRequestMail = async (data) => {
                               
                               <p>
                                 <b>${data.empName}</b> has Revoked the own leave
-                                request ${data.leaveType} from ${moment(data.fromDate).format(
-    "MMMM D, YYYY"
-  )} to ${moment(data.toDate).format(
-    "MMMM D, YYYY"
-  )}.<br />
+                                request ${data.leaveType} from ${moment(data.fromDate).format("MMMM D, YYYY")} to ${moment(data.toDate).format("MMMM D, YYYY")}.<br />
                               </p>
                               <p>
                                 <a
@@ -1004,6 +1000,224 @@ const revokeLeaveRequestMail = async (data) => {
 `
 }
 
+const autoLeaveDeduction = async (data) => {
+  return `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <table
+      style="
+        border-collapse: collapse;
+        line-height: 100% !important;
+        width: 100% !important;
+        font-family: sans-serif;
+      "
+      border="0"
+      cellpadding="0"
+      cellspacing="0"
+      align="center"
+    >
+      <tbody>
+        <tr>
+          <td style="padding-top: 20px; padding-bottom: 20px">
+            <table
+              style="
+                border-collapse: collapse;
+                max-width: 635px;
+                min-width: 550px;
+                width: auto;
+                margin: 0 auto;
+                border: 0.5px solid #eee;
+              "
+              align="center"
+            >
+              <tbody>
+                <tr>
+                  <td>
+                    <table
+                      style="
+                        border-collapse: collapse;
+                        margin: 0 auto;
+                        width: 100%;
+                      "
+                      align="center"
+                    >
+                      <tbody>
+                        <tr style="background: #fff">
+                          <td
+                            colspan="2"
+                            style="padding: 20px; padding-bottom: 0"
+                            valign="top"
+                          >
+                            <table style="width: 100%">
+                              <tbody>
+                                <tr>
+                                  <td
+                                    colspan="2"
+                                    style="
+                                      padding-bottom: 20px;
+                                      text-align: left;
+                                      border-bottom: 1px solid #eee;
+                                      width: 100%;
+                                    "
+                                    valign="middle"
+                                  >
+                                    <img
+                                      height="45"
+                                      src="${process.env.PROXY_URL}/api/uploads/assets/team-new.png"
+                                      alt="Logo"
+                                    />
+                                    <img
+                                      height="45"
+                                      src="${process.env.PROXY_URL}/api/uploads/assets/tara_small.png"
+                                      alt="Logo"
+                                      style="float: right"
+                                    />
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </td>
+                        </tr>
+                        <tr style="min-height: 300px; background: #fff">
+                          <td colspan="2" style="padding: 20px" valign="top">
+                            <p>Dear&nbsp;${data.name},</p>
+                            <p></p>
+                            <div
+                              style="
+                                line-height: 1;
+                                color: rgb(34, 34, 34);
+                                font-family: Arial, Helvetica, sans-serif;
+                                font-size: small;
+                                font-style: normal;
+                                font-variant-ligatures: normal;
+                                font-variant-caps: normal;
+                                font-weight: 400;
+                                letter-spacing: normal;
+                                text-align: start;
+                                text-indent: 0px;
+                                text-transform: none;
+                                word-spacing: 0px;
+                                white-space: normal;
+                                background-color: rgb(255, 255, 255);
+                                text-decoration-style: initial;
+                                text-decoration-color: initial;
+                              "
+                            >
+                              <div
+                                dir="ltr"
+                                class="gmail_signature"
+                                data-smartmail="gmail_signature"
+                              ></div>
+                            </div>
+                            <p></p>
+                            <div
+                              class="gmail_default"
+                              style="
+                                color: rgb(34, 34, 34);
+                                font-style: normal;
+                                font-variant-ligatures: normal;
+                                font-variant-caps: normal;
+                                letter-spacing: normal;
+                                text-align: start;
+                                text-indent: 0px;
+                                text-transform: none;
+                                word-spacing: 0px;
+                                white-space: normal;
+                                background-color: rgb(255, 255, 255);
+                                text-decoration-style: initial;
+                                text-decoration-color: initial;
+                                font-family: verdana, sans-serif;
+                                font-size: large;
+                              "
+                            >
+                              Auto-Leave Deduction Notification. Please find the
+                              details&nbsp;below.
+                            </div>
+
+                            <ul>
+                              <li
+                                style="
+                                  padding: 0px 0 10px 0;
+                                  line-height: 18px;
+                                  font-size: 13px;
+                                  color: #444;
+                                "
+                              >
+                                <p
+                                  style="
+                                    padding: 0px 0 10px 0;
+                                    line-height: 20px;
+                                    font-size: 13px;
+                                    color: #444;
+                                  "
+                                >
+                                  On ${data.date}<br /><br />
+                                  ${data.leaveType} (${data.leaveDuration}) has been generated and
+                                  auto-approved by system because you have not
+                                  satisfied the attendance policy.
+                                </p>
+                                <p
+                                  style="
+                                    padding: 0px 0 10px 0;
+                                    line-height: 20px;
+                                    font-size: 13px;
+                                    color: #444;
+                                  "
+                                >
+                                  Assigned Shift : ${moment(data.shiftStartTime).format('hh:mm:ss A')} - ${moment(data.shiftEndTime).format('hh:mm:ss A')}
+                                  <br />
+                                  Leave Type : ${data.leaveType} (${data.leaveDuration}) <br />
+                                  Clock-in : ${moment(data.punchInTime).format('hh:mm:ss A')} <br />
+                                  Clock-out : ${moment(data.punchOutTime).format('hh:mm:ss A')} <br />
+                                </p>
+                                <p
+                                  style="
+                                    padding: 0px 0 10px 0;
+                                    line-height: 20px;
+                                    font-size: 13px;
+                                    color: #444;
+                                  "
+                                >
+                                  To view the full message
+                                  <a
+                                    href="${process.env.CLIENT_URL}"
+                                    rel="noreferrer"
+                                    style="
+                                      padding: 5px 10px;
+                                      background: #0173c5;
+                                      color: #fff;
+                                      text-decoration: none;
+                                      border-radius: 2px;
+                                      font-size: 14px;
+                                      display: inline-block;
+                                    "
+                                    target="_blank"
+                                    >Click Here</a
+                                  >
+                                </p>
+                              </li>
+                            </ul>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </body>
+</html>`
+}
+
 export default {
   regularizationRequestMail,
   resetPasswordMail,
@@ -1012,5 +1226,6 @@ export default {
   regularizationAcknowledgement,
   leaveAcknowledgement,
   forgotPasswordMail,
-  revokeLeaveRequestMail
+  revokeLeaveRequestMail,
+  autoLeaveDeduction
 };

@@ -41,6 +41,5 @@ export default Express
     .post("/addCertificates",authentication.authenticate,commonController.addCertificates)
     .put("/updateCertificates",authentication.authenticate,commonController.updateCertificates)
     .put("/updateContactInfo",authentication.authenticate,commonController.updateContactInfo)
-
-
-    
+    .post("/initiateSeparation", authentication.authenticate, userController.initiateSeparation)
+    .get("/separationDetails", authentication.authenticate, userController.separationDetails)

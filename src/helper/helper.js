@@ -5,7 +5,8 @@ import moment from "moment";
 import db from "../config/db.config.js";
 import sendGrid from "@sendgrid/mail";
 import bcrypt from "bcrypt";
-import { Op } from "sequelize";
+import { Op, where } from "sequelize";
+import eventEmitter from "../services/eventService.js";
 
 const generateJwtToken = async (data) => {
   const token = jwt.sign(data, process.env.JWT_KEY, {
@@ -238,6 +239,10 @@ const getEmpProfile = async (EMP_ID) => {
         ],
       },
       {
+        model: db.noticePeriodMaster,
+        attributes: ['noticePeriodDuration']
+      },
+      {
         model: db.buMaster,
         required: true,
         attributes: ["buId", "buName", "buCode"],
@@ -364,7 +369,11 @@ const empLeaveDetails = async function (userId, type) {
           "totalLeaveCount",
         ],
       ],
-      where: { EmployeeId: userId, status: "approved", leaveAutoId: 6 },
+      where: {
+        EmployeeId: userId, status: "approved", leaveAutoId: 6, source: {
+          [Op.ne]: "system_generated",
+        },
+      },
       raw: true,
     });
 
@@ -389,6 +398,7 @@ const empLeaveDetails = async function (userId, type) {
       where: {
         EmployeeId: userId,
         leaveAutoId: 6,
+        status: "approved",
         [Op.or]: [{ source: null }, { source: "system_generated" }],
       },
       raw: true,
@@ -448,9 +458,15 @@ const empLeaveDetails = async function (userId, type) {
             "totalLeaveCount",
           ],
         ],
-        where: { EmployeeId: userId, status: "approved", leaveAutoId: 6 },
+        where: {
+          EmployeeId: userId, status: "approved", leaveAutoId: 6,
+          source: {
+            [Op.ne]: "system_generated",
+          },
+        },
         raw: true,
       });
+      console.log("countApproved", countApproved)
 
       let countPending = await db.employeeLeaveTransactions.findAll({
         attributes: [
@@ -499,30 +515,76 @@ const empLeaveDetails = async function (userId, type) {
 
 const empMarkLeaveOfGivenDate = async function (userId, inputData, batch) {
   inputData.source = "system_generated";
-  let empLeave = await empLeaveDetails(userId, inputData.leaveAutoId);
+  console.log("inputData", inputData)
+  console.log("inputData", inputData.leaveAutoId)
   if (inputData.leaveAutoId != 6) {
-    let pendingLeaveCountList = await db.employeeLeaveTransactions.findAll({
-      where: {
-        status: "pending",
-        employeeId: userId,
-        leaveAutoId: inputData.leaveAutoId,
-      },
-    });
-    let pendingLeaveCount = 0;
+    let empLeave = await empLeaveDetails(userId, inputData.leaveAutoId);
+    if (empLeave) {
+      let pendingLeaveCountList = await db.employeeLeaveTransactions.findAll({
+        where: {
+          status: "pending",
+          employeeId: userId,
+          leaveAutoId: inputData.leaveAutoId,
+        },
+      });
+      let pendingLeaveCount = 0;
 
-    pendingLeaveCountList.map((el) => {
-      pendingLeaveCount += parseFloat(el.leaveCount);
-    });
+      pendingLeaveCountList.map((el) => {
+        pendingLeaveCount += parseFloat(el.leaveCount);
+      });
 
-    if (
-      pendingLeaveCount + inputData.leaveCount >=
-      parseFloat(empLeave.availableLeave)
-    ) {
+      if (
+        pendingLeaveCount + inputData.leaveCount >=
+        parseFloat(empLeave.availableLeave)
+      ) {
+        inputData.leaveAutoId = 6;
+      }
+    } else {
       inputData.leaveAutoId = 6;
     }
-    inputData.batch_id = batch;
-    await db.employeeLeaveTransactions.create(inputData);
+
+  } else {
+    inputData.leaveAutoId = 6;
   }
+  inputData.batch_id = batch;
+  await db.employeeLeaveTransactions.create(inputData);
+
+  inputData.batch_id = batch;
+  await db.employeeLeaveTransactions.create(inputData);
+
+  const leaveDeductionData = await db.employeeMaster.findOne({
+    raw: true,
+    where: {
+      id: inputData.employeeId
+    },
+    attributes: ['name', 'email'],
+    include: [{
+      model: db.shiftMaster,
+      attributes: ['shiftStartTime', 'shiftEndTime']
+    }]
+  })
+
+  console.log(leaveDeductionData)
+
+  const leaveData = await db.leaveMaster.findOne({
+    raw: true,
+    where: {
+      leaveId: inputData.leaveAutoId
+    },
+    attributes: ['leaveName']
+  })
+  console.log(inputData)
+  eventEmitter.emit("autoLeaveDeductionMail", JSON.stringify({
+    email: leaveDeductionData.email,
+    name: leaveDeductionData.name,
+    date: inputData.appliedFor,
+    shiftStartTime: leaveDeductionData['shiftMaster.shiftStartTime'],
+    shiftEndTime: leaveDeductionData['shiftMaster.shiftEndTime'],
+    leaveType: leaveData.leaveName,
+    leaveDuration: (inputData.leaveCount === 0.5) ? "Half Day" : "Full Day",
+    punchInTime: "09:15:00",
+    punchOutTime: "17:53:00"
+  }))
   return 1;
 };
 

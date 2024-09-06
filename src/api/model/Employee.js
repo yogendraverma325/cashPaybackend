@@ -86,6 +86,9 @@ export default (sequelize, Sequelize) => {
     departmentId: {
       type: Sequelize.INTEGER,
     },
+    noticePeriodAutoId: {
+      type: Sequelize.INTEGER,
+    },
     companyId: {
       type: Sequelize.INTEGER,
     },
@@ -173,7 +176,10 @@ export default (sequelize, Sequelize) => {
     costId:{
       type: Sequelize.INTEGER,
     },
-    updatedBy:{
+    createdBy: {
+      type: Sequelize.INTEGER,
+    },
+    updatedBy: {
       type: Sequelize.INTEGER,
     },
     createdAt: {

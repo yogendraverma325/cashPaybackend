@@ -71,6 +71,10 @@ import EmployeeWorkExperience from "../api/model/EmployeeWorkExperience.js";
 import HrLetters from "../api/model/HrLetters.js"
 import HrDocumentMaster from "../api/model/HrDocumentMaster.js";
 import EmployeeCertificates from "../api/model/EmployeeCertificates.js";
+import SeparationMaster from "../api/model/SeparationMaster.js";
+import NoticePeriodMaster from "../api/model/NoticePeriodMaster.js";
+
+
 import literal from "sequelize";
 import QueryTypes from "sequelize";
 const sequelize = new Sequelize(
@@ -198,6 +202,9 @@ db.employeeWorkExperience = EmployeeWorkExperience(sequelize,Sequelize)
 db.hrLetters = HrLetters(sequelize,Sequelize)
 db.hrDocumentMaster = HrDocumentMaster(sequelize,Sequelize)
 db.employeeCertificates = EmployeeCertificates(sequelize,Sequelize)
+db.separationMaster = SeparationMaster(sequelize, Sequelize)
+db.noticePeriodMaster = NoticePeriodMaster(sequelize, Sequelize)
+
 db.holidayCompanyLocationConfiguration.hasOne(db.holidayMaster, {
   foreignKey: "holidayId",
   sourceKey: "holidayId",
@@ -544,4 +551,8 @@ db.hrLetters.hasOne(db.hrDocumentMaster,{
   foreignKey: "documentId",
   sourceKey: "documentType",
 })
+db.separationMaster.hasOne(db.employeeMaster, { foreignKey: "id", sourceKey: "employeeId" });
+db.separationMaster.hasOne(db.employeeMaster, { foreignKey: "id", sourceKey: "createdBy", as: 'initiatedByUser' });
+db.employeeMaster.hasOne(db.noticePeriodMaster,{foreignKey: "noticePeriodAutoId", sourceKey: "noticePeriodAutoId", })
+
 export default db;

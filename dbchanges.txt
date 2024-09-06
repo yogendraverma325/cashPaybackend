@@ -212,6 +212,7 @@ ADD COLUMN esicNumber TEXT AFTER epfApplicable,
 ADD COLUMN pfNumber TEXT AFTER esicNumber,
 ADD COLUMN uanNumber TEXT AFTER pfNumber;
 
+-------------------------------
 
 
 ------------------------------- 

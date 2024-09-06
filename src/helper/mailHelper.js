@@ -34,6 +34,10 @@ export default function getAllListeners(eventEmitter) {
     eventEmitter.on("revokeLeaveRequest", async (input) => {
         await revokeLeaveRequest(input)
     })
+
+    eventEmitter.on("autoLeaveDeductionMail", async (input) => {
+        await autoLeaveDeductionMail(input)
+    })
 }
 
 async function regularizationRequestMail(input) {
@@ -131,7 +135,7 @@ async function forgotPassword(input) {
         })
 
     } catch (error) {
-        console.log(error.response.body)
+        console.log(error)
         logger.error(error)
     }
 
@@ -147,8 +151,22 @@ async function revokeLeaveRequest(input) {
         })
 
     } catch (error) {
-        console.log(error.response.body)
+        console.log(error)
         logger.error(error)
     }
 
+}
+
+async function autoLeaveDeductionMail(input) {
+    try {
+        const userData = JSON.parse(input)
+        await helper.mailService({
+            to: userData.email,
+            subject: 'Auto Leave Deduction',
+            html: await emailTemplate.autoLeaveDeduction(userData)
+        })
+    } catch (error) {
+        console.log(error)
+        logger.error(error)
+    }
 }
