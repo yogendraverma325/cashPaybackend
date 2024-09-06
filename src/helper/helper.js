@@ -239,6 +239,10 @@ const getEmpProfile = async (EMP_ID) => {
         ],
       },
       {
+        model: db.noticePeriodMaster,
+        attributes: ['noticePeriodDuration']
+      },
+      {
         model: db.buMaster,
         required: true,
         attributes: ["buId", "buName", "buCode"],

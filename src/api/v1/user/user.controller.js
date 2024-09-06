@@ -487,7 +487,7 @@ class UserController {
     }
   }
 
-  async separationByEmployee(req, res) {
+  async initiateSeparation(req, res) {
     try {
       const result = await validator.separationByEmployee.validateAsync(req.body)
       const user = req.query.user || req.userId

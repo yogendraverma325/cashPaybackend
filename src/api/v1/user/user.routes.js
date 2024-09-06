@@ -31,5 +31,5 @@ export default Express
     .post("/forgotPassword", userController.forgotPassword)
     .post("/verifyOTP", userController.verifyOTP)
     .put("/resetPassword", userController.resetPassword)
-    .post("/separationByEmployee", authentication.authenticate, userController.separationByEmployee)
+    .post("/initiateSeparation", authentication.authenticate, userController.initiateSeparation)
     .get("/separationDetails", authentication.authenticate, userController.separationDetails)
