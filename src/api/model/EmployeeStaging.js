@@ -45,13 +45,13 @@ export default (sequelize, Sequelize) => {
         type: Sequelize.STRING(50)
       },
       countryId: {
-        type: Sequelize.INTEGER(10)
+        type: Sequelize.INTEGER
       },
       probationId: {
-        type: Sequelize.INTEGER(10)
+        type: Sequelize.INTEGER
       },
       dateOfBirth: {
-        type: Sequelize.DATE(45)
+        type: Sequelize.DATE
       },
       newCustomerName: {
         type: Sequelize.STRING(50)
@@ -78,80 +78,80 @@ export default (sequelize, Sequelize) => {
         type: Sequelize.STRING(20),
       },
       dateOfJoining: {
-        type: Sequelize.DATE(45),
+        type: Sequelize.DATE,
       },
       wrongPasswordCount: {
-        type: Sequelize.INTEGER(1),
+        type: Sequelize.INTEGER,
       },
       accountRecoveryTime: {
-        type: Sequelize.DATE(45),
+        type: Sequelize.DATE,
       },
       manager: {
-        type: Sequelize.INTEGER(11),
+        type: Sequelize.INTEGER,
       },
       role_id: {
-        type: Sequelize.INTEGER(11),
+        type: Sequelize.INTEGER,
       },
       designation_id: {
-        type: Sequelize.INTEGER(11),
+        type: Sequelize.INTEGER,
       },
       functionalAreaId: {
-        type: Sequelize.INTEGER(11),
+        type: Sequelize.INTEGER,
       },
       buId: {
-        type: Sequelize.INTEGER(11),
+        type: Sequelize.INTEGER,
       },
       sbuId: {
-        type: Sequelize.INTEGER(11),
+        type: Sequelize.INTEGER,
       },
       shiftId: {
-        type: Sequelize.INTEGER(11),
+        type: Sequelize.INTEGER,
       },
       departmentId: {
-        type: Sequelize.INTEGER(11),
+        type: Sequelize.INTEGER,
       },
       companyId: {
-        type: Sequelize.INTEGER(11),
+        type: Sequelize.INTEGER,
       },
       lastLogin: {
-        type: Sequelize.DATE(45),
+        type: Sequelize.DATE,
       },
       buHRId: {
-        type: Sequelize.INTEGER(11),
+        type: Sequelize.INTEGER,
       },
       buHeadId: {
-        type: Sequelize.INTEGER(11),
+        type: Sequelize.INTEGER,
       },
       attendancePolicyId: {
-        type: Sequelize.INTEGER(11),
+        type: Sequelize.INTEGER,
       },
       companyLocationId: {
-        type: Sequelize.INTEGER(11),
+        type: Sequelize.INTEGER,
       },
       weekOffId: {
-        type: Sequelize.INTEGER(11),
+        type: Sequelize.INTEGER,
       },
       permissionAndAccess: {
         type: Sequelize.STRING(255),
       },
       createdBy:{
-        type: Sequelize.INTEGER(1),
+        type: Sequelize.INTEGER,
       },
       updatedBy:{
-        type: Sequelize.INTEGER(11),
+        type: Sequelize.INTEGER,
       },
       createdAt: {
-        type: Sequelize.DATE(45),
+        type: Sequelize.DATE,
       },
       updatedAt: {
-        type: Sequelize.DATE(45),
+        type: Sequelize.DATE,
       },
       isActive: {
-        type: Sequelize.INTEGER(1),
+        type: Sequelize.INTEGER,
         defaultValue: 1,
       },
       isTempPassword: {
-        type: Sequelize.BOOLEAN(11),
+        type: Sequelize.BOOLEAN,
       },
     });
     return employeeStaging;
