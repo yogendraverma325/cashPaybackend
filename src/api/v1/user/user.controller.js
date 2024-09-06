@@ -7,6 +7,7 @@ import { Op } from "sequelize";
 import constant from "../../../constant/messages.js";
 import eventEmitter from "../../../services/eventService.js";
 import fs from "fs";
+import moment from "moment";
 
 class UserController {
   async globalSearch(req, res) {
@@ -478,6 +479,95 @@ class UserController {
         status: 200,
         msg: constant.PASSWORD_CHANGED,
       });
+    } catch (error) {
+      console.log(error);
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+
+  async separationByEmployee(req, res) {
+    try {
+      const result = await validator.separationByEmployee.validateAsync(req.body)
+      const user = req.query.user || req.userId
+
+      const existUser = await db.employeeMaster.findOne({
+        where: {
+          id: user
+        },
+        include: [
+          {
+            model: db.noticePeriodMaster,
+            attributes: ['noticePeriodDuration']
+          }
+        ]
+      })
+
+      const lastWorkingDay = moment(result.resignationDate, 'YYYY-MM-DD').add(existUser.dataValues.noticeperiodmaster.noticePeriodDuration, 'days')
+
+      const d = Math.floor(Date.now() / 1000);
+      const separationEmpAttachment = await helper.fileUpload(
+        result.attachment,
+        `separation_attachment_${d}`,
+        `uploads/${existUser.dataValues.empCode}`
+      );
+
+      await db.separationMaster.create({
+        employeeId: existUser.dataValues.id,
+        initiatedBy: parseInt(req.query.user) === parseInt(req.userId) ? "Self" : "Other",
+        noticePeriodDay: existUser.dataValues.noticeperiodmaster.noticePeriodDuration,
+        noticePeriodLastWorkingDay: lastWorkingDay.format("YYYY-MM-DD"),
+        resignationDate: result.resignationDate,
+        empProposedLastWorkingDay: result.empProposedLastWorkingDay,
+        empProposedRecoveryDays: result.empProposedRecoveryDays,
+        empReasonOfResignation: result.empReasonOfResignation,
+        empSalaryHike: result.empSalaryHike,
+        empPersonalEmailId: result.empPersonalEmailId,
+        empPersonalMobileNumber: result.empPersonalMobileNumber,
+        empRemark: result.empRemark,
+        empAttachment: separationEmpAttachment,
+        empSubmissionDate: moment()
+      })
+
+      return respHelper(res, {
+        status: 200,
+        msg: constant.SEPARATION_INITIATED
+      });
+    } catch (error) {
+      console.log(error);
+      if (error.isJoi === true) {
+        return respHelper(res, {
+          status: 422,
+          msg: error.details[0].message
+        });
+      }
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+
+  async separationDetails(req, res) {
+    try {
+
+      const user = req.query.user || req.userId
+
+      const separationData = await db.separationMaster.findOne({
+        where: {
+          employeeId: user
+        },
+        include: [{
+          model: db.employeeMaster,
+          attributes: ['empCode', 'name']
+        }]
+      })
+
+      return respHelper(res, {
+        status: 200,
+        data: separationData
+      })
+
     } catch (error) {
       console.log(error);
       return respHelper(res, {

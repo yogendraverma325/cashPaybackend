@@ -254,6 +254,20 @@ const forgotPasswordSchema = Joi.object({
   email: Joi.string().email().required().label("Email")
 })
 
+const separationByEmployee = Joi.object({
+  // noticePeriodDay: Joi.string(),
+  // noticePeriodLastWorkingDay: Joi.string(),
+  resignationDate: Joi.string(),
+  empProposedLastWorkingDay: Joi.string(),
+  empProposedRecoveryDays: Joi.string(),
+  empReasonOfResignation: Joi.string(),
+  empSalaryHike: Joi.string(),
+  empPersonalEmailId: Joi.string(),
+  empPersonalMobileNumber: Joi.string(),
+  empRemark: Joi.string(),
+  attachment: Joi.string(),
+  empSubmissionDate: Joi.string(),
+})
 
 export default {
   loginSchema,
@@ -281,5 +295,6 @@ export default {
   updateManagerSchema,
   updateProfilePictureSchema,
   emergencyContactDetails,
-  forgotPasswordSchema
+  forgotPasswordSchema,
+  separationByEmployee
 };

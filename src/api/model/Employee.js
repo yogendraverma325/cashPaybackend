@@ -80,6 +80,9 @@ export default (sequelize, Sequelize) => {
     departmentId: {
       type: Sequelize.INTEGER,
     },
+    noticePeriodAutoId: {
+      type: Sequelize.INTEGER,
+    },
     companyId: {
       type: Sequelize.INTEGER,
     },
@@ -104,10 +107,10 @@ export default (sequelize, Sequelize) => {
     permissionAndAccess: {
       type: Sequelize.STRING(255),
     },
-    createdBy:{
+    createdBy: {
       type: Sequelize.INTEGER,
     },
-    updatedBy:{
+    updatedBy: {
       type: Sequelize.INTEGER,
     },
     createdAt: {

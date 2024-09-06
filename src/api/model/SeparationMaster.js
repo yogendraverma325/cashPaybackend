@@ -26,7 +26,7 @@ export default (sequelize, Sequelize) => {
         empProposedRecoveryDays: {
             type: Sequelize.INTEGER
         },
-        empreasonOfResignation: {
+        empReasonOfResignation: {
             type: Sequelize.STRING
         },
         empNewOrganizationName: {
@@ -62,7 +62,7 @@ export default (sequelize, Sequelize) => {
         l1ProposedRecoveryDays: {
             type: Sequelize.INTEGER
         },
-        l1reasonForProposedRecoveryDays: {
+        l1ReasonForProposedRecoveryDays: {
             type: Sequelize.STRING
         },
         l1ReasonOfResignation: {
