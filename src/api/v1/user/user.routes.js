@@ -33,3 +33,4 @@ export default Express
     .put("/resetPassword", userController.resetPassword)
     .post("/initiateSeparation", authentication.authenticate, userController.initiateSeparation)
     .get("/separationDetails", authentication.authenticate, userController.separationDetails)
+    // .post("/managerInputOnseparation")

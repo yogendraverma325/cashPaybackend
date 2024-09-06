@@ -31,3 +31,5 @@ export default Express
     .get("/dashboardCard", masterController.dashboardCard)
     .get("/leave", masterController.leaveMaster)
     .get("/educations", masterController.educationMaster)
+    .get("/separationReason", masterController.separationReason)
+    .get("/separationType", masterController.separationType)

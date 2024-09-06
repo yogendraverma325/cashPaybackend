@@ -66,7 +66,8 @@ import FamilyMemberHistory from "../api/model/FamilyMemberHistory.js";
 import AttendanceHistory from "../api/model/AttendanceHistory.js";
 import SeparationMaster from "../api/model/SeparationMaster.js";
 import NoticePeriodMaster from "../api/model/NoticePeriodMaster.js";
-
+import SeparationType from "../api/model/SeparationType.js";
+import SeparationReason from "../api/model/SeparationReason.js";
 
 import literal from "sequelize";
 import QueryTypes from "sequelize"
@@ -187,6 +188,8 @@ db.familyMemberHistory = FamilyMemberHistory(sequelize, Sequelize)
 db.attendanceHistory = AttendanceHistory(sequelize, Sequelize)
 db.separationMaster = SeparationMaster(sequelize, Sequelize)
 db.noticePeriodMaster = NoticePeriodMaster(sequelize, Sequelize)
+db.separationType = SeparationType(sequelize, Sequelize)
+db.separationReason = SeparationReason(sequelize, Sequelize)
 
 db.holidayCompanyLocationConfiguration.hasOne(db.holidayMaster, {
   foreignKey: "holidayId",
@@ -403,6 +406,6 @@ db.buMapping.hasOne(db.employeeMaster, { foreignKey: "id", sourceKey: "headId", 
 db.buMapping.hasOne(db.employeeMaster, { foreignKey: "id", sourceKey: "buHrId", as: "buhrData" });
 db.separationMaster.hasOne(db.employeeMaster, { foreignKey: "id", sourceKey: "employeeId" });
 db.separationMaster.hasOne(db.employeeMaster, { foreignKey: "id", sourceKey: "createdBy", as: 'initiatedByUser' });
-db.employeeMaster.hasOne(db.noticePeriodMaster,{foreignKey: "noticePeriodAutoId", sourceKey: "noticePeriodAutoId", })
+db.employeeMaster.hasOne(db.noticePeriodMaster, { foreignKey: "noticePeriodAutoId", sourceKey: "noticePeriodAutoId", })
 
 export default db;

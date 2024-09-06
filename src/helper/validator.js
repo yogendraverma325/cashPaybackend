@@ -255,18 +255,29 @@ const forgotPasswordSchema = Joi.object({
 })
 
 const separationByEmployee = Joi.object({
-  // noticePeriodDay: Joi.string(),
-  // noticePeriodLastWorkingDay: Joi.string(),
-  resignationDate: Joi.string(),
-  empProposedLastWorkingDay: Joi.string(),
-  empProposedRecoveryDays: Joi.string(),
-  empReasonOfResignation: Joi.string(),
-  empSalaryHike: Joi.string(),
-  empPersonalEmailId: Joi.string(),
-  empPersonalMobileNumber: Joi.string(),
-  empRemark: Joi.string(),
-  attachment: Joi.string(),
-  empSubmissionDate: Joi.string(),
+  resignationDate: Joi.string().required().label("Resignation Date"),
+  empProposedLastWorkingDay: Joi.string().label("Proposed Last Working Days"),
+  empProposedRecoveryDays: Joi.number().label("Proposed Recovery Days"),
+  empReasonOfResignation: Joi.string().trim().required().label("Reason of Resignation"),
+  empNewOrganizationName: Joi.string().trim().allow("").label("New Organization Name"),
+  empSalaryHike: Joi.string().allow("").label("Salary Hike"),
+  empPersonalEmailId: Joi.string().required().label("Personal Email ID"),
+  empPersonalMobileNumber: Joi.string().required().label("Personal Mobile Number"),
+  empRemark: Joi.string().trim().max(100).allow("").label("Remark"),
+  attachment: Joi.string().optional(),
+})
+
+const managerInputOnseparation = Joi.object({
+  l1ProposedLastWorkingDay: Joi.string().required().label("Proposed last Working Day"),
+  l1ProposedRecoveryDays: Joi.number().required().label("Proposed Recovery Days"),
+  l1ReasonForProposedRecoveryDays: Joi.string().required().label("Reason for Proposed Recovery Days"),
+  l1ReasonOfResignation: Joi.string().trim().required().label("Reason Of Resignation"),
+  l1BillingType: Joi.string(),
+  l1CustomerName: Joi.string().trim().label("Customer Name"),
+  replacementRequired: Joi.string().label("Replacement Required"),
+  replacementRequiredBy: Joi.string().label("Replacement Required By"),
+  l1Remark: Joi.string().trim().max(100).allow("").label("Remark"),
+  attachment: Joi.string().optional(),
 })
 
 export default {
@@ -296,5 +307,6 @@ export default {
   updateProfilePictureSchema,
   emergencyContactDetails,
   forgotPasswordSchema,
-  separationByEmployee
+  separationByEmployee,
+  managerInputOnseparation
 };

@@ -575,6 +575,25 @@ class UserController {
       });
     }
   }
+
+  async managerInputOnseparation(req, res) {
+    try {
+      // const result=await 
+
+
+    } catch (error) {
+      console.log(error);
+      if (error.isJoi === true) {
+        return respHelper(res, {
+          status: 422,
+          msg: error.details[0].message
+        });
+      }
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
 }
 
 export default new UserController();

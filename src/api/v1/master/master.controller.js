@@ -44,11 +44,11 @@ class MasterController {
             usersData.role_id != 2 &&
             usersData.role_id != 5
           ) {
-            let permissionAssignTousers=[];
-            if( usersData.permissionAndAccess ){
-        permissionAssignTousers = usersData.permissionAndAccess 
-                    .split(",")
-                    .map((el) => parseInt(el));
+            let permissionAssignTousers = [];
+            if (usersData.permissionAndAccess) {
+              permissionAssignTousers = usersData.permissionAndAccess
+                .split(",")
+                .map((el) => parseInt(el));
             }
             let permissionAndAccess = await db.permissoinandaccess.findAll({
               where: {
@@ -196,7 +196,7 @@ class MasterController {
               {
                 model: db.buMaster,
                 seperate: true,
-                attributes: ["buName","buCode"],
+                attributes: ["buName", "buCode"],
                 where: {
                   ...(buSearch && { buName: { [Op.like]: `%${buSearch}%` } }),
                   ...buFIlter,
@@ -205,7 +205,7 @@ class MasterController {
               {
                 model: db.sbuMaster,
                 seperate: true,
-                attributes: ["sbuname","code"],
+                attributes: ["sbuname", "code"],
                 where: {
                   ...(sbuSearch && {
                     sbuname: { [Op.like]: `%${sbuSearch}%` },
@@ -1015,6 +1015,49 @@ class MasterController {
         status: 200,
         data: educationData,
       });
+    } catch (error) {
+      console.log(error);
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+
+  async separationReason(req, res) {
+    try {
+
+      const separationReasonData = await db.separationReason.findAll({
+        where: {
+          separationTypeAutoId: (req.query.type) ? req.query.type : 1
+        },
+        attributes: ['separationReason']
+      })
+
+      return respHelper(res, {
+        status: 200,
+        data: separationReasonData
+      });
+
+    } catch (error) {
+      console.log(error);
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+
+  async separationType(req, res) {
+    try {
+
+      const separationTypeData = await db.separationType.findAll({
+        attributes: ['separationTypeAutoId', 'separationTypeName']
+      })
+
+      return respHelper(res, {
+        status: 200,
+        data: separationTypeData
+      });
+
     } catch (error) {
       console.log(error);
       return respHelper(res, {
