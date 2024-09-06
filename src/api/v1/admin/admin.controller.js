@@ -554,12 +554,6 @@ class AdminController {
                 },
               },
               {
-                model: db.employeeStagingMaster,
-                required: false,
-                as: "managerData",
-                attributes: ["id", "name", "email", "empCode"],
-              },
-              {
                 model: db.companyLocationMaster,
                 attributes: ["address1", "address2"]
               }

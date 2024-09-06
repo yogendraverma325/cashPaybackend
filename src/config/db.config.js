@@ -402,16 +402,6 @@ db.buMapping.hasOne(db.employeeMaster, { foreignKey: "id", sourceKey: "buHrId",a
 db.companyLocationMaster.hasOne(db.cityMaster, { foreignKey: "cityId", sourceKey: "cityId" });
 db.companyLocationMaster.hasOne(db.pinCodeMaster, { foreignKey: "pincodeId", sourceKey: "pincodeId" });
 
-db.employeeStagingMaster.hasMany(db.employeeStagingMaster, {
-  foreignKey: "manager",
-  sourceKey: "id",
-  as: "reportie",
-});
-db.employeeStagingMaster.hasOne(db.employeeStagingMaster, {
-  foreignKey: "id",
-  sourceKey: "manager",
-  as: "managerData",
-});
 db.employeeStagingMaster.hasOne(db.roleMaster, {
   foreignKey: "role_id",
   sourceKey: "role_id",
