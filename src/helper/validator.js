@@ -353,7 +353,7 @@ const separationByEmployee = Joi.object({
   empPersonalEmailId: Joi.string().required().label("Personal Email ID"),
   empPersonalMobileNumber: Joi.string().required().label("Personal Mobile Number"),
   empRemark: Joi.string().trim().max(100).allow("").label("Remark"),
-  attachment: Joi.string().optional(),
+  attachment: Joi.string().allow("").optional(),
 })
 
 const managerInputOnseparation = Joi.object({
@@ -364,7 +364,7 @@ const managerInputOnseparation = Joi.object({
   l1ReasonOfResignation: Joi.string().trim().required().label("Reason Of Resignation"),
   l1BillingType: Joi.string(),
   l1CustomerName: Joi.string().trim().label("Customer Name"),
-  replacementRequired: Joi.string().label("Replacement Required"),
+  replacementRequired: Joi.boolean().label("Replacement Required"),
   replacementRequiredBy: Joi.string().label("Replacement Required By"),
   l1Remark: Joi.string().trim().max(100).allow("").label("Remark"),
   attachment: Joi.string().optional(),

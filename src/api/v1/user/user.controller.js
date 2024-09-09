@@ -701,11 +701,6 @@ class UserController {
       const lastWorkingDay = moment(result.resignationDate, 'YYYY-MM-DD').add(existUser.dataValues.noticeperiodmaster.noticePeriodDuration, 'days')
 
       const d = Math.floor(Date.now() / 1000);
-      const separationEmpAttachment = await helper.fileUpload(
-        result.attachment,
-        `separation_attachment_${d}`,
-        `uploads/${existUser.dataValues.empCode}`
-      );
 
       await db.separationMaster.create({
         employeeId: existUser.dataValues.id,
@@ -720,7 +715,13 @@ class UserController {
         empPersonalEmailId: result.empPersonalEmailId,
         empPersonalMobileNumber: result.empPersonalMobileNumber,
         empRemark: result.empRemark,
-        empAttachment: separationEmpAttachment,
+        pendingAt: existUser.dataValues.manager,
+        finalStatus: "User_Submitted",
+        empAttachment: (result.attachment != '') ? await helper.fileUpload(
+          result.attachment,
+          `separation_attachment_${d}`,
+          `uploads/${existUser.dataValues.empCode}`
+        ) : null,
         empSubmissionDate: moment()
       })
 
@@ -745,11 +746,16 @@ class UserController {
   async separationDetails(req, res) {
     try {
 
-      const user = req.query.user || req.userId
+      // const user = req.query.user || req.userId
 
       const separationData = await db.separationMaster.findOne({
         where: {
-          employeeId: user
+          finalStatus: 'User_Submitted',
+          [Op.or]: [{
+            employeeId: req.userId
+          }, {
+            pendingAt: req.userId
+          }]
         },
         include: [{
           model: db.employeeMaster,
@@ -774,6 +780,24 @@ class UserController {
     try {
       const result = await validator.managerInputOnseparation.validateAsync(req.body)
 
+      const separationData = await db.separationMaster.findOne({
+        where: {
+          resignationAutoId: result.resignationAutoId
+        },
+        attributes: ['initiatedBy'],
+        include: [{
+          model: db.employeeMaster,
+          attributes: ['empCode', 'name', 'email']
+        }]
+      })
+
+      const d = Math.floor(Date.now() / 1000);
+      const separationManagerAttachment = await helper.fileUpload(
+        result.attachment,
+        `separation_attachment_${d}`,
+        `uploads/${separationData.dataValues.employee.empCode}`
+      );
+
       await db.separationMaster.update({
         l1ProposedLastWorkingDay: result.l1ProposedLastWorkingDay,
         l1ProposedRecoveryDays: result.l1ProposedRecoveryDays,
@@ -784,7 +808,9 @@ class UserController {
         replacementRequired: result.replacementRequired,
         replacementRequiredBy: result.replacementRequiredBy,
         l1Remark: result.l1Remark,
-        attachment
+        l1Attachment: separationManagerAttachment,
+        l1SubmissionDate: moment(),
+
       }, {
         where: {
           resignationAutoId: result.resignationAutoId
@@ -810,36 +836,36 @@ class UserController {
     }
   }
 
-  async rejectSeparation(req, res) {
-    try {
-      const result = await validator.rejectSeparation.validateAsync(req.body)
+  // async rejectSeparation(req, res) {
+  //   try {
+  //     const result = await validator.rejectSeparation.validateAsync(req.body)
 
-      await db.separationMaster.update({
+  //     await db.separationMaster.update({
 
-      }, {
-        where: {
-          resignationAutoId: result.resignationAutoId
-        }
-      })
+  //     }, {
+  //       where: {
+  //         resignationAutoId: result.resignationAutoId
+  //       }
+  //     })
 
 
-      return respHelper(res, {
-        status: 200,
-        // msg:constant
-      })
-    } catch (error) {
-      console.log(error);
-      if (error.isJoi === true) {
-        return respHelper(res, {
-          status: 422,
-          msg: error.details[0].message
-        });
-      }
-      return respHelper(res, {
-        status: 500,
-      });
-    }
-  }
+  //     return respHelper(res, {
+  //       status: 200,
+  //       // msg:constant
+  //     })
+  //   } catch (error) {
+  //     console.log(error);
+  //     if (error.isJoi === true) {
+  //       return respHelper(res, {
+  //         status: 422,
+  //         msg: error.details[0].message
+  //       });
+  //     }
+  //     return respHelper(res, {
+  //       status: 500,
+  //     });
+  //   }
+  // }
 }
 
 export default new UserController();
