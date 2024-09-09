@@ -23,7 +23,13 @@ export default (sequelize, Sequelize) => {
     lastName: {
       type: Sequelize.STRING(255),
     },
+    middleName:{
+      type: Sequelize.STRING(255),
+    },
     panNo: {
+      type: Sequelize.STRING(255),
+    },
+    panImg:{
       type: Sequelize.STRING(255),
     },
     esicNo: {
@@ -106,6 +112,69 @@ export default (sequelize, Sequelize) => {
     },
     permissionAndAccess: {
       type: Sequelize.STRING(255),
+    },
+    salutationId:{
+      type: Sequelize.INTEGER,
+    },
+    adhrNo:{
+      type: Sequelize.STRING(255),
+    },
+    drivingLicence:{
+      type: Sequelize.STRING(255),
+    },
+    dlImg:{
+      type: Sequelize.STRING(255),
+    },
+    adhrFront:{
+      type: Sequelize.STRING(255),
+    },
+    adhrBack:{
+      type: Sequelize.STRING(255),
+    },
+    passportNumber:{
+      type: Sequelize.STRING(255),
+    },
+    passportImg:{
+      type: Sequelize.STRING(255),
+    },
+    abstractReasoning:{
+      type: Sequelize.STRING,
+    },
+    numericalSequences:{
+      type: Sequelize.STRING,
+    },
+    numericalCalculation:{
+      type: Sequelize.STRING,
+    },
+    mbtiType:{
+      type: Sequelize.STRING,
+    },
+    dataCardAdmin:{
+      type: Sequelize.INTEGER,
+    },
+    visitingCardAdmin:{
+      type: Sequelize.INTEGER,
+    },
+    workstationAdmin:{
+      type: Sequelize.INTEGER,
+    },
+    lastIncrementDate:{
+      type: Sequelize.STRING
+    },
+    iqTestApplicable:{
+      type: Sequelize.INTEGER,
+    },
+    mobileAdmin:{
+      type: Sequelize.INTEGER,
+    },
+    recruiterName:{
+      type: Sequelize.STRING,
+    },
+    createdBy:{
+      type: Sequelize.INTEGER,
+    },
+    costId:{
+      type: Sequelize.INTEGER,
     },
     createdBy: {
       type: Sequelize.INTEGER,

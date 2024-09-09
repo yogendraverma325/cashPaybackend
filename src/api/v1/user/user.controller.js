@@ -80,6 +80,10 @@ class UserController {
         attributes: { exclude: ["password", "role_id", "designation_id"] },
         include: [
           {
+            model: db.salutationMaster,
+            attributes: ["salutationId", "salutation"],
+          },
+          {
             model: db.biographicalDetails,
             attributes: {
               exclude: [
@@ -90,6 +94,31 @@ class UserController {
                 "isActive",
               ],
             },
+            include: [
+              {
+                model: db.employeeMaster,
+                attributes: [
+                  "id",
+                  "name",
+                  "firstName",
+                  "middleName",
+                  "lastName",
+                  "dataCardAdmin",
+                  "visitingCardAdmin",
+                  "workstationAdmin",
+                  "lastIncrementDate",
+                  "iqTestApplicable",
+                  "mobileAdmin",
+                  "recruiterName"
+                ],
+                include: [
+                  {
+                    model: db.salutationMaster,
+                    attributes: ["salutationId", "salutation"],
+                  },
+                ],
+              },
+            ],
           },
           {
             model: db.jobDetails,
@@ -102,6 +131,90 @@ class UserController {
                 "isActive",
               ],
             },
+            include: [
+              {
+                model: db.employeeMaster,
+                attributes: ["id"],
+                include: [
+                  {
+                    model: db.companyLocationMaster,
+                    attributes: ["address1"],
+                    include: [
+                      {
+                        model: db.stateMaster,
+                        attributes: ["stateId", "stateName"],
+                      },
+                      {
+                        model: db.cityMaster,
+                        attributes: ["cityId", "cityName"],
+                      },
+                    ],
+                  },
+                ],
+              },
+              {
+                model: db.unionCodIncrementMaster,
+                as: "incrementCycle",
+                attributes: {
+                  exclude: [
+                    "createdAt",
+                    "createdBy",
+                    "updatedBy",
+                    "updatedAt",
+                    "isActive",
+                  ],
+                },
+              },
+              {
+                model: db.bandMaster,
+                attributes: {
+                  exclude: [
+                    "createdAt",
+                    "createdBy",
+                    "updatedBy",
+                    "updatedAt",
+                    "isActive",
+                  ],
+                },
+              },
+              {
+                model: db.gradeMaster,
+                attributes: {
+                  exclude: [
+                    "createdAt",
+                    "createdBy",
+                    "updatedBy",
+                    "updatedAt",
+                    "isActive",
+                  ],
+                },
+              },
+              {
+                model: db.jobLevelMaster,
+                attributes: {
+                  exclude: [
+                    "createdAt",
+                    "createdBy",
+                    "updatedBy",
+                    "updatedAt",
+                    "isActive",
+                  ],
+                },
+              },
+              {
+                model: db.stateMaster,
+                attributes: {
+                  exclude: [
+                    "createdAt",
+                    "createdBy",
+                    "updatedBy",
+                    "updatedAt",
+                    "isActive",
+                  ],
+                },
+                as:"lwfStateName"
+              },
+            ],
           },
           {
             model: db.emergencyDetails,
@@ -176,6 +289,85 @@ class UserController {
               ],
             },
           },
+          {
+            model: db.employeeAddress,
+            include: [
+              {
+                model: db.countryMaster,
+                attributes: ["countryId", "countryName"],
+                as: "currentcountry",
+              },
+              {
+                model: db.countryMaster,
+                attributes: ["countryId", "countryName"],
+                as: "permanentcountry",
+              },
+              {
+                model: db.countryMaster,
+                attributes: ["countryId", "countryName"],
+                as: "emergencycountry",
+              },
+              {
+                model: db.stateMaster,
+                attributes: ["stateId", "stateName"],
+                as: "currentstate",
+              },
+              {
+                model: db.stateMaster,
+                attributes: ["stateId", "stateName"],
+                as: "permanentstate",
+              },
+              {
+                model: db.stateMaster,
+                attributes: ["stateId", "stateName"],
+                as: "emergencystate",
+              },
+              {
+                model: db.cityMaster,
+                attributes: ["cityId", "cityName"],
+                as: "currentcity",
+              },
+              {
+                model: db.cityMaster,
+                attributes: ["cityId", "cityName"],
+                as: "permanentcity",
+              },
+              {
+                model: db.cityMaster,
+                attributes: ["cityId", "cityName"],
+                as: "emergencycity",
+              },
+              {
+                model:db.pinCodeMaster,
+                attributes:['pincodeId','pincode'],
+                as:"currentpincode"
+              },
+              {
+                model:db.pinCodeMaster,
+                attributes:['pincodeId','pincode'],
+                as:"permanentpincode"
+              },
+              {
+                model:db.pinCodeMaster,
+                attributes:['pincodeId','pincode'],
+                as:"emergencypincode"
+              }
+            ],
+          },
+          {
+           model:db.employeeWorkExperience
+          },
+          {
+            model:db.hrLetters,
+            attributes:['documentType','documentImage'],
+            include:{
+              model:db.hrDocumentMaster,
+              attributes:['documentId','documentName']
+            }
+          },
+          {
+            model:db.employeeCertificates
+          }
         ],
       });
 
@@ -383,12 +575,14 @@ class UserController {
 
   async forgotPassword(req, res) {
     try {
-      const result = await validator.forgotPasswordSchema.validateAsync(req.body)
+      const result = await validator.forgotPasswordSchema.validateAsync(
+        req.body
+      );
 
       const getEmployee = await db.employeeMaster.findOne({
         where: {
           email: result.email,
-          isActive: 1
+          isActive: 1,
         },
       });
 
@@ -424,7 +618,7 @@ class UserController {
       if (error.isJoi === true) {
         return respHelper(res, {
           status: 422,
-          msg: error.details[0].message
+          msg: error.details[0].message,
         });
       }
       return respHelper(res, {

@@ -1,24 +1,36 @@
 export default (sequelize, Sequelize) => {
-    const employeeEmergencyContact = sequelize.define("employeeemergencycontact", {
-        emergencyContactId: {
+    const employeeCertificates = sequelize.define("employeecertificates", {
+        certificateId: {
             type: Sequelize.INTEGER,
             primaryKey: true,
             autoIncrement: true
         },
         userId: {
-            type: Sequelize.INTEGER,
+            type: Sequelize.INTEGER
         },
-        emergencyContactName: {
+        certification: {
             type: Sequelize.STRING,
         },
-        emergencyContactNumber: {
+        expiryDate: {
             type: Sequelize.STRING,
         },
-        emergencyContactRelation: {
+        programName: {
             type: Sequelize.STRING,
         },
-        emergencyBloodGroup:{
+        skillProduct: {
             type: Sequelize.STRING,
+        },
+        oem: {
+            type: Sequelize.STRING,
+        },
+        completionStatus:{
+            type: Sequelize.STRING,
+        },
+        certificationAndValidityFirst:{
+            type: Sequelize.STRING
+        },
+        certificationAndValiditySecond:{
+            type: Sequelize.STRING
         },
         createdAt: {
             type: Sequelize.DATE
@@ -36,5 +48,5 @@ export default (sequelize, Sequelize) => {
             type: Sequelize.BOOLEAN
         }
     })
-    return employeeEmergencyContact
+    return employeeCertificates
 }

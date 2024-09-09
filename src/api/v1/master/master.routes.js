@@ -33,3 +33,4 @@ export default Express
     .get("/educations", masterController.educationMaster)
     .get("/separationReason", masterController.separationReason)
     .get("/separationType", masterController.separationType)
+    .get("/hrDocument", masterController.hrDocumentMaster)

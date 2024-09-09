@@ -1,24 +1,15 @@
 export default (sequelize, Sequelize) => {
-    const employeeEmergencyContact = sequelize.define("employeeemergencycontact", {
-        emergencyContactId: {
+    const costCenterMaster = sequelize.define("costCenterMaster", {
+        costCenterId: {
             type: Sequelize.INTEGER,
             primaryKey: true,
             autoIncrement: true
         },
-        userId: {
-            type: Sequelize.INTEGER,
+        costCenterName: {
+            type: Sequelize.STRING
         },
-        emergencyContactName: {
-            type: Sequelize.STRING,
-        },
-        emergencyContactNumber: {
-            type: Sequelize.STRING,
-        },
-        emergencyContactRelation: {
-            type: Sequelize.STRING,
-        },
-        emergencyBloodGroup:{
-            type: Sequelize.STRING,
+        costCenterCode: {
+            type: Sequelize.STRING
         },
         createdAt: {
             type: Sequelize.DATE
@@ -36,5 +27,5 @@ export default (sequelize, Sequelize) => {
             type: Sequelize.BOOLEAN
         }
     })
-    return employeeEmergencyContact
+    return costCenterMaster
 }

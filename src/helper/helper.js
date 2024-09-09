@@ -248,6 +248,11 @@ const getEmpProfile = async (EMP_ID) => {
         attributes: ["buId", "buName", "buCode"],
       },
       {
+        model: db.sbuMaster,
+        seperate: true,
+        attributes: ["sbuname","code"]
+      },
+      {
         model: db.departmentMaster,
         required: true,
         attributes: ["departmentId", "departmentCode", "departmentName"],
