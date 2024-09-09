@@ -746,8 +746,6 @@ class UserController {
   async separationDetails(req, res) {
     try {
 
-      // const user = req.query.user || req.userId
-
       const separationData = await db.separationMaster.findOne({
         where: {
           finalStatus: 'User_Submitted',
@@ -787,7 +785,7 @@ class UserController {
         attributes: ['initiatedBy'],
         include: [{
           model: db.employeeMaster,
-          attributes: ['empCode', 'name', 'email']
+          attributes: ['empCode', 'name', 'email', 'buHRId'],
         }]
       })
 
@@ -810,7 +808,8 @@ class UserController {
         l1Remark: result.l1Remark,
         l1Attachment: separationManagerAttachment,
         l1SubmissionDate: moment(),
-
+        pendingAt: separationData.dataValues.employee.buHRId,
+        l1RequestStatus: "L1_Approved"
       }, {
         where: {
           resignationAutoId: result.resignationAutoId
