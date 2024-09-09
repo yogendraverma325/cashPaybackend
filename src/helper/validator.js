@@ -357,6 +357,7 @@ const separationByEmployee = Joi.object({
 })
 
 const managerInputOnseparation = Joi.object({
+  resignationAutoId: Joi.number(),
   l1ProposedLastWorkingDay: Joi.string().required().label("Proposed last Working Day"),
   l1ProposedRecoveryDays: Joi.number().required().label("Proposed Recovery Days"),
   l1ReasonForProposedRecoveryDays: Joi.string().required().label("Reason for Proposed Recovery Days"),
@@ -367,6 +368,12 @@ const managerInputOnseparation = Joi.object({
   replacementRequiredBy: Joi.string().label("Replacement Required By"),
   l1Remark: Joi.string().trim().max(100).allow("").label("Remark"),
   attachment: Joi.string().optional(),
+})
+
+const rejectSeparation = Joi.object({
+  resignationAutoId: Joi.number(),
+  reason: Joi.string().trim().label("Reason"),
+  remark: Joi.string().trim().max(100).label("Remark")
 })
 
 export default {
@@ -402,5 +409,7 @@ export default {
   addEmployeeCertificates,
   updateEmployeeCertificates,
   updateContactInfo,
-  separationByEmployee
+  separationByEmployee,
+  managerInputOnseparation,
+  rejectSeparation
 };

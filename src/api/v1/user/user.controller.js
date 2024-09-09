@@ -212,7 +212,7 @@ class UserController {
                     "isActive",
                   ],
                 },
-                as:"lwfStateName"
+                as: "lwfStateName"
               },
             ],
           },
@@ -338,35 +338,35 @@ class UserController {
                 as: "emergencycity",
               },
               {
-                model:db.pinCodeMaster,
-                attributes:['pincodeId','pincode'],
-                as:"currentpincode"
+                model: db.pinCodeMaster,
+                attributes: ['pincodeId', 'pincode'],
+                as: "currentpincode"
               },
               {
-                model:db.pinCodeMaster,
-                attributes:['pincodeId','pincode'],
-                as:"permanentpincode"
+                model: db.pinCodeMaster,
+                attributes: ['pincodeId', 'pincode'],
+                as: "permanentpincode"
               },
               {
-                model:db.pinCodeMaster,
-                attributes:['pincodeId','pincode'],
-                as:"emergencypincode"
+                model: db.pinCodeMaster,
+                attributes: ['pincodeId', 'pincode'],
+                as: "emergencypincode"
               }
             ],
           },
           {
-           model:db.employeeWorkExperience
+            model: db.employeeWorkExperience
           },
           {
-            model:db.hrLetters,
-            attributes:['documentType','documentImage'],
-            include:{
-              model:db.hrDocumentMaster,
-              attributes:['documentId','documentName']
+            model: db.hrLetters,
+            attributes: ['documentType', 'documentImage'],
+            include: {
+              model: db.hrDocumentMaster,
+              attributes: ['documentId', 'documentName']
             }
           },
           {
-            model:db.employeeCertificates
+            model: db.employeeCertificates
           }
         ],
       });
@@ -772,9 +772,61 @@ class UserController {
 
   async managerInputOnseparation(req, res) {
     try {
-      // const result=await 
+      const result = await validator.managerInputOnseparation.validateAsync(req.body)
+
+      await db.separationMaster.update({
+        l1ProposedLastWorkingDay: result.l1ProposedLastWorkingDay,
+        l1ProposedRecoveryDays: result.l1ProposedRecoveryDays,
+        l1ReasonForProposedRecoveryDays: result.l1ReasonForProposedRecoveryDays,
+        l1ReasonOfResignation: result.l1ReasonOfResignation,
+        l1BillingType: result.l1BillingType,
+        l1CustomerName: result.l1CustomerName,
+        replacementRequired: result.replacementRequired,
+        replacementRequiredBy: result.replacementRequiredBy,
+        l1Remark: result.l1Remark,
+        attachment
+      }, {
+        where: {
+          resignationAutoId: result.resignationAutoId
+        }
+      })
+
+      return respHelper(res, {
+        status: 200,
+        msg: "Filled Remark"
+      });
+
+    } catch (error) {
+      console.log(error);
+      if (error.isJoi === true) {
+        return respHelper(res, {
+          status: 422,
+          msg: error.details[0].message
+        });
+      }
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+
+  async rejectSeparation(req, res) {
+    try {
+      const result = await validator.rejectSeparation.validateAsync(req.body)
+
+      await db.separationMaster.update({
+
+      }, {
+        where: {
+          resignationAutoId: result.resignationAutoId
+        }
+      })
 
 
+      return respHelper(res, {
+        status: 200,
+        // msg:constant
+      })
     } catch (error) {
       console.log(error);
       if (error.isJoi === true) {
