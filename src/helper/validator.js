@@ -376,6 +376,31 @@ const rejectSeparation = Joi.object({
   remark: Joi.string().trim().max(100).label("Remark")
 })
 
+const buhrInputOnSeparation = Joi.object({
+  resignationAutoId: Joi.number(),
+  // l2LastWorkingDay
+  // l2RecoveryDays
+  // l2RecoveryDaysReason
+  // l2SeparationType
+  // l2ReasonOfSeparation
+  // l2NewOrganizationName
+  // l2SalaryHike
+  // doNotReHire
+  // l2BillingType
+  // l2CustomerName
+  // shortFallPayoutBasis
+  // shortFallPayoutDays
+  // ndaConfirmation
+  // holdFnf
+  // holdFnfTillDate
+  // holdFnfReason
+  // l2SubmissionDate
+  // l2RequestStatus
+  // finalStatus
+  // l2Remark
+  // l2Attachment
+})
+
 export default {
   loginSchema,
   userCreationSchema,
@@ -411,5 +436,6 @@ export default {
   updateContactInfo,
   separationByEmployee,
   managerInputOnseparation,
-  rejectSeparation
+  rejectSeparation,
+  buhrInputOnSeparation
 };

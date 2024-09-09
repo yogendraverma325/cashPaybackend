@@ -1,3 +1,9 @@
+//------------------------------------ 2024-09-09 -----------------------------------------//
+ALTER TABLE `hrms_live`.`separationmaster` 
+ADD COLUMN `l1RejectionReason` VARCHAR(100) NULL DEFAULT NULL AFTER `l1RevokeDate`,
+ADD COLUMN `l2RejectionReason` VARCHAR(100) NULL DEFAULT NULL AFTER `l2RequestStatus`;
+
+
 //-------------------------------------2024-09-05------------------------------------------//
 ALTER TABLE `hrms_live`.`employee` 
 ADD COLUMN `dataCardAdmin` INT NULL DEFAULT NULL AFTER `mbtiType`,

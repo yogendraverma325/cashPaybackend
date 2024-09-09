@@ -717,7 +717,7 @@ class UserController {
         empRemark: result.empRemark,
         pendingAt: existUser.dataValues.manager,
         finalStatus: "User_Submitted",
-        empAttachment: (result.attachment != '') ? await helper.fileUpload(
+        empAttachment: (result.attachment) ? await helper.fileUpload(
           result.attachment,
           `separation_attachment_${d}`,
           `uploads/${existUser.dataValues.empCode}`
@@ -727,7 +727,7 @@ class UserController {
 
       return respHelper(res, {
         status: 200,
-        msg: constant.SEPARATION_INITIATED
+        msg: constant.SEPARATION_STATUS.replace("<status>", "Initiated")
       });
     } catch (error) {
       console.log(error);
@@ -818,7 +818,7 @@ class UserController {
 
       return respHelper(res, {
         status: 200,
-        msg: "Filled Remark"
+        msg: constant.SEPARATION_STATUS.replace("<status>", 'Approved')
       });
 
     } catch (error) {
@@ -835,36 +835,59 @@ class UserController {
     }
   }
 
-  // async rejectSeparation(req, res) {
-  //   try {
-  //     const result = await validator.rejectSeparation.validateAsync(req.body)
+  async rejectSeparation(req, res) {
+    try {
+      const result = await validator.rejectSeparation.validateAsync(req.body)
 
-  //     await db.separationMaster.update({
+      await db.separationMaster.update({
+        l1SubmissionDate: moment(),
+        l1Remark: result.remark,
+        l1RejectionReason: result.reason,
+        l1SubmissionDate: moment(),
+        l1RequestStatus: "Rejected",
+        finalStatus: "L1_Rejected"
+      }, {
+        where: {
+          resignationAutoId: result.resignationAutoId
+        }
+      })
 
-  //     }, {
-  //       where: {
-  //         resignationAutoId: result.resignationAutoId
-  //       }
-  //     })
+      return respHelper(res, {
+        status: 200,
+        msg: constant.SEPARATION_STATUS.replace("<status>", 'Rejected')
+      })
+    } catch (error) {
+      console.log(error);
+      if (error.isJoi === true) {
+        return respHelper(res, {
+          status: 422,
+          msg: error.details[0].message
+        });
+      }
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+
+  async buhrInputOnSeparation(req, res) {
+    try {
+// const result=await
 
 
-  //     return respHelper(res, {
-  //       status: 200,
-  //       // msg:constant
-  //     })
-  //   } catch (error) {
-  //     console.log(error);
-  //     if (error.isJoi === true) {
-  //       return respHelper(res, {
-  //         status: 422,
-  //         msg: error.details[0].message
-  //       });
-  //     }
-  //     return respHelper(res, {
-  //       status: 500,
-  //     });
-  //   }
-  // }
+    } catch (error) {
+      console.log(error);
+      if (error.isJoi === true) {
+        return respHelper(res, {
+          status: 422,
+          msg: error.details[0].message
+        });
+      }
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
 }
 
 export default new UserController();
