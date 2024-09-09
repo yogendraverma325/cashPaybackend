@@ -107,6 +107,12 @@ export default (sequelize, Sequelize) => {
     permissionAndAccess: {
       type: Sequelize.STRING(255),
     },
+    positionType: {
+      type: Sequelize.STRING(45)
+    },
+    newCustomerName: {
+      type: Sequelize.STRING(45)
+    },
     createdBy:{
       type: Sequelize.INTEGER,
     },

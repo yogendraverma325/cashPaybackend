@@ -44,8 +44,8 @@ export default (sequelize, Sequelize) => {
       maritalStatus: {
         type: Sequelize.STRING(50)
       },
-      countryId: {
-        type: Sequelize.INTEGER
+      nationality: {
+        type: Sequelize.STRING(50)
       },
       probationId: {
         type: Sequelize.INTEGER

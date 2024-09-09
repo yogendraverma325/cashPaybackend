@@ -40,3 +40,4 @@ export default Express
     .get("/sbu", masterController.sbu)
     .get("/buhr", masterController.buhr)
     .get("/buhead", masterController.buhead)
+    .get("/probation", masterController.probation)

@@ -65,6 +65,7 @@ import EmployeeEducationDetailsHistory from "../api/model/EmployeeEducationDetai
 import FamilyMemberHistory from "../api/model/FamilyMemberHistory.js";
 import AttendanceHistory from "../api/model/AttendanceHistory.js";
 import EmployeeStaging from "../api/model/EmployeeStaging.js";
+import ProbationMaster from "../api/model/ProbationMaster.js";
 
 import literal from "sequelize";
 import QueryTypes from "sequelize"
@@ -184,6 +185,7 @@ db.employeeEducationDetailsHistory = EmployeeEducationDetailsHistory(sequelize, 
 db.familyMemberHistory = FamilyMemberHistory(sequelize, Sequelize)
 db.attendanceHistory = AttendanceHistory(sequelize, Sequelize)
 db.employeeStagingMaster = EmployeeStaging(sequelize, Sequelize);
+db.probationMaster = ProbationMaster(sequelize, Sequelize);
 
 db.holidayCompanyLocationConfiguration.hasOne(db.holidayMaster, {
   foreignKey: "holidayId",

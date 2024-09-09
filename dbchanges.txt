@@ -233,3 +233,12 @@ also modal
 
 add new column in employee modal of source code as "dateOfJoining"
 
+Date 09-09-2024
+
+ALTER TABLE `hrms_live`.`employee` 
+ADD COLUMN `positionType` VARCHAR(45) NULL DEFAULT NULL AFTER `costId`;
+ALTER TABLE `hrms_live`.`employee` 
+ADD COLUMN `newCustomerName` VARCHAR(45) NULL DEFAULT NULL AFTER `positionType`;
+
+
+

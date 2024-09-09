@@ -272,9 +272,9 @@ const onboardEmployeeSchema = Joi.object({
   middleName: Joi.string().trim().allow('').label("Middle Name"),
   lastName: Joi.string().trim().allow('').label("Last Name"),
 
-  panNo: Joi.string().trim().required().label("PAN Number"),
-  uanNo: Joi.string().trim().allow('').label("UAN Number"),
-  pfNo: Joi.string().trim().allow('').label("PF Number"),
+  panNo: Joi.string().trim().length(10).required().label("PAN Number"),
+  uanNo: Joi.string().trim().length(12).allow('').label("UAN Number"),
+  pfNo: Joi.string().trim().length(22).allow('').label("PF Number"),
   employeeType: Joi.number().required().label("Employee Type"),
   image: Joi.string().allow(""),
 
@@ -298,7 +298,7 @@ const onboardEmployeeSchema = Joi.object({
 
   gender: Joi.string().required().label("Gender"),
   maritalStatus: Joi.string().required().label("Marital Status"),
-  countryId: Joi.number().required().label("Country"),
+  nationality: Joi.number().required().label("Nationality"),
   probationId: Joi.number().required().label("Probation"),
   dateOfBirth: Joi.string().required().label("Date Of Birth"),
   newCustomerName: Joi.string().required().label("Customer Name"),

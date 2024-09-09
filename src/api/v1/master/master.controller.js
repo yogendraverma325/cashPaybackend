@@ -1150,6 +1150,24 @@ class MasterController {
     }
   }
 
+  async probation(req, res) {
+    try {
+      let query = { 'isActive': 1 };
+      const probationData = await db.probationMaster.findAll({ where: query, attributes: ['probationId', 'probationName'] });
+
+      return respHelper(res, {
+        status: 200,
+        data: probationData,
+      });
+
+    } catch (error) {
+      logger.error("Error while getting probation list", error);
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+
 }
 
 export default new MasterController();
