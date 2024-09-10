@@ -10,10 +10,7 @@ import eventEmitter from "../services/eventService.js";
 
 const generateJwtToken = async (data) => {
   const token = jwt.sign(data, process.env.JWT_KEY, {
-    expiresIn:
-      data.user.device === "desktop"
-        ? process.env.JWT_EXPIRY
-        : process.env.JWT_EXPIRY_MOBILE,
+    expiresIn: (data.user.device === 'desktop') ? process.env.JWT_EXPIRY : process.env.JWT_EXPIRY_MOBILE,
   });
   return token;
 };
@@ -39,9 +36,11 @@ const fileUpload = async (base64String, fileName, filepath) => {
     base64String.indexOf("/") + 1,
     base64String.indexOf(";")
   );
+  
   const base64Data = base64String.replace(/^data:(.+);base64,/, "");
   const buffer = Buffer.from(base64Data, "base64");
   const finalFilePath = `${dir}/${fileName}.${fileExt}`;
+
   // if (['jpg', 'jpeg', 'png'].includes(fileExt)) {
   //   sharp(buffer).resize(300, 300)
   //     .toFormat('jpeg')
@@ -788,60 +787,25 @@ const getCombineValue = async function (
     weekOffId,
     companyLocationId
   );
-  if (
-    isDayWorkingStartDate == 1 &&
-    isDayWorkingToDate == 1 &&
-    (leaveFirstHalf == 1 || leaveFirstHalf == 2) &&
-    (leaveSecondHalf == 1 || leaveSecondHalf == 2)
-  ) {
+  if (isDayWorkingStartDate == 1 && isDayWorkingToDate == 1 && (leaveFirstHalf == 1 || leaveFirstHalf == 2) && (leaveSecondHalf == 1 || leaveSecondHalf == 2)) {
     combineValue = "1.00";
   }
-  if (
-    isDayWorkingStartDate == 1 &&
-    isDayWorkingToDate == 0 &&
-    (leaveFirstHalf == 1 || leaveFirstHalf == 2) &&
-    leaveSecondHalf == 0
-  ) {
+  if (isDayWorkingStartDate == 1 && isDayWorkingToDate == 0 && (leaveFirstHalf == 1 || leaveFirstHalf == 2) && leaveSecondHalf == 0) {
     combineValue = "0.50";
   }
-  if (
-    isDayWorkingStartDate == 0 &&
-    isDayWorkingToDate == 1 &&
-    leaveFirstHalf == 0 &&
-    (leaveSecondHalf == 1 || leaveSecondHalf == 2)
-  ) {
+  if (isDayWorkingStartDate == 0 && isDayWorkingToDate == 1 && leaveFirstHalf == 0 && (leaveSecondHalf == 1 || leaveSecondHalf == 2)) {
     combineValue = "0.50";
   }
-  if (
-    isDayWorkingStartDate == 1 &&
-    isDayWorkingToDate == 0 &&
-    (leaveFirstHalf == 1 || leaveFirstHalf == 2) &&
-    (leaveSecondHalf == 1 || leaveSecondHalf == 2)
-  ) {
+  if (isDayWorkingStartDate == 1 && isDayWorkingToDate == 0 && (leaveFirstHalf == 1 || leaveFirstHalf == 2) && (leaveSecondHalf == 1 || leaveSecondHalf == 2)) {
     combineValue = "0.50";
   }
-  if (
-    isDayWorkingStartDate == 0 &&
-    isDayWorkingToDate == 1 &&
-    (leaveFirstHalf == 1 || leaveFirstHalf == 2) &&
-    (leaveSecondHalf == 1 || leaveSecondHalf == 2)
-  ) {
+  if (isDayWorkingStartDate == 0 && isDayWorkingToDate == 1 && (leaveFirstHalf == 1 || leaveFirstHalf == 2) && (leaveSecondHalf == 1 || leaveSecondHalf == 2)) {
     combineValue = "0.50";
   }
-  if (
-    isDayWorkingStartDate == 1 &&
-    isDayWorkingToDate == 1 &&
-    (leaveFirstHalf == 1 || leaveFirstHalf == 2) &&
-    leaveSecondHalf == 0
-  ) {
+  if (isDayWorkingStartDate == 1 && isDayWorkingToDate == 1 && (leaveFirstHalf == 1 || leaveFirstHalf == 2) && leaveSecondHalf == 0) {
     combineValue = "0.50";
   }
-  if (
-    isDayWorkingStartDate == 1 &&
-    isDayWorkingToDate == 1 &&
-    leaveFirstHalf == 0 &&
-    (leaveSecondHalf == 1 || leaveSecondHalf == 2)
-  ) {
+  if (isDayWorkingStartDate == 1 && isDayWorkingToDate == 1 && leaveFirstHalf == 0 && (leaveSecondHalf == 1 || leaveSecondHalf == 2)) {
     combineValue = "0.50";
   }
 

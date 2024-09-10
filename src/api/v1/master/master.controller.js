@@ -2,6 +2,9 @@ import { Op } from "sequelize";
 import db from "../../../config/db.config.js";
 import respHelper from "../../../helper/respHelper.js";
 import client from "../../../config/redisDb.config.js";
+import Pagination from "../../../helper/pagination.js";
+import logger from "../../../helper/logger.js";
+import validator from "../../../helper/validator.js";
 
 class MasterController {
   async employee(req, res) {
@@ -26,9 +29,11 @@ class MasterController {
       const pageNo = req.query.page * 1 || 1;
       const offset = (pageNo - 1) * limit;
 
-      const cacheKey = `employeeList:${pageNo}:${limit}:${search || ""}:${department || ""
-        }:${designation || ""}:${buSearch || ""}:${sbuSearch || ""}:${areaSearch || ""
-        }`;
+      const cacheKey = `employeeList:${pageNo}:${limit}:${search || ""}:${
+        department || ""
+      }:${designation || ""}:${buSearch || ""}:${sbuSearch || ""}:${
+        areaSearch || ""
+      }`;
 
       let employeeData = [];
       await client.get(cacheKey).then(async (data) => {
@@ -121,42 +126,42 @@ class MasterController {
             where: Object.assign(
               search
                 ? {
-                  [Op.or]: [
-                    {
-                      empCode: {
-                        [Op.like]: `%${search}%`,
+                    [Op.or]: [
+                      {
+                        empCode: {
+                          [Op.like]: `%${search}%`,
+                        },
                       },
-                    },
-                    {
-                      name: {
-                        [Op.like]: `%${search}%`,
+                      {
+                        name: {
+                          [Op.like]: `%${search}%`,
+                        },
                       },
-                    },
-                    {
-                      email: {
-                        [Op.like]: `%${search}%`,
+                      {
+                        email: {
+                          [Op.like]: `%${search}%`,
+                        },
                       },
-                    },
-                  ],
-                  [Op.and]: [
-                    {
-                      isActive:
-                        usersData.role_id == 1 || usersData.role_id == 2
-                          ? [1, 0]
-                          : [1],
-                    },
-                  ],
-                }
+                    ],
+                    [Op.and]: [
+                      {
+                        isActive:
+                          usersData.role_id == 1 || usersData.role_id == 2
+                            ? [1, 0]
+                            : [1],
+                      },
+                    ],
+                  }
                 : {
-                  [Op.and]: [
-                    {
-                      isActive:
-                        usersData.role_id == 1 || usersData.role_id == 2
-                          ? [1, 0]
-                          : [1],
-                    },
-                  ],
-                }
+                    [Op.and]: [
+                      {
+                        isActive:
+                          usersData.role_id == 1 || usersData.role_id == 2
+                            ? [1, 0]
+                            : [1],
+                      },
+                    ],
+                  }
             ),
             attributes: [
               "id",
@@ -232,8 +237,8 @@ class MasterController {
               },
               {
                 model: db.companyLocationMaster,
-                attributes: ["address1", "address2"]
-              }
+                attributes: ["address1", "address2"],
+              },
             ],
           });
 
@@ -262,13 +267,13 @@ class MasterController {
         where: Object.assign(
           manager
             ? {
-              id: manager,
-              isActive: 1,
-            }
+                id: manager,
+                isActive: 1,
+              }
             : {
-              manager: null,
-              isActive: 1,
-            }
+                manager: null,
+                isActive: 1,
+              }
         ),
         attributes: { exclude: ["password", "role_id", "designation_id"] },
         include: [
@@ -365,18 +370,19 @@ class MasterController {
 
   async bu(req, res) {
     try {
-      const limit = req.query.limit * 1 || null;
-      const pageNo = req.query.page * 1 || 1;
-      const offset = (pageNo - 1) * limit;
       const companyId = req.query.companyId;
+      let query = { companyId: companyId };
+      let subQuery = { isActive: 1 };
 
-      const buData = await db.buMaster.findAndCountAll({
-        limit,
-        offset,
-        where: {
-          buId: companyId,
-        },
-        order: [["buName", "asc"]],
+      const buData = await db.buMapping.findAll({
+        where: query,
+        include: [
+          {
+            model: db.buMaster,
+            where: subQuery,
+            attributes: ["buId", "buName", "buCode"],
+          },
+        ],
       });
 
       return respHelper(res, {
@@ -384,7 +390,7 @@ class MasterController {
         data: buData,
       });
     } catch (error) {
-      console.log(error);
+      logger.error("Error while getting bu list", error);
       return respHelper(res, {
         status: 500,
       });
@@ -416,21 +422,27 @@ class MasterController {
 
   async designation(req, res) {
     try {
-      const limit = req.query.limit * 1 || 10;
-      const pageNo = req.query.page * 1 || 1;
-      const offset = (pageNo - 1) * limit;
+      let search = req.query.search;
 
-      const designationData = await db.designationMaster.findAndCountAll({
-        limit,
-        offset,
-      });
+      if (search) {
+        let query = { isActive: 1, name: { [Op.like]: `%${search}%` } };
+        const designationData = await db.designationMaster.findAll({
+          where: query,
+        });
 
-      return respHelper(res, {
-        status: 200,
-        data: designationData,
-      });
+        return respHelper(res, {
+          status: 200,
+          data: designationData,
+        });
+      } else {
+        return respHelper(res, {
+          status: 422,
+          msg: "Please search designation",
+          data: [],
+        });
+      }
     } catch (error) {
-      console.log(error);
+      logger.error("Error while getting designation list", error);
       return respHelper(res, {
         status: 500,
       });
@@ -485,13 +497,21 @@ class MasterController {
 
   async functionalArea(req, res) {
     try {
-      const limit = req.query.limit * 1 || 10;
-      const pageNo = req.query.page * 1 || 1;
-      const offset = (pageNo - 1) * limit;
-
-      const functionalAreaData = await db.functionalAreaMaster.findAndCountAll({
-        limit,
-        offset,
+      let query = { departmentMappingId: req.query.departmentMappingId };
+      let subQuery = { isActive: 1 };
+      const functionalAreaData = await db.functionalAreaMapping.findAll({
+        where: query,
+        include: [
+          {
+            model: db.functionalAreaMaster,
+            where: subQuery,
+            attributes: [
+              "functionalAreaId",
+              "functionalAreaName",
+              "functionalAreaCode",
+            ],
+          },
+        ],
       });
 
       return respHelper(res, {
@@ -499,7 +519,7 @@ class MasterController {
         data: functionalAreaData,
       });
     } catch (error) {
-      console.log(error);
+      logger.error("Error while getting functional area list", error);
       return respHelper(res, {
         status: 500,
       });
@@ -522,23 +542,23 @@ class MasterController {
         where: Object.assign(
           stateCode
             ? {
-              stateCode,
-            }
+                stateCode,
+              }
             : {},
           stateName
             ? {
-              stateName,
-            }
+                stateName,
+              }
             : {},
           countryId
             ? {
-              countryId,
-            }
+                countryId,
+              }
             : {},
           regionId
             ? {
-              regionId,
-            }
+                regionId,
+              }
             : {}
         ),
       });
@@ -568,8 +588,8 @@ class MasterController {
         where: Object.assign(
           countryId
             ? {
-              countryId,
-            }
+                countryId,
+              }
             : {}
         ),
       });
@@ -599,8 +619,8 @@ class MasterController {
         where: Object.assign(
           stateId
             ? {
-              stateId,
-            }
+                stateId,
+              }
             : {}
         ),
       });
@@ -619,22 +639,31 @@ class MasterController {
 
   async companyLocation(req, res) {
     try {
-      const limit = req.query.limit * 1 || 10;
-      const pageNo = req.query.page * 1 || 1;
-      const offset = (pageNo - 1) * limit;
-
-      const companyLocationData =
-        await db.companyLocationMaster.findAndCountAll({
-          limit,
-          offset,
+      let companyId = req.query.companyId;
+      if (companyId) {
+        let query = { isActive: 1, companyId: companyId };
+        const companyLocationData = await db.companyLocationMaster.findAll({
+          where: query,
+          attributes: ["companyLocationId", "address1"],
+          include: [
+            { model: db.pinCodeMaster, attributes: ["pincode"] },
+            { model: db.cityMaster, attributes: ["cityName"] },
+          ],
         });
 
-      return respHelper(res, {
-        status: 200,
-        data: companyLocationData,
-      });
+        return respHelper(res, {
+          status: 200,
+          data: companyLocationData,
+        });
+      } else {
+        return respHelper(res, {
+          status: 422,
+          msg: "Please select company",
+          data: [],
+        });
+      }
     } catch (error) {
-      console.log(error);
+      logger.error("Error while getting company location list", error);
       return respHelper(res, {
         status: 500,
       });
@@ -646,12 +675,17 @@ class MasterController {
       const limit = req.query.limit * 1 || 10;
       const pageNo = req.query.page * 1 || 1;
       const offset = (pageNo - 1) * limit;
-      const groupId = req.query.groupId;
+      const groupId = req.query.groupId || 1;
+
+      let query = {
+        isActive: 1,
+        ...(groupId && { groupId: groupId }),
+      };
 
       const companyData = await db.companyMaster.findAndCountAll({
         limit,
         offset,
-        where: Object.assign(groupId ? { groupId } : {}),
+        where: query,
         attributes: ["companyId", "companyName", "companyCode"],
       });
 
@@ -660,7 +694,7 @@ class MasterController {
         data: companyData,
       });
     } catch (error) {
-      console.log(error);
+      logger.error("Error while getting company list", error);
       return respHelper(res, {
         status: 500,
       });
@@ -738,13 +772,18 @@ class MasterController {
 
   async department(req, res) {
     try {
-      const limit = req.query.limit * 1 || 10;
-      const pageNo = req.query.page * 1 || 1;
-      const offset = (pageNo - 1) * limit;
+      let query = { sbuMappingId: req.query.sbuMappingId };
+      let subQuery = { isActive: 1 };
 
-      const departmentData = await db.departmentMaster.findAndCountAll({
-        limit,
-        offset,
+      const departmentData = await db.departmentMapping.findAll({
+        where: query,
+        include: [
+          {
+            model: db.departmentMaster,
+            where: subQuery,
+            attributes: ["departmentId", "departmentName", "departmentCode"],
+          },
+        ],
       });
 
       return respHelper(res, {
@@ -752,7 +791,7 @@ class MasterController {
         data: departmentData,
       });
     } catch (error) {
-      console.log(error);
+      logger.error("Error while getting department list", error);
       return respHelper(res, {
         status: 500,
       });
@@ -833,7 +872,7 @@ class MasterController {
       const limit = req.query.limit * 1 || 1000;
       const pageNo = req.query.page * 1 || 1;
       const offset = (pageNo - 1) * limit;
-      const cityId = req.query.cityId
+      const cityId = req.query.cityId;
       const pinCodeData = await db.pinCodeMaster.findAndCountAll({
         where: { cityId: cityId },
         limit,
@@ -923,27 +962,27 @@ class MasterController {
               : [["webPosition", "asc"]],
             attributes: mobile
               ? [
-                "cardId",
-                "cardName",
-                "mobileUrl",
-                "isCardWorking",
-                "mobileLightFontColor",
-                "mobileIcon",
-                "mobileLightBackgroundColor",
-                "mobilePosition",
-                "mobileDarkFontColor",
-                "mobileDarkBackgroundColor",
-              ]
+                  "cardId",
+                  "cardName",
+                  "mobileUrl",
+                  "isCardWorking",
+                  "mobileLightFontColor",
+                  "mobileIcon",
+                  "mobileLightBackgroundColor",
+                  "mobilePosition",
+                  "mobileDarkFontColor",
+                  "mobileDarkBackgroundColor",
+                ]
               : [
-                "cardId",
-                "cardName",
-                "isCardWorking",
-                "webUrl",
-                "webFontColor",
-                "webBackgroundColor",
-                "webIcon",
-                "webPosition",
-              ],
+                  "cardId",
+                  "cardName",
+                  "isCardWorking",
+                  "webUrl",
+                  "webFontColor",
+                  "webBackgroundColor",
+                  "webIcon",
+                  "webPosition",
+                ],
           });
 
           const dashboardJson = JSON.stringify(dashboardData);
@@ -991,12 +1030,12 @@ class MasterController {
       const pageNo = req.query.page * 1 || 1;
       const offset = (pageNo - 1) * limit;
 
-      const redisKey = `educationDetails:${limit}:${offset}:${req.userId}`
-      let educationData
-      const redisData = await client.get(redisKey)
+      const redisKey = `educationDetails:${limit}:${offset}:${req.userId}`;
+      let educationData;
+      const redisData = await client.get(redisKey);
 
       if (redisData) {
-        educationData = JSON.parse(redisData)
+        educationData = JSON.parse(redisData);
         return respHelper(res, {
           status: 200,
           data: educationData,
@@ -1025,19 +1064,17 @@ class MasterController {
 
   async separationReason(req, res) {
     try {
-
       const separationReasonData = await db.separationReason.findAll({
         where: {
-          separationTypeAutoId: (req.query.type) ? req.query.type : 1
+          separationTypeAutoId: req.query.type ? req.query.type : 1,
         },
-        attributes: ['separationReason']
-      })
+        attributes: ["separationReason"],
+      });
 
       return respHelper(res, {
         status: 200,
-        data: separationReasonData
+        data: separationReasonData,
       });
-
     } catch (error) {
       console.log(error);
       return respHelper(res, {
@@ -1048,16 +1085,14 @@ class MasterController {
 
   async separationType(req, res) {
     try {
-
       const separationTypeData = await db.separationType.findAll({
-        attributes: ['separationTypeAutoId', 'separationTypeName']
-      })
+        attributes: ["separationTypeAutoId", "separationTypeName"],
+      });
 
       return respHelper(res, {
         status: 200,
-        data: separationTypeData
+        data: separationTypeData,
       });
-
     } catch (error) {
       console.log(error);
       return respHelper(res, {
@@ -1068,14 +1103,192 @@ class MasterController {
 
   async hrDocumentMaster(req, res) {
     try {
-      const docData = await db.hrDocumentMaster.findAll({ attributes: ['documentId', 'documentName', 'typeUpdate'] });
+      const docData = await db.hrDocumentMaster.findAll({
+        attributes: ["documentId", "documentName", "typeUpdate"],
+      });
       return respHelper(res, {
         status: 200,
         data: docData,
       });
-
     } catch (error) {
       console.log(error);
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+  async roles(req, res) {
+    try {
+      const limit = req.query.limit * 1 || Pagination.perPage;
+      const pageNo = req.query.page * 1 || 1;
+      const offset = (pageNo - 1) * limit;
+
+      const rolesData = await db.roleMaster.findAndCountAll({ limit, offset });
+      return respHelper(res, { status: 200, data: rolesData });
+    } catch (error) {
+      logger.error("ERROR WHILE GETTING ROLES", error);
+      return respHelper(res, { status: 500 });
+    }
+  }
+
+  async shift(req, res) {
+    try {
+      let searchKey = req.query.searchKey;
+      let query = {
+        isActive: 1,
+        ...(searchKey && { shiftName: { [Op.like]: `%${searchKey}%` } }),
+      };
+
+      const shiftData = await db.shiftMaster.findAll({
+        where: query,
+        attributes: ["shiftId", "shiftName"],
+      });
+      return respHelper(res, { status: 200, data: shiftData });
+    } catch (error) {
+      logger.error("ERROR WHILE GETTING SHIFT MASTER DATA", error);
+      return respHelper(res, { status: 500 });
+    }
+  }
+
+  async attendancePlicy(req, res) {
+    try {
+      let searchKey = req.query.searchKey;
+      let query = {
+        isActive: 1,
+        ...(searchKey && { policyName: { [Op.like]: `%${searchKey}%` } }),
+      };
+      const attendanceData = await db.attendancePolicymaster.findAll({
+        where: query,
+        attributes: ["attendancePolicyId", "policyName"],
+      });
+      return respHelper(res, { status: 200, data: attendanceData });
+    } catch (error) {
+      logger.error("ERROR WHILE GETTING ATTENDANCE DATA", error);
+      return respHelper(res, { status: 500 });
+    }
+  }
+
+  async weekoff(req, res) {
+    try {
+      let searchKey = req.query.searchKey;
+      let query = {
+        isActive: 1,
+        ...(searchKey && { weekOffName: { [Op.like]: `%${searchKey}%` } }),
+      };
+      let weekoffData = await db.weekOffMaster.findAll({
+        where: query,
+        attributes: ["weekOffId", "weekOffName"],
+      });
+      return respHelper(res, { status: 200, data: weekoffData });
+    } catch (error) {
+      logger.error("ERROR WHILE GETTING WEEK OFF DATA", error);
+      return respHelper(res, { status: 500 });
+    }
+  }
+
+  async sbu(req, res) {
+    try {
+      const buMappingId = req.query.buMappingId;
+      let query = { buMappingId: buMappingId };
+      let subQuery = { isActive: 1 };
+
+      const buData = await db.sbuMapping.findAll({
+        where: query,
+        include: [
+          {
+            model: db.sbuMaster,
+            where: subQuery,
+            attributes: ["sbuId", "sbuName", "code"],
+          },
+        ],
+      });
+
+      return respHelper(res, {
+        status: 200,
+        data: buData,
+      });
+    } catch (error) {
+      logger.error("Error while getting sbu list", error);
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+
+  async buhr(req, res) {
+    try {
+      const buMappingId = req.query.buMappingId;
+      let query = { buMappingId: buMappingId };
+      let subQuery = { isActive: 1 };
+
+      const buhrData = await db.buMapping.findAll({
+        where: query,
+        include: [
+          {
+            model: db.employeeMaster,
+            where: subQuery,
+            attributes: ["id", "name"],
+            as: "buhrData",
+          },
+        ],
+      });
+
+      return respHelper(res, {
+        status: 200,
+        data: buhrData,
+      });
+    } catch (error) {
+      logger.error("Error while getting buhr list", error);
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+
+  async buhead(req, res) {
+    try {
+      const buMappingId = req.query.buMappingId;
+      let query = { buMappingId: buMappingId };
+      let subQuery = { isActive: 1 };
+
+      const buheadData = await db.buMapping.findAll({
+        where: query,
+        include: [
+          {
+            model: db.employeeMaster,
+            where: subQuery,
+            attributes: ["id", "name"],
+            as: "buHeadData",
+          },
+        ],
+      });
+
+      return respHelper(res, {
+        status: 200,
+        data: buheadData,
+      });
+    } catch (error) {
+      logger.error("Error while getting buhead list", error);
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+
+  async probation(req, res) {
+    try {
+      let query = { isActive: 1 };
+      const probationData = await db.probationMaster.findAll({
+        where: query,
+        attributes: ["probationId", "probationName"],
+      });
+
+      return respHelper(res, {
+        status: 200,
+        data: probationData,
+      });
+    } catch (error) {
+      logger.error("Error while getting probation list", error);
       return respHelper(res, {
         status: 500,
       });

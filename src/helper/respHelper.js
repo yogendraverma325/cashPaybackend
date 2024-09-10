@@ -22,6 +22,16 @@ const msg = function (res, data) {
             });
             break;
 
+        case 202:
+            res.status(data.status).json({
+                statusCode: 202,
+                status: true,
+                token: data.token,
+                message: data.msg,
+                data: data.data,
+            });
+            break;
+
         case 204:
             res.status(data.status).json({
                 statusCode: 204,

@@ -8,7 +8,8 @@ const message = {
   UNPROCESSABLE_ENTITY: "Unprocessable Entity",
   INVALID_AUTH: "Invalid Authentication",
   USER_NOT_EXIST: "User Doesn't Exists.",
-  RADIUS_MESSAGE: "Unable to mark attendance. You are not within the required #-meter range",
+  RADIUS_MESSAGE:
+    "Unable to mark attendance. You are not within the required #-meter range",
   INVALID_TOKEN: "Invalid Token.",
   INSERT_SUCCESS: "Inserted Successfully.",
   SESSION_EXPIRED: "Session Expired, Please Login Again!",
@@ -61,11 +62,15 @@ const message = {
     REVOKED: "Leave Request Revoked",
     REMAINING_LEAVES: "Available Leaves",
     LEAVE_LIMIT: "Can't apply leave more than # days",
-    LEAVE_NOT_APPLICABLE: "You can't apply leave on weekOff/holidays"
+    LEAVE_NOT_APPLICABLE: "You can't apply leave on weekOff/holidays",
   },
   PROFILE_PICTURE_UPDATED: "Profile Picture Updated.",
   INVALID: "Invalid <module>",
-  SEPARATION_STATUS: 'Separation <status>',
+  SEPARATION_STATUS: "Separation <status>",
+  UPDATE_FAILURE: "<module> Not Updated.",
+  DELETE_FAILURE: "<module> Not Deleted.",
+  INVALID_ID: "Invalid <module> Id",
+  INVALID: "Invalid <module>",
 };
 
 export default message;
