@@ -1014,7 +1014,10 @@ class commonController {
 
   async updateAddress(req, res) {
     try {
-      const userId = req.body.employeeId > 0 ? req.body.employeeId : req.userId;
+      const result = await validator.updateAddress.validateAsync(
+        req.body
+      );
+      const userId = result.employeeId > 0 ? result.employeeId : req.userId;
       const getAddress = await db.employeeAddress.findOne({
         raw: true,
         where: {
@@ -1024,7 +1027,7 @@ class commonController {
 
       if (getAddress) {
         let obj = {
-          ...req.body,
+          ...result,
           ...{ employeeId: userId },
           ...{ updatedBy: req.userId },
           ...{ updatedAt: moment() },
@@ -1040,7 +1043,7 @@ class commonController {
         });
       } else {
         let obj = {
-          ...req.body,
+          ...result,
           ...{ createdBy: req.userId },
           ...{ createdAt: moment() },
           ...{ employeeId: userId },

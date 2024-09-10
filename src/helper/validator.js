@@ -80,59 +80,59 @@ const updateBiographicalDetailsSchema = Joi.object({
   mobileAccess: Joi.number().label("Mobile Access").optional(),
   laptopSystem: Joi.string().trim().label("System").optional(),
   nationality: Joi.string().trim().label("Nationality").required(),
-  middleName: Joi.string().trim().label("Middle Name").optional(),
-  lastName: Joi.string().trim().label("Last Name").optional(),
+  middleName: Joi.string().trim().label("Middle Name").allow(null).optional(),
+  lastName: Joi.string().trim().label("Last Name").allow(null).optional(),
   backgroundVerification: Joi.number()
     .label("Background Verification").optional(),
-  gender: Joi.string().trim().label("Gender"),
-  dateOfBirth: Joi.string().trim().label("Date of Birth"),
-  maritalStatusSince: Joi.string().trim().label("Marital Status Since").optional(),
+  gender: Joi.string().trim().label("Gender").allow(null).optional(),
+  dateOfBirth: Joi.string().trim().label("Date of Birth").allow(null).optional(),
+  maritalStatusSince: Joi.string().trim().label("Marital Status Since").allow(null).optional(),
   salutationId: Joi.number().required().label("Salutation"),
 });
 
 const addFamilyDetailsSchema = Joi.object({
   userId: Joi.number().label("User ID"),
-  name: Joi.string().required().trim().label("Name").optional(),
-  dob: Joi.string().trim().label("DOB").optional(),
-  gender: Joi.string().trim().label("Gender").optional(),
-  mobileNo: Joi.string().trim().label("Mobile Number").optional(),
-  relationWithEmp: Joi.string().trim().label("Relation").optional(),
-  memberAddress: Joi.string().trim().label("Address").optional()
+  name: Joi.string().required().trim().label("Name").allow(null).optional(),
+  dob: Joi.string().trim().label("DOB").allow(null).optional(),
+  gender: Joi.string().trim().label("Gender").allow(null).optional(),
+  mobileNo: Joi.string().trim().label("Mobile Number").allow(null).optional(),
+  relationWithEmp: Joi.string().trim().label("Relation").allow(null).optional(),
+  memberAddress: Joi.string().trim().label("Address").allow(null).optional()
 });
 
 const updateFamilyDetailsSchema = Joi.object({
   empFamilyDetailsId: Joi.number().required().required(),
-  name: Joi.string().required().trim().label("Name").optional(),
-  dob: Joi.string().trim().label("DOB").optional(),
-  gender: Joi.string().trim().label("Gender").optional(),
-  mobileNo: Joi.string().trim().label("Mobile Number").optional(),
-  relationWithEmp: Joi.string().trim().label("Relation").optional(),
-  memberAddress: Joi.string().trim().label("Address").optional(),
+  name: Joi.string().required().trim().label("Name").allow(null).optional(),
+  dob: Joi.string().trim().label("DOB").allow(null).optional(),
+  gender: Joi.string().trim().label("Gender").allow(null).optional(),
+  mobileNo: Joi.string().trim().label("Mobile Number").allow(null).optional(),
+  relationWithEmp: Joi.string().trim().label("Relation").allow(null).optional(),
+  memberAddress: Joi.string().trim().label("Address").allow(null).optional(),
 });
 
 const addEducationDetailsSchema = Joi.object({
-  educationCompletionDate: Joi.date().iso().required(),
-  educationDegree: Joi.number().integer().required(),
-  educationInstitute: Joi.string().required(),
-  educationSpecialisation: Joi.string().required(),
-  educationStartDate: Joi.date().iso().required(),
+  educationCompletionDate: Joi.date().iso().allow(null).required(),
+  educationDegree: Joi.number().integer().allow(null).required(),
+  educationInstitute: Joi.string().allow(null).required(),
+  educationSpecialisation: Joi.string().allow(null).required(),
+  educationStartDate: Joi.date().iso().allow(null).required(),
   educationAttachments: Joi.string().allow("").optional(),
-  educationRemark: Joi.string().optional(),
-  educationActivities: Joi.string().optional(),
-  userId: Joi.number().integer().required(),
-  isHighestEducation: Joi.number().integer().optional(),
+  educationRemark: Joi.string().allow(null).optional(),
+  educationActivities: Joi.string().allow(null).optional(),
+  userId: Joi.number().integer().allow(null).required(),
+  isHighestEducation: Joi.number().integer().allow(null).optional(),
 });
 
 const updateEducationDetailsSchema = Joi.object({
-  educationActivities: Joi.string().optional(),
+  educationActivities: Joi.string().allow(null).optional(),
   educationAttachments: Joi.string().allow("").optional(),
-  educationCompletionDate: Joi.date().iso().required(),
-  educationDegree: Joi.number().integer().required(),
+  educationCompletionDate: Joi.date().iso().allow(null).required(),
+  educationDegree: Joi.number().integer().allow(null).required(),
   educationId: Joi.number().integer().required(),
-  educationInstitute: Joi.string().required(),
-  educationRemark: Joi.string().required(),
-  educationSpecialisation: Joi.string().allow('N/A', null).required(),
-  educationStartDate: Joi.date().iso().required(),
+  educationInstitute: Joi.string().allow(null).required(),
+  educationRemark: Joi.string().allow(null).required(),
+  educationSpecialisation: Joi.string().allow(null).required(),
+  educationStartDate: Joi.date().iso().allow(null).required(),
   isHighestEducation: Joi.string().required().allow(null),
   userId: Joi.number().integer().required()
 });
@@ -163,7 +163,8 @@ const addPaymentDetailsSchema = Joi.object({
     .label("Bank Ifsc Code"),
   paymentHolderName: Joi.string()
     .trim()
-    .required()
+    .allow(null)
+    .optional()
     .label("Account Holder Name"),
   ptStateId: Joi.number().integer().optional(),
   ptLocationId: Joi.number().integer().optional(),
@@ -240,9 +241,9 @@ const addJobDetailsSchema = Joi.object({
   userId: Joi.number().label("User ID"),
   dateOfJoining: Joi.string().label("Date Of Joining").optional(),
   probationPeriod: Joi.string().label("Probation Period").optional(),
-  languagesSpoken: Joi.string().label("Language Spoken").optional(),
-  esicNumber: Joi.string().label("ESIC Number").allow("").optional(),
-  uanNumber: Joi.string().label("UAN Number").allow("").optional()
+  languagesSpoken: Joi.string().label("Language Spoken").allow(null).optional(),
+  esicNumber: Joi.string().label("ESIC Number").allow(null).optional(),
+  uanNumber: Joi.string().label("UAN Number").allow(null).optional()
 })
 
 const updateManagerSchema = Joi.array().required().items(
@@ -262,10 +263,10 @@ const updateProfilePictureSchema = Joi.object({
 
 const emergencyContactDetails = Joi.object({
   userId: Joi.number().label("User ID"),
-  emergencyContactName: Joi.string().label("Emergency Contact Name").optional(),
-  emergencyContactNumber: Joi.string().label("Emergency Contact Number").optional(),
-  emergencyContactRelation: Joi.string().label("Emergency Contact Relation").optional(),
-  emergencyBloodGroup: Joi.string().label("Blood Group").optional()
+  emergencyContactName: Joi.string().label("Emergency Contact Name").allow(null).optional(),
+  emergencyContactNumber: Joi.string().label("Emergency Contact Number").allow(null).optional(),
+  emergencyContactRelation: Joi.string().label("Emergency Contact Relation").allow(null).optional(),
+  emergencyBloodGroup: Joi.string().label("Blood Group").allow(null).optional()
 })
 
 const forgotPasswordSchema = Joi.object({
@@ -280,66 +281,66 @@ const employeeUpdateInfo = Joi.object({
     .required()
     .label("Aadhar Number"),
   panNo: Joi.string(),
-  drivingLicence: Joi.string(),
-  passportNumber: Joi.string()
+  drivingLicence: Joi.string().allow(null).optional(),
+  passportNumber: Joi.string().allow(null).optional(),
 })
 
 const addemployeeWorkInfo = Joi.object({
   userId: Joi.number().label("User ID").optional(),
-  companyName: Joi.string().label("Company Name").optional(),
-  jobTitle: Joi.string().label("Job Title").optional(),
-  jobLocation: Joi.string().label("Job Location").optional(),
-  currentlyWorking: Joi.number().label("Currently Working").optional(),
-  fromDate: Joi.string().label("From Date").optional(),
-  toDate: Joi.string().label("to Date").optional(),
-  jobSummary: Joi.string().label("job Summary").optional(),
-  Skills: Joi.string().label("skill").optional(),
+  companyName: Joi.string().label("Company Name").allow(null).optional(),
+  jobTitle: Joi.string().label("Job Title").allow(null).optional(),
+  jobLocation: Joi.string().label("Job Location").allow(null).optional(),
+  currentlyWorking: Joi.number().label("Currently Working").allow(null).optional(),
+  fromDate: Joi.string().label("From Date").allow(null).optional(),
+  toDate: Joi.string().label("to Date").allow(null).optional(),
+  jobSummary: Joi.string().label("job Summary").allow(null).optional(),
+  Skills: Joi.string().label("skill").allow(null).optional(),
   experienceletter: Joi.string().label("experience letter").allow("").optional(),
 })
 
 const updateemployeeWorkInfo = Joi.object({
   userId: Joi.number().label("User ID").optional(),
   workExperienceId: Joi.number().label("Work Id").required(),
-  companyName: Joi.string().label("Company Name").optional(),
-  jobTitle: Joi.string().label("Job Title").optional(),
-  jobLocation: Joi.string().label("Job Location").optional(),
-  currentlyWorking: Joi.number().label("Currently Working").optional(),
-  fromDate: Joi.string().label("From Date").optional(),
-  toDate: Joi.string().label("to Date").optional(),
-  jobSummary: Joi.string().label("job Summary").optional(),
-  Skills: Joi.string().label("skill").optional(),
+  companyName: Joi.string().label("Company Name").allow(null).optional(),
+  jobTitle: Joi.string().label("Job Title").allow(null).optional(),
+  jobLocation: Joi.string().label("Job Location").allow(null).optional(),
+  currentlyWorking: Joi.number().label("Currently Working").allow(null).optional(),
+  fromDate: Joi.string().label("From Date").allow(null).optional(),
+  toDate: Joi.string().label("to Date").allow(null).optional(),
+  jobSummary: Joi.string().label("job Summary").allow(null).optional(),
+  Skills: Joi.string().label("skill").allow(null).optional(),
   experienceletter: Joi.string().label("experience letter").allow("").optional(),
 })
 
 const addEmployeeCertificates = Joi.object({
   userId: Joi.number().label("User ID").required(),
-  certification: Joi.string().label("certification").optional(),
-  expiryDate: Joi.string().label("Expiry Date").optional(),
-  programName: Joi.string().label("Program Name").optional(),
-  skillProduct: Joi.string().label("Skill Product").optional(),
-  oem: Joi.string().label("OEM").optional(),
-  completionStatus: Joi.string().label("Status").optional(),
-  certificationAndValidityFirst: Joi.string().label("Certification And Validity").optional(),
-  certificationAndValiditySecond: Joi.string().label("Certification And Validity").optional(),
+  certification: Joi.string().label("certification").allow(null).optional(),
+  expiryDate: Joi.string().label("Expiry Date").allow(null).optional(),
+  programName: Joi.string().label("Program Name").allow(null).optional(),
+  skillProduct: Joi.string().label("Skill Product").allow(null).optional(),
+  oem: Joi.string().label("OEM").allow(null).optional(),
+  completionStatus: Joi.string().label("Status").allow(null).optional(),
+  certificationAndValidityFirst: Joi.string().label("Certification And Validity").allow(null).optional(),
+  certificationAndValiditySecond: Joi.string().label("Certification And Validity").allow(null).optional(),
 })
 
 const updateEmployeeCertificates = Joi.object({
   userId: Joi.number().label("User ID").optional(),
   certificateId: Joi.number().label("User ID").optional(),
-  certification: Joi.string().label("certification").optional(),
-  expiryDate: Joi.string().label("Expiry Date").optional(),
-  programName: Joi.string().label("Program Name").optional(),
-  skillProduct: Joi.string().label("Skill Product").optional(),
-  oem: Joi.string().label("OEM").optional(),
-  completionStatus: Joi.string().label("Status").optional(),
-  certificationAndValidityFirst: Joi.string().label("Certification And Validity").optional(),
-  certificationAndValiditySecond: Joi.string().label("Certification And Validity").optional(),
+  certification: Joi.string().label("certification").allow(null).optional(),
+  expiryDate: Joi.string().label("Expiry Date").allow(null).optional(),
+  programName: Joi.string().label("Program Name").allow(null).optional(),
+  skillProduct: Joi.string().label("Skill Product").allow(null).optional(),
+  oem: Joi.string().label("OEM").allow(null).optional(),
+  completionStatus: Joi.string().label("Status").allow(null).optional(),
+  certificationAndValidityFirst: Joi.string().label("Certification And Validity").allow(null).optional(),
+  certificationAndValiditySecond: Joi.string().label("Certification And Validity").allow(null).optional(),
 })
 
 const updateContactInfo = Joi.object({
   userId: Joi.number().label("User ID").required(),
   personalEmail: Joi.string().label("Personal Email").required(),
-  officeMobileNumber: Joi.string().label("Office Mobile Number").allow("").required(),
+  officeMobileNumber: Joi.string().label("Office Mobile Number").allow(null).required(),
   personalMobileNumber: Joi.string().label("Personal Mobile Number").required()
 })
 
@@ -413,6 +414,45 @@ const buhrInputOnSeparation = Joi.object({
   l2Remark: Joi.string().trim().required().label("Remark"),
   l2Attachment: Joi.string().optional()
 });
+// const onBehalfSeperationByManager = Joi.object({
+//   userId: Joi.number(),
+//   resignationDate: Joi.string().required().label("Resignation Date"),
+//   empProposedLastWorkingDay: Joi.string().label("Proposed Last Working Days"),
+//   empProposedRecoveryDays: Joi.number().label("Proposed Recovery Days"),
+//   l1ReasonForProposedRecoveryDays: Joi.string().required().label("Reason for Proposed Recovery Days"),
+//   empReasonOfResignation: Joi.string().trim().required().label("Reason of Resignation"),
+//   l1BillingType: Joi.string(),
+//   replacementRequired: Joi.string().label("Replacement Required"),
+//   replacementRequiredBy: Joi.string().label("Replacement Required By"),
+//   comment: Joi.string().trim().max(100).label("Remark").allow(""),
+//   attachment:Joi.string().label("Attachment").allow(""),
+
+// })
+
+const updateAddress = Joi.object({
+  employeeId: Joi.number().label("Proposed Recovery Days").required(),
+  currentHouse: Joi.string().label("Current House").required(),
+  currentStreet: Joi.string().label("Current Street").required(),
+  currentStateId: Joi.number().label("current State").required(),
+  currentCityId: Joi.number().label("Current City").required(),
+  currentCountryId: Joi.number().label("Current Country").required(),
+  currentPincodeId: Joi.number().label("Current Pincode").required(),
+  currentLandmark: Joi.string().label("Current Landmark").required(),
+  permanentCityId: Joi.number().label("Permanent City").allow(null).optional(),
+  permanentStateId: Joi.number().label("Permanent State").allow(null).optional(),
+  permanentCountryId: Joi.number().label("Permanent Country").allow(null).optional(),
+  permanentPincodeId: Joi.number().label("Permanent Pincode").allow(null).optional(),
+  permanentStreet: Joi.string().label("Permanent Street").allow(null).optional(),
+  permanentHouse: Joi.string().label("Permanent House").allow(null).optional(),
+  permanentLandmark: Joi.string().label("Permanent Landmark").allow(null).optional(),
+  emergencyStreet: Joi.string().label("Emergency Street").allow(null).optional(),
+  emergencyHouse: Joi.string().label("Emergency House").allow(null).optional(),
+  emergencyCityId: Joi.number().label("Emergency Country").allow(null).optional(),
+  emergencyStateId: Joi.number().label("Emergency Country").allow(null).optional(),
+  emergencyCountryId: Joi.number().label("Emergency Country").allow(null).optional(),
+  emergencyPincodeId: Joi.number().label("Emergency Country").allow(null).optional(),
+  emergencyLandmark: Joi.string().label("Emergency Landmark").allow(null).optional(),
+})
 
 export default {
   loginSchema,
@@ -450,5 +490,7 @@ export default {
   separationByEmployee,
   managerInputOnseparation,
   rejectSeparation,
-  buhrInputOnSeparation
+  buhrInputOnSeparation,
+  //onBehalfSeperationByManager,
+  updateAddress
 };
