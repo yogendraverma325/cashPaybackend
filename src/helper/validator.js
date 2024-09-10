@@ -298,12 +298,17 @@ const onboardEmployeeSchema = Joi.object({
 
   gender: Joi.string().required().label("Gender"),
   maritalStatus: Joi.string().required().label("Marital Status"),
-  nationality: Joi.number().required().label("Nationality"),
+  maritalStatusSince: Joi.string().allow('').label('Marital Status Since'),
+  nationality: Joi.string().required().label("Nationality"),
   probationId: Joi.number().required().label("Probation"),
   dateOfBirth: Joi.string().required().label("Date Of Birth"),
   newCustomerName: Joi.string().required().label("Customer Name"),
-  IQTestApplicable: Joi.string().required().label("IQ Test Applicable"),
+  iqTestApplicable: Joi.string().required().label("IQ Test Applicable"),
   positionType: Joi.string().required().label("Position Type")
+});
+
+const createTMCSchema = Joi.object({
+  selectedUsers: Joi.array().items().required()
 });
 
 export default {
@@ -333,5 +338,6 @@ export default {
   updateProfilePictureSchema,
   emergencyContactDetails,
   forgotPasswordSchema,
-  onboardEmployeeSchema
+  onboardEmployeeSchema,
+  createTMCSchema
 };

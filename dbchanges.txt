@@ -240,5 +240,13 @@ ADD COLUMN `positionType` VARCHAR(45) NULL DEFAULT NULL AFTER `costId`;
 ALTER TABLE `hrms_live`.`employee` 
 ADD COLUMN `newCustomerName` VARCHAR(45) NULL DEFAULT NULL AFTER `positionType`;
 
+ALTER TABLE `hrms_live`.`employeejobdetails`
+ADD COLUMN `probationDays` INT NULL DEFAULT NULL AFTER `probationPeriod`;
+
+ALTER TABLE `hrms_live`.`employeestaging` 
+ADD COLUMN `maritalStatusSince` VARCHAR(45) NULL DEFAULT NULL AFTER `maritalStatus`;
+
+
+
 
 

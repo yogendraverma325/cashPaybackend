@@ -27,3 +27,4 @@ export default Express
 
     .post("/onboardEmployee", authorization('ADMIN', 'SUPERADMIN'),  adminController.onboardEmployee)
     .get("/onboardEmployee", authorization('ADMIN', 'SUPERADMIN'), adminController.getOnboardEmployee)
+    .post("/createTMC", authorization('ADMIN', 'SUPERADMIN'),  adminController.createTMC)

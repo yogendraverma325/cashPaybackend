@@ -107,6 +107,9 @@ export default (sequelize, Sequelize) => {
     permissionAndAccess: {
       type: Sequelize.STRING(255),
     },
+    iqTestApplicable: {
+      type: Sequelize.INTEGER
+    },
     positionType: {
       type: Sequelize.STRING(45)
     },

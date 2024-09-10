@@ -42,6 +42,9 @@ export default (sequelize, Sequelize) => {
         type: Sequelize.STRING(50) // start new fields
       },
       maritalStatus: {
+        type: Sequelize.INTEGER
+      },
+      maritalStatusSince: {
         type: Sequelize.STRING(50)
       },
       nationality: {
@@ -56,8 +59,8 @@ export default (sequelize, Sequelize) => {
       newCustomerName: {
         type: Sequelize.STRING(50)
       },
-      IQTestApplicable: {
-        type: Sequelize.STRING(5)
+      iqTestApplicable: {
+        type: Sequelize.INTEGER
       },
       positionType: {
         type: Sequelize.STRING(25) // end new fields
