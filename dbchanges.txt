@@ -1,3 +1,16 @@
+//---------------------------------2024-09-10---------------------------------------------//
+
+CREATE TABLE `hrms_live`.`lwfdesignationmaster` (
+  `lwfDesignationId` INT NOT NULL AUTO_INCREMENT,
+  `lwfDesignationName` VARCHAR(45) NULL,
+  `createdAt` DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
+  `createdBy` INT NULL DEFAULT NULL,
+  `updatedAt` DATETIME NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `updatedBy` INT NULL DEFAULT NULL,
+  `isActive` TINYINT(1) NULL DEFAULT '1',
+  PRIMARY KEY (`lwfDesignationId`));
+
+
 //-------------------------------------2024-09-05------------------------------------------//
 ALTER TABLE `hrms_live`.`employee` 
 ADD COLUMN `dataCardAdmin` INT NULL DEFAULT NULL AFTER `mbtiType`,
