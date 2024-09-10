@@ -381,7 +381,7 @@ const buhrInputOnSeparation = Joi.object({
   l2LastWorkingDay: Joi.string().required().label("Proposed last Working Day"),
   l2RecoveryDays: Joi.number().required().label("Proposed Recovery Days"),
   l2RecoveryDaysReason: Joi.string().required().label("Reason for Proposed Recovery Days"),
-  l2SeparationType: Joi.string().valid('Voluntary', 'Involuntary').required().label("Separation Type"),
+  l2SeparationType: Joi.string().valid('Voluntary', 'InVoluntary', 'Death', 'Retired').required().label("Separation Type"),
   l2ReasonOfSeparation: Joi.string().trim().required().label("Reason Of Resignation"),
   l2NewOrganizationName: Joi.string().trim().when('l2SeparationType', {
     is: 'Voluntary',

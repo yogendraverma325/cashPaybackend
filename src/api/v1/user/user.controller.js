@@ -874,44 +874,54 @@ class UserController {
     try {
       let result = await validator.buhrInputOnSeparation.validateAsync(req.body)
 
-      console.log("incoming data", result)
+      const separationData = await db.separationMaster.findOne({
+        where: {
+          resignationAutoId: result.resignationAutoId
+        },
+        attributes: ['initiatedBy'],
+        include: [{
+          model: db.employeeMaster,
+          attributes: ['empCode', 'name', 'email'],
+        }]
+      })
 
-      result = {
-        resignationAutoId: 123,
-        l2LastWorkingDay: '2024-10-15',
-        l2RecoveryDays: 5,
-        l2RecoveryDaysReason: 'Pending project handover',
-        l2SeparationType: 'Voluntary',
-        l2ReasonOfSeparation: 'Career growth opportunity',
-        l2NewOrganizationName: 'Tech Innovations Inc.',
-        l2SalaryHike: '10%',
-        doNotReHire: 0,
-        l2BillingType: 'Hourly',
-        l2CustomerName: 'Global Solutions Ltd.',
-        shortFallPayoutBasis: 'Pro-rated',
-        shortFallPayoutDays: 10,
-        ndaConfirmation: 1,
-        holdFnf: 0,
-        holdFnfTillDate: '2024-10-30',
-        holdFnfReason: 'N/A',
-        l2Remark: 'All transition tasks are in progress',
-        l2Attachment: 'resignation_letter.pdf'
-      }
+      const d = Math.floor(Date.now() / 1000);
 
       await db.separationMaster.update({
-        l2LastWorkingDay: result.l2LastWorkingDay
-
+        l2LastWorkingDay: result.l2LastWorkingDay,
+        l2RecoveryDays: result.l2RecoveryDays,
+        l2RecoveryDaysReason: result.l2RecoveryDaysReason,
+        l2SeparationType: result.l2SeparationType,
+        l2ReasonOfSeparation: result.l2ReasonOfSeparation,
+        l2NewOrganizationName: result.l2NewOrganizationName,
+        l2SalaryHike: result.l2SalaryHike,
+        doNotReHire: result.doNotReHire,
+        l2BillingType: result.l2BillingType,
+        l2CustomerName: result.l2CustomerName,
+        shortFallPayoutBasis: result.shortFallPayoutBasis,
+        shortFallPayoutDays: result.shortFallPayoutDays,
+        ndaConfirmation: result.ndaConfirmation,
+        holdFnf: result.holdFnf,
+        holdFnfReason: result.holdFnfReason,
+        holdFnfTillDate: result.holdFnfTillDate,
+        l2Remark: result.l2Remark,
+        l2Attachment: (result.attachment) ? await helper.fileUpload(
+          result.attachment,
+          `separation_attachment_${d}`,
+          `uploads/${separationData.dataValues.employee.empCode}`
+        ) : null,
+        l2SubmissionDate: moment(),
+        l2RequestStatus: 'L2_Approved'
       }, {
         where: {
           resignationAutoId: result.resignationAutoId
         }
       })
 
-
-      // l2SubmissionDate: Joi.string(),
-      // l2RequestStatus: Joi.string(),
-      // finalStatus: Joi.string(),
-
+      return respHelper(res, {
+        status: 200,
+        msg: constant.SEPARATION_STATUS.replace("<status>", 'Approved')
+      });
 
     } catch (error) {
       console.log(error);
