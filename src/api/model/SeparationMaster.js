@@ -11,6 +11,9 @@ export default (sequelize, Sequelize) => {
         initiatedBy: {
             type: Sequelize.ENUM('Self', 'Other')
         },
+        pendingAt: {
+            type: Sequelize.INTEGER
+        },
         resignationDate: {
             type: Sequelize.DATE
         },

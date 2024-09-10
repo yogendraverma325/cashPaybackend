@@ -706,11 +706,6 @@ class UserController {
       );
 
       const d = Math.floor(Date.now() / 1000);
-      const separationEmpAttachment = await helper.fileUpload(
-        result.attachment,
-        `separation_attachment_${d}`,
-        `uploads/${existUser.dataValues.empCode}`
-      );
 
       await db.separationMaster.create({
         employeeId: existUser.dataValues.id,
@@ -727,9 +722,15 @@ class UserController {
         empPersonalEmailId: result.empPersonalEmailId,
         empPersonalMobileNumber: result.empPersonalMobileNumber,
         empRemark: result.empRemark,
-        empAttachment: separationEmpAttachment,
-        empSubmissionDate: moment(),
-      });
+        pendingAt: existUser.dataValues.manager,
+        finalStatus: "User_Submitted",
+        empAttachment: (result.attachment != '') ? await helper.fileUpload(
+          result.attachment,
+          `separation_attachment_${d}`,
+          `uploads/${existUser.dataValues.empCode}`
+        ) : null,
+        empSubmissionDate: moment()
+      })
 
       return respHelper(res, {
         status: 200,
@@ -751,11 +752,15 @@ class UserController {
 
   async separationDetails(req, res) {
     try {
-      const user = req.query.user || req.userId;
 
       const separationData = await db.separationMaster.findOne({
         where: {
-          employeeId: user,
+          finalStatus: 'User_Submitted',
+          [Op.or]: [{
+            employeeId: req.userId
+          }, {
+            pendingAt: req.userId
+          }]
         },
         include: [
           {
@@ -783,25 +788,43 @@ class UserController {
         req.body
       );
 
-      await db.separationMaster.update(
-        {
-          l1ProposedLastWorkingDay: result.l1ProposedLastWorkingDay,
-          l1ProposedRecoveryDays: result.l1ProposedRecoveryDays,
-          l1ReasonForProposedRecoveryDays:
-            result.l1ReasonForProposedRecoveryDays,
-          l1ReasonOfResignation: result.l1ReasonOfResignation,
-          l1BillingType: result.l1BillingType,
-          l1CustomerName: result.l1CustomerName,
-          replacementRequired: result.replacementRequired,
-          replacementRequiredBy: result.replacementRequiredBy,
-          l1Remark: result.l1Remark,
-          attachment,
+      const separationData = await db.separationMaster.findOne({
+        where: {
+          resignationAutoId: result.resignationAutoId
         },
-        {
-          where: {
-            resignationAutoId: result.resignationAutoId,
-          },
+        attributes: ['initiatedBy'],
+        include: [{
+          model: db.employeeMaster,
+          attributes: ['empCode', 'name', 'email', 'buHRId'],
+        }]
+      })
+
+      const d = Math.floor(Date.now() / 1000);
+      const separationManagerAttachment = await helper.fileUpload(
+        result.attachment,
+        `separation_attachment_${d}`,
+        `uploads/${separationData.dataValues.employee.empCode}`
+      );
+
+      await db.separationMaster.update({
+        l1ProposedLastWorkingDay: result.l1ProposedLastWorkingDay,
+        l1ProposedRecoveryDays: result.l1ProposedRecoveryDays,
+        l1ReasonForProposedRecoveryDays: result.l1ReasonForProposedRecoveryDays,
+        l1ReasonOfResignation: result.l1ReasonOfResignation,
+        l1BillingType: result.l1BillingType,
+        l1CustomerName: result.l1CustomerName,
+        replacementRequired: result.replacementRequired,
+        replacementRequiredBy: result.replacementRequiredBy,
+        l1Remark: result.l1Remark,
+        l1Attachment: separationManagerAttachment,
+        l1SubmissionDate: moment(),
+        pendingAt: separationData.dataValues.employee.buHRId,
+        l1RequestStatus: "L1_Approved"
+      }, {
+        where: {
+          resignationAutoId: result.resignationAutoId
         }
+      }
       );
 
       return respHelper(res, {
@@ -930,6 +953,36 @@ class UserController {
       });
     }
   }
+  // async rejectSeparation(req, res) {
+  //   try {
+  //     const result = await validator.rejectSeparation.validateAsync(req.body)
+
+  //     await db.separationMaster.update({
+
+  //     }, {
+  //       where: {
+  //         resignationAutoId: result.resignationAutoId
+  //       }
+  //     })
+
+
+  //     return respHelper(res, {
+  //       status: 200,
+  //       // msg:constant
+  //     })
+  //   } catch (error) {
+  //     console.log(error);
+  //     if (error.isJoi === true) {
+  //       return respHelper(res, {
+  //         status: 422,
+  //         msg: error.details[0].message
+  //       });
+  //     }
+  //     return respHelper(res, {
+  //       status: 500,
+  //     });
+  //   }
+  // }
 }
 
 export default new UserController();
