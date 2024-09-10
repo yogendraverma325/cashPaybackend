@@ -878,9 +878,8 @@ class UserController {
 
   async onBehalfManager(req, res) {
     try {
-      //const result = await validator.onBehalfSeperationByManager.validateAsync(req.body)
-      const user = req.query.user || req.userId;
-
+      const result = await validator.onBehalfSeperationByManager.validateAsync(req.body)
+      const user = result.userId || req.userId;
       const existUser = await db.employeeMaster.findOne({
         where: {
           id: user,
@@ -892,26 +891,29 @@ class UserController {
           },
         ],
       });
-
-      const lastWorkingDay = moment(req.body.resignationDate, "YYYY-MM-DD").add(
+      const headAndHrData = await db.buMapping.findOne({
+        attributes:['buMappingId','headId','buHrId'],
+        where: { buId: existUser.dataValues.buId, companyId: existUser.dataValues.companyId }
+      })
+      const lastWorkingDay = moment(result.resignationDate, "YYYY-MM-DD").add(
         existUser.dataValues.noticeperiodmaster.noticePeriodDuration,
         "days"
       );
 
       const d = Math.floor(Date.now() / 1000);
-      if (req.body.attachment) {
+      if (result.l1Attachment) {
         var separationEmpAttachment = await helper.fileUpload(
-          req.body.attachment,
+          result.l1Attachment,
           `separation_attachment_${d}`,
           `uploads/${existUser.dataValues.empCode}`
         );
       }
       const empRequestedLastWorkingDay = moment(
-        req.body.empRequestedLastWorkingDay,
+        result.empProposedLastWorkingDay,
         "YYYY-MM-DD"
       );
       const empProposedLastWorkingDay = moment(
-        req.body.empProposedLastWorkingDay,
+        result.l1ProposedLastWorkingDay,
         "YYYY-MM-DD"
       );
       const recoveryDays = lastWorkingDay.diff(
@@ -924,24 +926,123 @@ class UserController {
       );
       let onBehalfObject = {
         employeeId: existUser.dataValues.id,
-        resignationDate: req.body.resignationDate,
-        initiatedBy:
-          parseInt(req.query.user) === parseInt(req.userId) ? "Self" : "Other",
+        resignationDate: result.resignationDate,
+        initiatedBy:"Other",
         noticePeriodDay:
           existUser.dataValues.noticeperiodmaster.noticePeriodDuration,
         noticePeriodLastWorkingDay: lastWorkingDay.format("YYYY-MM-DD"),
-        empRequestedLastWorkingDay: req.body.empRequestedLastWorkingDay,
-        empRequestedRecoveryDays: recoveryDays > 0 ? recoveryDays : 0,
-        empProposedLastWorkingDay: req.body.empProposedLastWorkingDay,
-        empProposedRecoveryDays: proposedRecoveryDays > 0 ? proposedRecoveryDays : 0,
-        empReasonOfResignation:req.body.empReasonOfResignation,
-        l2BillingType:req.body.l2BillingType,
-        replacementRequired:req.body.replacementRequired,
-        replacementRequiredBy:req.body.replacementRequiredBy,
-        comment:req.body.comment,
-        ...(req.body.attachment !== "" && { empAttachment:separationEmpAttachment })
+        empProposedLastWorkingDay: result.empProposedLastWorkingDay,
+        empProposedRecoveryDays: recoveryDays > 0 ? recoveryDays : 0,
+        l1ProposedLastWorkingDay: result.l1ProposedLastWorkingDay,
+        l1ProposedRecoveryDays: proposedRecoveryDays > 0 ? proposedRecoveryDays : 0,
+        l1BillingType:result.l1BillingType,
+        l1CustomerName:result.l1CustomerName,
+        replacementRequired:result.replacementRequired,
+        replacementRequiredBy:result.replacementRequiredBy,
+        l1ReasonForProposedRecoveryDays:result.l1ReasonForProposedRecoveryDays,
+        l1ReasonOfResignation:result.l1ReasonOfResignation,
+        l1Remark:result.l1Remark,
+        l1SubmissionDate: moment(),
+        l1RequestStatus: "L1_Approved",
+        submitType:result.submitType,
+        createdBy:req.userId,
+        createdDt:moment(),
+        pendingAt:headAndHrData?headAndHrData.dataValues.buHrId:null,
+        ...(result.l1Attachment !== "" && { l1Attachment:separationEmpAttachment })
       };
+      await db.separationMaster.create(onBehalfObject)
+      return respHelper(res, {
+        status: 200,
+        msg: onBehalfObject,
+      });
+    } catch (error) {
+      console.log(error);
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
 
+  async onBehalfBUHr(req, res) {
+    try {
+      const result = await validator.onBehalfSeperationByBUHr.validateAsync(req.body)
+      const user = result.userId || req.userId;
+      const existUser = await db.employeeMaster.findOne({
+        where: {
+          id: user,
+        },
+        include: [
+          {
+            model: db.noticePeriodMaster,
+            attributes: ["noticePeriodDuration"],
+          },
+        ],
+      });
+    
+      const lastWorkingDay = moment(result.resignationDate, "YYYY-MM-DD").add(
+        existUser.dataValues.noticeperiodmaster.noticePeriodDuration,
+        "days"
+      );
+
+      const d = Math.floor(Date.now() / 1000);
+      if (result.l2Attachment) {
+        var separationEmpAttachment = await helper.fileUpload(
+          result.l2Attachment,
+          `separation_attachment_${d}`,
+          `uploads/${existUser.dataValues.empCode}`
+        );
+      }
+      const empRequestedLastWorkingDay = moment(
+        result.empProposedLastWorkingDay,
+        "YYYY-MM-DD"
+      );
+      const empProposedLastWorkingDay = moment(
+        result.l2LastWorkingDay,
+        "YYYY-MM-DD"
+      );
+      const recoveryDays = lastWorkingDay.diff(
+        empRequestedLastWorkingDay,
+        "days"
+      );
+      const proposedRecoveryDays = empProposedLastWorkingDay.diff(
+        lastWorkingDay,
+        "days"
+      );
+      let onBehalfObject = {
+        employeeId: existUser.dataValues.id,
+        resignationDate: result.resignationDate,
+        initiatedBy:"Other",
+        noticePeriodDay:
+          existUser.dataValues.noticeperiodmaster.noticePeriodDuration,
+        noticePeriodLastWorkingDay: lastWorkingDay.format("YYYY-MM-DD"),
+        // empProposedLastWorkingDay: result.empProposedLastWorkingDay,
+        // empProposedRecoveryDays: recoveryDays > 0 ? recoveryDays : 0,
+        l2LastWorkingDay: result.l2LastWorkingDay,
+        l2RecoveryDays:proposedRecoveryDays > 0 ? proposedRecoveryDays : 0,
+        l2RecoveryDaysReason:result.l2RecoveryDaysReason,
+        l2SeparationType:result.l2SeparationType,
+        l2ReasonOfSeparation:result.l2ReasonOfSeparation,
+        l2NewOrganizationName:result.l2NewOrganizationName,
+        l2SalaryHike:result.l2SalaryHike,
+        doNotReHire:result.doNotReHire,
+        l2BillingType:result.l2BillingType,
+        l2CustomerName: result.l2CustomerName,
+        shortFallPayoutBasis: result.shortFallPayoutBasis,
+        shortFallPayoutDays:result.shortFallPayoutDays,
+        ndaConfirmation:result.ndaConfirmation,
+        holdFnf:result.holdFnf,
+        holdFnfTillDate:result.holdFnfTillDate,
+        holdFnfReason:result.holdFnfReason,
+        l2Remark:result.l2Remark,
+        l2SubmissionDate: moment(),
+        createdBy:req.userId,
+        createdDt:moment(),
+        l1RequestStatus: "L1_Approved",
+        l2RequestStatus:"L2_Approved",
+        submitType:result.submitType,
+        ...(result.l2Attachment !== "" && { l2Attachment:separationEmpAttachment })
+      };
+      //await db.separationMaster.create(onBehalfObject)
       return respHelper(res, {
         status: 200,
         msg: onBehalfObject,

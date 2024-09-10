@@ -1,5 +1,9 @@
 //---------------------------------2024-09-10---------------------------------------------//
 
+ALTER TABLE `hrms_live`.`separationmaster` 
+ADD COLUMN `submitType` INT NULL DEFAULT NULL AFTER `l2RevokeDate`;
+
+
 CREATE TABLE `hrms_live`.`lwfdesignationmaster` (
   `lwfDesignationId` INT NOT NULL AUTO_INCREMENT,
   `lwfDesignationName` VARCHAR(45) NULL,

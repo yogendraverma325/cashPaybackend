@@ -170,6 +170,9 @@ export default (sequelize, Sequelize) => {
         l2RevokeDate: {
             type: Sequelize.DATE
         },
+        submitType:{
+            type: Sequelize.INTEGER // 0=SaveAsDraft 1=>Main Submit
+        },
         createdBy: {
             type: Sequelize.INTEGER
         },
