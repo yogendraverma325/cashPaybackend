@@ -872,7 +872,45 @@ class UserController {
 
   async buhrInputOnSeparation(req, res) {
     try {
-// const result=await
+      let result = await validator.buhrInputOnSeparation.validateAsync(req.body)
+
+      console.log("incoming data", result)
+
+      result = {
+        resignationAutoId: 123,
+        l2LastWorkingDay: '2024-10-15',
+        l2RecoveryDays: 5,
+        l2RecoveryDaysReason: 'Pending project handover',
+        l2SeparationType: 'Voluntary',
+        l2ReasonOfSeparation: 'Career growth opportunity',
+        l2NewOrganizationName: 'Tech Innovations Inc.',
+        l2SalaryHike: '10%',
+        doNotReHire: 0,
+        l2BillingType: 'Hourly',
+        l2CustomerName: 'Global Solutions Ltd.',
+        shortFallPayoutBasis: 'Pro-rated',
+        shortFallPayoutDays: 10,
+        ndaConfirmation: 1,
+        holdFnf: 0,
+        holdFnfTillDate: '2024-10-30',
+        holdFnfReason: 'N/A',
+        l2Remark: 'All transition tasks are in progress',
+        l2Attachment: 'resignation_letter.pdf'
+      }
+
+      await db.separationMaster.update({
+        l2LastWorkingDay: result.l2LastWorkingDay
+
+      }, {
+        where: {
+          resignationAutoId: result.resignationAutoId
+        }
+      })
+
+
+      // l2SubmissionDate: Joi.string(),
+      // l2RequestStatus: Joi.string(),
+      // finalStatus: Joi.string(),
 
 
     } catch (error) {

@@ -378,28 +378,41 @@ const rejectSeparation = Joi.object({
 
 const buhrInputOnSeparation = Joi.object({
   resignationAutoId: Joi.number(),
-  // l2LastWorkingDay
-  // l2RecoveryDays
-  // l2RecoveryDaysReason
-  // l2SeparationType
-  // l2ReasonOfSeparation
-  // l2NewOrganizationName
-  // l2SalaryHike
-  // doNotReHire
-  // l2BillingType
-  // l2CustomerName
-  // shortFallPayoutBasis
-  // shortFallPayoutDays
-  // ndaConfirmation
-  // holdFnf
-  // holdFnfTillDate
-  // holdFnfReason
-  // l2SubmissionDate
-  // l2RequestStatus
-  // finalStatus
-  // l2Remark
-  // l2Attachment
-})
+  l2LastWorkingDay: Joi.string().required().label("Proposed last Working Day"),
+  l2RecoveryDays: Joi.number().required().label("Proposed Recovery Days"),
+  l2RecoveryDaysReason: Joi.string().required().label("Reason for Proposed Recovery Days"),
+  l2SeparationType: Joi.string().valid('Voluntary', 'Involuntary').required().label("Separation Type"),
+  l2ReasonOfSeparation: Joi.string().trim().required().label("Reason Of Resignation"),
+  l2NewOrganizationName: Joi.string().trim().when('l2SeparationType', {
+    is: 'Voluntary',
+    then: Joi.required(),
+    otherwise: Joi.forbidden()
+  }).label("New Organization Name"),
+  l2SalaryHike: Joi.string().trim().when('l2NewOrganizationName', {
+    is: Joi.exist(),
+    then: Joi.required(),
+    otherwise: Joi.forbidden()
+  }).label("Salary Hike"),
+  doNotReHire: Joi.boolean().valid(0, 1).label("Do Not Rehire"),
+  l2BillingType: Joi.string().trim().required().label("Billing Type"),
+  l2CustomerName: Joi.string().trim().required().label("Customer Name"),
+  shortFallPayoutBasis: Joi.string().trim().required().label("Payout Basis"),
+  shortFallPayoutDays: Joi.number().required().label("Payout Days"),
+  ndaConfirmation: Joi.boolean().valid(0, 1).label("NDA Confirmation"),
+  holdFnf: Joi.boolean().valid(0, 1).label("Hold FNF"),
+  holdFnfTillDate: Joi.string().trim().when('holdFnf', {
+    is: 1,
+    then: Joi.required(),
+    otherwise: Joi.forbidden()
+  }).label("FNF Till Date"),
+  holdFnfReason: Joi.string().trim().when('holdFnf', {
+    is: 1,
+    then: Joi.required(),
+    otherwise: Joi.forbidden()
+  }).label("Hold FNF Reason"),
+  l2Remark: Joi.string().trim().required().label("Remark"),
+  l2Attachment: Joi.string().optional()
+});
 
 export default {
   loginSchema,

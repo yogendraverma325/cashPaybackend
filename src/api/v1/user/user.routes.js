@@ -45,3 +45,4 @@ export default Express
     .get("/separationDetails", authentication.authenticate, userController.separationDetails)
     .post("/managerInputOnseparation", authentication.authenticate, userController.managerInputOnseparation)
     .post("/rejectSeparation", authentication.authenticate, userController.rejectSeparation)
+    .post("/buhrInputOnseparation", authentication.authenticate, userController.buhrInputOnSeparation)
