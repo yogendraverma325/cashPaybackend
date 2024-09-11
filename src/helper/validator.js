@@ -414,20 +414,22 @@ const buhrInputOnSeparation = Joi.object({
   l2Remark: Joi.string().trim().required().label("Remark"),
   l2Attachment: Joi.string().optional()
 });
-// const onBehalfSeperationByManager = Joi.object({
-//   userId: Joi.number(),
-//   resignationDate: Joi.string().required().label("Resignation Date"),
-//   empProposedLastWorkingDay: Joi.string().label("Proposed Last Working Days"),
-//   empProposedRecoveryDays: Joi.number().label("Proposed Recovery Days"),
-//   l1ReasonForProposedRecoveryDays: Joi.string().required().label("Reason for Proposed Recovery Days"),
-//   empReasonOfResignation: Joi.string().trim().required().label("Reason of Resignation"),
-//   l1BillingType: Joi.string(),
-//   replacementRequired: Joi.string().label("Replacement Required"),
-//   replacementRequiredBy: Joi.string().label("Replacement Required By"),
-//   comment: Joi.string().trim().max(100).label("Remark").allow(""),
-//   attachment:Joi.string().label("Attachment").allow(""),
 
-// })
+const onBehalfSeperationByManager = Joi.object({
+  userId: Joi.number(),
+  resignationDate: Joi.string().required().label("Resignation Date"),
+  l1ReasonForProposedRecoveryDays: Joi.string().required().label("Reason for Proposed Recovery Days"),
+  empProposedLastWorkingDay: Joi.string().label("Proposed Last Working Days"),
+  l1ProposedLastWorkingDay: Joi.string().required().label("Proposed last Working Day"),
+  l1ReasonOfResignation: Joi.string().trim().required().label("Reason Of Resignation"),
+  l1BillingType: Joi.string(),
+  l1CustomerName: Joi.string().trim().label("Customer Name"),
+  replacementRequired: Joi.boolean().label("Replacement Required"),
+  replacementRequiredBy: Joi.string().label("Replacement Required By"),
+  l1Remark: Joi.string().trim().max(100).label("Remark"),
+  l1Attachment: Joi.string().allow("").optional(),
+  submitType: Joi.number(),
+})
 
 const updateAddress = Joi.object({
   employeeId: Joi.number().label("Proposed Recovery Days").required(),
@@ -452,6 +454,46 @@ const updateAddress = Joi.object({
   emergencyCountryId: Joi.number().label("Emergency Country").allow(null).optional(),
   emergencyPincodeId: Joi.number().label("Emergency Country").allow(null).optional(),
   emergencyLandmark: Joi.string().label("Emergency Landmark").allow(null).optional(),
+})
+
+const onBehalfSeperationByBUHr = Joi.object({
+  userId: Joi.number(),
+  resignationDate: Joi.string().required().label("Resignation Date"),
+  l2LastWorkingDay: Joi.string().required().label("Proposed last Working Day"),
+  // l2RecoveryDays: Joi.number().required().label("Proposed Recovery Days"),
+  l2RecoveryDaysReason: Joi.string().required().label("Reason for Proposed Recovery Days"),
+  l2SeparationType: Joi.string().valid('Voluntary', 'InVoluntary', 'Death', 'Retired').required().label("Separation Type"),
+  l2ReasonOfSeparation: Joi.string().trim().required().label("Reason Of Resignation"),
+  l2NewOrganizationName: Joi.string().trim().when('l2SeparationType', {
+    is: 'Voluntary',
+    then: Joi.required(),
+    otherwise: Joi.forbidden()
+  }).label("New Organization Name"),
+  l2SalaryHike: Joi.string().trim().when('l2NewOrganizationName', {
+    is: Joi.exist(),
+    then: Joi.required(),
+    otherwise: Joi.forbidden()
+  }).label("Salary Hike"),
+  doNotReHire: Joi.boolean().valid(0, 1).label("Do Not Rehire"),
+  l2BillingType: Joi.string().trim().required().label("Billing Type"),
+  l2CustomerName: Joi.string().trim().required().label("Customer Name"),
+  shortFallPayoutBasis: Joi.string().trim().required().label("Payout Basis"),
+  shortFallPayoutDays: Joi.number().required().label("Payout Days"),
+  ndaConfirmation: Joi.boolean().valid(0, 1).label("NDA Confirmation"),
+  holdFnf: Joi.boolean().valid(0, 1).label("Hold FNF"),
+  holdFnfTillDate: Joi.string().trim().when('holdFnf', {
+    is: 1,
+    then: Joi.required(),
+    otherwise: Joi.forbidden()
+  }).label("FNF Till Date"),
+  holdFnfReason: Joi.string().trim().when('holdFnf', {
+    is: 1,
+    then: Joi.required(),
+    otherwise: Joi.forbidden()
+  }).label("Hold FNF Reason"),
+  l2Remark: Joi.string().trim().required().label("Remark"),
+  l2Attachment: Joi.string().allow("").optional(),
+  submitType: Joi.number(),
 })
 
 export default {
@@ -491,6 +533,7 @@ export default {
   managerInputOnseparation,
   rejectSeparation,
   buhrInputOnSeparation,
-  //onBehalfSeperationByManager,
-  updateAddress
+  onBehalfSeperationByManager,
+  updateAddress,
+  onBehalfSeperationByBUHr
 };
