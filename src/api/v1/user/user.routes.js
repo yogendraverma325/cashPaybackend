@@ -46,3 +46,5 @@ export default Express
     .post("/managerInputOnseparation", authentication.authenticate, userController.managerInputOnseparation)
     .post("/onBehalfManager", authentication.authenticate, userController.onBehalfManager)
     .post("/onBehalfBUHr", authentication.authenticate, userController.onBehalfBUHr)
+    .post("/rejectSeparation", authentication.authenticate, userController.rejectSeparation)
+    .post("/buhrInputOnseparation", authentication.authenticate, userController.buhrInputOnSeparation)

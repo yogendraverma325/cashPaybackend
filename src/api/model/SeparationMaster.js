@@ -101,6 +101,9 @@ export default (sequelize, Sequelize) => {
         l1RevokeDate: {
             type: Sequelize.DATE
         },
+        l1RejectionReason: {
+            type: Sequelize.STRING
+        },
         l2LastWorkingDay: {
             type: Sequelize.DATE
         },
@@ -155,8 +158,11 @@ export default (sequelize, Sequelize) => {
         l2RequestStatus: {
             type: Sequelize.STRING
         },
-        finalStatus: {
+        l2RejectionReason: {
             type: Sequelize.STRING
+        },
+        finalStatus: {
+            type: Sequelize.INTEGER
         },
         l2Remark: {
             type: Sequelize.STRING

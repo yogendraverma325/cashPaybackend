@@ -697,6 +697,19 @@ class UserController {
             model: db.noticePeriodMaster,
             attributes: ["noticePeriodDuration"],
           },
+          {
+            model: db.departmentMaster,
+            attributes: ['departmentName']
+          },
+          {
+            model: db.designationMaster,
+            attributes: ['name']
+          },
+          {
+            model: db.employeeMaster,
+            as: 'managerData',
+            attributes: ['name', 'email']
+          }
         ],
       });
 
@@ -709,10 +722,8 @@ class UserController {
 
       await db.separationMaster.create({
         employeeId: existUser.dataValues.id,
-        initiatedBy:
-          parseInt(req.query.user) === parseInt(req.userId) ? "Self" : "Other",
-        noticePeriodDay:
-          existUser.dataValues.noticeperiodmaster.noticePeriodDuration,
+        initiatedBy: "Self",
+        noticePeriodDay: existUser.dataValues.noticeperiodmaster.noticePeriodDuration,
         noticePeriodLastWorkingDay: lastWorkingDay.format("YYYY-MM-DD"),
         resignationDate: result.resignationDate,
         empProposedLastWorkingDay: result.empProposedLastWorkingDay,
@@ -723,8 +734,8 @@ class UserController {
         empPersonalMobileNumber: result.empPersonalMobileNumber,
         empRemark: result.empRemark,
         pendingAt: existUser.dataValues.manager,
-        finalStatus: "User_Submitted",
-        empAttachment: (result.attachment != '') ? await helper.fileUpload(
+        finalStatus: 2,
+        empAttachment: (result.attachment) ? await helper.fileUpload(
           result.attachment,
           `separation_attachment_${d}`,
           `uploads/${existUser.dataValues.empCode}`
@@ -732,9 +743,17 @@ class UserController {
         empSubmissionDate: moment()
       })
 
+      eventEmitter.emit("initiateSeparation", JSON.stringify({
+        email: existUser.dataValues.managerData.email,
+        recipientName: existUser.dataValues.managerData.name,
+        empName: existUser.dataValues.name,
+        empDesignation: existUser.dataValues.designationmaster.name,
+        empDepartment: existUser.dataValues.departmentmaster.departmentName
+      }))
+
       return respHelper(res, {
         status: 200,
-        msg: constant.SEPARATION_INITIATED,
+        msg: constant.SEPARATION_STATUS.replace("<status>", "Initiated")
       });
     } catch (error) {
       console.log(error);
@@ -755,7 +774,6 @@ class UserController {
 
       const separationData = await db.separationMaster.findOne({
         where: {
-          finalStatus: 'User_Submitted',
           [Op.or]: [{
             employeeId: req.userId
           }, {
@@ -767,6 +785,10 @@ class UserController {
             model: db.employeeMaster,
             attributes: ["empCode", "name"],
           },
+          {
+            model: db.separationStatus,
+            attributes: ['separationStatusCode', 'separationStatusDesc']
+          }
         ],
       });
 
@@ -819,7 +841,8 @@ class UserController {
         l1Attachment: separationManagerAttachment,
         l1SubmissionDate: moment(),
         pendingAt: separationData.dataValues.employee.buHRId,
-        l1RequestStatus: "L1_Approved"
+        l1RequestStatus: "Approved",
+        finalStatus: 5
       }, {
         where: {
           resignationAutoId: result.resignationAutoId
@@ -829,7 +852,7 @@ class UserController {
 
       return respHelper(res, {
         status: 200,
-        msg: "Filled Remark",
+        msg: constant.SEPARATION_STATUS.replace("<status>", 'Approved')
       });
     } catch (error) {
       console.log(error);
@@ -892,7 +915,7 @@ class UserController {
         ],
       });
       const headAndHrData = await db.buMapping.findOne({
-        attributes:['buMappingId','headId','buHrId'],
+        attributes: ['buMappingId', 'headId', 'buHrId'],
         where: { buId: existUser.dataValues.buId, companyId: existUser.dataValues.companyId }
       })
       const lastWorkingDay = moment(result.resignationDate, "YYYY-MM-DD").add(
@@ -927,7 +950,7 @@ class UserController {
       let onBehalfObject = {
         employeeId: existUser.dataValues.id,
         resignationDate: result.resignationDate,
-        initiatedBy:"Other",
+        initiatedBy: "Other",
         noticePeriodDay:
           existUser.dataValues.noticeperiodmaster.noticePeriodDuration,
         noticePeriodLastWorkingDay: lastWorkingDay.format("YYYY-MM-DD"),
@@ -935,20 +958,20 @@ class UserController {
         empProposedRecoveryDays: recoveryDays > 0 ? recoveryDays : 0,
         l1ProposedLastWorkingDay: result.l1ProposedLastWorkingDay,
         l1ProposedRecoveryDays: proposedRecoveryDays > 0 ? proposedRecoveryDays : 0,
-        l1BillingType:result.l1BillingType,
-        l1CustomerName:result.l1CustomerName,
-        replacementRequired:result.replacementRequired,
-        replacementRequiredBy:result.replacementRequiredBy,
-        l1ReasonForProposedRecoveryDays:result.l1ReasonForProposedRecoveryDays,
-        l1ReasonOfResignation:result.l1ReasonOfResignation,
-        l1Remark:result.l1Remark,
+        l1BillingType: result.l1BillingType,
+        l1CustomerName: result.l1CustomerName,
+        replacementRequired: result.replacementRequired,
+        replacementRequiredBy: result.replacementRequiredBy,
+        l1ReasonForProposedRecoveryDays: result.l1ReasonForProposedRecoveryDays,
+        l1ReasonOfResignation: result.l1ReasonOfResignation,
+        l1Remark: result.l1Remark,
         l1SubmissionDate: moment(),
         l1RequestStatus: "L1_Approved",
-        submitType:result.submitType,
-        createdBy:req.userId,
-        createdDt:moment(),
-        pendingAt:headAndHrData?headAndHrData.dataValues.buHrId:null,
-        ...(result.l1Attachment !== "" && { l1Attachment:separationEmpAttachment })
+        submitType: result.submitType,
+        createdBy: req.userId,
+        createdDt: moment(),
+        pendingAt: headAndHrData ? headAndHrData.dataValues.buHrId : null,
+        ...(result.l1Attachment !== "" && { l1Attachment: separationEmpAttachment })
       };
       await db.separationMaster.create(onBehalfObject)
       return respHelper(res, {
@@ -978,7 +1001,7 @@ class UserController {
           },
         ],
       });
-    
+
       const lastWorkingDay = moment(result.resignationDate, "YYYY-MM-DD").add(
         existUser.dataValues.noticeperiodmaster.noticePeriodDuration,
         "days"
@@ -1011,36 +1034,36 @@ class UserController {
       let onBehalfObject = {
         employeeId: existUser.dataValues.id,
         resignationDate: result.resignationDate,
-        initiatedBy:"Other",
+        initiatedBy: "Other",
         noticePeriodDay:
           existUser.dataValues.noticeperiodmaster.noticePeriodDuration,
         noticePeriodLastWorkingDay: lastWorkingDay.format("YYYY-MM-DD"),
         // empProposedLastWorkingDay: result.empProposedLastWorkingDay,
         // empProposedRecoveryDays: recoveryDays > 0 ? recoveryDays : 0,
         l2LastWorkingDay: result.l2LastWorkingDay,
-        l2RecoveryDays:proposedRecoveryDays > 0 ? proposedRecoveryDays : 0,
-        l2RecoveryDaysReason:result.l2RecoveryDaysReason,
-        l2SeparationType:result.l2SeparationType,
-        l2ReasonOfSeparation:result.l2ReasonOfSeparation,
-        l2NewOrganizationName:result.l2NewOrganizationName,
-        l2SalaryHike:result.l2SalaryHike,
-        doNotReHire:result.doNotReHire,
-        l2BillingType:result.l2BillingType,
+        l2RecoveryDays: proposedRecoveryDays > 0 ? proposedRecoveryDays : 0,
+        l2RecoveryDaysReason: result.l2RecoveryDaysReason,
+        l2SeparationType: result.l2SeparationType,
+        l2ReasonOfSeparation: result.l2ReasonOfSeparation,
+        l2NewOrganizationName: result.l2NewOrganizationName,
+        l2SalaryHike: result.l2SalaryHike,
+        doNotReHire: result.doNotReHire,
+        l2BillingType: result.l2BillingType,
         l2CustomerName: result.l2CustomerName,
         shortFallPayoutBasis: result.shortFallPayoutBasis,
-        shortFallPayoutDays:result.shortFallPayoutDays,
-        ndaConfirmation:result.ndaConfirmation,
-        holdFnf:result.holdFnf,
-        holdFnfTillDate:result.holdFnfTillDate,
-        holdFnfReason:result.holdFnfReason,
-        l2Remark:result.l2Remark,
+        shortFallPayoutDays: result.shortFallPayoutDays,
+        ndaConfirmation: result.ndaConfirmation,
+        holdFnf: result.holdFnf,
+        holdFnfTillDate: result.holdFnfTillDate,
+        holdFnfReason: result.holdFnfReason,
+        l2Remark: result.l2Remark,
         l2SubmissionDate: moment(),
-        createdBy:req.userId,
-        createdDt:moment(),
+        createdBy: req.userId,
+        createdDt: moment(),
         l1RequestStatus: "L1_Approved",
-        l2RequestStatus:"L2_Approved",
-        submitType:result.submitType,
-        ...(result.l2Attachment !== "" && { l2Attachment:separationEmpAttachment })
+        l2RequestStatus: "L2_Approved",
+        submitType: result.submitType,
+        ...(result.l2Attachment !== "" && { l2Attachment: separationEmpAttachment })
       };
       //await db.separationMaster.create(onBehalfObject)
       return respHelper(res, {
@@ -1054,36 +1077,109 @@ class UserController {
       });
     }
   }
-  // async rejectSeparation(req, res) {
-  //   try {
-  //     const result = await validator.rejectSeparation.validateAsync(req.body)
 
-  //     await db.separationMaster.update({
+  async rejectSeparation(req, res) {
+    try {
+      const result = await validator.rejectSeparation.validateAsync(req.body)
 
-  //     }, {
-  //       where: {
-  //         resignationAutoId: result.resignationAutoId
-  //       }
-  //     })
+      await db.separationMaster.update({
+        l1SubmissionDate: moment(),
+        l1Remark: result.remark,
+        l1RejectionReason: result.reason,
+        l1SubmissionDate: moment(),
+        l1RequestStatus: "Rejected",
+        finalStatus: "L1_Rejected"
+      }, {
+        where: {
+          resignationAutoId: result.resignationAutoId
+        }
+      })
 
+      return respHelper(res, {
+        status: 200,
+        msg: constant.SEPARATION_STATUS.replace("<status>", 'Rejected')
+      })
+    } catch (error) {
+      console.log(error);
+      if (error.isJoi === true) {
+        return respHelper(res, {
+          status: 422,
+          msg: error.details[0].message
+        });
+      }
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
 
-  //     return respHelper(res, {
-  //       status: 200,
-  //       // msg:constant
-  //     })
-  //   } catch (error) {
-  //     console.log(error);
-  //     if (error.isJoi === true) {
-  //       return respHelper(res, {
-  //         status: 422,
-  //         msg: error.details[0].message
-  //       });
-  //     }
-  //     return respHelper(res, {
-  //       status: 500,
-  //     });
-  //   }
-  // }
+  async buhrInputOnSeparation(req, res) {
+    try {
+      let result = await validator.buhrInputOnSeparation.validateAsync(req.body)
+
+      const separationData = await db.separationMaster.findOne({
+        where: {
+          resignationAutoId: result.resignationAutoId
+        },
+        attributes: ['initiatedBy'],
+        include: [{
+          model: db.employeeMaster,
+          attributes: ['empCode', 'name', 'email'],
+        }]
+      })
+
+      const d = Math.floor(Date.now() / 1000);
+
+      await db.separationMaster.update({
+        l2LastWorkingDay: result.l2LastWorkingDay,
+        l2RecoveryDays: result.l2RecoveryDays,
+        l2RecoveryDaysReason: result.l2RecoveryDaysReason,
+        l2SeparationType: result.l2SeparationType,
+        l2ReasonOfSeparation: result.l2ReasonOfSeparation,
+        l2NewOrganizationName: result.l2NewOrganizationName,
+        l2SalaryHike: result.l2SalaryHike,
+        doNotReHire: result.doNotReHire,
+        l2BillingType: result.l2BillingType,
+        l2CustomerName: result.l2CustomerName,
+        shortFallPayoutBasis: result.shortFallPayoutBasis,
+        shortFallPayoutDays: result.shortFallPayoutDays,
+        ndaConfirmation: result.ndaConfirmation,
+        holdFnf: result.holdFnf,
+        holdFnfReason: result.holdFnfReason,
+        holdFnfTillDate: result.holdFnfTillDate,
+        l2Remark: result.l2Remark,
+        l2Attachment: (result.attachment) ? await helper.fileUpload(
+          result.attachment,
+          `separation_attachment_${d}`,
+          `uploads/${separationData.dataValues.employee.empCode}`
+        ) : null,
+        l2SubmissionDate: moment(),
+        l2RequestStatus: 'Approved',
+        finalStatus: 9
+      }, {
+        where: {
+          resignationAutoId: result.resignationAutoId
+        }
+      })
+
+      return respHelper(res, {
+        status: 200,
+        msg: constant.SEPARATION_STATUS.replace("<status>", 'Approved')
+      });
+
+    } catch (error) {
+      console.log(error);
+      if (error.isJoi === true) {
+        return respHelper(res, {
+          status: 422,
+          msg: error.details[0].message
+        });
+      }
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
 }
 
 export default new UserController();

@@ -377,23 +377,86 @@ const rejectSeparation = Joi.object({
   remark: Joi.string().trim().max(100).label("Remark")
 })
 
-const onBehalfSeperationByManager = Joi.object({
-   userId: Joi.number(),
-   resignationDate: Joi.string().required().label("Resignation Date"),
-   l1ReasonForProposedRecoveryDays: Joi.string().required().label("Reason for Proposed Recovery Days"),
-   empProposedLastWorkingDay: Joi.string().label("Proposed Last Working Days"),
-   l1ProposedLastWorkingDay: Joi.string().required().label("Proposed last Working Day"),
-   l1ReasonOfResignation: Joi.string().trim().required().label("Reason Of Resignation"),
-   l1BillingType: Joi.string(),
-   l1CustomerName: Joi.string().trim().label("Customer Name"),
-   replacementRequired: Joi.boolean().label("Replacement Required"),
-   replacementRequiredBy: Joi.string().label("Replacement Required By"),
-   l1Remark: Joi.string().trim().max(100).label("Remark"),
-   l1Attachment: Joi.string().allow("").optional(),
-   submitType:Joi.number(),
- })
+const buhrInputOnSeparation = Joi.object({
+  resignationAutoId: Joi.number(),
+  l2LastWorkingDay: Joi.string().required().label("Proposed last Working Day"),
+  l2RecoveryDays: Joi.number().required().label("Proposed Recovery Days"),
+  l2RecoveryDaysReason: Joi.string().required().label("Reason for Proposed Recovery Days"),
+  l2SeparationType: Joi.string().valid('Voluntary', 'InVoluntary', 'Death', 'Retired').required().label("Separation Type"),
+  l2ReasonOfSeparation: Joi.string().trim().required().label("Reason Of Resignation"),
+  l2NewOrganizationName: Joi.string().trim().when('l2SeparationType', {
+    is: 'Voluntary',
+    then: Joi.required(),
+    otherwise: Joi.forbidden()
+  }).label("New Organization Name"),
+  l2SalaryHike: Joi.string().trim().when('l2NewOrganizationName', {
+    is: Joi.exist(),
+    then: Joi.required(),
+    otherwise: Joi.forbidden()
+  }).label("Salary Hike"),
+  doNotReHire: Joi.boolean().valid(0, 1).label("Do Not Rehire"),
+  l2BillingType: Joi.string().trim().required().label("Billing Type"),
+  l2CustomerName: Joi.string().trim().required().label("Customer Name"),
+  shortFallPayoutBasis: Joi.string().trim().required().label("Payout Basis"),
+  shortFallPayoutDays: Joi.number().required().label("Payout Days"),
+  ndaConfirmation: Joi.boolean().valid(0, 1).label("NDA Confirmation"),
+  holdFnf: Joi.boolean().valid(0, 1).label("Hold FNF"),
+  holdFnfTillDate: Joi.string().trim().when('holdFnf', {
+    is: 1,
+    then: Joi.required(),
+    otherwise: Joi.forbidden()
+  }).label("FNF Till Date"),
+  holdFnfReason: Joi.string().trim().when('holdFnf', {
+    is: 1,
+    then: Joi.required(),
+    otherwise: Joi.forbidden()
+  }).label("Hold FNF Reason"),
+  l2Remark: Joi.string().trim().required().label("Remark"),
+  l2Attachment: Joi.string().optional()
+});
 
- const onBehalfSeperationByBUHr = Joi.object({
+const onBehalfSeperationByManager = Joi.object({
+  userId: Joi.number(),
+  resignationDate: Joi.string().required().label("Resignation Date"),
+  l1ReasonForProposedRecoveryDays: Joi.string().required().label("Reason for Proposed Recovery Days"),
+  empProposedLastWorkingDay: Joi.string().label("Proposed Last Working Days"),
+  l1ProposedLastWorkingDay: Joi.string().required().label("Proposed last Working Day"),
+  l1ReasonOfResignation: Joi.string().trim().required().label("Reason Of Resignation"),
+  l1BillingType: Joi.string(),
+  l1CustomerName: Joi.string().trim().label("Customer Name"),
+  replacementRequired: Joi.boolean().label("Replacement Required"),
+  replacementRequiredBy: Joi.string().label("Replacement Required By"),
+  l1Remark: Joi.string().trim().max(100).label("Remark"),
+  l1Attachment: Joi.string().allow("").optional(),
+  submitType: Joi.number(),
+})
+
+const updateAddress = Joi.object({
+  employeeId: Joi.number().label("Proposed Recovery Days").required(),
+  currentHouse: Joi.string().label("Current House").required(),
+  currentStreet: Joi.string().label("Current Street").required(),
+  currentStateId: Joi.number().label("current State").required(),
+  currentCityId: Joi.number().label("Current City").required(),
+  currentCountryId: Joi.number().label("Current Country").required(),
+  currentPincodeId: Joi.number().label("Current Pincode").required(),
+  currentLandmark: Joi.string().label("Current Landmark").required(),
+  permanentCityId: Joi.number().label("Permanent City").allow(null).optional(),
+  permanentStateId: Joi.number().label("Permanent State").allow(null).optional(),
+  permanentCountryId: Joi.number().label("Permanent Country").allow(null).optional(),
+  permanentPincodeId: Joi.number().label("Permanent Pincode").allow(null).optional(),
+  permanentStreet: Joi.string().label("Permanent Street").allow(null).optional(),
+  permanentHouse: Joi.string().label("Permanent House").allow(null).optional(),
+  permanentLandmark: Joi.string().label("Permanent Landmark").allow(null).optional(),
+  emergencyStreet: Joi.string().label("Emergency Street").allow(null).optional(),
+  emergencyHouse: Joi.string().label("Emergency House").allow(null).optional(),
+  emergencyCityId: Joi.number().label("Emergency Country").allow(null).optional(),
+  emergencyStateId: Joi.number().label("Emergency Country").allow(null).optional(),
+  emergencyCountryId: Joi.number().label("Emergency Country").allow(null).optional(),
+  emergencyPincodeId: Joi.number().label("Emergency Country").allow(null).optional(),
+  emergencyLandmark: Joi.string().label("Emergency Landmark").allow(null).optional(),
+})
+
+const onBehalfSeperationByBUHr = Joi.object({
   userId: Joi.number(),
   resignationDate: Joi.string().required().label("Resignation Date"),
   l2LastWorkingDay: Joi.string().required().label("Proposed last Working Day"),
@@ -430,33 +493,7 @@ const onBehalfSeperationByManager = Joi.object({
   }).label("Hold FNF Reason"),
   l2Remark: Joi.string().trim().required().label("Remark"),
   l2Attachment: Joi.string().allow("").optional(),
-  submitType:Joi.number(),
-})
-
-
-const updateAddress = Joi.object({
-    employeeId:Joi.number().label("Proposed Recovery Days").required(),
-    currentHouse:Joi.string().label("Current House").required(),
-    currentStreet:Joi.string().label("Current Street").required(),
-    currentStateId:Joi.number().label("current State").required(),
-    currentCityId:Joi.number().label("Current City").required(),
-    currentCountryId:Joi.number().label("Current Country").required(),
-    currentPincodeId:Joi.number().label("Current Pincode").required(),
-    currentLandmark:Joi.string().label("Current Landmark").required(),
-    permanentCityId:Joi.number().label("Permanent City").allow(null).optional(),
-    permanentStateId:Joi.number().label("Permanent State").allow(null).optional(),
-    permanentCountryId:Joi.number().label("Permanent Country").allow(null).optional(),
-    permanentPincodeId:Joi.number().label("Permanent Pincode").allow(null).optional(),
-    permanentStreet:Joi.string().label("Permanent Street").allow(null).optional(),
-    permanentHouse:Joi.string().label("Permanent House").allow(null).optional(),
-    permanentLandmark:Joi.string().label("Permanent Landmark").allow(null).optional(),
-    emergencyStreet:Joi.string().label("Emergency Street").allow(null).optional(),
-    emergencyHouse:Joi.string().label("Emergency House").allow(null).optional(),
-    emergencyCityId:Joi.number().label("Emergency City").allow(null).optional(),
-    emergencyStateId:Joi.number().label("Emergency State").allow(null).optional(),
-    emergencyCountryId:Joi.number().label("Emergency Country").allow(null).optional(),
-    emergencyPincodeId:Joi.number().label("Emergency Pincode").allow(null).optional(),
-    emergencyLandmark:Joi.string().label("Emergency Landmark").allow(null).optional(),
+  submitType: Joi.number(),
 })
 
 
@@ -496,6 +533,7 @@ export default {
   separationByEmployee,
   managerInputOnseparation,
   rejectSeparation,
+  buhrInputOnSeparation,
   onBehalfSeperationByManager,
   updateAddress,
   onBehalfSeperationByBUHr
