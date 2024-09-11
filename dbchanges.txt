@@ -1,5 +1,36 @@
 //---------------------------------2024-09-10---------------------------------------------//
 
+ALTER TABLE `hrms_live`.`employeefamilyhistory` 
+ADD COLUMN `memberAddress` VARCHAR(255) NULL DEFAULT NULL AFTER `relationWithEmp`;
+
+ALTER TABLE `hrms_live`.`employeejobdetailshistory` 
+ADD COLUMN unionId INT DEFAULT NULL AFTER languagesSpoken,
+ADD COLUMN bandId INT DEFAULT NULL AFTER unionId,
+ADD COLUMN gradeId INT DEFAULT NULL AFTER bandId,
+ADD COLUMN jobLevelId INT DEFAULT NULL AFTER gradeId,
+ADD COLUMN residentEng TINYINT DEFAULT NULL AFTER jobLevelId,
+ADD COLUMN customerName VARCHAR(255) DEFAULT NULL AFTER residentEng,
+ADD COLUMN epsApplicability TINYINT DEFAULT NULL AFTER customerName,
+ADD COLUMN esicApplicable TINYINT DEFAULT NULL AFTER epsApplicability,
+ADD COLUMN lwfApplicable TINYINT DEFAULT NULL AFTER esicApplicable,
+ADD COLUMN pfRestricted TINYINT DEFAULT NULL AFTER lwfApplicable,
+ADD COLUMN pfApplicability TINYINT DEFAULT NULL AFTER pfRestricted,
+ADD COLUMN epfApplicable TINYINT DEFAULT NULL AFTER pfApplicability,
+ADD COLUMN esicNumber TEXT AFTER epfApplicable,
+ADD COLUMN pfNumber TEXT AFTER esicNumber,
+ADD COLUMN uanNumber TEXT AFTER pfNumber;
+
+
+ALTER TABLE `hrms_live`.`employeejobdetailshistory` 
+ADD COLUMN `lwfDesignation` INT NULL DEFAULT NULL AFTER `uanNumber`,
+ADD COLUMN `lwfState` INT NULL DEFAULT NULL AFTER `lwfDesignation`,
+ADD COLUMN `restrictCompanyPf` TINYINT NULL DEFAULT NULL AFTER `lwfState`,
+ADD COLUMN `pranNumber` TEXT NULL DEFAULT NULL AFTER `restrictCompanyPf`,
+ADD COLUMN `npsNumber` TEXT NULL DEFAULT NULL AFTER `pranNumber`;
+
+
+
+
 ALTER TABLE `hrms_live`.`separationmaster` 
 ADD COLUMN `submitType` INT NULL DEFAULT NULL AFTER `l2RevokeDate`;
 
@@ -106,13 +137,6 @@ ADD COLUMN `numericalSequences` TEXT NULL DEFAULT NULL AFTER `abstractReasoning`
 ADD COLUMN `numericalCalculation` TEXT NULL DEFAULT NULL AFTER `numericalSequences`,
 ADD COLUMN `mbtiType` TEXT NULL DEFAULT NULL AFTER `numericalCalculation`;
 
-
-ALTER TABLE `hrms_live`.`employeejobdetails` 
-ADD COLUMN `lwfDesignation` INT NULL DEFAULT NULL AFTER `isActive`,
-ADD COLUMN `lwfState` INT NULL DEFAULT NULL AFTER `lwfDesignation`,
-ADD COLUMN `restrictCompanyPf` TINYINT NULL DEFAULT NULL AFTER `lwfState`,
-ADD COLUMN `pranNumber` TEXT NULL DEFAULT NULL AFTER `restrictCompanyPf`,
-ADD COLUMN `npsNumber` TEXT NULL DEFAULT NULL AFTER `pranNumber`;
 
 
 ALTER TABLE `hrms_live`.`employeefamilydetails` 
@@ -228,6 +252,14 @@ ADD COLUMN epfApplicable TINYINT DEFAULT NULL AFTER pfApplicability,
 ADD COLUMN esicNumber TEXT AFTER epfApplicable,
 ADD COLUMN pfNumber TEXT AFTER esicNumber,
 ADD COLUMN uanNumber TEXT AFTER pfNumber;
+
+
+ALTER TABLE `hrms_live`.`employeejobdetails` 
+ADD COLUMN `lwfDesignation` INT NULL DEFAULT NULL AFTER `isActive`,
+ADD COLUMN `lwfState` INT NULL DEFAULT NULL AFTER `lwfDesignation`,
+ADD COLUMN `restrictCompanyPf` TINYINT NULL DEFAULT NULL AFTER `lwfState`,
+ADD COLUMN `pranNumber` TEXT NULL DEFAULT NULL AFTER `restrictCompanyPf`,
+ADD COLUMN `npsNumber` TEXT NULL DEFAULT NULL AFTER `pranNumber`;
 
 -------------------------------
 

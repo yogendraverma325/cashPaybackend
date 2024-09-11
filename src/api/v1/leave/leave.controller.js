@@ -70,9 +70,9 @@ class LeaveController {
         where: Object.assign(
           query === "raisedByMe"
             ? {
-              employeeId: req.userId,
-              status: "pending",
-            }
+                employeeId: req.userId,
+                status: "pending",
+              }
             : { pendingAt: req.userId, status: "pending" }
         ),
         attributes: { exclude: ["createdBy", "updatedBy", "updatedAt"] },
@@ -506,24 +506,23 @@ class LeaveController {
         }
         inputs = leaveCountForDates.filter((el) => {
           if (el.appliedFor == appliedFor) {
-            if(el.status=='rejected'){
-                return false;
-            }else{
-          if (el.isHalfDay == 1) {
-              if (halfDayFor == 0) {
-                return true;
-              } else {
-                if (el.halfDayFor == halfDayFor) {
+            if (el.status == "rejected") {
+              return false;
+            } else {
+              if (el.isHalfDay == 1) {
+                if (halfDayFor == 0) {
                   return true;
                 } else {
-                  return false;
+                  if (el.halfDayFor == halfDayFor) {
+                    return true;
+                  } else {
+                    return false;
+                  }
                 }
+              } else {
+                return true;
               }
-            } else {
-              return true;
             }
-            }
-          
           } else {
             return true;
           }
@@ -622,10 +621,10 @@ class LeaveController {
             leaveAttachment:
               result.attachment != ""
                 ? await helper.fileUpload(
-                  result.attachment,
-                  `leaveAttachment_${uuid}`,
-                  `uploads/${EMP_DATA.empCode}`
-                )
+                    result.attachment,
+                    `leaveAttachment_${uuid}`,
+                    `uploads/${EMP_DATA.empCode}`
+                  )
                 : null,
             pendingAt: EMP_DATA.managerData.id, // Replace with actual pending at value
             createdBy: req.userId, // Replace with actual creator user ID
@@ -1116,7 +1115,7 @@ class LeaveController {
         (acc, el) => acc + parseFloat(el.leaveCount),
         0
       );
-      console.log("pendingLeaveCount",pendingLeaveCount)
+      console.log("pendingLeaveCount", pendingLeaveCount);
       const totalWorkingDaysCalculated = Math.max(
         0,
         totalWorkingDays - getCombinedVal
@@ -1128,10 +1127,10 @@ class LeaveController {
         totalWorkingDaysCalculated < countDeductingPending
           ? totalWorkingDaysCalculated
           : countDeductingPending;
-      let c =(b)>0 ?a - b:a;
-      console.log("c",c)
-       console.log("b",b)
-        console.log("a",a)
+      let c = b > 0 ? a - b : a;
+      console.log("c", c);
+      console.log("b", b);
+      console.log("a", a);
 
       return respHelper(res, {
         status: 200,
@@ -1167,21 +1166,25 @@ class LeaveController {
 
       const leaveAutoIds = new Set();
 
-      const idFromLeaveTransaction = await db.employeeLeaveTransactions.findAll({
-        attributes: ["leaveAutoId"],
-        where: { employeeId: employeeId },
-        raw: true
-      });
+      const idFromLeaveTransaction = await db.employeeLeaveTransactions.findAll(
+        {
+          attributes: ["leaveAutoId"],
+          where: { employeeId: employeeId },
+          raw: true,
+        }
+      );
 
-      idFromLeaveTransaction.forEach(item => leaveAutoIds.add(item.leaveAutoId));
+      idFromLeaveTransaction.forEach((item) =>
+        leaveAutoIds.add(item.leaveAutoId)
+      );
 
       const currentMappedIds = await db.leaveMapping.findAll({
         attributes: ["leaveAutoId"],
         where: { EmployeeId: employeeId },
-        raw: true
+        raw: true,
       });
 
-      currentMappedIds.forEach(item => leaveAutoIds.add(item.leaveAutoId));
+      currentMappedIds.forEach((item) => leaveAutoIds.add(item.leaveAutoId));
 
       const uniqueMappedIds = Array.from(leaveAutoIds);
 
@@ -1189,7 +1192,7 @@ class LeaveController {
         attributes: ["leaveId", "leaveName", "leaveCode"],
         raw: true,
         where: {
-          leaveId: uniqueMappedIds
+          leaveId: uniqueMappedIds,
         },
       });
 
@@ -1388,6 +1391,66 @@ class LeaveController {
         return respHelper(res, {
           status: 200,
           message: "Leave updated successfully",
+        });
+      } else {
+        return respHelper(res, {
+          status: 404,
+          message: "No employees found with employeeType = 4",
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      return respHelper(res, {
+        status: 500,
+        message: "Internal Server Error",
+      });
+    }
+  }
+
+  async leaveIdUpdateForAllEmployee(req, res) {
+    try {
+      // Fetch all employee IDs
+      const employees = await db.employeeMaster.findAll({
+        attributes: ["id"],
+        where: {},
+        raw: true,
+      });
+
+      const employeeIds = employees.map((emp) => emp.id);
+      if (employeeIds.length > 0) {
+        // Loop through each employee and insert leave mapping data
+        for (const id of employeeIds) {
+          const detailsExist = await db.leaveMapping.findOne({
+            where: { EmployeeId: id, leaveAutoId: 6 },
+          });
+          if (detailsExist) {
+            await db.leaveMapping.update(
+              {
+                leaveAutoId: 6,
+                availableLeave: req.body.availableLeave,
+                accruedThisYear: req.body.accruedThisYear,
+                creditedFromLastYear: req.body.creditedFromLastYear,
+                annualAllotment: req.body.annualAllotment,
+                utilizedThisYear: req.body.utilizedThisYear,
+              },
+              { where: { EmployeeId: id } }
+            );
+          } else {
+            await db.leaveMapping.create({
+              EmployeeId: id,
+              leaveAutoId: 6,
+              availableLeave: req.body.availableLeave,
+              accruedThisYear: req.body.accruedThisYear,
+              creditedFromLastYear: req.body.creditedFromLastYear,
+              annualAllotment: req.body.annualAllotment,
+              utilizedThisYear: req.body.utilizedThisYear,
+            });
+          }
+        }
+
+        return respHelper(res, {
+          status: 200,
+          message: "Leave updated successfully for all employees",
         });
       } else {
         return respHelper(res, {

@@ -21,9 +21,7 @@ class commonController {
         return respHelper(res, {
           status: 400,
           msg: constant.ALREADY_EXISTS.replace(
-            "<module>",
-            "Biographical Details"
-          ),
+            "<module>", "Details"),
           data: {},
         });
       } else {
@@ -83,8 +81,7 @@ class commonController {
       return respHelper(res, {
         status: 200,
         msg: constant.UPDATE_SUCCESS.replace(
-          "<module>",
-          "Biographical Details"
+         "<module>", "Details"
         ),
         data: updateObj,
       });
@@ -146,7 +143,7 @@ class commonController {
 
       return respHelper(res, {
         status: 200,
-        msg: constant.UPDATE_SUCCESS.replace("<module>", "Payment Details"),
+        msg: constant.UPDATE_SUCCESS.replace("<module>", "Details"),
       });
     } catch (error) {
       console.log(error);
@@ -246,6 +243,7 @@ class commonController {
           dob: getFamilyDetails.dob,
           gender: getFamilyDetails.gender,
           mobileNo: getFamilyDetails.mobileNo,
+          memberAddress:getFamilyDetails.memberAddress,
           relationWithEmp: getFamilyDetails.relationWithEmp,
           createdBy: getFamilyDetails.createdBy,
           updatedBy: getFamilyDetails.updatedBy,
@@ -263,8 +261,7 @@ class commonController {
       return respHelper(res, {
         status: 200,
         msg: constant.UPDATE_SUCCESS.replace(
-          "<module>",
-          "Family Member Details"
+          "<module>", "Details"
         ),
       });
     } catch (error) {
@@ -441,7 +438,7 @@ class commonController {
 
         return respHelper(res, {
           status: 200,
-          msg: constant.UPDATE_SUCCESS.replace("<module>", "Payment Details"),
+          msg: constant.UPDATE_SUCCESS.replace("<module>", "Details"),
         });
       } else {
         let obj = {
@@ -691,7 +688,7 @@ class commonController {
 
       return respHelper(res, {
         status: 200,
-        msg: constant.UPDATE_SUCCESS.replace("<module>", "Education Details"),
+        msg: constant.UPDATE_SUCCESS.replace("<module>", "Details"),
       });
     } catch (error) {
       console.log(error);
@@ -994,7 +991,7 @@ class commonController {
 
         return respHelper(res, {
           status: 200,
-          msg: constant.DETAILS_ADDED.replace("<module>", "Emergency Details"),
+          msg: constant.DETAILS_ADDED.replace("<module>", "Details"),
         });
       }
     } catch (error) {
@@ -1039,7 +1036,7 @@ class commonController {
 
         return respHelper(res, {
           status: 200,
-          msg: constant.UPDATE_SUCCESS.replace("<module>", "Address Details"),
+          msg: constant.UPDATE_SUCCESS.replace("<module>", "Details"),
         });
       } else {
         let obj = {
@@ -1359,8 +1356,7 @@ class commonController {
       return respHelper(res, {
         status: 200,
         msg: constant.UPDATE_SUCCESS.replace(
-          "<module>",
-           "Details"
+         "<module>", "Details"
         ),
       });
     } catch (error) {

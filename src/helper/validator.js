@@ -279,7 +279,7 @@ const employeeUpdateInfo = Joi.object({
     .length(12)
     .regex(/^\d+$/)
     .required()
-    .label("Aadhar Number"),
+    .label("Aadhaar Number"),
   panNo: Joi.string(),
   drivingLicence: Joi.string().allow(null).optional(),
   passportNumber: Joi.string().allow(null).optional(),

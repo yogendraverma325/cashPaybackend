@@ -13,3 +13,5 @@ export default Express.Router()
   .get("/leaveHistory/:year", authentication.authenticate, LeaveController.leaveHistory)
   .get("/leaveHistoryDetails", authentication.authenticate, LeaveController.leaveHistoryDetails)
   .put("/leaveIdUpdateForOffRole",authentication.authenticate, LeaveController.leaveIdUpdateForOffRole)
+  .post("/leaveIdUpdateForAllEmployee",authentication.authenticate, LeaveController.leaveIdUpdateForAllEmployee)
+
