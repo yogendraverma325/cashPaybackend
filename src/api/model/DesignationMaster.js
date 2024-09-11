@@ -8,6 +8,9 @@ export default (sequelize, Sequelize) => {
         name: {
             type: Sequelize.STRING
         },
+        code: {
+            type: Sequelize.STRING(255)
+        },
         createdAt: {
             type: Sequelize.DATE
         },
