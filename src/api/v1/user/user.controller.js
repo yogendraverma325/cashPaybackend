@@ -697,6 +697,19 @@ class UserController {
             model: db.noticePeriodMaster,
             attributes: ["noticePeriodDuration"],
           },
+          {
+            model: db.departmentMaster,
+            attributes: ['departmentName']
+          },
+          {
+            model: db.designationMaster,
+            attributes: ['name']
+          },
+          {
+            model: db.employeeMaster,
+            as: 'managerData',
+            attributes: ['name', 'email']
+          }
         ],
       });
 
@@ -709,10 +722,8 @@ class UserController {
 
       await db.separationMaster.create({
         employeeId: existUser.dataValues.id,
-        initiatedBy:
-          parseInt(req.query.user) === parseInt(req.userId) ? "Self" : "Other",
-        noticePeriodDay:
-          existUser.dataValues.noticeperiodmaster.noticePeriodDuration,
+        initiatedBy: "Self",
+        noticePeriodDay: existUser.dataValues.noticeperiodmaster.noticePeriodDuration,
         noticePeriodLastWorkingDay: lastWorkingDay.format("YYYY-MM-DD"),
         resignationDate: result.resignationDate,
         empProposedLastWorkingDay: result.empProposedLastWorkingDay,
@@ -723,7 +734,7 @@ class UserController {
         empPersonalMobileNumber: result.empPersonalMobileNumber,
         empRemark: result.empRemark,
         pendingAt: existUser.dataValues.manager,
-        finalStatus: "User_Submitted",
+        finalStatus: 2,
         empAttachment: (result.attachment) ? await helper.fileUpload(
           result.attachment,
           `separation_attachment_${d}`,
@@ -731,6 +742,14 @@ class UserController {
         ) : null,
         empSubmissionDate: moment()
       })
+
+      eventEmitter.emit("initiateSeparation", JSON.stringify({
+        email: existUser.dataValues.managerData.email,
+        recipientName: existUser.dataValues.managerData.name,
+        empName: existUser.dataValues.name,
+        empDesignation: existUser.dataValues.designationmaster.name,
+        empDepartment: existUser.dataValues.departmentmaster.departmentName
+      }))
 
       return respHelper(res, {
         status: 200,
@@ -755,7 +774,6 @@ class UserController {
 
       const separationData = await db.separationMaster.findOne({
         where: {
-          finalStatus: 'User_Submitted',
           [Op.or]: [{
             employeeId: req.userId
           }, {
@@ -767,6 +785,10 @@ class UserController {
             model: db.employeeMaster,
             attributes: ["empCode", "name"],
           },
+          {
+            model: db.separationStatus,
+            attributes: ['separationStatusCode', 'separationStatusDesc']
+          }
         ],
       });
 
@@ -819,7 +841,8 @@ class UserController {
         l1Attachment: separationManagerAttachment,
         l1SubmissionDate: moment(),
         pendingAt: separationData.dataValues.employee.buHRId,
-        l1RequestStatus: "L1_Approved"
+        l1RequestStatus: "Approved",
+        finalStatus: 5
       }, {
         where: {
           resignationAutoId: result.resignationAutoId
@@ -953,7 +976,7 @@ class UserController {
       });
     }
   }
-  
+
   async rejectSeparation(req, res) {
     try {
       const result = await validator.rejectSeparation.validateAsync(req.body)
@@ -1030,7 +1053,8 @@ class UserController {
           `uploads/${separationData.dataValues.employee.empCode}`
         ) : null,
         l2SubmissionDate: moment(),
-        l2RequestStatus: 'L2_Approved'
+        l2RequestStatus: 'Approved',
+        finalStatus: 9
       }, {
         where: {
           resignationAutoId: result.resignationAutoId

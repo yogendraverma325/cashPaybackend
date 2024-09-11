@@ -38,6 +38,10 @@ export default function getAllListeners(eventEmitter) {
     eventEmitter.on("autoLeaveDeductionMail", async (input) => {
         await autoLeaveDeductionMail(input)
     })
+
+    eventEmitter.on('initiateSeparation', async (input) => {
+        await initiateSeparation(input)
+    })
 }
 
 async function regularizationRequestMail(input) {
@@ -165,6 +169,21 @@ async function autoLeaveDeductionMail(input) {
             subject: 'Auto Leave Deduction',
             html: await emailTemplate.autoLeaveDeduction(userData)
         })
+    } catch (error) {
+        console.log(error)
+        logger.error(error)
+    }
+}
+
+async function initiateSeparation(input) {
+    try {
+        const userData = JSON.parse(input)
+        await helper.mailService({
+            to: userData.email,
+            subject: `${userData.empName}, ${userData.empDesignation} - ${userData.empDepartment} has resigned from the company`,
+            html: await emailTemplate.initiateSeparation(userData)
+        })
+
     } catch (error) {
         console.log(error)
         logger.error(error)

@@ -162,7 +162,7 @@ export default (sequelize, Sequelize) => {
             type: Sequelize.STRING
         },
         finalStatus: {
-            type: Sequelize.STRING
+            type: Sequelize.INTEGER
         },
         l2Remark: {
             type: Sequelize.STRING
