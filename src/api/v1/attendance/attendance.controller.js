@@ -2451,14 +2451,6 @@ class AttendanceController {
                   halfDayFor_total_work = 1;
                 }
               }
-
-
-    
-
-              console.log("isHalfDay_late_by",isHalfDay_late_by)
-               console.log("halfDayFor_late_by",halfDayFor_late_by)
-                console.log("halfDayFor_late_by",halfDayFor_late_by)
-                 console.log("halfDayFor_total_work",halfDayFor_total_work)
               let markHalfDay = null;
               let markHalfDayType = null;
               if (isHalfDay_late_by == 0 || isHalfDay_total_work == 0) {
@@ -2480,8 +2472,6 @@ class AttendanceController {
                 markHalfDay = 1;
                 markHalfDayType = 2;
               }
-              console.log("markHalfDay",markHalfDay)
-                console.log("markHalfDayType",markHalfDayType)
               if (markHalfDay != null) {
                 let EMP_DATA = await helper.getEmpProfile(singleEmp.id);
                 await helper.empMarkLeaveOfGivenDate(
