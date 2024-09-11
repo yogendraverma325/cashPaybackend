@@ -1156,7 +1156,7 @@ const autoLeaveDeduction = async (data) => {
                                     color: #444;
                                   "
                                 >
-                                  On ${data.date}<br /><br />
+                                  On ${moment(data.date).format("DD-MM-YYYY")}<br /><br />
                                   ${data.leaveType} (${data.leaveDuration}) has been generated and
                                   auto-approved by system because you have not
                                   satisfied the attendance policy.
@@ -1312,7 +1312,7 @@ const initiateSeparation = async (data) => {
                               >&nbsp;has resigned from the company.
                             </p>
                             <p style="text-align: justify">
-                              Go to the 'Employee Life Cycle' tab in the
+                              Go to the 'Separation' tab in the
                               respective employee's profile to take action.<br />
                             </p>
                             <p style="text-align: justify"><br /></p>
@@ -1337,7 +1337,7 @@ const initiateSeparation = async (data) => {
                             <p>
                               Regards,<br />
                               HR Team,<br /><span style="font-weight: 700"
-                                >Company Name</span
+                                >${data.companyName}</span
                               >
                             </p>
                             <table

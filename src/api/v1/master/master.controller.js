@@ -1030,7 +1030,7 @@ class MasterController {
         where: {
           separationTypeAutoId: (req.query.type) ? req.query.type : 1
         },
-        attributes: ['separationReason']
+        attributes: ['separationReasonAutoId', 'separationReason']
       })
 
       return respHelper(res, {

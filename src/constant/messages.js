@@ -66,6 +66,7 @@ const message = {
   PROFILE_PICTURE_UPDATED: "Profile Picture Updated.",
   INVALID: "Invalid <module>",
   SEPARATION_STATUS: 'Separation <status>',
+  SEPARATION_ALREADY_SUBMITTED: "Separation Already Submitted"
 };
 
 export default message;
