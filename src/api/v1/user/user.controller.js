@@ -772,7 +772,7 @@ class UserController {
   async separationDetails(req, res) {
     try {
 
-      const separationData = await db.separationMaster.findOne({
+      const separationData = await db.separationMaster.findAll({
         where: {
           [Op.or]: [{
             employeeId: req.userId
