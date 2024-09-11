@@ -1,3 +1,11 @@
+// ----------------------------------- 2024-09-11 -----------------------------------------//
+
+ALTER TABLE `hrms_live`.`separationmaster` 
+CHANGE COLUMN `l1ReasonOfResignation` `l1ReasonOfResignation` INT NULL DEFAULT NULL ,
+CHANGE COLUMN `l2SeparationType` `l2SeparationType` INT NULL DEFAULT NULL ,
+CHANGE COLUMN `l2ReasonOfSeparation` `l2ReasonOfSeparation` INT NULL DEFAULT NULL ;
+
+
 //------------------------------------ 2024-09-09 -----------------------------------------//
 ALTER TABLE `hrms_live`.`separationmaster` 
 ADD COLUMN `l1RejectionReason` VARCHAR(100) NULL DEFAULT NULL AFTER `l1RevokeDate`,

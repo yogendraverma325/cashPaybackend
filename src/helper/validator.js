@@ -362,7 +362,7 @@ const managerInputOnseparation = Joi.object({
   l1ProposedLastWorkingDay: Joi.string().required().label("Proposed last Working Day"),
   l1ProposedRecoveryDays: Joi.number().required().label("Proposed Recovery Days"),
   l1ReasonForProposedRecoveryDays: Joi.string().required().label("Reason for Proposed Recovery Days"),
-  l1ReasonOfResignation: Joi.string().trim().required().label("Reason Of Resignation"),
+  l1ReasonOfResignation: Joi.number().required().label("Reason Of Resignation"),
   l1BillingType: Joi.string(),
   l1CustomerName: Joi.string().trim().label("Customer Name"),
   replacementRequired: Joi.boolean().label("Replacement Required"),
@@ -382,18 +382,10 @@ const buhrInputOnSeparation = Joi.object({
   l2LastWorkingDay: Joi.string().required().label("Proposed last Working Day"),
   l2RecoveryDays: Joi.number().required().label("Proposed Recovery Days"),
   l2RecoveryDaysReason: Joi.string().required().label("Reason for Proposed Recovery Days"),
-  l2SeparationType: Joi.string().valid('Voluntary', 'InVoluntary', 'Death', 'Retired').required().label("Separation Type"),
-  l2ReasonOfSeparation: Joi.string().trim().required().label("Reason Of Resignation"),
-  l2NewOrganizationName: Joi.string().trim().when('l2SeparationType', {
-    is: 'Voluntary',
-    then: Joi.required(),
-    otherwise: Joi.forbidden()
-  }).label("New Organization Name"),
-  l2SalaryHike: Joi.string().trim().when('l2NewOrganizationName', {
-    is: Joi.exist(),
-    then: Joi.required(),
-    otherwise: Joi.forbidden()
-  }).label("Salary Hike"),
+  l2SeparationType: Joi.number().valid(1, 2, 3, 4).required().label("Separation Type"),
+  l2ReasonOfSeparation: Joi.number().required().label("Reason Of Resignation"),
+  l2NewOrganizationName: Joi.string().trim().allow("").label("New Organization Name"),
+  l2SalaryHike: Joi.string().trim().allow("").label("Salary Hike"),
   doNotReHire: Joi.boolean().valid(0, 1).label("Do Not Rehire"),
   l2BillingType: Joi.string().trim().required().label("Billing Type"),
   l2CustomerName: Joi.string().trim().required().label("Customer Name"),
@@ -401,18 +393,10 @@ const buhrInputOnSeparation = Joi.object({
   shortFallPayoutDays: Joi.number().required().label("Payout Days"),
   ndaConfirmation: Joi.boolean().valid(0, 1).label("NDA Confirmation"),
   holdFnf: Joi.boolean().valid(0, 1).label("Hold FNF"),
-  holdFnfTillDate: Joi.string().trim().when('holdFnf', {
-    is: 1,
-    then: Joi.required(),
-    otherwise: Joi.forbidden()
-  }).label("FNF Till Date"),
-  holdFnfReason: Joi.string().trim().when('holdFnf', {
-    is: 1,
-    then: Joi.required(),
-    otherwise: Joi.forbidden()
-  }).label("Hold FNF Reason"),
-  l2Remark: Joi.string().trim().required().label("Remark"),
-  l2Attachment: Joi.string().optional()
+  holdFnfTillDate: Joi.string().trim().allow("").label("FNF Till Date"),
+  holdFnfReason: Joi.string().trim().allow("").label("Hold FNF Reason"),
+  l2Remark: Joi.string().trim().max(100).allow("").label("Remark"),
+  attachment: Joi.string().optional(),
 });
 
 const onBehalfSeperationByManager = Joi.object({
@@ -481,11 +465,7 @@ const onBehalfSeperationByBUHr = Joi.object({
   shortFallPayoutDays: Joi.number().required().label("Payout Days"),
   ndaConfirmation: Joi.boolean().valid(0, 1).label("NDA Confirmation"),
   holdFnf: Joi.boolean().valid(0, 1).label("Hold FNF"),
-  holdFnfTillDate: Joi.string().trim().when('holdFnf', {
-    is: 1,
-    then: Joi.required(),
-    otherwise: Joi.forbidden()
-  }).label("FNF Till Date"),
+  holdFnfTillDate: Joi.string().trim().allow("").label("FNF Till Date"),
   holdFnfReason: Joi.string().trim().when('holdFnf', {
     is: 1,
     then: Joi.required(),

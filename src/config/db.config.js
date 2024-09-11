@@ -560,5 +560,8 @@ db.separationMaster.hasOne(db.employeeMaster, { foreignKey: "id", sourceKey: "em
 db.separationMaster.hasOne(db.employeeMaster, { foreignKey: "id", sourceKey: "createdBy", as: 'initiatedByUser' });
 db.employeeMaster.hasOne(db.noticePeriodMaster, { foreignKey: "noticePeriodAutoId", sourceKey: "noticePeriodAutoId", })
 db.separationMaster.hasOne(db.separationStatus, { foreignKey: "separationStatusAutoId", sourceKey: "finalStatus" })
+db.separationMaster.hasOne(db.separationType, { foreignKey: "separationTypeAutoId", sourceKey: "l2SeparationType", as: 'l2Separationtype' })
+db.separationMaster.hasOne(db.separationReason, { foreignKey: "separationReasonAutoId", sourceKey: "l2ReasonOfSeparation", as: 'l2ReasonofSeparation' })
+db.separationMaster.hasOne(db.separationReason, { foreignKey: "separationReasonAutoId", sourceKey: "l1ReasonOfResignation", as: 'l1ReasonofResignation' })
 
 export default db;

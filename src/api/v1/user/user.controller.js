@@ -3,7 +3,7 @@ import respHelper from "../../../helper/respHelper.js";
 import commonController from "../common/common.controller.js";
 import helper from "../../../helper/helper.js";
 import validator from "../../../helper/validator.js";
-import { Op } from "sequelize";
+import { Op, where } from "sequelize";
 import constant from "../../../constant/messages.js";
 import eventEmitter from "../../../services/eventService.js";
 import fs from "fs";
@@ -688,6 +688,22 @@ class UserController {
       );
       const user = req.query.user || req.userId;
 
+      const existSeparationData = await db.separationMaster.findOne({
+        where: {
+          id: user,
+          finalStatus: {
+            [Op.notIn]: [3, 6, 7, 10, 11]
+          }
+        }
+      })
+
+      if (existSeparationData) {
+        return respHelper(res, {
+          status: 400,
+          msg: constant.SEPARATION_ALREADY_SUBMITTED
+        })
+      }
+
       const existUser = await db.employeeMaster.findOne({
         where: {
           id: user,
@@ -709,6 +725,10 @@ class UserController {
             model: db.employeeMaster,
             as: 'managerData',
             attributes: ['name', 'email']
+          },
+          {
+            model: db.companyMaster,
+            attributes: ['companyName']
           }
         ],
       });
@@ -748,7 +768,8 @@ class UserController {
         recipientName: existUser.dataValues.managerData.name,
         empName: existUser.dataValues.name,
         empDesignation: existUser.dataValues.designationmaster.name,
-        empDepartment: existUser.dataValues.departmentmaster.departmentName
+        empDepartment: existUser.dataValues.departmentmaster.departmentName,
+        companyName: existUser.dataValues.companymaster.companyName
       }))
 
       return respHelper(res, {
@@ -775,7 +796,7 @@ class UserController {
       const separationData = await db.separationMaster.findAll({
         where: {
           [Op.or]: [{
-            employeeId: req.userId
+            employeeId: req.query.user || req.userId
           }, {
             pendingAt: req.userId
           }]
@@ -788,6 +809,21 @@ class UserController {
           {
             model: db.separationStatus,
             attributes: ['separationStatusCode', 'separationStatusDesc']
+          },
+          {
+            model: db.separationType,
+            as: 'l2Separationtype',
+            attributes: ['separationTypeName']
+          },
+          {
+            model: db.separationReason,
+            as: 'l2ReasonofSeparation',
+            attributes: ['separationReason']
+          },
+          {
+            model: db.separationReason,
+            as: 'l1ReasonofResignation',
+            attributes: ['separationReason']
           }
         ],
       });
@@ -822,11 +858,6 @@ class UserController {
       })
 
       const d = Math.floor(Date.now() / 1000);
-      const separationManagerAttachment = await helper.fileUpload(
-        result.attachment,
-        `separation_attachment_${d}`,
-        `uploads/${separationData.dataValues.employee.empCode}`
-      );
 
       await db.separationMaster.update({
         l1ProposedLastWorkingDay: result.l1ProposedLastWorkingDay,
@@ -838,7 +869,11 @@ class UserController {
         replacementRequired: result.replacementRequired,
         replacementRequiredBy: result.replacementRequiredBy,
         l1Remark: result.l1Remark,
-        l1Attachment: separationManagerAttachment,
+        l1Attachment: (result.attachment) ? await helper.fileUpload(
+          result.attachment,
+          `separation_attachment_${d}`,
+          `uploads/${separationData.dataValues.employee.empCode}`
+        ) : null,
         l1SubmissionDate: moment(),
         pendingAt: separationData.dataValues.employee.buHRId,
         l1RequestStatus: "Approved",
@@ -853,37 +888,6 @@ class UserController {
       return respHelper(res, {
         status: 200,
         msg: constant.SEPARATION_STATUS.replace("<status>", 'Approved')
-      });
-    } catch (error) {
-      console.log(error);
-      if (error.isJoi === true) {
-        return respHelper(res, {
-          status: 422,
-          msg: error.details[0].message,
-        });
-      }
-      return respHelper(res, {
-        status: 500,
-      });
-    }
-  }
-
-  async rejectSeparation(req, res) {
-    try {
-      const result = await validator.rejectSeparation.validateAsync(req.body);
-
-      await db.separationMaster.update(
-        {},
-        {
-          where: {
-            resignationAutoId: result.resignationAutoId,
-          },
-        }
-      );
-
-      return respHelper(res, {
-        status: 200,
-        // msg:constant
       });
     } catch (error) {
       console.log(error);
@@ -1136,8 +1140,8 @@ class UserController {
         l2RecoveryDaysReason: result.l2RecoveryDaysReason,
         l2SeparationType: result.l2SeparationType,
         l2ReasonOfSeparation: result.l2ReasonOfSeparation,
-        l2NewOrganizationName: result.l2NewOrganizationName,
-        l2SalaryHike: result.l2SalaryHike,
+        l2NewOrganizationName: (result.l2NewOrganizationName) ? result.l2NewOrganizationName : null,
+        l2SalaryHike: (result.l2SalaryHike) ? result.l2SalaryHike : null,
         doNotReHire: result.doNotReHire,
         l2BillingType: result.l2BillingType,
         l2CustomerName: result.l2CustomerName,
@@ -1145,8 +1149,8 @@ class UserController {
         shortFallPayoutDays: result.shortFallPayoutDays,
         ndaConfirmation: result.ndaConfirmation,
         holdFnf: result.holdFnf,
-        holdFnfReason: result.holdFnfReason,
-        holdFnfTillDate: result.holdFnfTillDate,
+        holdFnfReason: (result.holdFnfReason != "") ? result.holdFnfReason : null,
+        holdFnfTillDate: (result.holdFnfTillDate != "") ? result.holdFnfTillDate : null,
         l2Remark: result.l2Remark,
         l2Attachment: (result.attachment) ? await helper.fileUpload(
           result.attachment,
