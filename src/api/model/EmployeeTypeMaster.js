@@ -11,6 +11,9 @@ export default (sequelize, Sequelize) => {
         parentEmpTypeId: {
             type: Sequelize.INTEGER,
         },
+        startingIndex:{
+            type: Sequelize.INTEGER,
+        },
         createdAt: {
             type: Sequelize.DATE
         },
