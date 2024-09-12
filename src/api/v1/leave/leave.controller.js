@@ -1406,67 +1406,7 @@ class LeaveController {
       });
     }
   }
-
-  async leaveIdUpdateForAllEmployee(req, res) {
-    try {
-      // Fetch all employee IDs
-      const employees = await db.employeeMaster.findAll({
-        attributes: ["id"],
-        where: {},
-        raw: true,
-      });
-
-      const employeeIds = employees.map((emp) => emp.id);
-      if (employeeIds.length > 0) {
-        // Loop through each employee and insert leave mapping data
-        for (const id of employeeIds) {
-          const detailsExist = await db.leaveMapping.findOne({
-            where: { EmployeeId: id, leaveAutoId: 6 },
-          });
-          if (detailsExist) {
-            await db.leaveMapping.update(
-              {
-                leaveAutoId: 6,
-                availableLeave: req.body.availableLeave,
-                accruedThisYear: req.body.accruedThisYear,
-                creditedFromLastYear: req.body.creditedFromLastYear,
-                annualAllotment: req.body.annualAllotment,
-                utilizedThisYear: req.body.utilizedThisYear,
-              },
-              { where: { EmployeeId: id } }
-            );
-          } else {
-            await db.leaveMapping.create({
-              EmployeeId: id,
-              leaveAutoId: 6,
-              availableLeave: req.body.availableLeave,
-              accruedThisYear: req.body.accruedThisYear,
-              creditedFromLastYear: req.body.creditedFromLastYear,
-              annualAllotment: req.body.annualAllotment,
-              utilizedThisYear: req.body.utilizedThisYear,
-            });
-          }
-        }
-
-        return respHelper(res, {
-          status: 200,
-          message: "Leave updated successfully for all employees",
-        });
-      } else {
-        return respHelper(res, {
-          status: 404,
-          message: "No employees found with employeeType = 4",
-        });
-      }
-    } catch (error) {
-      console.log(error);
-      return respHelper(res, {
-        status: 500,
-        message: "Internal Server Error",
-      });
-    }
-  }
-
+  
   //working fine
   // async leaveHistory(req, res) {
   //   try {

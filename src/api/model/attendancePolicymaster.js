@@ -8,6 +8,9 @@ export default (sequelize, Sequelize) => {
     policyName: {
       type: Sequelize.STRING,
     },
+    policyCode:{
+      type: Sequelize.STRING,
+    },
     policyDescription: {
       type: Sequelize.STRING,
     },

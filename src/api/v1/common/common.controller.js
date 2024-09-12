@@ -738,7 +738,7 @@ class commonController {
         status: 200,
         msg: constant.UPDATE_SUCCESS.replace(
           "<module>",
-          "Education Details"
+          "Details"
         ),
       });
     } catch (error) {
@@ -1388,10 +1388,16 @@ class commonController {
       });
   
     } catch (error) {
-      console.log("error",error)
+      console.log(error);
+      logger.error(error);
+      if (error.isJoi === true) {
+        return respHelper(res, {
+          status: 422,
+          msg: error.details[0].message,
+        });
+      }
       return respHelper(res, {
         status: 500,
-        data: error,
       });
     }
   }

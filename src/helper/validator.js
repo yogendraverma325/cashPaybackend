@@ -79,9 +79,9 @@ const updateBiographicalDetailsSchema = Joi.object({
   maritalStatus: Joi.number().required().label("Marital Status"),
   mobileAccess: Joi.number().label("Mobile Access").optional(),
   laptopSystem: Joi.string().trim().label("System").optional(),
-  nationality: Joi.string().trim().label("Nationality").required(),
-  middleName: Joi.string().trim().label("Middle Name").allow(null).optional(),
-  lastName: Joi.string().trim().label("Last Name").allow(null).optional(),
+  nationality: Joi.string().trim().label("Nationality").min(3).max(30).required(),
+  middleName: Joi.string().trim().label("Middle Name").allow(null).max(30).optional(),
+  lastName: Joi.string().trim().label("Last Name").allow(null).max(30).optional(),
   backgroundVerification: Joi.number()
     .label("Background Verification").optional(),
   gender: Joi.string().trim().label("Gender").allow(null).optional(),
@@ -95,7 +95,7 @@ const addFamilyDetailsSchema = Joi.object({
   name: Joi.string().required().trim().label("Name").allow(null).optional(),
   dob: Joi.string().trim().label("DOB").allow(null).optional(),
   gender: Joi.string().trim().label("Gender").allow(null).optional(),
-  mobileNo: Joi.string().trim().label("Mobile Number").allow(null).optional(),
+  mobileNo: Joi.string().trim().label("Mobile Number").allow(null).min(10).max(10).optional(),
   relationWithEmp: Joi.string().trim().label("Relation").allow(null).optional(),
   memberAddress: Joi.string().trim().label("Address").allow(null).optional()
 });
@@ -105,17 +105,19 @@ const updateFamilyDetailsSchema = Joi.object({
   name: Joi.string().required().trim().label("Name").allow(null).optional(),
   dob: Joi.string().trim().label("DOB").allow(null).optional(),
   gender: Joi.string().trim().label("Gender").allow(null).optional(),
-  mobileNo: Joi.string().trim().label("Mobile Number").allow(null).optional(),
+  mobileNo: Joi.string().trim().label("Mobile Number").min(10).max(10).allow(null).optional(),
   relationWithEmp: Joi.string().trim().label("Relation").allow(null).optional(),
   memberAddress: Joi.string().trim().label("Address").allow(null).optional(),
 });
 
 const addEducationDetailsSchema = Joi.object({
-  educationCompletionDate: Joi.date().iso().allow(null).required(),
   educationDegree: Joi.number().integer().allow(null).required(),
   educationInstitute: Joi.string().allow(null).required(),
   educationSpecialisation: Joi.string().allow(null).required(),
   educationStartDate: Joi.date().iso().allow(null).required(),
+  educationCompletionDate: Joi.date().iso().allow(null).greater(Joi.ref('educationStartDate')) .messages({
+      'date.greater': 'End date must be greater than the start date'
+    }).required(),
   educationAttachments: Joi.string().allow("").optional(),
   educationRemark: Joi.string().allow(null).optional(),
   educationActivities: Joi.string().allow(null).optional(),
@@ -126,13 +128,15 @@ const addEducationDetailsSchema = Joi.object({
 const updateEducationDetailsSchema = Joi.object({
   educationActivities: Joi.string().allow(null).optional(),
   educationAttachments: Joi.string().allow("").optional(),
-  educationCompletionDate: Joi.date().iso().allow(null).required(),
   educationDegree: Joi.number().integer().allow(null).required(),
   educationId: Joi.number().integer().required(),
   educationInstitute: Joi.string().allow(null).required(),
   educationRemark: Joi.string().allow(null).required(),
   educationSpecialisation: Joi.string().allow(null).required(),
   educationStartDate: Joi.date().iso().allow(null).required(),
+  educationCompletionDate: Joi.date().iso().allow(null).greater(Joi.ref('educationStartDate')) .messages({
+    'date.greater': 'End date must be greater than the start date'
+  }).required(),
   isHighestEducation: Joi.string().required().allow(null),
   userId: Joi.number().integer().required()
 });
@@ -154,12 +158,13 @@ const updatePaymentDetailsSchema = Joi.object({
 
 const addPaymentDetailsSchema = Joi.object({
   userId: Joi.number().label("User ID"),
-  paymentAccountNumber: Joi.string().trim().required().label("Account Number"),
+  paymentAccountNumber: Joi.string().trim().max(20).required().label("Account Number"),
   paymentBankName: Joi.string().trim().required().label("Bank Name"),
   paymentBankIfsc: Joi.string()
     .trim()
     .required()
-    .max(20)
+    .min(11)
+    .max(11)
     .label("Bank Ifsc Code"),
   paymentHolderName: Joi.string()
     .trim()
@@ -242,8 +247,8 @@ const addJobDetailsSchema = Joi.object({
   dateOfJoining: Joi.string().label("Date Of Joining").optional(),
   probationPeriod: Joi.string().label("Probation Period").optional(),
   languagesSpoken: Joi.string().label("Language Spoken").allow(null).optional(),
-  esicNumber: Joi.string().label("ESIC Number").allow(null).optional(),
-  uanNumber: Joi.string().label("UAN Number").allow(null).optional()
+  esicNumber: Joi.string().label("ESIC Number").allow(null).min(17).max(17).optional(),
+  uanNumber: Joi.string().label("UAN Number").allow(null).min(12).max(12).optional()
 })
 
 const updateManagerSchema = Joi.array().required().items(
@@ -264,7 +269,7 @@ const updateProfilePictureSchema = Joi.object({
 const emergencyContactDetails = Joi.object({
   userId: Joi.number().label("User ID"),
   emergencyContactName: Joi.string().label("Emergency Contact Name").allow(null).optional(),
-  emergencyContactNumber: Joi.string().label("Emergency Contact Number").allow(null).optional(),
+  emergencyContactNumber: Joi.string().label("Emergency Contact Number").allow(null).min(10).max(10).optional(),
   emergencyContactRelation: Joi.string().label("Emergency Contact Relation").allow(null).optional(),
   emergencyBloodGroup: Joi.string().label("Blood Group").allow(null).optional()
 })
@@ -276,13 +281,13 @@ const forgotPasswordSchema = Joi.object({
 const employeeUpdateInfo = Joi.object({
   adhrNo: Joi.string()
     .trim()
-    .length(12)
-    .regex(/^\d+$/)
+    .min(12)
+    .max(12)
     .required()
     .label("Aadhaar Number"),
-  panNo: Joi.string(),
-  drivingLicence: Joi.string().allow(null).optional(),
-  passportNumber: Joi.string().allow(null).optional(),
+  panNo: Joi.string().min(10).max(10),
+  drivingLicence: Joi.string().allow(null).max(20).optional(),
+  passportNumber: Joi.string().allow(null).max(20).optional(),
 })
 
 const addemployeeWorkInfo = Joi.object({
@@ -339,9 +344,13 @@ const updateEmployeeCertificates = Joi.object({
 
 const updateContactInfo = Joi.object({
   userId: Joi.number().label("User ID").required(),
-  personalEmail: Joi.string().label("Personal Email").required(),
-  officeMobileNumber: Joi.string().label("Office Mobile Number").allow(null).required(),
-  personalMobileNumber: Joi.string().label("Personal Mobile Number").required()
+  personalEmail: Joi.string()
+    .email({ tlds: { allow: ['com', 'in'] } })
+    .label("Personal Email")
+    .required(),
+   //personalEmail: Joi.string().pattern(new RegExp('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.(com|in)$')).label("Personal Email").required(),
+  officeMobileNumber: Joi.string().label("Office Mobile Number").allow(null).min(10).max(10).required(),
+  personalMobileNumber: Joi.string().label("Personal Mobile Number").min(10).max(10).required()
 })
 
 const separationByEmployee = Joi.object({
