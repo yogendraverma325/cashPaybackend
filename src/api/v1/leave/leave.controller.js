@@ -1115,7 +1115,8 @@ class LeaveController {
         (acc, el) => acc + parseFloat(el.leaveCount),
         0
       );
-      console.log("pendingLeaveCount", pendingLeaveCount);
+      console.log("pendingLeaveCount",totalWorkingDays,"pendingLeaveCount", pendingLeaveCount);
+      console.log("getCombinedVal", getCombinedVal);
       const totalWorkingDaysCalculated = Math.max(
         0,
         totalWorkingDays - getCombinedVal
@@ -1131,6 +1132,10 @@ class LeaveController {
       console.log("c", c);
       console.log("b", b);
       console.log("a", a);
+
+      if(leaveAutoId==6){
+          b=a;
+      }
 
       return respHelper(res, {
         status: 200,

@@ -860,6 +860,10 @@ class UserController {
         include: [{
           model: db.employeeMaster,
           attributes: ['empCode', 'name', 'email', 'buHRId'],
+          include: [{
+            model: db.companyMaster,
+            attributes: ['companyName']
+          }]
         }]
       })
 
@@ -891,7 +895,11 @@ class UserController {
       }
       );
 
-
+      // eventEmitter.emit("dbjbc", JSON.stringify({
+      //   email: separationData.dataValues.employee.email,
+      //   recipientName: separationData.dataValues.employee.name,
+      //   companyName: separationData.dataValues.employeeMaster.companymaster.companyName
+      // }))
 
       return respHelper(res, {
         status: 200,
@@ -1094,18 +1102,56 @@ class UserController {
     try {
       const result = await validator.rejectSeparation.validateAsync(req.body)
 
-      await db.separationMaster.update({
-        l1SubmissionDate: moment(),
-        l1Remark: result.remark,
-        l1RejectionReason: result.reason,
-        l1SubmissionDate: moment(),
-        l1RequestStatus: "Rejected",
-        finalStatus: "L1_Rejected"
-      }, {
+      const resignationData = await db.separationMaster.findOne({
         where: {
           resignationAutoId: result.resignationAutoId
-        }
+        },
+        include: [{
+          model: db.employeeMaster,
+          attributes: ['empCode', 'name', 'email', 'buHRId', 'manager'],
+          include: [{
+            model: db.companyMaster,
+            attributes: ['companyName']
+          }]
+        }]
       })
+      console.log(resignationData.dataValues.employee.name)
+
+
+      if (!resignationData) {
+        return respHelper(res, {
+          status: 400,
+          data: constant.SEPARATION_REQUEST_NOT_AVAILABLE
+        })
+      }
+
+      let rejectObject = {}
+
+      if (parseInt(req.userId) === parseInt(resignationData.dataValues.employee.manager)) {
+        rejectObject = {
+          l1Remark: result.remark,
+          l1RejectionReason: result.reason,
+          l1SubmissionDate: moment(),
+          l1RequestStatus: "Rejected",
+          finalStatus: 6
+        }
+      } else if (parseInt(req.userId) === parseInt(resignationData.dataValues.employee.buHRId)) {
+        rejectObject = {
+          l2SubmissionDate: moment(),
+          l2Remark: result.remark,
+          l2RejectionReason: result.reason,
+          l2RequestStatus: "Rejected",
+          finalStatus: 6
+        }
+      }
+
+      await db.separationMaster.update(rejectObject,
+        {
+          where: {
+            resignationAutoId: result.resignationAutoId
+          }
+        }
+      )
 
       return respHelper(res, {
         status: 200,

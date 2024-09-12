@@ -1132,7 +1132,7 @@ const autoLeaveDeduction = async (data) => {
                                 text-decoration-style: initial;
                                 text-decoration-color: initial;
                                 font-family: verdana, sans-serif;
-                                font-size: large;
+                                font-size: small;
                               "
                             >
                               Auto-Leave Deduction Notification. Please find the
@@ -1169,11 +1169,11 @@ const autoLeaveDeduction = async (data) => {
                                     color: #444;
                                   "
                                 >
-                                  Assigned Shift : ${moment(data.shiftStartTime).format('hh:mm:ss A')} - ${moment(data.shiftEndTime).format('hh:mm:ss A')}
+                                  Assigned Shift : ${moment(data.shiftStartTime, 'HH:mm:ss').format('hh:mm:ss A')} - ${moment(data.shiftEndTime, 'HH:mm:ss').format('hh:mm:ss A')}
                                   <br />
                                   Leave Type : ${data.leaveType} (${data.leaveDuration}) <br />
-                                  Clock-in : ${moment(data.punchInTime).format('hh:mm:ss A')} <br />
-                                  Clock-out : ${moment(data.punchOutTime).format('hh:mm:ss A')} <br />
+                                  Clock-in : ${moment(data.punchInTime, 'HH:mm:ss').format('hh:mm:ss A')} <br />
+                                  Clock-out : ${moment(data.punchOutTime, 'HH:mm:ss').format('hh:mm:ss A')} <br />
                                 </p>
                                 <p
                                   style="
@@ -1185,7 +1185,7 @@ const autoLeaveDeduction = async (data) => {
                                 >
                                   To view the full message
                                   <a
-                                    href="${process.env.CLIENT_URL}"
+                                    href="${process.env.CLIENT_URL}#/dashbaord"
                                     rel="noreferrer"
                                     style="
                                       padding: 5px 10px;
@@ -1505,6 +1505,126 @@ const separationAcknowledgementToUser = async (data) => {
 </html>`
 }
 
+const separationApprovalAcknowledgementToUser = async (data) => {
+  return `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <table
+      style="
+        border-collapse: collapse;
+        line-height: 100% !important;
+        width: 100% !important;
+        font-family: sans-serif;
+      "
+      border="0"
+      cellpadding="0"
+      cellspacing="0"
+      align="center"
+    >
+      <tbody>
+        <tr>
+          <td style="padding-top: 20px; padding-bottom: 20px">
+            <table
+              style="
+                border-collapse: collapse;
+                max-width: 635px;
+                min-width: 550px;
+                width: auto;
+                margin: 0 auto;
+                border: 0.5px solid #eee;
+              "
+              align="center"
+            >
+              <tbody>
+                <tr>
+                  <td>
+                    <table
+                      style="
+                        border-collapse: collapse;
+                        margin: 0 auto;
+                        width: 100%;
+                      "
+                      align="center"
+                    >
+                      <tbody>
+                        <tr style="background: #fff">
+                          <td
+                            colspan="2"
+                            style="padding: 20px; padding-bottom: 0"
+                            valign="top"
+                          >
+                            <table style="width: 100%">
+                              <tbody>
+                                <tr>
+                                  <td
+                                    colspan="2"
+                                    style="
+                                      padding-bottom: 20px;
+                                      text-align: left;
+                                      border-bottom: 1px solid #eee;
+                                    "
+                                    valign="middle"
+                                  >
+                                    <img
+                                      height="45"
+                                      src="https://ci3.googleusercontent.com/meips/ADKq_NbwnPEGpqJ0nWC0Q4z_VTG7sQLFnUMREkRspdz5EI3URfaCFTh14Ba7wz6gouTI4u4BJy4XsW6RVfNgTFFJgqYofKCehSWx60UYmy9nCAOlszWJbpzI5C2lJXWuJaP7uvxnURJDW0ubMhe30U9STuJIWvSak8Lm6Tjxxx9wowzVok9B4NQV2RDz4PgsW1t8Nf901ypwAKUKdgUqFbwsl1HVWg=s0-d-e1-ft#https://darwinbox-data-prod-mum.s3.ap-south-1.amazonaws.com/INSTANCE4_5f4533721b7ce_81/logo/a60f00e4c540d5__tenant-avatar-81_2114260795.png"
+                                      alt="Logo"
+                                      class="CToWUd"
+                                      data-bit="iit"
+                                    />
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </td>
+                        </tr>
+                        <tr style="min-height: 300px; background: #fff">
+                          <td colspan="2" style="padding: 20px" valign="top">
+                            <p>Hi&nbsp;${data.recipientName},</p>
+                            <p></p>
+                            <p style="text-align: justify">
+                              The resignation has been accepted by the manager
+                              and is awaiting confirmation from HR. Go to the
+                              'Separation' tab to view the proposed
+                              recovery days and last day.
+                            </p>
+                            <p>
+                              Regards,<br />
+                              HR Team,<br /><span style="font-weight: 700"
+                                >${data.companyName}</span
+                              >
+                            </p>
+                            <table
+                              style="
+                                width: 100%;
+                                font-size: 12px;
+                                font-family: Century Gothic, CenturyGothic,
+                                  AppleGothic, sans-serif;
+                              "
+                            >
+                              <tbody></tbody>
+                            </table>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </body>
+</html>`
+}
+
 export default {
   regularizationRequestMail,
   resetPasswordMail,
@@ -1516,5 +1636,6 @@ export default {
   revokeLeaveRequestMail,
   autoLeaveDeduction,
   initiateSeparation,
-  separationAcknowledgementToUser
+  separationAcknowledgementToUser,
+  separationApprovalAcknowledgementToUser
 };
