@@ -430,6 +430,7 @@ class UserController {
       });
     }
   }
+  
   async taskBoxCount(req, res) {
     try {
       let userid = req.userId;
@@ -690,7 +691,7 @@ class UserController {
 
       const existSeparationData = await db.separationMaster.findOne({
         where: {
-          id: user,
+          employeeId: user,
           finalStatus: {
             [Op.notIn]: [3, 6, 7, 10, 11]
           }
@@ -769,6 +770,11 @@ class UserController {
         empName: existUser.dataValues.name,
         empDesignation: existUser.dataValues.designationmaster.name,
         empDepartment: existUser.dataValues.departmentmaster.departmentName,
+        companyName: existUser.dataValues.companymaster.companyName
+      }))
+
+      eventEmitter.emit("separationUserAcknowledge", JSON.stringify({
+        email: existUser.dataValues.email,
         companyName: existUser.dataValues.companymaster.companyName
       }))
 
@@ -884,6 +890,8 @@ class UserController {
         }
       }
       );
+
+
 
       return respHelper(res, {
         status: 200,

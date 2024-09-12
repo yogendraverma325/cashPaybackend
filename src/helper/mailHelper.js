@@ -42,6 +42,10 @@ export default function getAllListeners(eventEmitter) {
     eventEmitter.on('initiateSeparation', async (input) => {
         await initiateSeparation(input)
     })
+
+    eventEmitter.on('separationUserAcknowledge', async (input) => {
+        await separationUserAcknowledge(input)
+    })
 }
 
 async function regularizationRequestMail(input) {
@@ -182,6 +186,21 @@ async function initiateSeparation(input) {
             to: userData.email,
             subject: `${userData.empName}, ${userData.empDesignation} - ${userData.empDepartment} has resigned from the company`,
             html: await emailTemplate.initiateSeparation(userData)
+        })
+
+    } catch (error) {
+        console.log(error)
+        logger.error(error)
+    }
+}
+
+async function separationUserAcknowledge(input) {
+    try {
+        const userData = JSON.parse(input)
+        await helper.mailService({
+            to: userData.email,
+            subject: `Your separation request is submitted successfully`,
+            html: await emailTemplate.separationAcknowledgementToUser(userData)
         })
 
     } catch (error) {
