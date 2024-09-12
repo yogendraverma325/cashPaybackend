@@ -1132,7 +1132,7 @@ const autoLeaveDeduction = async (data) => {
                                 text-decoration-style: initial;
                                 text-decoration-color: initial;
                                 font-family: verdana, sans-serif;
-                                font-size: large;
+                                font-size: small;
                               "
                             >
                               Auto-Leave Deduction Notification. Please find the
@@ -1169,11 +1169,11 @@ const autoLeaveDeduction = async (data) => {
                                     color: #444;
                                   "
                                 >
-                                  Assigned Shift : ${moment(data.shiftStartTime).format('hh:mm:ss A')} - ${moment(data.shiftEndTime).format('hh:mm:ss A')}
+                                  Assigned Shift : ${moment(data.shiftStartTime, 'HH:mm:ss').format('hh:mm:ss A')} - ${moment(data.shiftEndTime, 'HH:mm:ss').format('hh:mm:ss A')}
                                   <br />
                                   Leave Type : ${data.leaveType} (${data.leaveDuration}) <br />
-                                  Clock-in : ${moment(data.punchInTime).format('hh:mm:ss A')} <br />
-                                  Clock-out : ${moment(data.punchOutTime).format('hh:mm:ss A')} <br />
+                                  Clock-in : ${moment(data.punchInTime, 'HH:mm:ss').format('hh:mm:ss A')} <br />
+                                  Clock-out : ${moment(data.punchOutTime, 'HH:mm:ss').format('hh:mm:ss A')} <br />
                                 </p>
                                 <p
                                   style="
@@ -1185,7 +1185,7 @@ const autoLeaveDeduction = async (data) => {
                                 >
                                   To view the full message
                                   <a
-                                    href="${process.env.CLIENT_URL}"
+                                    href="${process.env.CLIENT_URL}#/dashbaord"
                                     rel="noreferrer"
                                     style="
                                       padding: 5px 10px;

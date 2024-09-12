@@ -225,7 +225,7 @@ class AttendanceController {
             existEmployee.attendancePolicymaster.bufferTimePost,
             "minutes"
           ); // Add buffer time  to the selected time if buffer allow
-            console.log("withGraceTime", graceTime);
+          console.log("withGraceTime", graceTime);
 
           const withGraceTime = graceTime.format("HH:mm");
           console.log("finalShiftStartTime", finalShiftStartTime);
@@ -1732,13 +1732,13 @@ class AttendanceController {
                 );
 
                 // Calculate the total minutes
-                let  totalMinutesLateMinutes =
+                let totalMinutesLateMinutes =
                   time.hours() * 60 + time.minutes() + time.seconds() / 60;
-                  console.log("totalMinutesLateMinutes",totalMinutesLateMinutes)
-                  if(totalMinutesLateMinutes>0){
-                   totalMinutesLateMinutes=totalMinutesLateMinutes+singleEmp.attendancePolicymaster.graceTimeClockIn; // Adjust Grace time with late by for leave calculation
-                  }
-     
+                console.log("totalMinutesLateMinutes", totalMinutesLateMinutes)
+                if (totalMinutesLateMinutes > 0) {
+                  totalMinutesLateMinutes = totalMinutesLateMinutes + singleEmp.attendancePolicymaster.graceTimeClockIn; // Adjust Grace time with late by for leave calculation
+                }
+
                 if (
                   totalMinutesLateMinutes >=
                   singleEmp.attendancePolicymaster
@@ -1762,7 +1762,7 @@ class AttendanceController {
                 }
               }
 
-            
+
               if (
                 singleEmp.attendancePolicymaster
                   .isleaveDeductPolicyWorkDuration == 1
@@ -1826,27 +1826,29 @@ class AttendanceController {
                 await helper.empMarkLeaveOfGivenDate(
                   singleEmp.id,
                   {
-                  employeeId: singleEmp.id, // Replace with actual employee ID
-                  attendanceShiftId: singleEmp.shiftsmaster.shiftId, // Replace with actual attendance shift ID
-                  attendancePolicyId:
-                  singleEmp.attendancePolicymaster.attendancePolicyId, // Replace with actual attendance policy ID
-                  leaveAutoId:
-                  singleEmp.attendancePolicymaster
-                  .leaveDeductPolicyLateDurationLeaveType, // Replace with actual leave auto ID
-                  appliedOn: moment().format("YYYY-MM-DD"), // Replace with actual applied on date
-                  appliedFor: lastDayDate, // Replace with actual applied for date
-                  fromDate: lastDayDate,
-                  toDate: lastDayDate,
-                  isHalfDay: markHalfDay, // Replace with actual is half day value (0 or 1)
-                  halfDayFor: markHalfDayType, // Replace with actual half day for value
-                  leaveCount: markHalfDay == 1 ? 0.5 : 1,
-                  status: (isHalfDay_total_work == null)?"approved":"pending", // Replace with actual status
-                  reason: "Late By/ Work Duration", // Replace with actual reason
-                  message: "Late By/ Work Duration",
-                  pendingAt: EMP_DATA.managerData.id, // Replace with actual pending at value
-                  createdBy: singleEmp.id, // Replace with actual creator user ID
-                  createdAt: moment(), // Replace with actual creation date
-                  weekOffId: EMP_DATA.weekOffId
+                    employeeId: singleEmp.id, // Replace with actual employee ID
+                    attendanceShiftId: singleEmp.shiftsmaster.shiftId, // Replace with actual attendance shift ID
+                    attendancePolicyId:
+                      singleEmp.attendancePolicymaster.attendancePolicyId, // Replace with actual attendance policy ID
+                    leaveAutoId:
+                      singleEmp.attendancePolicymaster
+                        .leaveDeductPolicyLateDurationLeaveType, // Replace with actual leave auto ID
+                    appliedOn: moment().format("YYYY-MM-DD"), // Replace with actual applied on date
+                    appliedFor: lastDayDate, // Replace with actual applied for date
+                    fromDate: lastDayDate,
+                    toDate: lastDayDate,
+                    isHalfDay: markHalfDay, // Replace with actual is half day value (0 or 1)
+                    halfDayFor: markHalfDayType, // Replace with actual half day for value
+                    leaveCount: markHalfDay == 1 ? 0.5 : 1,
+                    status: (isHalfDay_total_work == null) ? "approved" : "pending", // Replace with actual status
+                    reason: "Late By/ Work Duration", // Replace with actual reason
+                    message: "Late By/ Work Duration",
+                    pendingAt: EMP_DATA.managerData.id, // Replace with actual pending at value
+                    createdBy: singleEmp.id, // Replace with actual creator user ID
+                    createdAt: moment(), // Replace with actual creation date
+                    weekOffId: EMP_DATA.weekOffId,
+                    punchInTime: singleEmp.attendancemaster.attendancePunchInTime,
+                    punchOutTime: singleEmp.attendancemaster.attendancePunchOutTime
                   },
                   "id_" + moment().format("YYYYMMDDHHmmss") + singleEmp.id
                 );
@@ -2074,13 +2076,13 @@ class AttendanceController {
                 );
 
                 // Calculate the total minutes
-                let  totalMinutesLateMinutes =
+                let totalMinutesLateMinutes =
                   time.hours() * 60 + time.minutes() + time.seconds() / 60;
-                  console.log("totalMinutesLateMinutes",totalMinutesLateMinutes)
-                  if(totalMinutesLateMinutes>0){
-                   totalMinutesLateMinutes=totalMinutesLateMinutes+singleEmp.attendancePolicymaster.graceTimeClockIn; // Adjust Grace time with late by for leave calculation
-                  }
-     
+                console.log("totalMinutesLateMinutes", totalMinutesLateMinutes)
+                if (totalMinutesLateMinutes > 0) {
+                  totalMinutesLateMinutes = totalMinutesLateMinutes + singleEmp.attendancePolicymaster.graceTimeClockIn; // Adjust Grace time with late by for leave calculation
+                }
+
                 if (
                   totalMinutesLateMinutes >=
                   singleEmp.attendancePolicymaster
@@ -2104,7 +2106,7 @@ class AttendanceController {
                 }
               }
 
-            
+
               if (
                 singleEmp.attendancePolicymaster
                   .isleaveDeductPolicyWorkDuration == 1
@@ -2172,27 +2174,29 @@ class AttendanceController {
                 await helper.empMarkLeaveOfGivenDate(
                   singleEmp.id,
                   {
-                      employeeId: singleEmp.id, // Replace with actual employee ID
-                      attendanceShiftId: singleEmp.shiftsmaster.shiftId, // Replace with actual attendance shift ID
-                      attendancePolicyId:
+                    employeeId: singleEmp.id, // Replace with actual employee ID
+                    attendanceShiftId: singleEmp.shiftsmaster.shiftId, // Replace with actual attendance shift ID
+                    attendancePolicyId:
                       singleEmp.attendancePolicymaster.attendancePolicyId, // Replace with actual attendance policy ID
-                      leaveAutoId:
+                    leaveAutoId:
                       singleEmp.attendancePolicymaster
-                      .leaveDeductPolicyLateDurationLeaveType, // Replace with actual leave auto ID
-                      appliedOn: moment().format("YYYY-MM-DD"), // Replace with actual applied on date
-                      appliedFor: lastDayDate, // Replace with actual applied for date
-                      fromDate: lastDayDate,
-                      toDate: lastDayDate,
-                      isHalfDay: markHalfDay, // Replace with actual is half day value (0 or 1)
-                      halfDayFor: markHalfDayType, // Replace with actual half day for value
-                      leaveCount: markHalfDay == 1 ? 0.5 : 1,
-                      status: (isHalfDay_total_work == null)?"approved":"pending", // Replace with actual status
-                      reason: "Late By/ Work Duration", // Replace with actual reason
-                      message: "Late By/ Work Duration",
-                      pendingAt: EMP_DATA.managerData.id, // Replace with actual pending at value
-                      createdBy: singleEmp.id, // Replace with actual creator user ID
-                      createdAt: moment(), // Replace with actual creation date
-                      weekOffId: EMP_DATA.weekOffId
+                        .leaveDeductPolicyLateDurationLeaveType, // Replace with actual leave auto ID
+                    appliedOn: moment().format("YYYY-MM-DD"), // Replace with actual applied on date
+                    appliedFor: lastDayDate, // Replace with actual applied for date
+                    fromDate: lastDayDate,
+                    toDate: lastDayDate,
+                    isHalfDay: markHalfDay, // Replace with actual is half day value (0 or 1)
+                    halfDayFor: markHalfDayType, // Replace with actual half day for value
+                    leaveCount: markHalfDay == 1 ? 0.5 : 1,
+                    status: (isHalfDay_total_work == null) ? "approved" : "pending", // Replace with actual status
+                    reason: "Late By/ Work Duration", // Replace with actual reason
+                    message: "Late By/ Work Duration",
+                    pendingAt: EMP_DATA.managerData.id, // Replace with actual pending at value
+                    createdBy: singleEmp.id, // Replace with actual creator user ID
+                    createdAt: moment(), // Replace with actual creation date
+                    weekOffId: EMP_DATA.weekOffId,
+                    punchInTime: singleEmp.attendancemaster.attendancePunchInTime,
+                    punchOutTime: singleEmp.attendancemaster.attendancePunchOutTime,
                   },
                   "id_" + moment().format("YYYYMMDDHHmmss")
                 );
@@ -2222,11 +2226,11 @@ class AttendanceController {
     //   data: existEmployees,
     // });
   }
-    async attedanceCronForEMP(req, res) {
+  async attedanceCronForEMP(req, res) {
     try {
-      let empId=req.body.EMP_ID;
-      let date=req.body.DATE;
-      
+      let empId = req.body.EMP_ID;
+      let date = req.body.DATE;
+
       let lastDayDate = moment().subtract(1, "day").format("YYYY-MM-DD");
       let lastDayDateAnotherFormat = moment()
         .subtract(1, "day")
@@ -2272,9 +2276,9 @@ class AttendanceController {
           break;
         default:
       }
-      console.log("empId",empId)
-      console.log("date",occurrenceDayCondition)
-       console.log("lastDayDate",lastDayDate)
+      console.log("empId", empId)
+      console.log("date", occurrenceDayCondition)
+      console.log("lastDayDate", lastDayDate)
       const existEmployees = await db.employeeMaster.findAll({
         include: [
           {
@@ -2317,8 +2321,8 @@ class AttendanceController {
             model: db.weekOffMaster,
             required: true,
             where: {
-                isActive: 1,
-              },
+              isActive: 1,
+            },
             include: [
               {
                 model: db.weekOffDayMappingMaster,
@@ -2343,8 +2347,8 @@ class AttendanceController {
           },
         ],
         where: {
-          isActive: 1, 
-          id:empId
+          isActive: 1,
+          id: empId
         },
       });
 
@@ -2385,13 +2389,13 @@ class AttendanceController {
                 );
 
                 // Calculate the total minutes
-                let  totalMinutesLateMinutes =
+                let totalMinutesLateMinutes =
                   time.hours() * 60 + time.minutes() + time.seconds() / 60;
-                  console.log("totalMinutesLateMinutes",totalMinutesLateMinutes)
-                  if(totalMinutesLateMinutes>0){
-                   totalMinutesLateMinutes=totalMinutesLateMinutes+singleEmp.attendancePolicymaster.graceTimeClockIn; // Adjust Grace time with late by for leave calculation
-                  }
-     
+                console.log("totalMinutesLateMinutes", totalMinutesLateMinutes)
+                if (totalMinutesLateMinutes > 0) {
+                  totalMinutesLateMinutes = totalMinutesLateMinutes + singleEmp.attendancePolicymaster.graceTimeClockIn; // Adjust Grace time with late by for leave calculation
+                }
+
                 if (
                   totalMinutesLateMinutes >=
                   singleEmp.attendancePolicymaster
@@ -2491,7 +2495,7 @@ class AttendanceController {
                     isHalfDay: markHalfDay, // Replace with actual is half day value (0 or 1)
                     halfDayFor: markHalfDayType, // Replace with actual half day for value
                     leaveCount: markHalfDay == 1 ? 0.5 : 1,
-                    status: (isHalfDay_total_work == null)?"approved":"pending", // Replace with actual status
+                    status: (isHalfDay_total_work == null) ? "approved" : "pending", // Replace with actual status
                     reason: "Late By/ Work Duration", // Replace with actual reason
                     message: "Late By/ Work Duration",
                     pendingAt: EMP_DATA.managerData.id, // Replace with actual pending at value
@@ -2499,13 +2503,13 @@ class AttendanceController {
                     createdAt: moment(), // Replace with actual creation date
                     weekOffId: EMP_DATA.weekOffId
                   },
-                  "id_" + moment().format("YYYYMMDDHHmmss")+singleEmp.id
+                  "id_" + moment().format("YYYYMMDDHHmmss") + singleEmp.id
                 );
               }
             } else {
               presentStatus = "singlePunchAbsent";
             }
-            console.log("presentStatus",presentStatus)
+            console.log("presentStatus", presentStatus)
             // await db.attendanceMaster.update(
             //   {
             //     attendanceShiftEndDate: moment().format("YYYY-MM-DD"),

@@ -515,8 +515,8 @@ const empLeaveDetails = async function (userId, type) {
 
 const empMarkLeaveOfGivenDate = async function (userId, inputData, batch) {
   inputData.source = "system_generated";
-  console.log("inputData", inputData)
-  console.log("inputData", inputData.leaveAutoId)
+  // console.log("inputData", inputData)
+  // console.log("inputData", inputData.leaveAutoId)
   if (inputData.leaveAutoId != 6) {
     let empLeave = await empLeaveDetails(userId, inputData.leaveAutoId);
     if (empLeave) {
@@ -617,8 +617,6 @@ const empMarkLeaveOfGivenDate = async function (userId, inputData, batch) {
     }]
   })
 
-  console.log(leaveDeductionData)
-
   const leaveData = await db.leaveMaster.findOne({
     raw: true,
     where: {
@@ -626,17 +624,17 @@ const empMarkLeaveOfGivenDate = async function (userId, inputData, batch) {
     },
     attributes: ['leaveName']
   })
-  console.log(inputData)
+
   eventEmitter.emit("autoLeaveDeductionMail", JSON.stringify({
     email: leaveDeductionData.email,
     name: leaveDeductionData.name,
     date: inputData.appliedFor,
-    shiftStartTime: leaveDeductionData['shiftMaster.shiftStartTime'],
-    shiftEndTime: leaveDeductionData['shiftMaster.shiftEndTime'],
+    shiftStartTime: leaveDeductionData['shiftsmaster.shiftStartTime'],
+    shiftEndTime: leaveDeductionData['shiftsmaster.shiftEndTime'],
     leaveType: leaveData.leaveName,
     leaveDuration: (inputData.leaveCount === 0.5) ? "Half Day" : "Full Day",
-    punchInTime: "09:15:00",
-    punchOutTime: "17:53:00"
+    punchInTime: inputData.punchInTime,
+    punchOutTime: inputData.punchOutTime
   }))
 
 
