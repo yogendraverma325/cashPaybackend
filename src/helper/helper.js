@@ -549,9 +549,6 @@ const empMarkLeaveOfGivenDate = async function (userId, inputData, batch) {
   inputData.batch_id = batch;
   await db.employeeLeaveTransactions.create(inputData);
 
-  inputData.batch_id = batch;
-  await db.employeeLeaveTransactions.create(inputData);
-
   const leaveDeductionData = await db.employeeMaster.findOne({
     raw: true,
     where: {
