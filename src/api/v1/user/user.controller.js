@@ -430,7 +430,7 @@ class UserController {
       });
     }
   }
-  
+
   async taskBoxCount(req, res) {
     try {
       let userid = req.userId;
@@ -871,9 +871,9 @@ class UserController {
         l1ReasonForProposedRecoveryDays: result.l1ReasonForProposedRecoveryDays,
         l1ReasonOfResignation: result.l1ReasonOfResignation,
         l1BillingType: result.l1BillingType,
-        l1CustomerName: result.l1CustomerName,
+        l1CustomerName: (result.l1CustomerName != "") ? result.l1CustomerName : null,
         replacementRequired: result.replacementRequired,
-        replacementRequiredBy: result.replacementRequiredBy,
+        replacementRequiredBy: (result.replacementRequiredBy != "") ? result.replacementRequiredBy : null,
         l1Remark: result.l1Remark,
         l1Attachment: (result.attachment) ? await helper.fileUpload(
           result.attachment,
@@ -1152,7 +1152,7 @@ class UserController {
         l2SalaryHike: (result.l2SalaryHike) ? result.l2SalaryHike : null,
         doNotReHire: result.doNotReHire,
         l2BillingType: result.l2BillingType,
-        l2CustomerName: result.l2CustomerName,
+        l2CustomerName: (result.l2CustomerName != '') ? result.l2CustomerName : null,
         shortFallPayoutBasis: result.shortFallPayoutBasis,
         shortFallPayoutDays: result.shortFallPayoutDays,
         ndaConfirmation: result.ndaConfirmation,
