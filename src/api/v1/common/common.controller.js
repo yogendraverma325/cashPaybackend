@@ -977,7 +977,7 @@ class commonController {
 
         return respHelper(res, {
           status: 200,
-          msg: constant.UPDATE_SUCCESS.replace("<module>", "Emergency Details"),
+          msg: constant.UPDATE_SUCCESS.replace("<module>", "Details"),
         });
       } else {
         let obj = {
