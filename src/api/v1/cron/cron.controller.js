@@ -82,27 +82,42 @@ class CronController {
   }
 
   async EarnedLeaveCreditCron() {
-    const earnedLeaveDetails = await db.leaveMaster.findOne({
+    console.log("EarnedLeaveCreditCron",moment().format("DD"))
+    // creditDayOfMonth: moment().format("DD")
+    const earnedLeaveDetails = await db.leaveMaster.findAll({
       raw: true,
-      where: { leaveId: 1, creditDayOfMonth: moment().format("DD") },
+      where: { iterationDistribution: {
+      [Op.ne]: 0
+    }  },
     });
+       await Promise.all(
+        earnedLeaveDetails.map(async (singleItem) => {
+          if(singleItem.creditDayOfMonth==moment().format("DD")){
+    await db.leaveMapping.increment(
+                {
+                  availableLeave: parseFloat(singleItem.iterationDistribution),
+                  accruedThisYear:parseFloat(singleItem.iterationDistribution)
+                 },
+                {
+                  where: {
+                  leaveAutoId: singleItem.leaveId
+                  },
+                }
+              );
+          }
 
-    if (earnedLeaveDetails) {
-      let value = parseFloat(earnedLeaveDetails.iterationDistribution).toFixed(
-        2
-      );
-      await db.leaveMapping.update(
-        {
-          availableLeave: db.sequelize.literal(`availableLeave + ${value}`),
-          accruedThisYear: db.sequelize.literal(`accruedThisYear + ${value}`),
-        },
-        {
-          where: { leaveAutoId: 1, EmployeeId: 848 },
-        }
-      );
-    } else {
-      console.log("not found");
-    }
+        }));
+    console.log("earnedLeaveDetails",earnedLeaveDetails)
+
+    // if (earnedLeaveDetails) {
+    //   let value = parseFloat(earnedLeaveDetails.iterationDistribution).toFixed(
+    //     2
+    //   );
+
+   
+    // } else {
+    //   console.log("not found");
+    // }
   }
 
   async updateManager() {

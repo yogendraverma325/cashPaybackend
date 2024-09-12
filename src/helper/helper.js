@@ -547,7 +547,63 @@ const empMarkLeaveOfGivenDate = async function (userId, inputData, batch) {
     inputData.leaveAutoId = 6;
   }
   inputData.batch_id = batch;
-  await db.employeeLeaveTransactions.create(inputData);
+  await db.employeeLeaveTransactions.create(inputData); // Push data to leave transaction table for that employee
+
+  //start code :leave deducation code if auto approve only
+  if(inputData.status=='approved'){
+    if(inputData.leaveAutoId ==6){ //IF leave type if LWP
+      const lwpLeave = await db.leaveMapping.findOne({
+                where: {
+                  EmployeeId: userId,
+                  leaveAutoId:  inputData.leaveAutoId,
+                },
+              });
+
+              if (lwpLeave) {
+                await db.leaveMapping.increment(
+                  { utilizedThisYear: parseFloat(inputData.leaveCount) },
+                  {
+                    where: {
+                      EmployeeId: userId,
+                      leaveAutoId:  inputData.leaveAutoId,
+                    },
+                  }
+                );
+              } else {
+                await db.leaveMapping.create({
+                  EmployeeId:userId,
+                  leaveAutoId:  inputData.leaveAutoId,
+                  availableLeave: 0,
+                  utilizedThisYear: parseFloat(inputData.leaveCount),
+                  creditedFromLastYear: 0,
+                  annualAllotment: 0,
+                  accruedThisYear: 0,
+                });
+              }
+
+    } else{ // Else leave is other than LWP
+  await db.leaveMapping.increment(
+                { utilizedThisYear: parseFloat(inputData.leaveCount) },
+                {
+                  where: {
+                    EmployeeId: userId,
+                    leaveAutoId:  inputData.leaveAutoId
+                  },
+                }
+              );
+              await db.leaveMapping.increment(
+                { availableLeave: -parseFloat(inputData.leaveCount) },
+                {
+                  where: {
+                    EmployeeId:userId,
+                    leaveAutoId:inputData.leaveAutoId
+                  },
+                }
+              );
+    }
+
+  }
+  //end code :leave deducation code if auto approve only 
 
   const leaveDeductionData = await db.employeeMaster.findOne({
     raw: true,
@@ -582,6 +638,8 @@ const empMarkLeaveOfGivenDate = async function (userId, inputData, batch) {
     punchInTime: "09:15:00",
     punchOutTime: "17:53:00"
   }))
+
+  
   return 1;
 };
 
