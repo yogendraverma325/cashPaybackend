@@ -220,7 +220,7 @@ db.familyMemberHistory = FamilyMemberHistory(sequelize, Sequelize);
 db.attendanceHistory = AttendanceHistory(sequelize, Sequelize);
 db.employeeStagingMaster = EmployeeStaging(sequelize, Sequelize);
 db.probationMaster = ProbationMaster(sequelize, Sequelize);
-
+db.separationStatus = SeparationStatus(sequelize, Sequelize);
 db.holidayCompanyLocationConfiguration.hasOne(db.holidayMaster, {
   foreignKey: "holidayId",
   sourceKey: "holidayId",
