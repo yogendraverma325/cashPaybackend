@@ -68,14 +68,16 @@ import SalutationMaster from "../api/model/salutationMaster.js";
 import UnionCodeIncrementMaster from "../api/model/UnionIncrementCodeMaster.js";
 import EmployeeAddress from "../api/model/EmployeeAddress.js";
 import EmployeeWorkExperience from "../api/model/EmployeeWorkExperience.js";
-import HrLetters from "../api/model/HrLetters.js"
+import HrLetters from "../api/model/HrLetters.js";
 import HrDocumentMaster from "../api/model/HrDocumentMaster.js";
 import EmployeeCertificates from "../api/model/EmployeeCertificates.js";
 import SeparationMaster from "../api/model/SeparationMaster.js";
 import NoticePeriodMaster from "../api/model/NoticePeriodMaster.js";
 import SeparationType from "../api/model/SeparationType.js";
 import SeparationReason from "../api/model/SeparationReason.js";
-import SeparationStatus from '../api/model/SeparationStatus.js'
+import SeparationStatus from "../api/model/SeparationStatus.js";
+import EmployeeStaging from "../api/model/EmployeeStaging.js";
+import ProbationMaster from "../api/model/ProbationMaster.js";
 
 import literal from "sequelize";
 import QueryTypes from "sequelize";
@@ -198,17 +200,26 @@ db.employeeEducationDetailsHistory = EmployeeEducationDetailsHistory(
 db.familyMemberHistory = FamilyMemberHistory(sequelize, Sequelize);
 db.attendanceHistory = AttendanceHistory(sequelize, Sequelize);
 db.unionCodIncrementMaster = UnionCodeIncrementMaster(sequelize, Sequelize);
-db.salutationMaster = SalutationMaster(sequelize, Sequelize)
-db.employeeAddress = EmployeeAddress(sequelize, Sequelize)
-db.employeeWorkExperience = EmployeeWorkExperience(sequelize, Sequelize)
-db.hrLetters = HrLetters(sequelize, Sequelize)
-db.hrDocumentMaster = HrDocumentMaster(sequelize, Sequelize)
-db.employeeCertificates = EmployeeCertificates(sequelize, Sequelize)
-db.separationMaster = SeparationMaster(sequelize, Sequelize)
-db.noticePeriodMaster = NoticePeriodMaster(sequelize, Sequelize)
-db.separationType = SeparationType(sequelize, Sequelize)
-db.separationReason = SeparationReason(sequelize, Sequelize)
-db.separationStatus = SeparationStatus(sequelize, Sequelize)
+db.salutationMaster = SalutationMaster(sequelize, Sequelize);
+db.employeeAddress = EmployeeAddress(sequelize, Sequelize);
+db.employeeWorkExperience = EmployeeWorkExperience(sequelize, Sequelize);
+db.hrLetters = HrLetters(sequelize, Sequelize);
+db.hrDocumentMaster = HrDocumentMaster(sequelize, Sequelize);
+db.employeeCertificates = EmployeeCertificates(sequelize, Sequelize);
+db.separationMaster = SeparationMaster(sequelize, Sequelize);
+db.noticePeriodMaster = NoticePeriodMaster(sequelize, Sequelize);
+db.separationType = SeparationType(sequelize, Sequelize);
+db.separationReason = SeparationReason(sequelize, Sequelize);
+db.managerHistory = ManagerHistory(sequelize, Sequelize);
+db.employeeJobDetailsHistory = employeeJobDetailsHistory(sequelize, Sequelize);
+db.employeeEducationDetailsHistory = EmployeeEducationDetailsHistory(
+  sequelize,
+  Sequelize
+);
+db.familyMemberHistory = FamilyMemberHistory(sequelize, Sequelize);
+db.attendanceHistory = AttendanceHistory(sequelize, Sequelize);
+db.employeeStagingMaster = EmployeeStaging(sequelize, Sequelize);
+db.probationMaster = ProbationMaster(sequelize, Sequelize);
 
 db.holidayCompanyLocationConfiguration.hasOne(db.holidayMaster, {
   foreignKey: "holidayId",
@@ -437,23 +448,23 @@ db.buMapping.hasOne(db.employeeMaster, {
 db.jobDetails.hasOne(db.unionCodIncrementMaster, {
   foreignKey: "unionCodeId",
   sourceKey: "unionId",
-  as: "incrementCycle"
+  as: "incrementCycle",
 });
 db.jobDetails.hasOne(db.bandMaster, {
   foreignKey: "bandId",
-  sourceKey: "bandId"
+  sourceKey: "bandId",
 });
 db.jobDetails.hasOne(db.gradeMaster, {
   foreignKey: "gradeId",
-  sourceKey: "gradeId"
+  sourceKey: "gradeId",
 });
 db.jobDetails.hasOne(db.jobLevelMaster, {
   foreignKey: "jobLevelId",
-  sourceKey: "jobLevelId"
+  sourceKey: "jobLevelId",
 });
 db.employeeMaster.hasOne(db.salutationMaster, {
   foreignKey: "salutationId",
-  sourceKey: "salutationId"
+  sourceKey: "salutationId",
 });
 db.biographicalDetails.hasOne(db.employeeMaster, {
   foreignKey: "id",
@@ -478,67 +489,67 @@ db.employeeMaster.hasOne(db.employeeAddress, {
 db.employeeAddress.hasOne(db.cityMaster, {
   foreignKey: "cityId",
   sourceKey: "currentCityId",
-  as: "currentcity"
+  as: "currentcity",
 });
 db.employeeAddress.hasOne(db.cityMaster, {
   foreignKey: "cityId",
   sourceKey: "permanentCityId",
-  as: "permanentcity"
+  as: "permanentcity",
 });
 db.employeeAddress.hasOne(db.cityMaster, {
   foreignKey: "cityId",
   sourceKey: "emergencyCityId",
-  as: "emergencycity"
+  as: "emergencycity",
 });
 db.employeeAddress.hasOne(db.stateMaster, {
   foreignKey: "stateId",
   sourceKey: "currentStateId",
-  as: "currentstate"
+  as: "currentstate",
 });
 db.employeeAddress.hasOne(db.stateMaster, {
   foreignKey: "stateId",
   sourceKey: "permanentStateId",
-  as: "permanentstate"
+  as: "permanentstate",
 });
 db.employeeAddress.hasOne(db.stateMaster, {
   foreignKey: "stateId",
   sourceKey: "emergencyStateId",
-  as: "emergencystate"
+  as: "emergencystate",
 });
 db.employeeAddress.hasOne(db.countryMaster, {
   foreignKey: "countryId",
   sourceKey: "currentCountryId",
-  as: "currentcountry"
+  as: "currentcountry",
 });
 db.employeeAddress.hasOne(db.countryMaster, {
   foreignKey: "countryId",
   sourceKey: "permanentCountryId",
-  as: "permanentcountry"
+  as: "permanentcountry",
 });
 db.employeeAddress.hasOne(db.countryMaster, {
   foreignKey: "countryId",
   sourceKey: "emergencyCountryId",
-  as: "emergencycountry"
+  as: "emergencycountry",
 });
 db.employeeAddress.hasOne(db.pinCodeMaster, {
   foreignKey: "pincodeId",
   sourceKey: "currentPincodeId",
-  as: "currentpincode"
+  as: "currentpincode",
 });
 db.employeeAddress.hasOne(db.pinCodeMaster, {
   foreignKey: "pincodeId",
   sourceKey: "permanentPincodeId",
-  as: "permanentpincode"
+  as: "permanentpincode",
 });
 db.employeeAddress.hasOne(db.pinCodeMaster, {
   foreignKey: "pincodeId",
   sourceKey: "emergencyPincodeId",
-  as: "emergencypincode"
+  as: "emergencypincode",
 });
 db.jobDetails.hasOne(db.stateMaster, {
   foreignKey: "stateId",
   sourceKey: "lwfState",
-  as: "lwfStateName"
+  as: "lwfStateName",
 });
 db.employeeMaster.hasMany(db.employeeWorkExperience, {
   foreignKey: "userId",
@@ -555,13 +566,84 @@ db.employeeMaster.hasMany(db.employeeCertificates, {
 db.hrLetters.hasOne(db.hrDocumentMaster, {
   foreignKey: "documentId",
   sourceKey: "documentType",
-})
-db.separationMaster.hasOne(db.employeeMaster, { foreignKey: "id", sourceKey: "employeeId" });
-db.separationMaster.hasOne(db.employeeMaster, { foreignKey: "id", sourceKey: "createdBy", as: 'initiatedByUser' });
-db.employeeMaster.hasOne(db.noticePeriodMaster, { foreignKey: "noticePeriodAutoId", sourceKey: "noticePeriodAutoId", })
-db.separationMaster.hasOne(db.separationStatus, { foreignKey: "separationStatusAutoId", sourceKey: "finalStatus" })
-db.separationMaster.hasOne(db.separationType, { foreignKey: "separationTypeAutoId", sourceKey: "l2SeparationType", as: 'l2Separationtype' })
-db.separationMaster.hasOne(db.separationReason, { foreignKey: "separationReasonAutoId", sourceKey: "l2ReasonOfSeparation", as: 'l2ReasonofSeparation' })
-db.separationMaster.hasOne(db.separationReason, { foreignKey: "separationReasonAutoId", sourceKey: "l1ReasonOfResignation", as: 'l1ReasonofResignation' })
+});
+db.separationMaster.hasOne(db.employeeMaster, {
+  foreignKey: "id",
+  sourceKey: "employeeId",
+});
+db.separationMaster.hasOne(db.employeeMaster, {
+  foreignKey: "id",
+  sourceKey: "createdBy",
+  as: "initiatedByUser",
+});
+db.employeeMaster.hasOne(db.noticePeriodMaster, {
+  foreignKey: "noticePeriodAutoId",
+  sourceKey: "noticePeriodAutoId",
+});
+
+db.companyLocationMaster.hasOne(db.cityMaster, {
+  foreignKey: "cityId",
+  sourceKey: "cityId",
+});
+db.companyLocationMaster.hasOne(db.pinCodeMaster, {
+  foreignKey: "pincodeId",
+  sourceKey: "pincodeId",
+});
+
+db.employeeStagingMaster.hasOne(db.roleMaster, {
+  foreignKey: "role_id",
+  sourceKey: "role_id",
+});
+db.employeeStagingMaster.hasOne(db.designationMaster, {
+  foreignKey: "designationId",
+  sourceKey: "designation_id",
+});
+db.employeeStagingMaster.hasOne(db.functionalAreaMaster, {
+  foreignKey: "functionalAreaId",
+  sourceKey: "functionalAreaId",
+});
+db.employeeStagingMaster.hasOne(db.buMaster, {
+  foreignKey: "buId",
+  sourceKey: "buId",
+});
+db.employeeStagingMaster.hasOne(db.sbuMaster, {
+  foreignKey: "sbuId",
+  sourceKey: "sbuId",
+});
+db.employeeStagingMaster.hasOne(db.departmentMaster, {
+  foreignKey: "departmentId",
+  sourceKey: "departmentId",
+});
+db.employeeStagingMaster.hasOne(db.companyMaster, {
+  foreignKey: "companyId",
+  sourceKey: "companyId",
+});
+db.employeeStagingMaster.hasOne(db.shiftMaster, {
+  foreignKey: "shiftId",
+  sourceKey: "shiftId",
+});
+db.employeeStagingMaster.hasOne(db.companyLocationMaster, {
+  foreignKey: "companyLocationId",
+  sourceKey: "companyLocationId",
+});
+db.separationMaster.hasOne(db.separationStatus, {
+  foreignKey: "separationStatusAutoId",
+  sourceKey: "finalStatus",
+});
+db.separationMaster.hasOne(db.separationType, {
+  foreignKey: "separationTypeAutoId",
+  sourceKey: "l2SeparationType",
+  as: "l2Separationtype",
+});
+db.separationMaster.hasOne(db.separationReason, {
+  foreignKey: "separationReasonAutoId",
+  sourceKey: "l2ReasonOfSeparation",
+  as: "l2ReasonofSeparation",
+});
+db.separationMaster.hasOne(db.separationReason, {
+  foreignKey: "separationReasonAutoId",
+  sourceKey: "l1ReasonOfResignation",
+  as: "l1ReasonofResignation",
+});
 
 export default db;

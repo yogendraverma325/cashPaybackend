@@ -23,13 +23,13 @@ export default (sequelize, Sequelize) => {
     lastName: {
       type: Sequelize.STRING(255),
     },
-    middleName:{
+    middleName: {
       type: Sequelize.STRING(255),
     },
     panNo: {
       type: Sequelize.STRING(255),
     },
-    panImg:{
+    panImg: {
       type: Sequelize.STRING(255),
     },
     esicNo: {
@@ -54,6 +54,9 @@ export default (sequelize, Sequelize) => {
       type: Sequelize.STRING(45),
     },
     personalMobileNumber: {
+      type: Sequelize.STRING(45),
+    },
+    dateOfJoining: {
       type: Sequelize.STRING(45),
     },
     wrongPasswordCount: {
@@ -113,73 +116,80 @@ export default (sequelize, Sequelize) => {
     permissionAndAccess: {
       type: Sequelize.STRING(255),
     },
-    salutationId:{
+    salutationId: {
       type: Sequelize.INTEGER,
     },
-    positionType:{
+    positionType: {
       type: Sequelize.STRING(45),
     },
-    newCustomerName :{
+    newCustomerName: {
       type: Sequelize.STRING(45),
     },
-    adhrNo:{
+    adhrNo: {
       type: Sequelize.STRING(255),
     },
-    drivingLicence:{
+    drivingLicence: {
       type: Sequelize.STRING(255),
     },
-    dlImg:{
+    dlImg: {
       type: Sequelize.STRING(255),
     },
-    adhrFront:{
+    adhrFront: {
       type: Sequelize.STRING(255),
     },
-    adhrBack:{
+    adhrBack: {
       type: Sequelize.STRING(255),
     },
-    passportNumber:{
+    passportNumber: {
       type: Sequelize.STRING(255),
     },
-    passportImg:{
+    passportImg: {
       type: Sequelize.STRING(255),
     },
-    abstractReasoning:{
+    abstractReasoning: {
       type: Sequelize.STRING,
     },
-    numericalSequences:{
+    numericalSequences: {
       type: Sequelize.STRING,
     },
-    numericalCalculation:{
+    numericalCalculation: {
       type: Sequelize.STRING,
     },
-    mbtiType:{
+    mbtiType: {
       type: Sequelize.STRING,
     },
-    dataCardAdmin:{
+    dataCardAdmin: {
       type: Sequelize.INTEGER,
     },
-    visitingCardAdmin:{
+    visitingCardAdmin: {
       type: Sequelize.INTEGER,
     },
-    workstationAdmin:{
+    workstationAdmin: {
       type: Sequelize.INTEGER,
     },
-    lastIncrementDate:{
-      type: Sequelize.STRING
-    },
-    iqTestApplicable:{
-      type: Sequelize.INTEGER,
-    },
-    mobileAdmin:{
-      type: Sequelize.INTEGER,
-    },
-    recruiterName:{
+    lastIncrementDate: {
       type: Sequelize.STRING,
     },
-    createdBy:{
+    iqTestApplicable: {
       type: Sequelize.INTEGER,
     },
-    costId:{
+    mobileAdmin: {
+      type: Sequelize.INTEGER,
+    },
+    recruiterName: {
+      type: Sequelize.STRING,
+    },
+
+    positionType: {
+      type: Sequelize.STRING(45),
+    },
+    newCustomerName: {
+      type: Sequelize.STRING(45),
+    },
+    createdBy: {
+      type: Sequelize.INTEGER,
+    },
+    costId: {
       type: Sequelize.INTEGER,
     },
     createdBy: {
