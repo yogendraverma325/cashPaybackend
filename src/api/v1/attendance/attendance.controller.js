@@ -401,6 +401,7 @@ class AttendanceController {
         regularizeManagerId: attendanceData.dataValues.employee.managerData.id,
         regularizePunchInTime: result.punchInTime,
         regularizePunchOutTime: result.punchOutTime,
+        regularizeLocationType:result.locationType,
         regularizeReason: result.reason,
         regularizeStatus: "Pending",
         createdBy: req.userId,
