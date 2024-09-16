@@ -993,7 +993,7 @@ class UserController {
         l1ReasonOfResignation: result.l1ReasonOfResignation,
         l1Remark: result.l1Remark,
         l1SubmissionDate: moment(),
-        l1RequestStatus: "L1_Approved",
+        l1RequestStatus: 5,
         submitType: result.submitType,
         createdBy: req.userId,
         createdDt: moment(),

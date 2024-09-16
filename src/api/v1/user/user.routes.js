@@ -48,3 +48,7 @@ export default Express
     .post("/onBehalfBUHr", authentication.authenticate, userController.onBehalfBUHr)
     .post("/rejectSeparation", authentication.authenticate, userController.rejectSeparation)
     .post("/buhrInputOnseparation", authentication.authenticate, userController.buhrInputOnSeparation)
+
+
+    //update Available Leave for permanent employee 0
+    //delete where EL from all off role employee
