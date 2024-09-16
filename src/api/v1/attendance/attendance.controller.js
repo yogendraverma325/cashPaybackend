@@ -893,6 +893,25 @@ class AttendanceController {
           msg: "Please Fill Month and Year",
         });
       }
+
+      const getUserDetails = await db.employeeMaster.findOne({
+        attributes: ['id', 'name', 'empCode', 'profileImage'],
+        where: { id: user },
+        include: [{
+          model: db.attendancePolicymaster,
+          attributes: ['policyName', 'policyCode']
+        },
+        {
+          model: db.shiftMaster,
+          attributes: ['shiftName', 'shiftStartTime', 'shiftEndTime']
+        },
+        {
+          model: db.weekOffMaster,
+          attributes: ['weekOffName', 'nonWorkingDays']
+        },
+        ]
+      })
+
       const startDateLeaves = `${year}-${month}-01`;
       const endDateLeaves = moment()
         .year(year)
@@ -941,7 +960,7 @@ class AttendanceController {
               model: db.regularizationMaster.scope("latest"),
               required: false,
               as: "latest_Regularization_Request",
-              attributes: ["regularizeStatus", "regularizeId"],
+              attributes: ["regularizePunchInDate", "regularizePunchOutDate", "regularizeUserRemark", "regularizeLocationType", "regularizePunchInTime", "regularizePunchOutTime", "regularizeReason", "regularizeStatus", "regularizeManagerRemark", "regularizeId", "createdAt"],
               where: { regularizeStatus: ["Pending", "Approved"] },
             },
             {
@@ -992,8 +1011,13 @@ class AttendanceController {
             "isHalfDay",
             "halfDayFor",
             "reason",
+            "message",
             "leaveAutoId",
+            "appliedOn",
             "appliedFor",
+            "leaveCount",
+            "fromDate",
+            "toDate"
           ],
           where: {
             employeeId: user,
@@ -1273,6 +1297,7 @@ class AttendanceController {
                 ? monthUpaidLeave[0].totalLeaveCount
                 : 0,
           },
+          getUserDetails: getUserDetails,
           attendanceData: {
             count: result.length,
             rows: result,
@@ -1848,7 +1873,7 @@ class AttendanceController {
                     createdAt: moment(), // Replace with actual creation date
                     punchInTime: singleEmp.attendancemaster.attendancePunchInTime,
                     punchOutTime: singleEmp.attendancemaster.attendancePunchOutTime,
-                    weekOffId:(singleEmp.weekOffMaster)?singleEmp.weekOffMaster.weekOffId:0
+                    weekOffId: (singleEmp.weekOffMaster) ? singleEmp.weekOffMaster.weekOffId : 0
                   },
                   "id_" + moment().format("YYYYMMDDHHmmss") + singleEmp.id
                 );
@@ -2194,7 +2219,7 @@ class AttendanceController {
                     pendingAt: EMP_DATA.managerData.id, // Replace with actual pending at value
                     createdBy: singleEmp.id, // Replace with actual creator user ID
                     createdAt: moment(), // Replace with actual creation date
-                    weekOffId:(singleEmp.weekOffMaster)?singleEmp.weekOffMaster.weekOffId:0,
+                    weekOffId: (singleEmp.weekOffMaster) ? singleEmp.weekOffMaster.weekOffId : 0,
                     punchInTime: singleEmp.attendancemaster.attendancePunchInTime,
                     punchOutTime: singleEmp.attendancemaster.attendancePunchOutTime,
                   },
