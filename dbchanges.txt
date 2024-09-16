@@ -1,3 +1,7 @@
+//-----------------------------------2024-09-16---------------------------------------------//
+ALTER TABLE `tara`.`regularization` 
+ADD COLUMN `regularizeLocationType` VARCHAR(100) NULL DEFAULT NULL AFTER `regularizePunchOutDate`;
+
 // ----------------------------------- 2024-09-11 -----------------------------------------//
 
 ALTER TABLE `hrms_live`.`separationmaster` 

@@ -38,6 +38,9 @@ export default (sequelize, Sequelize) => {
     regularizeManagerRemark: {
       type: Sequelize.STRING,
     },
+    regularizeLocationType:{
+      type: Sequelize.STRING,
+    },  
     createdBy: {
       type: Sequelize.INTEGER,
     },

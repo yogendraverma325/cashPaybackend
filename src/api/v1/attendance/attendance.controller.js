@@ -893,6 +893,25 @@ class AttendanceController {
           msg: "Please Fill Month and Year",
         });
       }
+
+      const getUserDetails = await db.employeeMaster.findOne({
+        attributes:['id','name','empCode','profileImage'],
+        where:{id:user},
+        include:[{
+         model:db.attendancePolicymaster,
+         attributes:['policyName','policyCode']
+        },
+       {
+         model:db.shiftMaster,
+         attributes:['shiftName','shiftStartTime','shiftEndTime']
+       },
+       {
+         model:db.weekOffMaster,
+         attributes:['weekOffName','nonWorkingDays']
+       },
+       ]
+       })
+
       const startDateLeaves = `${year}-${month}-01`;
       const endDateLeaves = moment()
         .year(year)
@@ -941,7 +960,7 @@ class AttendanceController {
               model: db.regularizationMaster.scope("latest"),
               required: false,
               as: "latest_Regularization_Request",
-              attributes: ["regularizeStatus", "regularizeId"],
+              attributes: ["regularizePunchInDate","regularizePunchOutDate","regularizeUserRemark","regularizeLocationType","regularizePunchInTime","regularizePunchOutTime","regularizeReason","regularizeStatus","regularizeManagerRemark", "regularizeId","createdAt"],
               where: { regularizeStatus: ["Pending", "Approved"] },
             },
             {
@@ -1273,6 +1292,7 @@ class AttendanceController {
                 ? monthUpaidLeave[0].totalLeaveCount
                 : 0,
           },
+          getUserDetails:getUserDetails,
           attendanceData: {
             count: result.length,
             rows: result,
