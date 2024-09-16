@@ -667,7 +667,10 @@ class UserController {
     try {
       const { id, newPassword } = req.body;
       await db.employeeMaster.update(
-        { password: await helper.encryptPassword(newPassword) },
+        {
+          password: await helper.encryptPassword(newPassword),
+          isTempPassword: 0
+        },
         { where: { id: id } }
       );
       return respHelper(res, {

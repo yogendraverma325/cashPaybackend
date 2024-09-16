@@ -46,6 +46,10 @@ export default function getAllListeners(eventEmitter) {
     eventEmitter.on('separationUserAcknowledge', async (input) => {
         await separationUserAcknowledge(input)
     })
+
+    eventEmitter.on('separationRejectByBUHR', async (input) => {
+        await separationRejectByBUHR(input)
+    })
 }
 
 async function regularizationRequestMail(input) {
@@ -203,6 +207,20 @@ async function separationUserAcknowledge(input) {
             html: await emailTemplate.separationAcknowledgementToUser(userData)
         })
 
+    } catch (error) {
+        console.log(error)
+        logger.error(error)
+    }
+}
+
+async function separationRejectByBUHR(input) {
+    try {
+        const userData = JSON.parse(input)
+        await helper.mailService({
+            to: userData.email,
+            subject: `BU HR rejected your resignation ${data.empName} (${data.empCode}),`,
+            html: await emailTemplate.separationRejectedByBUHR(userData)
+        })
     } catch (error) {
         console.log(error)
         logger.error(error)
