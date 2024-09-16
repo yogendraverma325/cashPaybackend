@@ -1846,9 +1846,9 @@ class AttendanceController {
                     pendingAt: EMP_DATA.managerData.id, // Replace with actual pending at value
                     createdBy: singleEmp.id, // Replace with actual creator user ID
                     createdAt: moment(), // Replace with actual creation date
-                    weekOffId: EMP_DATA.weekOffId,
                     punchInTime: singleEmp.attendancemaster.attendancePunchInTime,
-                    punchOutTime: singleEmp.attendancemaster.attendancePunchOutTime
+                    punchOutTime: singleEmp.attendancemaster.attendancePunchOutTime,
+                    weekOffId:(singleEmp.weekOffMaster)?singleEmp.weekOffMaster.weekOffId:0
                   },
                   "id_" + moment().format("YYYYMMDDHHmmss") + singleEmp.id
                 );
@@ -2194,7 +2194,7 @@ class AttendanceController {
                     pendingAt: EMP_DATA.managerData.id, // Replace with actual pending at value
                     createdBy: singleEmp.id, // Replace with actual creator user ID
                     createdAt: moment(), // Replace with actual creation date
-                    weekOffId: EMP_DATA.weekOffId,
+                    weekOffId:(singleEmp.weekOffMaster)?singleEmp.weekOffMaster.weekOffId:0,
                     punchInTime: singleEmp.attendancemaster.attendancePunchInTime,
                     punchOutTime: singleEmp.attendancemaster.attendancePunchOutTime,
                   },
