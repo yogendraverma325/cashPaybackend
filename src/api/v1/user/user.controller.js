@@ -802,9 +802,13 @@ class UserController {
       const separationData = await db.separationMaster.findAll({
         where: {
           [Op.or]: [{
-            employeeId: req.query.user || req.userId
+            employeeId: req.query.user || req.userId,
+            finalStatus: (req.query.user) ? null : 1
           }, {
-            pendingAt: req.userId
+            pendingAt: req.userId,
+            finalStatus: {
+              [Op.in]: [5, 2]
+            }
           }]
         },
         include: [
