@@ -480,6 +480,11 @@ ADD COLUMN `probationDays` INT NULL DEFAULT NULL AFTER `probationPeriod`;
 ALTER TABLE `hrms_live`.`employeestaging` 
 ADD COLUMN `maritalStatusSince` VARCHAR(45) NULL DEFAULT NULL AFTER `maritalStatus`;
 
+Date 09-16-2024
+
+ALTER TABLE `hrms_live`.`employeestaging` 
+ADD COLUMN `isDeleted` INT NULL DEFAULT 0 AFTER `isTempPassword`;
+
 
 
 

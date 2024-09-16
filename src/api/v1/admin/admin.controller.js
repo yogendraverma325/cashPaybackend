@@ -348,6 +348,7 @@ class AdminController {
         buSearch,
         sbuSearch,
         areaSearch,
+        isDeleted
       } = req.query;
 
       let buFIlter = {};
@@ -360,6 +361,8 @@ class AdminController {
       const limit = req.query.limit * 1 || 10;
       const pageNo = req.query.page * 1 || 1;
       const offset = (pageNo - 1) * limit;
+
+      const deleteQuery = { 'isDeleted': parseInt(isDeleted) };
 
       if (
         usersData.role_id != 1 &&
@@ -463,6 +466,7 @@ class AdminController {
                       : [1],
                 },
               ],
+              [Op.and]: deleteQuery
             }
             : {
               [Op.and]: [
@@ -473,6 +477,7 @@ class AdminController {
                       : [1],
                 },
               ],
+             
             }
         ),
         attributes: [
@@ -711,6 +716,25 @@ class AdminController {
       return respHelper(res, {
         status: 500,
       });
+    }
+  }
+
+  async deleteOnboardEmployee(req, res) {
+    try {
+      let id = req.params.id;
+      let condition = { 'id': id };
+      let getResult = await db.employeeStagingMaster.findOne({ where: { 'id': id }, attributes: ['id', 'isDeleted'], raw: true });
+      if(getResult) {
+        let result = await db.employeeStagingMaster.update({ 'isDeleted': (getResult.isDeleted == 0) ? 1 : 0 }, { where: condition });
+        return respHelper(res, { 'status': 202, msg: constant.UPDATE_SUCCESS.replace('<module>', 'On-boarding employee status') });
+      }
+      else {
+        return respHelper(res, { 'status': 401, msg: constant.INVALID_ID.replace('<module>', 'On-boarding employee status') });
+      }
+    }
+    catch(error) {
+      logger.error("Error while occuring after delete on-boarding employee", error);
+      return respHelper(res, { 'status': 500, msg: error?.parent?.sqlMessage });
     }
   }
 

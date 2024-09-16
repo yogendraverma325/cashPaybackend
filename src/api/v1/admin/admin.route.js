@@ -120,4 +120,5 @@ export default Express.Router()
     "/createTMC",
     authorization("ADMIN", "SUPERADMIN"),
     adminController.createTMC
-  );
+  )
+  .delete("/onboardEmployee/:id", authorization("ADMIN", "SUPERADMIN"), adminController.deleteOnboardEmployee)
