@@ -38,6 +38,18 @@ export default function getAllListeners(eventEmitter) {
     eventEmitter.on("autoLeaveDeductionMail", async (input) => {
         await autoLeaveDeductionMail(input)
     })
+
+    eventEmitter.on('initiateSeparation', async (input) => {
+        await initiateSeparation(input)
+    })
+
+    eventEmitter.on('separationUserAcknowledge', async (input) => {
+        await separationUserAcknowledge(input)
+    })
+
+    eventEmitter.on('separationRejectByBUHR', async (input) => {
+        await separationRejectByBUHR(input)
+    })
 }
 
 async function regularizationRequestMail(input) {
@@ -164,6 +176,50 @@ async function autoLeaveDeductionMail(input) {
             to: userData.email,
             subject: 'Auto Leave Deduction',
             html: await emailTemplate.autoLeaveDeduction(userData)
+        })
+    } catch (error) {
+        console.log(error)
+        logger.error(error)
+    }
+}
+
+async function initiateSeparation(input) {
+    try {
+        const userData = JSON.parse(input)
+        await helper.mailService({
+            to: userData.email,
+            subject: `${userData.empName}, ${userData.empDesignation} - ${userData.empDepartment} has resigned from the company`,
+            html: await emailTemplate.initiateSeparation(userData)
+        })
+
+    } catch (error) {
+        console.log(error)
+        logger.error(error)
+    }
+}
+
+async function separationUserAcknowledge(input) {
+    try {
+        const userData = JSON.parse(input)
+        await helper.mailService({
+            to: userData.email,
+            subject: `Your separation request is submitted successfully`,
+            html: await emailTemplate.separationAcknowledgementToUser(userData)
+        })
+
+    } catch (error) {
+        console.log(error)
+        logger.error(error)
+    }
+}
+
+async function separationRejectByBUHR(input) {
+    try {
+        const userData = JSON.parse(input)
+        await helper.mailService({
+            to: userData.email,
+            subject: `BU HR rejected your resignation ${data.empName} (${data.empCode}),`,
+            html: await emailTemplate.separationRejectedByBUHR(userData)
         })
     } catch (error) {
         console.log(error)

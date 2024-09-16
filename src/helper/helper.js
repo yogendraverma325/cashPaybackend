@@ -249,7 +249,7 @@ const getEmpProfile = async (EMP_ID) => {
       {
         model: db.sbuMaster,
         seperate: true,
-        attributes: ["sbuname","code"]
+        attributes: ["sbuname", "code"]
       },
       {
         model: db.departmentMaster,
@@ -514,8 +514,8 @@ const empLeaveDetails = async function (userId, type) {
 
 const empMarkLeaveOfGivenDate = async function (userId, inputData, batch) {
   inputData.source = "system_generated";
-  console.log("inputData", inputData)
-  console.log("inputData", inputData.leaveAutoId)
+  // console.log("inputData", inputData)
+  // console.log("inputData", inputData.leaveAutoId)
   if (inputData.leaveAutoId != 6) {
     let empLeave = await empLeaveDetails(userId, inputData.leaveAutoId);
     if (empLeave) {
@@ -546,10 +546,63 @@ const empMarkLeaveOfGivenDate = async function (userId, inputData, batch) {
     inputData.leaveAutoId = 6;
   }
   inputData.batch_id = batch;
-  await db.employeeLeaveTransactions.create(inputData);
+  await db.employeeLeaveTransactions.create(inputData); // Push data to leave transaction table for that employee
 
-  inputData.batch_id = batch;
-  await db.employeeLeaveTransactions.create(inputData);
+  //start code :leave deducation code if auto approve only
+  if (inputData.status == 'approved') {
+    if (inputData.leaveAutoId == 6) { //IF leave type if LWP
+      const lwpLeave = await db.leaveMapping.findOne({
+        where: {
+          EmployeeId: userId,
+          leaveAutoId: inputData.leaveAutoId,
+        },
+      });
+
+      if (lwpLeave) {
+        await db.leaveMapping.increment(
+          { utilizedThisYear: parseFloat(inputData.leaveCount) },
+          {
+            where: {
+              EmployeeId: userId,
+              leaveAutoId: inputData.leaveAutoId,
+            },
+          }
+        );
+      } else {
+        await db.leaveMapping.create({
+          EmployeeId: userId,
+          leaveAutoId: inputData.leaveAutoId,
+          availableLeave: 0,
+          utilizedThisYear: parseFloat(inputData.leaveCount),
+          creditedFromLastYear: 0,
+          annualAllotment: 0,
+          accruedThisYear: 0,
+        });
+      }
+
+    } else { // Else leave is other than LWP
+      await db.leaveMapping.increment(
+        { utilizedThisYear: parseFloat(inputData.leaveCount) },
+        {
+          where: {
+            EmployeeId: userId,
+            leaveAutoId: inputData.leaveAutoId
+          },
+        }
+      );
+      await db.leaveMapping.increment(
+        { availableLeave: -parseFloat(inputData.leaveCount) },
+        {
+          where: {
+            EmployeeId: userId,
+            leaveAutoId: inputData.leaveAutoId
+          },
+        }
+      );
+    }
+
+  }
+  //end code :leave deducation code if auto approve only 
 
   const leaveDeductionData = await db.employeeMaster.findOne({
     raw: true,
@@ -563,8 +616,6 @@ const empMarkLeaveOfGivenDate = async function (userId, inputData, batch) {
     }]
   })
 
-  console.log(leaveDeductionData)
-
   const leaveData = await db.leaveMaster.findOne({
     raw: true,
     where: {
@@ -572,18 +623,20 @@ const empMarkLeaveOfGivenDate = async function (userId, inputData, batch) {
     },
     attributes: ['leaveName']
   })
-  console.log(inputData)
+
   eventEmitter.emit("autoLeaveDeductionMail", JSON.stringify({
     email: leaveDeductionData.email,
     name: leaveDeductionData.name,
     date: inputData.appliedFor,
-    shiftStartTime: leaveDeductionData['shiftMaster.shiftStartTime'],
-    shiftEndTime: leaveDeductionData['shiftMaster.shiftEndTime'],
+    shiftStartTime: leaveDeductionData['shiftsmaster.shiftStartTime'],
+    shiftEndTime: leaveDeductionData['shiftsmaster.shiftEndTime'],
     leaveType: leaveData.leaveName,
     leaveDuration: (inputData.leaveCount === 0.5) ? "Half Day" : "Full Day",
-    punchInTime: "09:15:00",
-    punchOutTime: "17:53:00"
+    punchInTime: inputData.punchInTime,
+    punchOutTime: inputData.punchOutTime
   }))
+
+
   return 1;
 };
 

@@ -69,7 +69,7 @@ export default (sequelize, Sequelize) => {
             type: Sequelize.STRING
         },
         l1ReasonOfResignation: {
-            type: Sequelize.STRING
+            type: Sequelize.INTEGER
         },
         l1BillingType: {
             type: Sequelize.STRING
@@ -114,10 +114,10 @@ export default (sequelize, Sequelize) => {
             type: Sequelize.STRING
         },
         l2SeparationType: {
-            type: Sequelize.STRING
+            type: Sequelize.INTEGER
         },
         l2ReasonOfSeparation: {
-            type: Sequelize.STRING
+            type: Sequelize.INTEGER
         },
         l2NewOrganizationName: {
             type: Sequelize.STRING
@@ -162,7 +162,7 @@ export default (sequelize, Sequelize) => {
             type: Sequelize.STRING
         },
         finalStatus: {
-            type: Sequelize.STRING
+            type: Sequelize.INTEGER
         },
         l2Remark: {
             type: Sequelize.STRING
@@ -175,6 +175,9 @@ export default (sequelize, Sequelize) => {
         },
         l2RevokeDate: {
             type: Sequelize.DATE
+        },
+        submitType: {
+            type: Sequelize.INTEGER // 0=SaveAsDraft 1=>Main Submit
         },
         createdBy: {
             type: Sequelize.INTEGER

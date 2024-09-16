@@ -131,6 +131,7 @@ class AdminController {
     }
   }
 
+
   async dashboardCard(req, res) {
     try {
       await commonController.dashboardCard(req, res);

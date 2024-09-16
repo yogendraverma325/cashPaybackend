@@ -97,9 +97,24 @@ const updateBiographicalDetailsSchema = Joi.object({
   maritalStatus: Joi.number().required().label("Marital Status"),
   mobileAccess: Joi.number().label("Mobile Access").optional(),
   laptopSystem: Joi.string().trim().label("System").optional(),
-  nationality: Joi.string().trim().label("Nationality").required(),
-  middleName: Joi.string().trim().label("Middle Name").allow(null).optional(),
-  lastName: Joi.string().trim().label("Last Name").allow(null).optional(),
+  nationality: Joi.string()
+    .trim()
+    .label("Nationality")
+    .min(3)
+    .max(30)
+    .required(),
+  middleName: Joi.string()
+    .trim()
+    .label("Middle Name")
+    .allow(null)
+    .max(30)
+    .optional(),
+  lastName: Joi.string()
+    .trim()
+    .label("Last Name")
+    .allow(null)
+    .max(30)
+    .optional(),
   backgroundVerification: Joi.number()
     .label("Background Verification")
     .optional(),
@@ -122,7 +137,13 @@ const addFamilyDetailsSchema = Joi.object({
   name: Joi.string().required().trim().label("Name").allow(null).optional(),
   dob: Joi.string().trim().label("DOB").allow(null).optional(),
   gender: Joi.string().trim().label("Gender").allow(null).optional(),
-  mobileNo: Joi.string().trim().label("Mobile Number").allow(null).optional(),
+  mobileNo: Joi.string()
+    .trim()
+    .label("Mobile Number")
+    .allow(null)
+    .min(10)
+    .max(10)
+    .optional(),
   relationWithEmp: Joi.string().trim().label("Relation").allow(null).optional(),
   memberAddress: Joi.string().trim().label("Address").allow(null).optional(),
 });
@@ -132,17 +153,30 @@ const updateFamilyDetailsSchema = Joi.object({
   name: Joi.string().required().trim().label("Name").allow(null).optional(),
   dob: Joi.string().trim().label("DOB").allow(null).optional(),
   gender: Joi.string().trim().label("Gender").allow(null).optional(),
-  mobileNo: Joi.string().trim().label("Mobile Number").allow(null).optional(),
+  mobileNo: Joi.string()
+    .trim()
+    .label("Mobile Number")
+    .min(10)
+    .max(10)
+    .allow(null)
+    .optional(),
   relationWithEmp: Joi.string().trim().label("Relation").allow(null).optional(),
   memberAddress: Joi.string().trim().label("Address").allow(null).optional(),
 });
 
 const addEducationDetailsSchema = Joi.object({
-  educationCompletionDate: Joi.date().iso().allow(null).required(),
   educationDegree: Joi.number().integer().allow(null).required(),
   educationInstitute: Joi.string().allow(null).required(),
   educationSpecialisation: Joi.string().allow(null).required(),
   educationStartDate: Joi.date().iso().allow(null).required(),
+  educationCompletionDate: Joi.date()
+    .iso()
+    .allow(null)
+    .greater(Joi.ref("educationStartDate"))
+    .messages({
+      "date.greater": "End date must be greater than the start date",
+    })
+    .required(),
   educationAttachments: Joi.string().allow("").optional(),
   educationRemark: Joi.string().allow(null).optional(),
   educationActivities: Joi.string().allow(null).optional(),
@@ -153,13 +187,20 @@ const addEducationDetailsSchema = Joi.object({
 const updateEducationDetailsSchema = Joi.object({
   educationActivities: Joi.string().allow(null).optional(),
   educationAttachments: Joi.string().allow("").optional(),
-  educationCompletionDate: Joi.date().iso().allow(null).required(),
   educationDegree: Joi.number().integer().allow(null).required(),
   educationId: Joi.number().integer().required(),
   educationInstitute: Joi.string().allow(null).required(),
   educationRemark: Joi.string().allow(null).required(),
   educationSpecialisation: Joi.string().allow(null).required(),
   educationStartDate: Joi.date().iso().allow(null).required(),
+  educationCompletionDate: Joi.date()
+    .iso()
+    .allow(null)
+    .greater(Joi.ref("educationStartDate"))
+    .messages({
+      "date.greater": "End date must be greater than the start date",
+    })
+    .required(),
   isHighestEducation: Joi.string().required().allow(null),
   userId: Joi.number().integer().required(),
 });
@@ -181,12 +222,17 @@ const updatePaymentDetailsSchema = Joi.object({
 
 const addPaymentDetailsSchema = Joi.object({
   userId: Joi.number().label("User ID"),
-  paymentAccountNumber: Joi.string().trim().required().label("Account Number"),
+  paymentAccountNumber: Joi.string()
+    .trim()
+    .max(20)
+    .required()
+    .label("Account Number"),
   paymentBankName: Joi.string().trim().required().label("Bank Name"),
   paymentBankIfsc: Joi.string()
     .trim()
     .required()
-    .max(20)
+    .min(11)
+    .max(11)
     .label("Bank Ifsc Code"),
   paymentHolderName: Joi.string()
     .trim()
@@ -280,8 +326,18 @@ const addJobDetailsSchema = Joi.object({
   dateOfJoining: Joi.string().label("Date Of Joining").optional(),
   probationPeriod: Joi.string().label("Probation Period").optional(),
   languagesSpoken: Joi.string().label("Language Spoken").allow(null).optional(),
-  esicNumber: Joi.string().label("ESIC Number").allow(null).optional(),
-  uanNumber: Joi.string().label("UAN Number").allow(null).optional(),
+  esicNumber: Joi.string()
+    .label("ESIC Number")
+    .allow(null)
+    .min(17)
+    .max(17)
+    .optional(),
+  uanNumber: Joi.string()
+    .label("UAN Number")
+    .allow(null)
+    .min(12)
+    .max(12)
+    .optional(),
 });
 
 const updateManagerSchema = Joi.array()
@@ -311,6 +367,8 @@ const emergencyContactDetails = Joi.object({
   emergencyContactNumber: Joi.string()
     .label("Emergency Contact Number")
     .allow(null)
+    .min(10)
+    .max(10)
     .optional(),
   emergencyContactRelation: Joi.string()
     .label("Emergency Contact Relation")
@@ -326,13 +384,13 @@ const forgotPasswordSchema = Joi.object({
 const employeeUpdateInfo = Joi.object({
   adhrNo: Joi.string()
     .trim()
-    .length(12)
-    .regex(/^\d+$/)
+    .min(12)
+    .max(12)
     .required()
-    .label("Aadhar Number"),
-  panNo: Joi.string(),
-  drivingLicence: Joi.string().allow(null).optional(),
-  passportNumber: Joi.string().allow(null).optional(),
+    .label("Aadhaar Number"),
+  panNo: Joi.string().min(10).max(10),
+  drivingLicence: Joi.string().allow(null).max(20).optional(),
+  passportNumber: Joi.string().allow(null).max(20).optional(),
 });
 
 const addemployeeWorkInfo = Joi.object({
@@ -413,12 +471,22 @@ const updateEmployeeCertificates = Joi.object({
 
 const updateContactInfo = Joi.object({
   userId: Joi.number().label("User ID").required(),
-  personalEmail: Joi.string().label("Personal Email").required(),
+  personalEmail: Joi.string()
+    .email({ tlds: { allow: ["com", "in"] } })
+    .label("Personal Email")
+    .required(),
+  //personalEmail: Joi.string().pattern(new RegExp('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.(com|in)$')).label("Personal Email").required(),
   officeMobileNumber: Joi.string()
     .label("Office Mobile Number")
     .allow(null)
+    .min(10)
+    .max(10)
     .required(),
-  personalMobileNumber: Joi.string().label("Personal Mobile Number").required(),
+  personalMobileNumber: Joi.string()
+    .label("Personal Mobile Number")
+    .min(10)
+    .max(10)
+    .required(),
 });
 
 const separationByEmployee = Joi.object({
@@ -453,14 +521,13 @@ const managerInputOnseparation = Joi.object({
   l1ReasonForProposedRecoveryDays: Joi.string()
     .required()
     .label("Reason for Proposed Recovery Days"),
-  l1ReasonOfResignation: Joi.string()
-    .trim()
-    .required()
-    .label("Reason Of Resignation"),
+  l1ReasonOfResignation: Joi.number().required().label("Reason Of Resignation"),
   l1BillingType: Joi.string(),
-  l1CustomerName: Joi.string().trim().label("Customer Name"),
+  l1CustomerName: Joi.string().trim().max(100).allow("").label("Customer Name"),
   replacementRequired: Joi.boolean().label("Replacement Required"),
-  replacementRequiredBy: Joi.string().label("Replacement Required By"),
+  replacementRequiredBy: Joi.string()
+    .allow("")
+    .label("Replacement Required By"),
   l1Remark: Joi.string().trim().max(100).allow("").label("Remark"),
   attachment: Joi.string().optional(),
 });
@@ -478,70 +545,51 @@ const buhrInputOnSeparation = Joi.object({
   l2RecoveryDaysReason: Joi.string()
     .required()
     .label("Reason for Proposed Recovery Days"),
-  l2SeparationType: Joi.string()
-    .valid("Voluntary", "InVoluntary", "Death", "Retired")
+  l2SeparationType: Joi.number()
+    .valid(1, 2, 3, 4)
     .required()
     .label("Separation Type"),
-  l2ReasonOfSeparation: Joi.string()
-    .trim()
-    .required()
-    .label("Reason Of Resignation"),
+  l2ReasonOfSeparation: Joi.number().required().label("Reason Of Resignation"),
   l2NewOrganizationName: Joi.string()
     .trim()
-    .when("l2SeparationType", {
-      is: "Voluntary",
-      then: Joi.required(),
-      otherwise: Joi.forbidden(),
-    })
+    .allow("")
     .label("New Organization Name"),
-  l2SalaryHike: Joi.string()
-    .trim()
-    .when("l2NewOrganizationName", {
-      is: Joi.exist(),
-      then: Joi.required(),
-      otherwise: Joi.forbidden(),
-    })
-    .label("Salary Hike"),
+  l2SalaryHike: Joi.string().trim().allow("").label("Salary Hike"),
   doNotReHire: Joi.boolean().valid(0, 1).label("Do Not Rehire"),
   l2BillingType: Joi.string().trim().required().label("Billing Type"),
-  l2CustomerName: Joi.string().trim().required().label("Customer Name"),
+  l2CustomerName: Joi.string().trim().max(100).allow("").label("Customer Name"),
   shortFallPayoutBasis: Joi.string().trim().required().label("Payout Basis"),
   shortFallPayoutDays: Joi.number().required().label("Payout Days"),
   ndaConfirmation: Joi.boolean().valid(0, 1).label("NDA Confirmation"),
   holdFnf: Joi.boolean().valid(0, 1).label("Hold FNF"),
-  holdFnfTillDate: Joi.string()
-    .trim()
-    .when("holdFnf", {
-      is: 1,
-      then: Joi.required(),
-      otherwise: Joi.forbidden(),
-    })
-    .label("FNF Till Date"),
-  holdFnfReason: Joi.string()
-    .trim()
-    .when("holdFnf", {
-      is: 1,
-      then: Joi.required(),
-      otherwise: Joi.forbidden(),
-    })
-    .label("Hold FNF Reason"),
-  l2Remark: Joi.string().trim().required().label("Remark"),
-  l2Attachment: Joi.string().optional(),
+  holdFnfTillDate: Joi.string().trim().allow("").label("FNF Till Date"),
+  holdFnfReason: Joi.string().trim().allow("").label("Hold FNF Reason"),
+  l2Remark: Joi.string().trim().max(100).allow("").label("Remark"),
+  attachment: Joi.string().optional(),
 });
-// const onBehalfSeperationByManager = Joi.object({
-//   userId: Joi.number(),
-//   resignationDate: Joi.string().required().label("Resignation Date"),
-//   empProposedLastWorkingDay: Joi.string().label("Proposed Last Working Days"),
-//   empProposedRecoveryDays: Joi.number().label("Proposed Recovery Days"),
-//   l1ReasonForProposedRecoveryDays: Joi.string().required().label("Reason for Proposed Recovery Days"),
-//   empReasonOfResignation: Joi.string().trim().required().label("Reason of Resignation"),
-//   l1BillingType: Joi.string(),
-//   replacementRequired: Joi.string().label("Replacement Required"),
-//   replacementRequiredBy: Joi.string().label("Replacement Required By"),
-//   comment: Joi.string().trim().max(100).label("Remark").allow(""),
-//   attachment:Joi.string().label("Attachment").allow(""),
 
-// })
+const onBehalfSeperationByManager = Joi.object({
+  userId: Joi.number(),
+  resignationDate: Joi.string().required().label("Resignation Date"),
+  l1ReasonForProposedRecoveryDays: Joi.string()
+    .required()
+    .label("Reason for Proposed Recovery Days"),
+  empProposedLastWorkingDay: Joi.string().label("Proposed Last Working Days"),
+  l1ProposedLastWorkingDay: Joi.string()
+    .required()
+    .label("Proposed last Working Day"),
+  l1ReasonOfResignation: Joi.string()
+    .trim()
+    .required()
+    .label("Reason Of Resignation"),
+  l1BillingType: Joi.string(),
+  l1CustomerName: Joi.string().trim().label("Customer Name"),
+  replacementRequired: Joi.boolean().label("Replacement Required"),
+  replacementRequiredBy: Joi.string().label("Replacement Required By"),
+  l1Remark: Joi.string().trim().max(100).label("Remark"),
+  l1Attachment: Joi.string().allow("").optional(),
+  submitType: Joi.number(),
+});
 
 const updateAddress = Joi.object({
   employeeId: Joi.number().label("Proposed Recovery Days").required(),
@@ -654,6 +702,59 @@ const createTMCSchema = Joi.object({
   selectedUsers: Joi.array().items().required(),
 });
 
+const onBehalfSeperationByBUHr = Joi.object({
+  userId: Joi.number(),
+  resignationDate: Joi.string().required().label("Resignation Date"),
+  l2LastWorkingDay: Joi.string().required().label("Proposed last Working Day"),
+  // l2RecoveryDays: Joi.number().required().label("Proposed Recovery Days"),
+  l2RecoveryDaysReason: Joi.string()
+    .required()
+    .label("Reason for Proposed Recovery Days"),
+  l2SeparationType: Joi.string()
+    .valid("Voluntary", "InVoluntary", "Death", "Retired")
+    .required()
+    .label("Separation Type"),
+  l2ReasonOfSeparation: Joi.string()
+    .trim()
+    .required()
+    .label("Reason Of Resignation"),
+  l2NewOrganizationName: Joi.string()
+    .trim()
+    .when("l2SeparationType", {
+      is: "Voluntary",
+      then: Joi.required(),
+      otherwise: Joi.forbidden(),
+    })
+    .label("New Organization Name"),
+  l2SalaryHike: Joi.string()
+    .trim()
+    .when("l2NewOrganizationName", {
+      is: Joi.exist(),
+      then: Joi.required(),
+      otherwise: Joi.forbidden(),
+    })
+    .label("Salary Hike"),
+  doNotReHire: Joi.boolean().valid(0, 1).label("Do Not Rehire"),
+  l2BillingType: Joi.string().trim().required().label("Billing Type"),
+  l2CustomerName: Joi.string().trim().required().label("Customer Name"),
+  shortFallPayoutBasis: Joi.string().trim().required().label("Payout Basis"),
+  shortFallPayoutDays: Joi.number().required().label("Payout Days"),
+  ndaConfirmation: Joi.boolean().valid(0, 1).label("NDA Confirmation"),
+  holdFnf: Joi.boolean().valid(0, 1).label("Hold FNF"),
+  holdFnfTillDate: Joi.string().trim().allow("").label("FNF Till Date"),
+  holdFnfReason: Joi.string()
+    .trim()
+    .when("holdFnf", {
+      is: 1,
+      then: Joi.required(),
+      otherwise: Joi.forbidden(),
+    })
+    .label("Hold FNF Reason"),
+  l2Remark: Joi.string().trim().required().label("Remark"),
+  l2Attachment: Joi.string().allow("").optional(),
+  submitType: Joi.number(),
+});
+
 export default {
   loginSchema,
   userCreationSchema,
@@ -691,8 +792,9 @@ export default {
   managerInputOnseparation,
   rejectSeparation,
   buhrInputOnSeparation,
-  //onBehalfSeperationByManager,
+  onBehalfSeperationByManager,
   updateAddress,
+  onBehalfSeperationByBUHr,
   onboardEmployeeSchema,
   createTMCSchema,
 };

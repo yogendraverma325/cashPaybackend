@@ -1,8 +1,121 @@
+//-----------------------------------2024-09-16---------------------------------------------//
+ALTER TABLE `tara`.`regularization` 
+ADD COLUMN `regularizeLocationType` VARCHAR(100) NULL DEFAULT NULL AFTER `regularizePunchOutDate`;
+
+// ----------------------------------- 2024-09-11 -----------------------------------------//
+
+ALTER TABLE `hrms_live`.`separationmaster` 
+CHANGE COLUMN `l1ReasonOfResignation` `l1ReasonOfResignation` INT NULL DEFAULT NULL ,
+CHANGE COLUMN `l2SeparationType` `l2SeparationType` INT NULL DEFAULT NULL ,
+CHANGE COLUMN `l2ReasonOfSeparation` `l2ReasonOfSeparation` INT NULL DEFAULT NULL ;
+
+
 //------------------------------------ 2024-09-09 -----------------------------------------//
+
+ALTER TABLE hrms_live.employeetypemaster 
+ADD COLUMN startingIndex INT NULL DEFAULT 0 AFTER parentEmpTypeId;
+
+ALTER TABLE hrms_live.employee 
+ADD COLUMN positionType VARCHAR(45) NULL DEFAULT NULL AFTER costId;
+
+ALTER TABLE hrms_live.employee 
+ADD COLUMN newCustomerName VARCHAR(45) NULL DEFAULT NULL AFTER positionType;
+
+CREATE TABLE employeestaging (
+  id int NOT NULL AUTO_INCREMENT,
+  empCode varchar(10) DEFAULT NULL,
+  name varchar(255) DEFAULT NULL,
+  email varchar(255) DEFAULT NULL,
+  personalEmail varchar(255) DEFAULT NULL,
+  firstName varchar(255) DEFAULT NULL,
+  middleName varchar(255) DEFAULT NULL,
+  lastName varchar(255) DEFAULT NULL,
+  panNo varchar(50) DEFAULT NULL,
+  esicNo varchar(50) DEFAULT NULL,
+  uanNo varchar(50) DEFAULT NULL,
+  pfNo varchar(50) DEFAULT NULL,
+  gender varchar(50) DEFAULT NULL,
+  maritalStatus int DEFAULT NULL,
+  maritalStatusSince varchar(45) DEFAULT NULL,
+  nationality varchar(50) DEFAULT NULL,
+  probationId int DEFAULT NULL,
+  dateOfBirth date DEFAULT NULL,
+  newCustomerName varchar(50) DEFAULT NULL,
+  iqTestApplicable int DEFAULT NULL,
+  positionType varchar(25) DEFAULT NULL,
+  employeeType varchar(10) DEFAULT NULL,
+  profileImage varchar(255) DEFAULT NULL,
+  password varchar(255) DEFAULT NULL,
+  officeMobileNumber varchar(20) DEFAULT NULL,
+  personalMobileNumber varchar(20) DEFAULT NULL,
+  dateOfJoining date DEFAULT NULL,
+  wrongPasswordCount int DEFAULT NULL,
+  accountRecoveryTime date DEFAULT NULL,
+  manager int DEFAULT NULL,
+  role_id int DEFAULT NULL,
+  designation_id int DEFAULT NULL,
+  functionalAreaId int DEFAULT NULL,
+  buId int DEFAULT NULL,
+  sbuId int DEFAULT NULL,
+  shiftId int DEFAULT NULL,
+  departmentId int DEFAULT NULL,
+  companyId int DEFAULT NULL,
+  lastLogin date DEFAULT NULL,
+  buHRId int DEFAULT NULL,
+  buHeadId int DEFAULT NULL,
+  attendancePolicyId int DEFAULT NULL,
+  companyLocationId int DEFAULT NULL,
+  weekOffId int DEFAULT NULL,
+  permissionAndAccess varchar(255) DEFAULT NULL,
+  createdBy int DEFAULT NULL,
+  updatedBy int DEFAULT NULL,
+  createdAt timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  updatedAt timestamp NULL DEFAULT NULL,
+  isActive int DEFAULT '1',
+  isTempPassword tinyint(1) DEFAULT NULL,
+  PRIMARY KEY (id)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+ALTER TABLE `hrms_live`.`attendancepolicymaster` 
+ADD COLUMN `policyCode` VARCHAR(255) NULL DEFAULT NULL AFTER `policyName`;
+
 ALTER TABLE `hrms_live`.`separationmaster` 
 ADD COLUMN `l1RejectionReason` VARCHAR(100) NULL DEFAULT NULL AFTER `l1RevokeDate`,
 ADD COLUMN `l2RejectionReason` VARCHAR(100) NULL DEFAULT NULL AFTER `l2RequestStatus`;
 //---------------------------------2024-09-10---------------------------------------------//
+
+ALTER TABLE `hrms_live`.`employeefamilyhistory` 
+ADD COLUMN `memberAddress` VARCHAR(255) NULL DEFAULT NULL AFTER `relationWithEmp`;
+
+ALTER TABLE `hrms_live`.`employeejobdetailshistory` 
+ADD COLUMN unionId INT DEFAULT NULL AFTER languagesSpoken,
+ADD COLUMN bandId INT DEFAULT NULL AFTER unionId,
+ADD COLUMN gradeId INT DEFAULT NULL AFTER bandId,
+ADD COLUMN jobLevelId INT DEFAULT NULL AFTER gradeId,
+ADD COLUMN residentEng TINYINT DEFAULT NULL AFTER jobLevelId,
+ADD COLUMN customerName VARCHAR(255) DEFAULT NULL AFTER residentEng,
+ADD COLUMN epsApplicability TINYINT DEFAULT NULL AFTER customerName,
+ADD COLUMN esicApplicable TINYINT DEFAULT NULL AFTER epsApplicability,
+ADD COLUMN lwfApplicable TINYINT DEFAULT NULL AFTER esicApplicable,
+ADD COLUMN pfRestricted TINYINT DEFAULT NULL AFTER lwfApplicable,
+ADD COLUMN pfApplicability TINYINT DEFAULT NULL AFTER pfRestricted,
+ADD COLUMN epfApplicable TINYINT DEFAULT NULL AFTER pfApplicability,
+ADD COLUMN esicNumber TEXT AFTER epfApplicable,
+ADD COLUMN pfNumber TEXT AFTER esicNumber,
+ADD COLUMN uanNumber TEXT AFTER pfNumber;
+
+
+ALTER TABLE `hrms_live`.`employeejobdetailshistory` 
+ADD COLUMN `lwfDesignation` INT NULL DEFAULT NULL AFTER `uanNumber`,
+ADD COLUMN `lwfState` INT NULL DEFAULT NULL AFTER `lwfDesignation`,
+ADD COLUMN `restrictCompanyPf` TINYINT NULL DEFAULT NULL AFTER `lwfState`,
+ADD COLUMN `pranNumber` TEXT NULL DEFAULT NULL AFTER `restrictCompanyPf`,
+ADD COLUMN `npsNumber` TEXT NULL DEFAULT NULL AFTER `pranNumber`;
+
+
+ALTER TABLE `hrms_live`.`separationmaster` 
+ADD COLUMN `submitType` INT NULL DEFAULT NULL AFTER `l2RevokeDate`;
+
 
 CREATE TABLE `hrms_live`.`lwfdesignationmaster` (
   `lwfDesignationId` INT NOT NULL AUTO_INCREMENT,
@@ -106,13 +219,6 @@ ADD COLUMN `numericalSequences` TEXT NULL DEFAULT NULL AFTER `abstractReasoning`
 ADD COLUMN `numericalCalculation` TEXT NULL DEFAULT NULL AFTER `numericalSequences`,
 ADD COLUMN `mbtiType` TEXT NULL DEFAULT NULL AFTER `numericalCalculation`;
 
-
-ALTER TABLE `hrms_live`.`employeejobdetails` 
-ADD COLUMN `lwfDesignation` INT NULL DEFAULT NULL AFTER `isActive`,
-ADD COLUMN `lwfState` INT NULL DEFAULT NULL AFTER `lwfDesignation`,
-ADD COLUMN `restrictCompanyPf` TINYINT NULL DEFAULT NULL AFTER `lwfState`,
-ADD COLUMN `pranNumber` TEXT NULL DEFAULT NULL AFTER `restrictCompanyPf`,
-ADD COLUMN `npsNumber` TEXT NULL DEFAULT NULL AFTER `pranNumber`;
 
 
 ALTER TABLE `hrms_live`.`employeefamilydetails` 
@@ -228,6 +334,14 @@ ADD COLUMN epfApplicable TINYINT DEFAULT NULL AFTER pfApplicability,
 ADD COLUMN esicNumber TEXT AFTER epfApplicable,
 ADD COLUMN pfNumber TEXT AFTER esicNumber,
 ADD COLUMN uanNumber TEXT AFTER pfNumber;
+
+
+ALTER TABLE `hrms_live`.`employeejobdetails` 
+ADD COLUMN `lwfDesignation` INT NULL DEFAULT NULL AFTER `isActive`,
+ADD COLUMN `lwfState` INT NULL DEFAULT NULL AFTER `lwfDesignation`,
+ADD COLUMN `restrictCompanyPf` TINYINT NULL DEFAULT NULL AFTER `lwfState`,
+ADD COLUMN `pranNumber` TEXT NULL DEFAULT NULL AFTER `restrictCompanyPf`,
+ADD COLUMN `npsNumber` TEXT NULL DEFAULT NULL AFTER `pranNumber`;
 
 -------------------------------
 

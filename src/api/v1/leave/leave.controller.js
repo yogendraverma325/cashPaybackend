@@ -70,9 +70,9 @@ class LeaveController {
         where: Object.assign(
           query === "raisedByMe"
             ? {
-              employeeId: req.userId,
-              status: "pending",
-            }
+                employeeId: req.userId,
+                status: "pending",
+              }
             : { pendingAt: req.userId, status: "pending" }
         ),
         attributes: { exclude: ["createdBy", "updatedBy", "updatedAt"] },
@@ -506,24 +506,23 @@ class LeaveController {
         }
         inputs = leaveCountForDates.filter((el) => {
           if (el.appliedFor == appliedFor) {
-            if(el.status=='rejected'){
-                return false;
-            }else{
-          if (el.isHalfDay == 1) {
-              if (halfDayFor == 0) {
-                return true;
-              } else {
-                if (el.halfDayFor == halfDayFor) {
+            if (el.status == "rejected") {
+              return false;
+            } else {
+              if (el.isHalfDay == 1) {
+                if (halfDayFor == 0) {
                   return true;
                 } else {
-                  return false;
+                  if (el.halfDayFor == halfDayFor) {
+                    return true;
+                  } else {
+                    return false;
+                  }
                 }
+              } else {
+                return true;
               }
-            } else {
-              return true;
             }
-            }
-          
           } else {
             return true;
           }
@@ -622,10 +621,10 @@ class LeaveController {
             leaveAttachment:
               result.attachment != ""
                 ? await helper.fileUpload(
-                  result.attachment,
-                  `leaveAttachment_${uuid}`,
-                  `uploads/${EMP_DATA.empCode}`
-                )
+                    result.attachment,
+                    `leaveAttachment_${uuid}`,
+                    `uploads/${EMP_DATA.empCode}`
+                  )
                 : null,
             pendingAt: EMP_DATA.managerData.id, // Replace with actual pending at value
             createdBy: req.userId, // Replace with actual creator user ID
@@ -1116,7 +1115,8 @@ class LeaveController {
         (acc, el) => acc + parseFloat(el.leaveCount),
         0
       );
-      console.log("pendingLeaveCount",pendingLeaveCount)
+      console.log("pendingLeaveCount",totalWorkingDays,"pendingLeaveCount", pendingLeaveCount);
+      console.log("getCombinedVal", getCombinedVal);
       const totalWorkingDaysCalculated = Math.max(
         0,
         totalWorkingDays - getCombinedVal
@@ -1128,10 +1128,14 @@ class LeaveController {
         totalWorkingDaysCalculated < countDeductingPending
           ? totalWorkingDaysCalculated
           : countDeductingPending;
-      let c =(b)>0 ?a - b:a;
-      console.log("c",c)
-       console.log("b",b)
-        console.log("a",a)
+      let c = b > 0 ? a - b : a;
+      console.log("c", c);
+      console.log("b", b);
+      console.log("a", a);
+
+      if(leaveAutoId==6){
+          b=a;
+      }
 
       return respHelper(res, {
         status: 200,
@@ -1167,21 +1171,25 @@ class LeaveController {
 
       const leaveAutoIds = new Set();
 
-      const idFromLeaveTransaction = await db.employeeLeaveTransactions.findAll({
-        attributes: ["leaveAutoId"],
-        where: { employeeId: employeeId },
-        raw: true
-      });
+      const idFromLeaveTransaction = await db.employeeLeaveTransactions.findAll(
+        {
+          attributes: ["leaveAutoId"],
+          where: { employeeId: employeeId },
+          raw: true,
+        }
+      );
 
-      idFromLeaveTransaction.forEach(item => leaveAutoIds.add(item.leaveAutoId));
+      idFromLeaveTransaction.forEach((item) =>
+        leaveAutoIds.add(item.leaveAutoId)
+      );
 
       const currentMappedIds = await db.leaveMapping.findAll({
         attributes: ["leaveAutoId"],
         where: { EmployeeId: employeeId },
-        raw: true
+        raw: true,
       });
 
-      currentMappedIds.forEach(item => leaveAutoIds.add(item.leaveAutoId));
+      currentMappedIds.forEach((item) => leaveAutoIds.add(item.leaveAutoId));
 
       const uniqueMappedIds = Array.from(leaveAutoIds);
 
@@ -1189,7 +1197,7 @@ class LeaveController {
         attributes: ["leaveId", "leaveName", "leaveCode"],
         raw: true,
         where: {
-          leaveId: uniqueMappedIds
+          leaveId: uniqueMappedIds,
         },
       });
 
@@ -1403,7 +1411,7 @@ class LeaveController {
       });
     }
   }
-
+  
   //working fine
   // async leaveHistory(req, res) {
   //   try {

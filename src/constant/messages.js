@@ -29,9 +29,9 @@ const message = {
   PASSWORD_CHANGED: "Password Changed Successfully.",
   NOT_LOGGED_IN: "Please Login Again.",
   ACCOUNT_LOCKED:
-    "Your account has been locked, Please Contact to admin to recover your account.",
+    `Your account has been locked for ${process.env.ACCOUNT_RECOVERY_TIME} hour, Please Contact to admin to recover your account.`,
   REACHED_WRONG_PASSWORD_LIMIT:
-    "Your account has been locked, Please Contact to admin to recover your account.",
+    `Your account has been locked for ${process.env.ACCOUNT_RECOVERY_TIME} hour, Please Contact to admin to recover your account.`,
   ACCOUNT_UNLOCKED: "Account Unlocked",
   REGULARIZE_REQUEST_NOT_FOUND: "Regularize Request Not Found.",
   REGULARIZE_REQUEST_REVOKED: "Regularization Request Revoked.",
@@ -71,6 +71,8 @@ const message = {
   DELETE_FAILURE: "<module> Not Deleted.",
   INVALID_ID: "Invalid <module> Id",
   INVALID: "Invalid <module>",
+  SEPARATION_ALREADY_SUBMITTED: "Separation Already Submitted",
+  SEPARATION_REQUEST_NOT_AVAILABLE: "Separation Request Not Available",
 };
 
 export default message;

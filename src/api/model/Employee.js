@@ -119,6 +119,12 @@ export default (sequelize, Sequelize) => {
     salutationId: {
       type: Sequelize.INTEGER,
     },
+    positionType: {
+      type: Sequelize.STRING(45),
+    },
+    newCustomerName: {
+      type: Sequelize.STRING(45),
+    },
     adhrNo: {
       type: Sequelize.STRING(255),
     },

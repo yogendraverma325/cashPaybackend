@@ -75,6 +75,7 @@ import SeparationMaster from "../api/model/SeparationMaster.js";
 import NoticePeriodMaster from "../api/model/NoticePeriodMaster.js";
 import SeparationType from "../api/model/SeparationType.js";
 import SeparationReason from "../api/model/SeparationReason.js";
+import SeparationStatus from "../api/model/SeparationStatus.js";
 import EmployeeStaging from "../api/model/EmployeeStaging.js";
 import ProbationMaster from "../api/model/ProbationMaster.js";
 
@@ -219,7 +220,7 @@ db.familyMemberHistory = FamilyMemberHistory(sequelize, Sequelize);
 db.attendanceHistory = AttendanceHistory(sequelize, Sequelize);
 db.employeeStagingMaster = EmployeeStaging(sequelize, Sequelize);
 db.probationMaster = ProbationMaster(sequelize, Sequelize);
-
+db.separationStatus = SeparationStatus(sequelize, Sequelize);
 db.holidayCompanyLocationConfiguration.hasOne(db.holidayMaster, {
   foreignKey: "holidayId",
   sourceKey: "holidayId",
@@ -624,6 +625,25 @@ db.employeeStagingMaster.hasOne(db.shiftMaster, {
 db.employeeStagingMaster.hasOne(db.companyLocationMaster, {
   foreignKey: "companyLocationId",
   sourceKey: "companyLocationId",
+});
+db.separationMaster.hasOne(db.separationStatus, {
+  foreignKey: "separationStatusAutoId",
+  sourceKey: "finalStatus",
+});
+db.separationMaster.hasOne(db.separationType, {
+  foreignKey: "separationTypeAutoId",
+  sourceKey: "l2SeparationType",
+  as: "l2Separationtype",
+});
+db.separationMaster.hasOne(db.separationReason, {
+  foreignKey: "separationReasonAutoId",
+  sourceKey: "l2ReasonOfSeparation",
+  as: "l2ReasonofSeparation",
+});
+db.separationMaster.hasOne(db.separationReason, {
+  foreignKey: "separationReasonAutoId",
+  sourceKey: "l1ReasonOfResignation",
+  as: "l1ReasonofResignation",
 });
 
 export default db;
