@@ -1011,8 +1011,13 @@ class AttendanceController {
             "isHalfDay",
             "halfDayFor",
             "reason",
+            "message",
             "leaveAutoId",
+            "appliedOn",
             "appliedFor",
+            "leaveCount",
+            "fromDate",
+            "toDate"
           ],
           where: {
             employeeId: user,
