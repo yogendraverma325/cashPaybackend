@@ -156,9 +156,6 @@ export default (sequelize, Sequelize) => {
       isTempPassword: {
         type: Sequelize.BOOLEAN,
       },
-      isDeleted: {
-        type: Sequelize.INTEGER // default 0, (1 means deleted)
-      }
     });
     return employeeStaging;
   };

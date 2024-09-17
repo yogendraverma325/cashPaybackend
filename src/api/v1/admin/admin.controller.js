@@ -131,7 +131,6 @@ class AdminController {
     }
   }
 
-
   async dashboardCard(req, res) {
     try {
       await commonController.dashboardCard(req, res);
@@ -349,7 +348,7 @@ class AdminController {
         buSearch,
         sbuSearch,
         areaSearch,
-        isDeleted
+        isActive
       } = req.query;
 
       let buFIlter = {};
@@ -363,7 +362,7 @@ class AdminController {
       const pageNo = req.query.page * 1 || 1;
       const offset = (pageNo - 1) * limit;
 
-      const deleteQuery = { 'isDeleted': parseInt(isDeleted) };
+      const activeQuery = { 'isActive': isActive };
 
       if (
         usersData.role_id != 1 &&
@@ -467,7 +466,7 @@ class AdminController {
                       : [1],
                 },
               ],
-              [Op.and]: deleteQuery
+              [Op.and]: activeQuery
             }
             : {
               [Op.and]: [
@@ -478,7 +477,7 @@ class AdminController {
                       : [1],
                 },
               ],
-             
+              [Op.and]: activeQuery
             }
         ),
         attributes: [
@@ -720,13 +719,13 @@ class AdminController {
     }
   }
 
-  async deleteOnboardEmployee(req, res) {
+  async changeStatusOnboardEmployee(req, res) {
     try {
       let id = req.params.id;
       let condition = { 'id': id };
-      let getResult = await db.employeeStagingMaster.findOne({ where: { 'id': id }, attributes: ['id', 'isDeleted'], raw: true });
+      let getResult = await db.employeeStagingMaster.findOne({ where: { 'id': id }, attributes: ['id', 'isActive'], raw: true });
       if(getResult) {
-        let result = await db.employeeStagingMaster.update({ 'isDeleted': (getResult.isDeleted == 0) ? 1 : 0 }, { where: condition });
+        let result = await db.employeeStagingMaster.update({ 'isActive': (getResult.isActive == 0) ? 1 : 0 }, { where: condition });
         return respHelper(res, { 'status': 202, msg: constant.UPDATE_SUCCESS.replace('<module>', 'On-boarding employee status') });
       }
       else {
@@ -734,7 +733,7 @@ class AdminController {
       }
     }
     catch(error) {
-      logger.error("Error while occuring after delete on-boarding employee", error);
+      logger.error("Error while occuring after activate/deactivate on-boarding employee", error);
       return respHelper(res, { 'status': 500, msg: error?.parent?.sqlMessage });
     }
   }

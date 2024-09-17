@@ -121,4 +121,4 @@ export default Express.Router()
     authorization("ADMIN", "SUPERADMIN"),
     adminController.createTMC
   )
-  .delete("/onboardEmployee/:id", authorization("ADMIN", "SUPERADMIN"), adminController.deleteOnboardEmployee)
+  .patch("/onboardEmployee/:id", authorization("ADMIN", "SUPERADMIN"), adminController.changeStatusOnboardEmployee)
