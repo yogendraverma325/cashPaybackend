@@ -30,7 +30,7 @@ class AttendanceController {
       )
     ) AS distance
     FROM companylocationmaster
-    HAVING distance <= 0.5; -- 0.5 km = 500 meters
+    HAVING distance <= ${process.env.RADIUS_LIMIT/1000}; -- 0.5 km = 500 meters
   `;
         let userLat = result.latitude;
         let userLon = result.longitude;
@@ -1018,7 +1018,9 @@ class AttendanceController {
             "appliedFor",
             "leaveCount",
             "fromDate",
-            "toDate"
+            "toDate",
+            "managerRemark",
+            "leaveAttachment",
           ],
           where: {
             employeeId: user,

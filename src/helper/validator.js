@@ -578,8 +578,7 @@ const onBehalfSeperationByManager = Joi.object({
   l1ProposedLastWorkingDay: Joi.string()
     .required()
     .label("Proposed last Working Day"),
-  l1ReasonOfResignation: Joi.string()
-    .trim()
+  l1ReasonOfResignation: Joi.number()
     .required()
     .label("Reason Of Resignation"),
   l1BillingType: Joi.string(),
