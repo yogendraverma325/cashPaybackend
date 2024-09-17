@@ -1018,7 +1018,9 @@ class AttendanceController {
             "appliedFor",
             "leaveCount",
             "fromDate",
-            "toDate"
+            "toDate",
+            "managerRemark",
+            "leaveAttachment",
           ],
           where: {
             employeeId: user,

@@ -1115,7 +1115,12 @@ class LeaveController {
         (acc, el) => acc + parseFloat(el.leaveCount),
         0
       );
-      console.log("pendingLeaveCount",totalWorkingDays,"pendingLeaveCount", pendingLeaveCount);
+      console.log(
+        "pendingLeaveCount",
+        totalWorkingDays,
+        "pendingLeaveCount",
+        pendingLeaveCount
+      );
       console.log("getCombinedVal", getCombinedVal);
       const totalWorkingDaysCalculated = Math.max(
         0,
@@ -1133,8 +1138,8 @@ class LeaveController {
       console.log("b", b);
       console.log("a", a);
 
-      if(leaveAutoId==6){
-          b=a;
+      if (leaveAutoId == 6) {
+        b = a;
       }
 
       return respHelper(res, {
@@ -1409,7 +1414,6 @@ class LeaveController {
       });
     }
   }
-  
 
   async leaveIdDeleteELForOffRole(req, res) {
     try {
@@ -1455,6 +1459,67 @@ class LeaveController {
       });
     }
   }
+
+  async leaveAssignEmployee(req, res) {
+    try {
+      // Fetch employees and their leave mappings
+      const employees = await db.employeeMaster.findAll({
+        attributes: ["id", "employeeType"],
+        where: {
+          employeeType: [3, 4],
+        },
+        include: [
+          {
+            model: db.leaveMapping,
+            attributes: ["leaveMappingId", "EmployeeId"],
+            as: "employeeLeaves",
+            required: false, // Fetch employees even if there are no leave mappings
+          },
+        ],
+      });
+
+      // Filter employees where employeeLeaves is an empty array
+      const filteredEmployees = employees.filter(
+        (employee) => employee.employeeLeaves.length === 0
+      );
+
+      for (let index = 0; index < filteredEmployees.length; index++) {
+        const element = filteredEmployees[index];
+        if (element.employeeType == 3) {
+          const objOffRole = {
+            EmployeeId: element.id,
+            leaveAutoId: 6,
+          };
+          await db.leaveMapping.create(objOffRole)
+        }
+        if (element.employeeType == 4) {
+          const objOffRole = [
+            {
+              EmployeeId: element.id,
+              leaveAutoId: 1,
+            },
+            {
+              EmployeeId: element.id,
+              leaveAutoId: 6,
+            },
+          ];
+          await db.leaveMapping.bulkCreate(objOffRole)
+        }
+      }
+
+      return respHelper(res, {
+        status: 200,
+        message: "Leave updated successfully",
+      });
+    } catch (error) {
+      console.log(error);
+      return respHelper(res, {
+        status: 500,
+        message: "Internal Server Error",
+      });
+    }
+  }
+
   //working fine
   // async leaveHistory(req, res) {
   //   try {

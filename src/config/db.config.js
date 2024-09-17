@@ -646,4 +646,10 @@ db.separationMaster.hasOne(db.separationReason, {
   as: "l1ReasonofResignation",
 });
 
+db.employeeMaster.hasMany(db.leaveMapping,{
+  foreignKey:'EmployeeId',
+  sourceKey:'id',
+  as:'employeeLeaves'
+})
+
 export default db;
