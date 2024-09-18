@@ -18,6 +18,7 @@ class UserController {
         nest: true,
         attributes: ["id", "empCode", "name", "firstName", "lastName", "email"],
         where: {
+          isActive:1,
           [Op.or]: [
             { empCode: { [Op.like]: `%${search}%` } },
             { name: { [Op.like]: `%${search}%` } },
