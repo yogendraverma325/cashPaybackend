@@ -73,6 +73,7 @@ const message = {
   INVALID: "Invalid <module>",
   SEPARATION_ALREADY_SUBMITTED: "Separation Already Submitted",
   SEPARATION_REQUEST_NOT_AVAILABLE: "Separation Request Not Available",
+  SEPARATION_REVOKED: "Separation Request Revoked"
 };
 
 export default message;

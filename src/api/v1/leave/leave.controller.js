@@ -70,9 +70,9 @@ class LeaveController {
         where: Object.assign(
           query === "raisedByMe"
             ? {
-                employeeId: req.userId,
-                status: "pending",
-              }
+              employeeId: req.userId,
+              status: "pending",
+            }
             : { pendingAt: req.userId, status: "pending" }
         ),
         attributes: { exclude: ["createdBy", "updatedBy", "updatedAt"] },
@@ -621,10 +621,10 @@ class LeaveController {
             leaveAttachment:
               result.attachment != ""
                 ? await helper.fileUpload(
-                    result.attachment,
-                    `leaveAttachment_${uuid}`,
-                    `uploads/${EMP_DATA.empCode}`
-                  )
+                  result.attachment,
+                  `leaveAttachment_${uuid}`,
+                  `uploads/${EMP_DATA.empCode}`
+                )
                 : null,
             pendingAt: EMP_DATA.managerData.id, // Replace with actual pending at value
             createdBy: req.userId, // Replace with actual creator user ID
@@ -1115,7 +1115,7 @@ class LeaveController {
         (acc, el) => acc + parseFloat(el.leaveCount),
         0
       );
-      console.log("pendingLeaveCount",totalWorkingDays,"pendingLeaveCount", pendingLeaveCount);
+      console.log("pendingLeaveCount", totalWorkingDays, "pendingLeaveCount", pendingLeaveCount);
       console.log("getCombinedVal", getCombinedVal);
       const totalWorkingDaysCalculated = Math.max(
         0,
@@ -1133,8 +1133,8 @@ class LeaveController {
       console.log("b", b);
       console.log("a", a);
 
-      if(leaveAutoId==6){
-          b=a;
+      if (leaveAutoId == 6) {
+        b = a;
       }
 
       return respHelper(res, {
@@ -1411,7 +1411,7 @@ class LeaveController {
       });
     }
   }
-  
+
   //working fine
   // async leaveHistory(req, res) {
   //   try {

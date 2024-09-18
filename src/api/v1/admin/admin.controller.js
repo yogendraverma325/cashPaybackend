@@ -724,7 +724,7 @@ class AdminController {
       let id = req.params.id;
       let condition = { 'id': id };
       let getResult = await db.employeeStagingMaster.findOne({ where: { 'id': id }, attributes: ['id', 'isActive'], raw: true });
-      if(getResult) {
+      if (getResult) {
         let result = await db.employeeStagingMaster.update({ 'isActive': (getResult.isActive == 0) ? 1 : 0 }, { where: condition });
         return respHelper(res, { 'status': 202, msg: constant.UPDATE_SUCCESS.replace('<module>', 'On-boarding employee status') });
       }
@@ -732,7 +732,7 @@ class AdminController {
         return respHelper(res, { 'status': 401, msg: constant.INVALID_ID.replace('<module>', 'On-boarding employee status') });
       }
     }
-    catch(error) {
+    catch (error) {
       logger.error("Error while occuring after activate/deactivate on-boarding employee", error);
       return respHelper(res, { 'status': 500, msg: error?.parent?.sqlMessage });
     }

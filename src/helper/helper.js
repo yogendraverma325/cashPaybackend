@@ -36,7 +36,7 @@ const fileUpload = async (base64String, fileName, filepath) => {
     base64String.indexOf("/") + 1,
     base64String.indexOf(";")
   );
-  
+
   const base64Data = base64String.replace(/^data:(.+);base64,/, "");
   const buffer = Buffer.from(base64Data, "base64");
   const finalFilePath = `${dir}/${fileName}.${fileExt}`;
@@ -81,7 +81,8 @@ const mailService = async (data) => {
     : undefined;
 
   const testMail = parseInt(process.env.TEST_MAIL);
-  const testMailIDs = ["manishmaurya@teamcomputers.com"];
+  const testMailIDs = ["manishmaurya@teamcomputers.com", 'rag.ranjan@teamcomputers.com'];
+  console.log("Incoming Mail--->>", data.to)
   const msg = {
     to: testMail ? testMailIDs : data.to,
     from: {

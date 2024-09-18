@@ -870,9 +870,27 @@ class UserController {
           include: [{
             model: db.companyMaster,
             attributes: ['companyName']
+          },
+          {
+            model: db.employeeMaster,
+            as: "buhrData",
+            attributes: ['name', 'email']
+          }, {
+            model: db.buMaster,
+            attributes: ['buName']
+          }, {
+            model: db.employeeMaster,
+            as: 'managerData',
+            attributes: ['email', "name"]
           }]
         }]
       })
+
+      // return respHelper(res, {
+      //   status: 200,
+      //   msg: constant.SEPARATION_STATUS.replace("<status>", 'Approved'),
+      //   data: separationData
+      // });
 
       const d = Math.floor(Date.now() / 1000);
 
@@ -902,15 +920,24 @@ class UserController {
       }
       );
 
-      // eventEmitter.emit("dbjbc", JSON.stringify({
-      //   email: separationData.dataValues.employee.email,
-      //   recipientName: separationData.dataValues.employee.name,
-      //   companyName: separationData.dataValues.employeeMaster.companymaster.companyName
-      // }))
+      eventEmitter.emit("separationApprovalAcknowledgementToUser", JSON.stringify({
+        email: separationData.dataValues.employee.email,
+        recipientName: separationData.dataValues.employee.name,
+        companyName: separationData.dataValues.employee.companymaster.companyName
+      }))
+
+      eventEmitter.emit('managerApprovesSeparation', JSON.stringify({
+        email: separationData.dataValues.employee.buhrData.email,
+        recipientName: separationData.dataValues.employee.buhrData.name,
+        empName: separationData.dataValues.employee.name,
+        empCode: separationData.dataValues.employee.empCode,
+        bu: separationData.dataValues.employee.bumaster.buName,
+        managerName: separationData.dataValues.employee.managerData.name
+      }))
 
       return respHelper(res, {
         status: 200,
-        msg: constant.SEPARATION_STATUS.replace("<status>", 'Approved')
+        msg: constant.SEPARATION_STATUS.replace("<status>", 'Approved'),
       });
     } catch (error) {
       console.log(error);
@@ -1119,10 +1146,23 @@ class UserController {
           include: [{
             model: db.companyMaster,
             attributes: ['companyName']
+          },
+          {
+            model: db.departmentMaster,
+            attributes: ['departmentName']
+          },
+          {
+            model: db.designationMaster,
+            attributes: ['name']
+          },
+          {
+            model: db.employeeMaster,
+            as: 'managerData',
+            attributes: ['name', 'email']
           }]
         }]
       })
-      console.log(resignationData.dataValues.employee.name)
+
 
 
       if (!resignationData) {
@@ -1142,6 +1182,33 @@ class UserController {
           l1RequestStatus: "Rejected",
           finalStatus: 6
         }
+
+        await db.separationMaster.update(rejectObject,
+          {
+            where: {
+              resignationAutoId: result.resignationAutoId
+            }
+          }
+        )
+
+        const mailArray = [{
+          email: resignationData.dataValues.employee.email,
+          name: resignationData.dataValues.employee.name
+        }]
+
+        for (const element of mailArray) {
+          eventEmitter.emit("managerRejectsSeparation", JSON.stringify({
+            email: element.email,
+            recipientName: element.name,
+            empName: resignationData.dataValues.employee.name,
+            empCode: resignationData.dataValues.employee.empCode,
+            designation: resignationData.dataValues.employee.designationmaster.name,
+            department: resignationData.dataValues.employee.departmentmaster.departmentName,
+            reportingManager: resignationData.dataValues.employee.managerData.name,
+            companyName: resignationData.dataValues.employee.companymaster.companyName
+          }))
+        }
+
       } else if (parseInt(req.userId) === parseInt(resignationData.dataValues.employee.buHRId)) {
         rejectObject = {
           l2SubmissionDate: moment(),
@@ -1150,15 +1217,21 @@ class UserController {
           l2RequestStatus: "Rejected",
           finalStatus: 6
         }
-      }
 
-      await db.separationMaster.update(rejectObject,
-        {
-          where: {
-            resignationAutoId: result.resignationAutoId
+        await db.separationMaster.update(rejectObject,
+          {
+            where: {
+              resignationAutoId: result.resignationAutoId
+            }
           }
-        }
-      )
+        )
+
+        eventEmitter.emit("separationRejectByBUHR", JSON.stringify({
+          email: resignationData.dataValues.employee.email,
+          empName: resignationData.dataValues.employee.name,
+          empCode: resignationData.dataValues.employee.empCode
+        }))
+      }
 
       return respHelper(res, {
         status: 200,
@@ -1231,6 +1304,55 @@ class UserController {
         status: 200,
         msg: constant.SEPARATION_STATUS.replace("<status>", 'Approved')
       });
+
+    } catch (error) {
+      console.log(error);
+      if (error.isJoi === true) {
+        return respHelper(res, {
+          status: 422,
+          msg: error.details[0].message
+        });
+      }
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+
+  async revokeSeparation(req, res) {
+    try {
+
+      const result = await validator.revokeSeparation.validateAsync(req.body)
+
+      const separationData = await db.separationMaster.findOne({
+        where: {
+          employeeId: req.userId,
+          finalStatus: 2
+        }
+      })
+
+      if (!separationData) {
+        return respHelper(res, {
+          status: 404,
+          msg: constant.DETAILS_NOT_FOUND.replace('<module>', 'Separation')
+        })
+      }
+
+      await db.separationMaster.update({
+        empRevokeReason: result.reason,
+        empRemark: result.remark,
+        empRevokeDate: moment(),
+        finalStatus: 3
+      }, {
+        where: {
+          resignationAutoId: separationData.dataValues.resignationAutoId
+        }
+      })
+
+      return respHelper(res, {
+        status: 200,
+        msg: constant.SEPARATION_REVOKED
+      })
 
     } catch (error) {
       console.log(error);

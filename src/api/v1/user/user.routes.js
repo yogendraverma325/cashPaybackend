@@ -48,3 +48,4 @@ export default Express
     .post("/onBehalfBUHr", authentication.authenticate, userController.onBehalfBUHr)
     .post("/rejectSeparation", authentication.authenticate, userController.rejectSeparation)
     .post("/buhrInputOnseparation", authentication.authenticate, userController.buhrInputOnSeparation)
+    .post("/revokeSeparation", authentication.authenticate, userController.revokeSeparation)

@@ -1783,6 +1783,371 @@ const separationRejectedByBUHR = async (data) => {
 </html>`
 }
 
+const managerRejectsSeparation = async (data) => {
+  return `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <table
+      style="
+        border-collapse: collapse;
+        line-height: 100% !important;
+        width: 100% !important;
+        font-family: sans-serif;
+      "
+      border="0"
+      cellpadding="0"
+      cellspacing="0"
+      align="center"
+    >
+      <tbody>
+        <tr>
+          <td style="padding-top: 20px; padding-bottom: 20px">
+            <table
+              style="
+                border-collapse: collapse;
+                max-width: 635px;
+                min-width: 550px;
+                width: auto;
+                margin: 0 auto;
+                border: 0.5px solid #eee;
+              "
+              align="center"
+            >
+              <tbody>
+                <tr>
+                  <td>
+                    <table
+                      style="
+                        border-collapse: collapse;
+                        margin: 0 auto;
+                        width: 100%;
+                      "
+                      align="center"
+                    >
+                      <tbody>
+                        <tr style="background: #fff">
+                          <td
+                            colspan="2"
+                            style="padding: 20px; padding-bottom: 0"
+                            valign="top"
+                          >
+                            <table style="width: 100%">
+                              <tbody>
+                                <tr>
+                                  <td
+                                    colspan="2"
+                                    style="
+                                      padding-bottom: 20px;
+                                      text-align: left;
+                                      border-bottom: 1px solid #eee;
+                                      width: 100%;
+                                    "
+                                    valign="middle"
+                                  >
+                                    <img
+                                      height="45"
+                                      src="${process.env.PROXY_URL}/api/uploads/assets/team-new.png"
+                                      alt="Logo"
+                                    />
+                                    <img
+                                      height="45"
+                                      src="${process.env.PROXY_URL}/api/uploads/assets/tara_small.png"
+                                      alt="Logo"
+                                      style="float: right"
+                                    />
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </td>
+                        </tr>
+                        <tr style="min-height: 300px; background: #fff">
+                          <td colspan="2" style="padding: 20px" valign="top">
+                            <p>
+                              <span style="font-family: Calibri"
+                                >Hi&nbsp;${data.recipientName}</span
+                              >
+                            </p>
+                            <p></p>
+                            <p style="text-align: justify">
+                              <span style="font-family: Calibri"
+                                >The manager has rejected the resignation.</span
+                              >
+                            </p>
+                            <p style="text-align: justify">
+                              <span
+                                style="
+                                  color: rgb(0, 0, 0);
+                                  text-align: start;
+                                  font-family: Calibri;
+                                "
+                                >Name:&nbsp;</span
+                              ><span
+                                style="
+                                  color: rgb(0, 0, 0);
+                                  text-align: start;
+                                  font-family: Calibri;
+                                "
+                                >${data.empName} (</span
+                              ><span style="font-family: Calibri"
+                                >${data.empCode})</span
+                              ><span
+                                style="
+                                  color: rgb(0, 0, 0);
+                                  text-align: start;
+                                  font-family: Calibri;
+                                "
+                                ><br /></span
+                              ><span
+                                style="
+                                  color: rgb(0, 0, 0);
+                                  text-align: start;
+                                  font-family: Calibri;
+                                "
+                                >Designation:&nbsp;</span
+                              ><span
+                                style="
+                                  color: rgb(0, 0, 0);
+                                  text-align: start;
+                                  font-family: Calibri;
+                                "
+                                >${data.designation}</span
+                              ><span
+                                style="
+                                  color: rgb(0, 0, 0);
+                                  text-align: start;
+                                  font-family: Calibri;
+                                "
+                                ><br /></span
+                              ><span
+                                style="
+                                  color: rgb(0, 0, 0);
+                                  text-align: start;
+                                  font-family: Calibri;
+                                "
+                                >Department:&nbsp;</span
+                              ><span
+                                style="
+                                  color: rgb(0, 0, 0);
+                                  text-align: start;
+                                  font-family: Calibri;
+                                "
+                                >${data.department}</span
+                              ><span
+                                style="
+                                  color: rgb(0, 0, 0);
+                                  text-align: start;
+                                  font-family: Calibri;
+                                "
+                                ><br /></span
+                              ><span
+                                style="
+                                  color: rgb(0, 0, 0);
+                                  text-align: start;
+                                  font-family: Calibri;
+                                "
+                                >Reporting Head:&nbsp;</span
+                              ><span
+                                style="
+                                  color: rgb(0, 0, 0);
+                                  text-align: start;
+                                  font-family: Calibri;
+                                "
+                                >${data.reportingManager}</span
+                              ><br />
+                            </p>
+                            <p>
+                              <span style="font-family: Calibri">Regards,</span
+                              ><br /><span style="font-family: Calibri"
+                                >HR Team,</span
+                              ><br /><span
+                                style="font-weight: 700; font-family: Calibri"
+                                >${data.companyName}</span
+                              >
+                            </p>
+                            <table
+                              style="
+                                width: 100%;
+                                font-size: 12px;
+                                font-family: Century Gothic, CenturyGothic,
+                                  AppleGothic, sans-serif;
+                              "
+                            >
+                              <tbody></tbody>
+                            </table>
+                          </td>
+                        </tr>
+                       
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </body>
+</html>
+`
+}
+
+const managerApprovesSeparation = async (data) => {
+  return `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <table
+      style="
+        border-collapse: collapse;
+        line-height: 100% !important;
+        width: 100% !important;
+        font-family: sans-serif;
+      "
+      border="0"
+      cellpadding="0"
+      cellspacing="0"
+      align="center"
+    >
+      <tbody>
+        <tr>
+          <td style="padding-top: 20px; padding-bottom: 20px">
+            <table
+              style="
+                border-collapse: collapse;
+                max-width: 635px;
+                min-width: 550px;
+                width: auto;
+                margin: 0 auto;
+                border: 0.5px solid #eee;
+              "
+              align="center"
+            >
+              <tbody>
+                <tr>
+                  <td>
+                    <table
+                      style="
+                        border-collapse: collapse;
+                        margin: 0 auto;
+                        width: 100%;
+                      "
+                      align="center"
+                    >
+                      <tbody>
+                        <tr style="background: #fff">
+                          <td
+                            colspan="2"
+                            style="padding: 20px; padding-bottom: 0"
+                            valign="top"
+                          >
+                            <table style="width: 100%">
+                              <tbody>
+                                <tr>
+                                  <td
+                                    colspan="2"
+                                    style="
+                                      padding-bottom: 20px;
+                                      text-align: left;
+                                      border-bottom: 1px solid #eee;
+                                      width: 100%;
+                                    "
+                                    valign="middle"
+                                  >
+                                    <img
+                                      height="45"
+                                      src="${process.env.PROXY_URL}/api/uploads/assets/team-new.png"
+                                      alt="Logo"
+                                    />
+                                    <img
+                                      height="45"
+                                      src="${process.env.PROXY_URL}/api/uploads/assets/tara_small.png"
+                                      alt="Logo"
+                                      style="float: right"
+                                    />
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </td>
+                        </tr>
+                        <tr style="min-height: 300px; background: #fff">
+                          <td colspan="2" style="padding: 20px" valign="top">
+                            <p>
+                              Hi&nbsp;<strong>${data.recipientName}</strong>,&nbsp;
+                            </p>
+                            <p style="text-align: justify">
+                              <b>${data.empName}</b
+                              ><span style="font-weight: bolder">,</span
+                              ><span style="font-weight: bolder"
+                                >${data.empCode}</span
+                              ><span style="font-weight: bolder"
+                                >,${data.bu}</span
+                              >&nbsp;has resigned from the company. The request
+                              has been approved by the reporting manager
+                              (<strong>${data.managerName}</strong>) and is
+                              pending your approval. Go to the employee's
+                              'Separation' tab in the respective
+                              employee's profile to take action,<br /><br />
+                            </p>
+                            <div style="text-align: center">
+                              or Click&nbsp;<span style="font-weight: bolder"
+                                ><a
+                                  href="${process.env.CLIENT_URL}"
+                                  style="
+                                    padding: 5px 10px;
+                                    background: #0173c5;
+                                    color: #fff;
+                                    text-decoration: none;
+                                    border-radius: 2px;
+                                    font-size: 14px;
+                                    display: inline-block;
+                                  "
+                                  >Click Here</a
+                                ></span
+                              >&nbsp;to view the page.<br />
+                            </div>
+                            <p></p>
+                            <p>
+                              Regards,<br />
+                              Team - HRM
+                            </p>
+                            <table
+                              style="
+                                width: 100%;
+                                font-size: 12px;
+                                font-family: Century Gothic, CenturyGothic,
+                                  AppleGothic, sans-serif;
+                              "
+                            >
+                              <tbody></tbody>
+                            </table>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </body>
+</html>`
+}
+
 export default {
   regularizationRequestMail,
   resetPasswordMail,
@@ -1796,5 +2161,7 @@ export default {
   initiateSeparation,
   separationAcknowledgementToUser,
   separationApprovalAcknowledgementToUser,
-  separationRejectedByBUHR
+  separationRejectedByBUHR,
+  managerRejectsSeparation,
+  managerApprovesSeparation
 };

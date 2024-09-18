@@ -47,8 +47,20 @@ export default function getAllListeners(eventEmitter) {
         await separationUserAcknowledge(input)
     })
 
+    eventEmitter.on('separationApprovalAcknowledgementToUser', async (input) => {
+        await separationApprovalAcknowledgementToUser(input)
+    })
+
     eventEmitter.on('separationRejectByBUHR', async (input) => {
         await separationRejectByBUHR(input)
+    })
+
+    eventEmitter.on("managerRejectsSeparation", async (input) => {
+        await managerRejectsSeparation(input)
+    })
+
+    eventEmitter.on('managerApprovesSeparation', async (input) => {
+        await managerApprovesSeparation(input)
     })
 }
 
@@ -218,8 +230,50 @@ async function separationRejectByBUHR(input) {
         const userData = JSON.parse(input)
         await helper.mailService({
             to: userData.email,
-            subject: `BU HR rejected your resignation ${data.empName} (${data.empCode}),`,
+            subject: `BU HR rejected your resignation ${userData.empName} (${userData.empCode}),`,
             html: await emailTemplate.separationRejectedByBUHR(userData)
+        })
+    } catch (error) {
+        console.log(error)
+        logger.error(error)
+    }
+}
+
+async function separationApprovalAcknowledgementToUser(input) {
+    try {
+        const userData = JSON.parse(input)
+        await helper.mailService({
+            to: userData.email,
+            subject: `Manager accepted the resignation of Employee`,
+            html: await emailTemplate.separationApprovalAcknowledgementToUser(userData)
+        })
+    } catch (error) {
+        console.log(error)
+        logger.error(error)
+    }
+}
+
+async function managerRejectsSeparation(input) {
+    try {
+        const userData = JSON.parse(input)
+        await helper.mailService({
+            to: userData.email,
+            subject: `Rejection by Manager`,
+            html: await emailTemplate.managerRejectsSeparation(userData)
+        })
+    } catch (error) {
+        console.log(error)
+        logger.error(error)
+    }
+}
+
+async function managerApprovesSeparation(input) {
+    try {
+        const userData = JSON.parse(input)
+        await helper.mailService({
+            to: userData.email,
+            subject: `Separation approval of BU HR- ${userData.empName},${userData.empCode},${userData.bu}`,
+            html: await emailTemplate.managerApprovesSeparation(userData)
         })
     } catch (error) {
         console.log(error)
