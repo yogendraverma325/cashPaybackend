@@ -1681,6 +1681,7 @@ class AttendanceController {
             required: false,
             where: {
               attendanceDate: lastDayDate,
+              needAttendanceCron:1
             },
           },
           {
@@ -1721,8 +1722,7 @@ class AttendanceController {
           },
         ],
         where: {
-          isActive: 1,
-          needAttendanceCron:1
+          isActive: 1
         },
       });
 
@@ -2241,7 +2241,7 @@ class AttendanceController {
               {
                 attendanceShiftEndDate: moment().format("YYYY-MM-DD"),
                 attendancePresentStatus: presentStatus,
-                needAttendanceCron: 1,
+                needAttendanceCron: 0,
               },
               {
                 where: {
