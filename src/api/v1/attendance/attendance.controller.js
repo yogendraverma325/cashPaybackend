@@ -1722,6 +1722,7 @@ class AttendanceController {
         ],
         where: {
           isActive: 1,
+          needAttendanceCron:1
         },
       });
 
@@ -1889,7 +1890,8 @@ class AttendanceController {
               {
                 attendanceShiftEndDate: moment().format("YYYY-MM-DD"),
                 attendancePresentStatus: presentStatus,
-                needAttendanceCron: 1,
+                needAttendanceCron: 0,
+                weekOffId:(singleEmp.weekOffMaster) ? singleEmp.weekOffMaster.weekOffId : 0
               },
               {
                 where: {
@@ -1904,6 +1906,8 @@ class AttendanceController {
               attendancePolicyId: singleEmp.attendancePolicyId,
               attendanceShiftId: singleEmp.shiftId,
               attendancePresentStatus: presentStatus,
+              needAttendanceCron: 0,
+              weekOffId:(singleEmp.weekOffMaster) ? singleEmp.weekOffMaster.weekOffId : 0
             });
           }
         })
