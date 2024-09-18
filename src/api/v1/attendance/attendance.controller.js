@@ -1417,6 +1417,7 @@ class AttendanceController {
             },
           }
         );
+        _this.attedanceCronManual(regularizeData.attendanceAutoId, regularizeData.regularizePunchInDate)
       } else {
         await db.attendanceMaster.update(
           {
@@ -1440,7 +1441,7 @@ class AttendanceController {
       }
       eventEmitter.emit('regularizeAckMail', JSON.stringify(obj))
 
-      _this.attedanceCronManual(regularizeData.attendanceAutoId, regularizeData.regularizePunchInDate)
+  
       return respHelper(res, {
         status: 200,
         msg: message.REGULARIZATION_ACTION.replace(
