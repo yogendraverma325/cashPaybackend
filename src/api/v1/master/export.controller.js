@@ -7,9 +7,9 @@ import client from "../../../config/redisDb.config.js";
 import pkg from "xlsx";
 import bcrypt from "bcrypt";
 import moment from "moment";
-//const {readFile} = pkg
 import helper from "../../../helper/helper.js";
-//const XLSX = require('xlsx');
+import validator from "../../../helper/validator.js";
+
 
 async function getDataFromCache(key) {
   return client.lRange(key, 0, -1);
@@ -805,6 +805,346 @@ class MasterController {
         message: "Internal Server Error",
       });
     }
+  }
+
+  async onboardingEmployeeImport(req, res) {
+    const transaction = await db.sequelize.transaction(); // Start the transaction
+    try {
+      // Read Excel file
+      if (!req.file) {
+        return respHelper(res, {
+          status: 400,
+          msg: "File is required!"
+        });
+      }
+      else {
+        const workbookEmployee = pkg.readFile(req.file.path);
+        const sheetNameEmployee = workbookEmployee.SheetNames[0];
+        const Employees = pkg.utils.sheet_to_json(
+          workbookEmployee.Sheets[sheetNameEmployee]
+        );
+
+        const successData = [];
+        const failureData = [];
+
+        // process data in chunks
+        const chunkSize = 10;
+
+        for (let i = 0; i < Employees.length; i += chunkSize) {
+          const chunk = Employees.slice(i, i + chunkSize);
+          const validEmployees = [];
+          const invalidEmployees = [];
+
+          for (const employee of chunk) {
+            let obj = createObj(employee);
+
+            // validate fields
+            const { error } = await validator.importOnboardEmployeeSchema.validate(obj);
+
+            const isValidCompany = await validateCompany(obj.company);
+            const isValidEmployeeType = await validateEmployeeType(obj.employeeType);
+            const isValidProbation = await validateProbation(obj.probation);
+            const isValidManager = await validateManager(obj.manager);
+            const isValidDesignation = await validateDesignation(obj.designation);
+            const isValidFunctionalArea = await validateFunctionalArea(obj.functionalArea);
+            const isValidBU = await validateBU(obj.bu);
+            const isValidSBU = await validateSBU(obj.sbu);
+            const isValidShift = await validateShift(obj.shift);
+            const isValidDepartment = await validateDepartment(obj.department);
+            const isValidBUHR = await validateBUHR(obj.buHR);
+            const isValidBUHead = await validateBUHead(obj.buHead);
+            const isValidAttendancePolicy = await validateAttendancePolicy(obj.attendancePolicy);
+            const isValidCompanyLocation = await validateCompanyLocation(obj.companyLocation);
+            const isValidWeekOff = await validateWeekOff(obj.weekOff);
+
+            if(!error && isValidCompany.status && isValidEmployeeType.status && isValidProbation.status && isValidManager.status && isValidDesignation.status && 
+              isValidFunctionalArea.status && isValidBU.status && isValidSBU.status && isValidShift.status && isValidBUHR.status && isValidBUHead.status && 
+              isValidAttendancePolicy.status && isValidCompanyLocation.status && isValidWeekOff.status && isValidDepartment.status) {
+              validEmployees.push(obj);
+            }
+            else {
+              const errors = handleErrors(error);
+              const masterErrors = { 
+                company: isValidCompany.message,
+                employeeType: isValidEmployeeType.message,
+                probation: isValidProbation.message,
+                manager: isValidManager.message,
+                designation: isValidDesignation.message,
+                functionalArea: isValidFunctionalArea.message,
+                bu: isValidBU.message,
+                sbu: isValidSBU.message,
+                shift: isValidShift.message,
+                buHR: isValidBUHR.message,
+                buHead: isValidBUHead.message,
+                attendancePolicy: isValidAttendancePolicy.message,
+                companyLocation: isValidCompanyLocation.message,
+                weekOff: isValidWeekOff.message,
+                department: isValidDepartment.message
+              }
+              invalidEmployees.push({ ...errors, masterErrors });
+            }
+          }
+
+          // bulk create valid data
+          if (validEmployees.length > 0) {
+            // const createdEmployees = await db.employeeStagingMaster.bulkCreate(validEmployees);
+            // successData.push(...createdEmployees.map(e => e.toJSON()));
+            successData.push(validEmployees);
+          }
+          else {
+            failureData.push(...invalidEmployees);
+          }
+        }
+
+        return respHelper(res, {
+          status: 200,
+          msg: "File Uploaded Successfully",
+          data: {
+            successData,
+            failureData,
+          },
+        });
+
+      }
+    }
+    catch (error) {
+      await transaction.rollback(); // Rollback the transaction in case of an error
+      console.log(error);
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+
+
+}
+
+const createObj = (obj) => {
+  return {
+    name: obj.Name,
+    firstName: obj.First_Name,
+    middleName: obj.Middle_Name,
+    lastName: obj.Last_Name,
+    email: obj.Email,
+    personalEmail: obj.Personal_Email,
+    panNo: obj.Pan_No,
+    uanNo: obj.UAN_No,
+    pfNo: obj.PF_No,
+    officeMobileNumber: obj.Official_Mobile_Number.toString(),
+    personalMobileNumber: obj.Personal_Mobile_Number.toString(),
+    gender: obj.Gender,
+    dateOfBirth: obj.Date_of_Birth.toString(),
+    dateOfJoining: obj.Date_of_Joining.toString(),
+    maritalStatus: obj.Marital_Status,
+    maritalStatusSince: obj.Date_of_Married,
+    nationality: obj.Nationality,
+    probation: obj.Probation,
+    newCustomerName: obj.New_Customer_Name,
+    iqTestApplicable: obj.IQ_Test_Applicable,
+    positionType: obj.Position_Type,
+    company: obj.Company,
+    bu: obj.BU,
+    sbu: obj.SBU,
+    department: obj.Department,
+    functionalArea: obj.Functional_Area,
+    buHR: obj.BUHR,
+    buHead: obj.BU_Head,
+    employeeType: obj.Employee_Type,
+    manager: obj.Manager,
+    designation: obj.Designation,
+    shift: obj.Shift,
+    attendancePolicy: obj.Attendance_Policy,
+    companyLocation: obj.Company_Location,
+    weekOff: obj.Week_Off
+  }
+}
+
+const handleErrors = (error) => {
+  const errors = {
+    name: error ? error.details.find(d => d.context.key === 'name')?.message : null,
+    email: error ? error.details.find(d => d.context.key === 'email')?.message : null,
+    personalEmail: error ? error.details.find(d => d.context.key === 'personalEmail')?.message : null,
+    firstName: error ? error.details.find(d => d.context.key === 'firstName')?.message : null,
+    panNo: error ? error.details.find(d => d.context.key === 'panNo')?.message : null,
+    uanNo: error ? error.details.find(d => d.context.key === 'uanNo')?.message : null,
+    pfNo: error ? error.details.find(d => d.context.key === 'pfNo')?.message : null,
+    employeeType: error ? error.details.find(d => d.context.key === 'employeeType')?.message : null,
+    officeMobileNumber: error ? error.details.find(d => d.context.key === 'officeMobileNumber')?.message : null,
+    personalMobileNumber: error ? error.details.find(d => d.context.key === 'personalMobileNumber')?.message : null,
+    dateOfJoining: error ? error.details.find(d => d.context.key === 'dateOfJoining')?.message : null,
+    manager: error ? error.details.find(d => d.context.key === 'manager')?.message : null,
+    designation: error ? error.details.find(d => d.context.key === 'designation')?.message : null,
+    functionalArea: error ? error.details.find(d => d.context.key === 'functionalArea')?.message : null,
+    bu: error ? error.details.find(d => d.context.key === 'bu')?.message : null,
+    sbu: error ? error.details.find(d => d.context.key === 'sbu')?.message : null,
+    shift: error ? error.details.find(d => d.context.key === 'shift')?.message : null,
+    department: error ? error.details.find(d => d.context.key === 'department')?.message : null,
+    company: error ? error.details.find(d => d.context.key === 'company')?.message : null,
+    buHR: error ? error.details.find(d => d.context.key === 'buHR')?.message : null,
+    buHead: error ? error.details.find(d => d.context.key === 'buHead')?.message : null,
+    attendancePolicy: error ? error.details.find(d => d.context.key === 'attendancePolicy')?.message : null,
+    companyLocation: error ? error.details.find(d => d.context.key === 'companyLocation')?.message : null,
+    weekOff: error ? error.details.find(d => d.context.key === 'weekOff')?.message : null,
+    gender: error ? error.details.find(d => d.context.key === 'gender')?.message : null,
+    maritalStatus: error ? error.details.find(d => d.context.key === 'maritalStatus')?.message : null,
+    maritalStatusSince: error ? error.details.find(d => d.context.key === 'maritalStatusSince')?.message : null,
+    nationality: error ? error.details.find(d => d.context.key === 'nationality')?.message : null,
+    probation: error ? error.details.find(d => d.context.key === 'probation')?.message : null,
+    dateOfBirth: error ? error.details.find(d => d.context.key === 'dateOfBirth')?.message : null,
+    newCustomerName: error ? error.details.find(d => d.context.key === 'newCustomerName')?.message : null,
+    iqTestApplicable: error ? error.details.find(d => d.context.key === 'iqTestApplicable')?.message : null,
+    positionType: error ? error.details.find(d => d.context.key === 'positionType')?.message : null
+  }
+  return errors;
+}
+
+const validateCompany = async (name) => {
+  let isVerify = await db.companyMaster.findOne({ where: { 'companyName': name }, attributes: ['companyId'] });
+  if(isVerify) {
+    return { status: true, message: '', data: isVerify }
+  }
+  else {
+    return { status: false, message: 'Invalid company name', data: {} }
+  }
+}
+
+const validateEmployeeType = async (name) => {
+  let isVerify = await db.employeeTypeMaster.findOne({ where: { 'emptypename': name }, attributes: ['empTypeId'] });
+  if(isVerify) {
+    return { status: true, message: '', data: isVerify }
+  }
+  else {
+    return { status: false, message: 'Invalid employee type', data: {} }
+  }
+}
+
+const validateProbation = async (name) => {
+  let isVerify = await db.probationMaster.findOne({ where: { 'probationName': name }, attributes: ['probationId'] });
+  if(isVerify) {
+    return { status: true, message: '', data: isVerify }
+  }
+  else {
+    return { status: false, message: 'Invalid probation', data: {} }
+  }
+}
+
+const validateManager = async (empCode) => {
+  let isVerify = await db.employeeMaster.findOne({ where: { 'empCode': empCode }, attributes: ['id'] });
+  if(isVerify) {
+    return { status: true, message: '', data: isVerify }
+  }
+  else {
+    return { status: false, message: 'Invalid manager', data: {} }
+  }
+}
+
+const validateDesignation = async (name) => {
+  let isVerify = await db.designationMaster.findOne({ where: { 'name': name }, attributes: ['designationId'] });
+  if(isVerify) {
+    return { status: true, message: '', data: isVerify }
+  }
+  else {
+    return { status: false, message: 'Invalid designation', data: {} }
+  }
+}
+
+const validateFunctionalArea = async (name) => {
+  let isVerify = await db.functionalAreaMaster.findOne({ where: { 'functionalAreaName': name }, attributes: ['functionalAreaId'] });
+  if(isVerify) {
+    return { status: true, message: '', data: isVerify }
+  }
+  else {
+    return { status: false, message: 'Invalid functional area', data: {} }
+  }
+}
+
+const validateBU = async (name) => {
+  let isVerify = await db.buMaster.findOne({ where: { 'buName': name }, attributes: ['buId'] });
+  if(isVerify) {
+    return { status: true, message: '', data: isVerify }
+  }
+  else {
+    return { status: false, message: 'Invalid BU', data: {} }
+  }
+}
+
+const validateSBU = async (name) => {
+  let isVerify = await db.sbuMaster.findOne({ where: { 'sbuName': name }, attributes: ['sbuId'] });
+  if(isVerify) {
+    return { status: true, message: '', data: isVerify }
+  }
+  else {
+    return { status: false, message: 'Invalid SBU', data: {} }
+  }
+}
+
+const validateShift = async (name) => {
+  let isVerify = await db.shiftMaster.findOne({ where: { 'shiftName': name }, attributes: ['shiftId'] });
+  if(isVerify) {
+    return { status: true, message: '', data: isVerify }
+  }
+  else {
+    return { status: false, message: 'Invalid shift', data: {} }
+  }
+}
+
+const validateDepartment = async (name) => {
+  let isVerify = await db.departmentMaster.findOne({ where: { 'departmentName': name }, attributes: ['departmentId'] });
+  if(isVerify) {
+    return { status: true, message: '', data: isVerify }
+  }
+  else {
+    return { status: false, message: 'Invalid department', data: {} }
+  }
+}
+
+const validateBUHR = async (empCode) => {
+  let isVerify = await db.employeeMaster.findOne({ where: { 'empCode': empCode }, attributes: ['id'] });
+  if(isVerify) {
+    return { status: true, message: '', data: isVerify }
+  }
+  else {
+    return { status: false, message: 'Invalid BU HR', data: {} }
+  }
+}
+
+const validateBUHead = async (empCode) => {
+  let isVerify = await db.employeeMaster.findOne({ where: { 'empCode': empCode }, attributes: ['id'] });
+  if(isVerify) {
+    return { status: true, message: '', data: isVerify }
+  }
+  else {
+    return { status: false, message: 'Invalid BU Head', data: {} }
+  }
+}
+
+const validateAttendancePolicy = async (name) => {
+  let isVerify = await db.attendancePolicymaster.findOne({ where: { 'policyName': name }, attributes: ['attendancePolicyId'] });
+  if(isVerify) {
+    return { status: true, message: '', data: isVerify }
+  }
+  else {
+    return { status: false, message: 'Invalid attendance policy', data: {} }
+  }
+}
+
+const validateCompanyLocation = async (searchKey) => {
+  let isVerify = await db.companyLocationMaster.findOne({ where: { 'address1': searchKey }, attributes: ['companyLocationId'] });
+  if(isVerify) {
+    return { status: true, message: '', data: isVerify }
+  }
+  else {
+    return { status: false, message: 'Invalid company location', data: {} }
+  }
+}
+
+const validateWeekOff = async (name) => {
+  let isVerify = await db.weekOffMaster.findOne({ where: { 'weekOffName': name }, attributes: ['weekOffId'] });
+  if(isVerify) {
+    return { status: true, message: '', message: '', data: isVerify }
+  }
+  else {
+    return { status: false, message: 'Invalid week off', data: {} }
   }
 }
 

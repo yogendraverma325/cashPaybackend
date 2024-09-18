@@ -647,6 +647,7 @@ const updateAddress = Joi.object({
     .allow(null)
     .optional(),
 });
+
 const onboardEmployeeSchema = Joi.object({
   name: Joi.string().trim().required().label("Name"),
   email: Joi.string().trim().email().required().label("Email"),
@@ -756,6 +757,60 @@ const onBehalfSeperationByBUHr = Joi.object({
   submitType: Joi.number(),
 });
 
+const importOnboardEmployeeSchema = Joi.object({
+  name: Joi.string().trim().required().label("Name"),
+  email: Joi.string().trim().email().required().label("Email"),
+  personalEmail: Joi.string().trim().email().required().label("Personal Email"),
+  firstName: Joi.string().trim().required().label("First Name"),
+  middleName: Joi.string().trim().allow("").label("Middle Name"),
+  lastName: Joi.string().trim().allow("").label("Last Name"),
+
+  panNo: Joi.string().trim().length(10).required().label("PAN Number"),
+  uanNo: Joi.string().trim().length(12).allow("").label("UAN Number"),
+  pfNo: Joi.string().trim().length(22).allow("").label("PF Number"),
+  employeeType: Joi.string().required().label("Employee Type"),
+  image: Joi.string().allow(""),
+
+  officeMobileNumber: Joi.string()
+    .trim()
+    .length(10)
+    .label("Office Mobile Number"),
+  personalMobileNumber: Joi.string()
+    .trim()
+    .length(10)
+    .required()
+    .label("Office Mobile Number"),
+  dateOfJoining: Joi.string().required().label("Date Of Joining"),
+  manager: Joi.number().required().label("Manager"),
+  designation: Joi.string().required().label("Designation"),
+  functionalArea: Joi.string().required().label("Functional Area"),
+  bu: Joi.string().required().label("Business Unit"),
+
+  sbu: Joi.string().required().label("Sub Business Unit"),
+  shift: Joi.string().required().label("Shift"),
+  department: Joi.string().required().label("Department"),
+  company: Joi.string().required().label("Company"),
+  buHR: Joi.number().required().label("Business Unit HR"),
+  buHead: Joi.number().required().label("Business Unit Head"),
+  attendancePolicy: Joi.string().required().label("Attendance Policy"),
+  companyLocation: Joi.string().required().label("Company Location"),
+  weekOff: Joi.string().required().label("Week Off"),
+
+  gender: Joi.string().valid('Male','Female','Do not want to disclose','Transgender','Other').required().label("Gender"),
+  maritalStatus: Joi.string().valid('Married', 'Single', 'Divorced', 'Separated', 'Widowed', 'Others').required().label("Marital Status"),
+  maritalStatusSince: Joi.date().when('maritalStatus', {
+    is: 'Married',
+    then: Joi.required().label("Marital Status Since"),
+    otherwise: Joi.forbidden(),
+  }),
+  nationality: Joi.string().valid('Indian').required().label("Nationality"),
+  probation: Joi.string().required().label("Probation"),
+  dateOfBirth: Joi.string().required().label("Date Of Birth"),
+  newCustomerName: Joi.string().required().label("Customer Name"),
+  iqTestApplicable: Joi.string().valid('Yes', 'No').required().label("IQ Test Applicable"),
+  positionType: Joi.string().valid('New', 'Replacement').required().label("Position Type")
+});
+
 export default {
   loginSchema,
   userCreationSchema,
@@ -798,4 +853,5 @@ export default {
   onBehalfSeperationByBUHr,
   onboardEmployeeSchema,
   createTMCSchema,
+  importOnboardEmployeeSchema
 };
