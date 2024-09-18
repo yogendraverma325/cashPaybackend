@@ -687,14 +687,16 @@ const onboardEmployeeSchema = Joi.object({
   weekOffId: Joi.number().required().label("Week Off"),
 
   gender: Joi.string().required().label("Gender"),
-  maritalStatus: Joi.string().required().label("Marital Status"),
+  maritalStatus: Joi.number().required().label("Marital Status"),
   maritalStatusSince: Joi.string().allow("").label("Marital Status Since"),
   nationality: Joi.string().required().label("Nationality"),
   probationId: Joi.number().required().label("Probation"),
   dateOfBirth: Joi.string().required().label("Date Of Birth"),
   newCustomerName: Joi.string().required().label("Customer Name"),
-  iqTestApplicable: Joi.string().required().label("IQ Test Applicable"),
+  iqTestApplicable: Joi.number().required().label("IQ Test Applicable"),
   positionType: Joi.string().required().label("Position Type"),
+  profileImage: Joi.string().allow(null),
+  id: Joi.string().allow('')
 });
 
 const createTMCSchema = Joi.object({

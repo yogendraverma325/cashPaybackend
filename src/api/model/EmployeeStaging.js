@@ -66,7 +66,7 @@ export default (sequelize, Sequelize) => {
         type: Sequelize.STRING(25) // end new fields
       },
       employeeType: {
-        type: Sequelize.STRING(10),
+        type: Sequelize.INTEGER,
       },
       profileImage: {
         type: Sequelize.STRING(255),

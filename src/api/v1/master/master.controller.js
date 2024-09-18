@@ -16,6 +16,7 @@ class MasterController {
         buSearch,
         sbuSearch,
         areaSearch,
+        searchId
       } = req.query;
 
       let buFIlter = {};
@@ -119,11 +120,13 @@ class MasterController {
             }
           }
 
+          console.log(searchId)
+
           employeeData = await db.employeeMaster.findAndCountAll({
             order: [["id", "desc"]],
             limit,
             offset,
-            where: Object.assign(
+            where: (searchId) ? { 'id': searchId } : Object.assign(
               search
                 ? {
                     [Op.or]: [
@@ -423,9 +426,14 @@ class MasterController {
   async designation(req, res) {
     try {
       let search = req.query.search;
+      let searchId = req.query.searchId;
+      if (search || searchId) {
 
-      if (search) {
-        let query = { isActive: 1, name: { [Op.like]: `%${search}%` } };
+        let query = { isActive: 1, 'designationId': searchId };
+        if(search) {
+          query = { isActive: 1, name: { [Op.like]: `%${search}%` } };
+        }
+
         const designationData = await db.designationMaster.findAll({
           where: query,
         });
