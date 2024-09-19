@@ -10,7 +10,10 @@ import eventEmitter from "../services/eventService.js";
 
 const generateJwtToken = async (data) => {
   const token = jwt.sign(data, process.env.JWT_KEY, {
-    expiresIn: (data.user.device === 'desktop') ? process.env.JWT_EXPIRY : process.env.JWT_EXPIRY_MOBILE,
+    expiresIn:
+      data.user.device === "desktop"
+        ? process.env.JWT_EXPIRY
+        : process.env.JWT_EXPIRY_MOBILE,
   });
   return token;
 };
@@ -81,8 +84,8 @@ const mailService = async (data) => {
     : undefined;
 
   const testMail = parseInt(process.env.TEST_MAIL);
-  const testMailIDs = process.env.TEST_MAIL_ID.split(',');
-  console.log("Incoming Mail--->>", data.to)
+  const testMailIDs = process.env.TEST_MAIL_ID.split(",");
+  console.log("Incoming Mail--->>", data.to);
   const msg = {
     to: testMail ? testMailIDs : data.to,
     from: {
@@ -240,7 +243,7 @@ const getEmpProfile = async (EMP_ID) => {
       },
       {
         model: db.noticePeriodMaster,
-        attributes: ['nPDaysAfterConfirmation']
+        attributes: ["nPDaysAfterConfirmation"],
       },
       {
         model: db.buMaster,
@@ -250,7 +253,7 @@ const getEmpProfile = async (EMP_ID) => {
       {
         model: db.sbuMaster,
         seperate: true,
-        attributes: ["sbuname", "code"]
+        attributes: ["sbuname", "code"],
       },
       {
         model: db.departmentMaster,
@@ -370,7 +373,10 @@ const empLeaveDetails = async function (userId, type) {
         ],
       ],
       where: {
-        EmployeeId: userId, status: "approved", leaveAutoId: 6, source: {
+        EmployeeId: userId,
+        status: "approved",
+        leaveAutoId: 6,
+        source: {
           [Op.ne]: "system_generated",
         },
       },
@@ -459,14 +465,16 @@ const empLeaveDetails = async function (userId, type) {
           ],
         ],
         where: {
-          EmployeeId: userId, status: "approved", leaveAutoId: 6,
+          EmployeeId: userId,
+          status: "approved",
+          leaveAutoId: 6,
           source: {
             [Op.ne]: "system_generated",
           },
         },
         raw: true,
       });
-      console.log("countApproved", countApproved)
+      console.log("countApproved", countApproved);
 
       let countPending = await db.employeeLeaveTransactions.findAll({
         attributes: [
@@ -542,7 +550,6 @@ const empMarkLeaveOfGivenDate = async function (userId, inputData, batch) {
     } else {
       inputData.leaveAutoId = 6;
     }
-
   } else {
     inputData.leaveAutoId = 6;
   }
@@ -550,8 +557,9 @@ const empMarkLeaveOfGivenDate = async function (userId, inputData, batch) {
   await db.employeeLeaveTransactions.create(inputData); // Push data to leave transaction table for that employee
 
   //start code :leave deducation code if auto approve only
-  if (inputData.status == 'approved') {
-    if (inputData.leaveAutoId == 6) { //IF leave type if LWP
+  if (inputData.status == "approved") {
+    if (inputData.leaveAutoId == 6) {
+      //IF leave type if LWP
       const lwpLeave = await db.leaveMapping.findOne({
         where: {
           EmployeeId: userId,
@@ -580,14 +588,14 @@ const empMarkLeaveOfGivenDate = async function (userId, inputData, batch) {
           accruedThisYear: 0,
         });
       }
-
-    } else { // Else leave is other than LWP
+    } else {
+      // Else leave is other than LWP
       await db.leaveMapping.increment(
         { utilizedThisYear: parseFloat(inputData.leaveCount) },
         {
           where: {
             EmployeeId: userId,
-            leaveAutoId: inputData.leaveAutoId
+            leaveAutoId: inputData.leaveAutoId,
           },
         }
       );
@@ -596,47 +604,50 @@ const empMarkLeaveOfGivenDate = async function (userId, inputData, batch) {
         {
           where: {
             EmployeeId: userId,
-            leaveAutoId: inputData.leaveAutoId
+            leaveAutoId: inputData.leaveAutoId,
           },
         }
       );
     }
-
   }
-  //end code :leave deducation code if auto approve only 
+  //end code :leave deducation code if auto approve only
 
   const leaveDeductionData = await db.employeeMaster.findOne({
     raw: true,
     where: {
-      id: inputData.employeeId
+      id: inputData.employeeId,
     },
-    attributes: ['name', 'email'],
-    include: [{
-      model: db.shiftMaster,
-      attributes: ['shiftStartTime', 'shiftEndTime']
-    }]
-  })
+    attributes: ["name", "email"],
+    include: [
+      {
+        model: db.shiftMaster,
+        attributes: ["shiftStartTime", "shiftEndTime"],
+      },
+    ],
+  });
 
   const leaveData = await db.leaveMaster.findOne({
     raw: true,
     where: {
-      leaveId: inputData.leaveAutoId
+      leaveId: inputData.leaveAutoId,
     },
-    attributes: ['leaveName']
-  })
+    attributes: ["leaveName"],
+  });
 
-  eventEmitter.emit("autoLeaveDeductionMail", JSON.stringify({
-    email: leaveDeductionData.email,
-    name: leaveDeductionData.name,
-    date: inputData.appliedFor,
-    shiftStartTime: leaveDeductionData['shiftsmaster.shiftStartTime'],
-    shiftEndTime: leaveDeductionData['shiftsmaster.shiftEndTime'],
-    leaveType: leaveData.leaveName,
-    leaveDuration: (inputData.leaveCount === 0.5) ? "Half Day" : "Full Day",
-    punchInTime: inputData.punchInTime,
-    punchOutTime: inputData.punchOutTime
-  }))
-
+  eventEmitter.emit(
+    "autoLeaveDeductionMail",
+    JSON.stringify({
+      email: leaveDeductionData.email,
+      name: leaveDeductionData.name,
+      date: inputData.appliedFor,
+      shiftStartTime: leaveDeductionData["shiftsmaster.shiftStartTime"],
+      shiftEndTime: leaveDeductionData["shiftsmaster.shiftEndTime"],
+      leaveType: leaveData.leaveName,
+      leaveDuration: inputData.leaveCount === 0.5 ? "Half Day" : "Full Day",
+      punchInTime: inputData.punchInTime,
+      punchOutTime: inputData.punchOutTime,
+    })
+  );
 
   return 1;
 };
@@ -841,25 +852,60 @@ const getCombineValue = async function (
     weekOffId,
     companyLocationId
   );
-  if (isDayWorkingStartDate == 1 && isDayWorkingToDate == 1 && (leaveFirstHalf == 1 || leaveFirstHalf == 2) && (leaveSecondHalf == 1 || leaveSecondHalf == 2)) {
+  if (
+    isDayWorkingStartDate == 1 &&
+    isDayWorkingToDate == 1 &&
+    (leaveFirstHalf == 1 || leaveFirstHalf == 2) &&
+    (leaveSecondHalf == 1 || leaveSecondHalf == 2)
+  ) {
     combineValue = "1.00";
   }
-  if (isDayWorkingStartDate == 1 && isDayWorkingToDate == 0 && (leaveFirstHalf == 1 || leaveFirstHalf == 2) && leaveSecondHalf == 0) {
+  if (
+    isDayWorkingStartDate == 1 &&
+    isDayWorkingToDate == 0 &&
+    (leaveFirstHalf == 1 || leaveFirstHalf == 2) &&
+    leaveSecondHalf == 0
+  ) {
     combineValue = "0.50";
   }
-  if (isDayWorkingStartDate == 0 && isDayWorkingToDate == 1 && leaveFirstHalf == 0 && (leaveSecondHalf == 1 || leaveSecondHalf == 2)) {
+  if (
+    isDayWorkingStartDate == 0 &&
+    isDayWorkingToDate == 1 &&
+    leaveFirstHalf == 0 &&
+    (leaveSecondHalf == 1 || leaveSecondHalf == 2)
+  ) {
     combineValue = "0.50";
   }
-  if (isDayWorkingStartDate == 1 && isDayWorkingToDate == 0 && (leaveFirstHalf == 1 || leaveFirstHalf == 2) && (leaveSecondHalf == 1 || leaveSecondHalf == 2)) {
+  if (
+    isDayWorkingStartDate == 1 &&
+    isDayWorkingToDate == 0 &&
+    (leaveFirstHalf == 1 || leaveFirstHalf == 2) &&
+    (leaveSecondHalf == 1 || leaveSecondHalf == 2)
+  ) {
     combineValue = "0.50";
   }
-  if (isDayWorkingStartDate == 0 && isDayWorkingToDate == 1 && (leaveFirstHalf == 1 || leaveFirstHalf == 2) && (leaveSecondHalf == 1 || leaveSecondHalf == 2)) {
+  if (
+    isDayWorkingStartDate == 0 &&
+    isDayWorkingToDate == 1 &&
+    (leaveFirstHalf == 1 || leaveFirstHalf == 2) &&
+    (leaveSecondHalf == 1 || leaveSecondHalf == 2)
+  ) {
     combineValue = "0.50";
   }
-  if (isDayWorkingStartDate == 1 && isDayWorkingToDate == 1 && (leaveFirstHalf == 1 || leaveFirstHalf == 2) && leaveSecondHalf == 0) {
+  if (
+    isDayWorkingStartDate == 1 &&
+    isDayWorkingToDate == 1 &&
+    (leaveFirstHalf == 1 || leaveFirstHalf == 2) &&
+    leaveSecondHalf == 0
+  ) {
     combineValue = "0.50";
   }
-  if (isDayWorkingStartDate == 1 && isDayWorkingToDate == 1 && leaveFirstHalf == 0 && (leaveSecondHalf == 1 || leaveSecondHalf == 2)) {
+  if (
+    isDayWorkingStartDate == 1 &&
+    isDayWorkingToDate == 1 &&
+    leaveFirstHalf == 0 &&
+    (leaveSecondHalf == 1 || leaveSecondHalf == 2)
+  ) {
     combineValue = "0.50";
   }
 
