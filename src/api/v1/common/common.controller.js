@@ -72,8 +72,8 @@ class commonController {
       await db.biographicalDetails.update(updateObj, {
         where: { userId: userId },
       });
-      if(result.salutationId){
-        await db.employeeMaster.update({salutationId:result.salutationId,middleName:result.middleName}, {
+      if (result.salutationId) {
+        await db.employeeMaster.update({ salutationId: result.salutationId, middleName: result.middleName }, {
           where: { id: userId },
         });
       }
@@ -81,7 +81,7 @@ class commonController {
       return respHelper(res, {
         status: 200,
         msg: constant.UPDATE_SUCCESS.replace(
-         "<module>", "Details"
+          "<module>", "Details"
         ),
         data: updateObj,
       });
@@ -122,7 +122,7 @@ class commonController {
           data: {},
         });
       }
-    } catch (error) {}
+    } catch (error) { }
   }
 
   async updatePaymentDetails(req, res) {
@@ -249,7 +249,7 @@ class commonController {
           dob: getFamilyDetails.dob,
           gender: getFamilyDetails.gender,
           mobileNo: getFamilyDetails.mobileNo,
-          memberAddress:getFamilyDetails.memberAddress,
+          memberAddress: getFamilyDetails.memberAddress,
           relationWithEmp: getFamilyDetails.relationWithEmp,
           createdBy: getFamilyDetails.createdBy,
           updatedBy: getFamilyDetails.updatedBy,
@@ -307,7 +307,7 @@ class commonController {
           data: {},
         });
       }
-    } catch (error) {}
+    } catch (error) { }
   }
 
   async getFamilyMember(req, res) {
@@ -315,7 +315,7 @@ class commonController {
       const userId = req.params.userId == 0 ? req.userId : req.params.userId;
       let detailsExists = await db.familyDetails.findOne({
         attributes: { exclude: ["createdAt", "updatedAt", "isActive"] },
-        where: { empFamilyDetailsId: userId},
+        where: { empFamilyDetailsId: userId },
       });
       if (detailsExists) {
         return respHelper(res, {
@@ -334,7 +334,7 @@ class commonController {
         });
       }
     } catch (error) {
-      console.log("error",error)
+      console.log("error", error)
       return respHelper(res, {
         status: 500,
       });
@@ -360,7 +360,7 @@ class commonController {
           ...{ createdBy: existPaymentDetails.createdBy },
           ...{ createdAt: existPaymentDetails.createdAt },
           ...{ updatedBy: req.userId },
-          ...{ updatedAt:moment().format("YYYY-MM-DD HH:mm:ss") },
+          ...{ updatedAt: moment().format("YYYY-MM-DD HH:mm:ss") },
           ...{ userId: userId },
           ...{ isActive: 1 },
         };
@@ -418,7 +418,7 @@ class commonController {
           userId: userId,
         },
       });
-    
+
       if (result.paymentAttachment) {
         const d = Math.floor(Date.now() / 1000);
         var paymentAttachment = await helper.fileUpload(
@@ -640,7 +640,7 @@ class commonController {
         req.body
       );
       const userId = result.userId > 0 ? result.userId : req.userId;
-      const existUser = await db.employeeMaster.findOne({ where: { id: userId}})
+      const existUser = await db.employeeMaster.findOne({ where: { id: userId } })
       if (result.educationAttachments) {
         const d = Math.floor(Date.now() / 1000);
         var educationAttachments = await helper.fileUpload(
@@ -681,7 +681,7 @@ class commonController {
         });
         await db.educationDetails.update(
           Object.assign(result, {
-            userId:userId,
+            userId: userId,
             ...(educationAttachments !== "" && { educationAttachments }),
             updatedBy: req.userId,
             updatedAt: moment(),
@@ -715,11 +715,11 @@ class commonController {
         req.body
       );
       const userId = result.userId > 0 ? result.userId : req.userId;
-      const existUser = await db.employeeMaster.findOne({ where: { id: userId}})
+      const existUser = await db.employeeMaster.findOne({ where: { id: userId } })
       let educationAttachments = null
       if (result.educationAttachments) {
         const d = Math.floor(Date.now() / 1000);
-         educationAttachments = await helper.fileUpload(
+        educationAttachments = await helper.fileUpload(
           result.educationAttachments,
           `educationDocument${d}`,
           `uploads/${existUser.empCode}`
@@ -733,7 +733,7 @@ class commonController {
             isActive: 1,
           },
           {
-            ...(educationAttachments != "" && { educationAttachments:educationAttachments }),
+            ...(educationAttachments != "" && { educationAttachments: educationAttachments }),
             createdBy: req.userId,
             createdAt: moment(),
           }
@@ -784,11 +784,9 @@ class commonController {
       const pageNo = req.query.page * 1 || 1;
       const offset = (pageNo - 1) * limit;
 
-      const cacheKey = `employeeList:${req.userId}:${pageNo}:${limit}:${
-        search || ""
-      }:${department || ""}:${designation || ""}:${buSearch || ""}:${
-        sbuSearch || ""
-      }:${areaSearch || ""}`;
+      const cacheKey = `employeeList:${req.userId}:${pageNo}:${limit}:${search || ""
+        }:${department || ""}:${designation || ""}:${buSearch || ""}:${sbuSearch || ""
+        }:${areaSearch || ""}`;
 
       let employeeData = [];
       await client.get(cacheKey).then(async (data) => {
@@ -821,44 +819,44 @@ class commonController {
             where: Object.assign(
               search
                 ? {
-                    [Op.or]: [
-                      {
-                        empCode: {
-                          [Op.like]: `%${search}%`,
-                        },
+                  [Op.or]: [
+                    {
+                      empCode: {
+                        [Op.like]: `%${search}%`,
                       },
-                      {
-                        name: {
-                          [Op.like]: `%${search}%`,
-                        },
+                    },
+                    {
+                      name: {
+                        [Op.like]: `%${search}%`,
                       },
-                      {
-                        email: {
-                          [Op.like]: `%${search}%`,
-                        },
+                    },
+                    {
+                      email: {
+                        [Op.like]: `%${search}%`,
                       },
-                    ],
-                    [Op.and]: [
-                      {
-                        isActive:
-                          usersData.role_id == 1 || usersData.role_id == 2
-                            ? [1, 0]
-                            : [1],
-                        ...empFilters,
-                      },
-                    ],
-                  }
+                    },
+                  ],
+                  [Op.and]: [
+                    {
+                      isActive:
+                        usersData.role_id == 1 || usersData.role_id == 2
+                          ? [1, 0]
+                          : [1],
+                      ...empFilters,
+                    },
+                  ],
+                }
                 : {
-                    [Op.and]: [
-                      {
-                        isActive:
-                          usersData.role_id == 1 || usersData.role_id == 2
-                            ? [1, 0]
-                            : [1],
-                        ...empFilters,
-                      },
-                    ],
-                  }
+                  [Op.and]: [
+                    {
+                      isActive:
+                        usersData.role_id == 1 || usersData.role_id == 2
+                          ? [1, 0]
+                          : [1],
+                      ...empFilters,
+                    },
+                  ],
+                }
             ),
             attributes: [
               "id",
@@ -1103,10 +1101,10 @@ class commonController {
       const userId = req.body.userId > 0 ? req.body.userId : req.userId;
       const existUser = await db.employeeMaster.findOne({ where: { id: userId } });
       const d = Math.floor(Date.now() / 1000);
-  
+
       // Initialize an empty object to hold the fields to update
       let updateFields = {};
-  
+
       // Check each field in the request and upload the file if it exists
       if (req.body.adhrFront) {
         const adhrFront = await helper.fileUpload(req.body.adhrFront, `aadharFront${d}`, `uploads/${existUser.empCode}`);
@@ -1128,10 +1126,10 @@ class commonController {
         const passportImg = await helper.fileUpload(req.body.passportImg, `passport${d}`, `uploads/${existUser.empCode}`);
         updateFields.passportImg = passportImg;
       }
-  
+
       // Update the employeeMaster table only with the fields that were uploaded
       await db.employeeMaster.update(updateFields, { where: { id: userId } });
-  
+
       return respHelper(res, {
         status: 200,
         msg: constant.UPDATE_SUCCESS.replace("<module>", "Details"),
@@ -1151,12 +1149,12 @@ class commonController {
 
       const userId = req.body.userId > 0 ? req.body.userId : req.userId;
       await db.employeeMaster.update(req.body, { where: { id: userId } });
-  
+
       return respHelper(res, {
         status: 200,
         msg: constant.UPDATE_SUCCESS.replace(
           "<module>",
-           "Details"
+          "Details"
         ),
       });
     } catch (error) {
@@ -1176,9 +1174,9 @@ class commonController {
     try {
       const result = await validator.addemployeeWorkInfo.validateAsync(req.body);
       const userId = result.userId == 0 ? req.userId : result.userId;
-      
+
       const existUser = await db.employeeMaster.findOne({ where: { id: userId } });
-  
+
       let experienceletter = null
       if (result.experienceletter && result.experienceletter.trim() !== "") {
         const d = Math.floor(Date.now() / 1000);
@@ -1188,14 +1186,14 @@ class commonController {
           `uploads/${existUser.empCode}`
         );
       }
-  
+
       let obj = {
         ...result,
         userId: userId,
         createdBy: req.userId,
-        createdAt:moment().format("YYYY-MM-DD HH:mm:ss"),
+        createdAt: moment().format("YYYY-MM-DD HH:mm:ss"),
         isActive: 1,
-        ...(experienceletter !== "" && { experienceletter:experienceletter })
+        ...(experienceletter !== "" && { experienceletter: experienceletter })
       };
       await db.employeeWorkExperience.create(obj);
 
@@ -1216,8 +1214,8 @@ class commonController {
       });
     }
   }
-  
-  async updateWorkExperience(req,res){
+
+  async updateWorkExperience(req, res) {
     try {
       const result = await validator.updateemployeeWorkInfo.validateAsync(req.body);
       const userId = result.userId == 0 ? req.userId : result.userId;
@@ -1233,19 +1231,20 @@ class commonController {
       }
       await db.employeeWorkExperience.update({
         ...result,
-        updatedBy:req.userId,
-        updatedAt:moment().format("YYYY-MM-DD HH:mm:ss"),
-        ...{userId:userId},
-        ...(experienceletter !== "" && { experienceletter:experienceletter })
-      }, 
-        { where: { workExperienceId: result.workExperienceId } 
-      });
-  
+        updatedBy: req.userId,
+        updatedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
+        ...{ userId: userId },
+        ...(experienceletter !== "" && { experienceletter: experienceletter })
+      },
+        {
+          where: { workExperienceId: result.workExperienceId }
+        });
+
       return respHelper(res, {
         status: 200,
         msg: constant.UPDATE_SUCCESS.replace(
           "<module>",
-           "Details"
+          "Details"
         ),
       });
     } catch (error) {
@@ -1261,17 +1260,17 @@ class commonController {
     });
     }
   }
-  
+
   async uploadHrDocuments(req, res) {
     try {
-      
+
       // const userId = req.body.userId > 0 ? req.body.userId : req.userId;
       // const existUser = await db.employeeMaster.findOne({ where: { id: userId } });
       // const d = Math.floor(Date.now() / 1000);
-  
+
       // // Initialize an empty object to hold the fields to update
       // let updateFields = {};
-  
+
       // // Check each field in the request and upload the file if it exists
       // if (req.body.meritPlanningLetters) {
       //   const meritPlanningLetters = await helper.fileUpload(req.body.meritPlanningLetters, `meritPlanningLetters${d}`, `uploads/${existUser.empCode}`);
@@ -1320,7 +1319,7 @@ class commonController {
       //     status: 200,
       //   });
       // }
-     
+
     } catch (error) {
       console.log("error", error);
       return respHelper(res, {
@@ -1330,19 +1329,19 @@ class commonController {
     }
   }
 
-  async addCertificates(req,res){
-   try {
-    const result = await validator.addEmployeeCertificates.validateAsync(req.body);
-    const userId = result.userId == 0 ? req.userId : result.userId;
+  async addCertificates(req, res) {
+    try {
+      const result = await validator.addEmployeeCertificates.validateAsync(req.body);
+      const userId = result.userId == 0 ? req.userId : result.userId;
 
-    let obj = {
-      ...result,
-      userId: userId,
-      createdBy: req.userId,
-      createdAt:moment().format("YYYY-MM-DD HH:mm:ss"),
-      isActive: 1,
-    };
-    await db.employeeCertificates.create(obj);
+      let obj = {
+        ...result,
+        userId: userId,
+        createdBy: req.userId,
+        createdAt: moment().format("YYYY-MM-DD HH:mm:ss"),
+        isActive: 1,
+      };
+      await db.employeeCertificates.create(obj);
 
     return respHelper(res, {
       status: 200,
@@ -1361,25 +1360,26 @@ class commonController {
     });
    }
   }
-  
-  async updateCertificates(req,res){
+
+  async updateCertificates(req, res) {
     try {
       const result = await validator.updateEmployeeCertificates.validateAsync(req.body);
       const userId = result.userId == 0 ? req.userId : result.userId;
 
       await db.employeeCertificates.update({
         ...result,
-        updatedBy:req.userId,
-        updatedAt:moment().format("YYYY-MM-DD HH:mm:ss"),
-        ...{userId:userId}
-      }, 
-        { where: { certificateId: result.certificateId } 
-      });
-  
+        updatedBy: req.userId,
+        updatedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
+        ...{ userId: userId }
+      },
+        {
+          where: { certificateId: result.certificateId }
+        });
+
       return respHelper(res, {
         status: 200,
         msg: constant.UPDATE_SUCCESS.replace(
-         "<module>", "Details"
+          "<module>", "Details"
         ),
       });
     } catch (error) {
@@ -1397,26 +1397,27 @@ class commonController {
     }
   }
 
-  async updateContactInfo(req,res){
+  async updateContactInfo(req, res) {
     try {
       const result = await validator.updateContactInfo.validateAsync(req.body);
       const userId = result.userId == 0 ? req.userId : result.userId;
       await db.employeeMaster.update({
         ...result,
-        updatedBy:userId,
-        updatedAt:moment().format("YYYY-MM-DD HH:mm:ss"),
-      }, 
-        { where: { id: userId } 
-      });
-  
+        updatedBy: userId,
+        updatedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
+      },
+        {
+          where: { id: userId }
+        });
+
       return respHelper(res, {
         status: 200,
         msg: constant.UPDATE_SUCCESS.replace(
           "<module>",
-           "Details"
+          "Details"
         ),
       });
-  
+
     } catch (error) {
       console.log(error);
       logger.error(error);

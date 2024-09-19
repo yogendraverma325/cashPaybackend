@@ -757,6 +757,11 @@ const onBehalfSeperationByBUHr = Joi.object({
   submitType: Joi.number(),
 });
 
+const revokeSeparation = Joi.object({
+  reason: Joi.number().required().label('Reason'),
+  remark: Joi.string().trim().allow("").label("Remark")
+})
+
 export default {
   loginSchema,
   userCreationSchema,
@@ -799,4 +804,5 @@ export default {
   onBehalfSeperationByBUHr,
   onboardEmployeeSchema,
   createTMCSchema,
+  revokeSeparation
 };

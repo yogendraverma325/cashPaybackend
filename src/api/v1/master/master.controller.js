@@ -30,11 +30,9 @@ class MasterController {
       const pageNo = req.query.page * 1 || 1;
       const offset = (pageNo - 1) * limit;
 
-      const cacheKey = `employeeList:${pageNo}:${limit}:${search || ""}:${
-        department || ""
-      }:${designation || ""}:${buSearch || ""}:${sbuSearch || ""}:${
-        areaSearch || ""
-      }`;
+      const cacheKey = `employeeList:${pageNo}:${limit}:${search || ""}:${department || ""
+        }:${designation || ""}:${buSearch || ""}:${sbuSearch || ""}:${areaSearch || ""
+        }`;
 
       let employeeData = [];
       await client.get(cacheKey).then(async (data) => {
@@ -129,42 +127,42 @@ class MasterController {
             where: (searchId) ? { 'id': searchId } : Object.assign(
               search
                 ? {
-                    [Op.or]: [
-                      {
-                        empCode: {
-                          [Op.like]: `%${search}%`,
-                        },
+                  [Op.or]: [
+                    {
+                      empCode: {
+                        [Op.like]: `%${search}%`,
                       },
-                      {
-                        name: {
-                          [Op.like]: `%${search}%`,
-                        },
+                    },
+                    {
+                      name: {
+                        [Op.like]: `%${search}%`,
                       },
-                      {
-                        email: {
-                          [Op.like]: `%${search}%`,
-                        },
+                    },
+                    {
+                      email: {
+                        [Op.like]: `%${search}%`,
                       },
-                    ],
-                    [Op.and]: [
-                      {
-                        isActive:
-                          usersData.role_id == 1 || usersData.role_id == 2
-                            ? [1, 0]
-                            : [1],
-                      },
-                    ],
-                  }
+                    },
+                  ],
+                  [Op.and]: [
+                    {
+                      isActive:
+                        usersData.role_id == 1 || usersData.role_id == 2
+                          ? [1, 0]
+                          : [1],
+                    },
+                  ],
+                }
                 : {
-                    [Op.and]: [
-                      {
-                        isActive:
-                          usersData.role_id == 1 || usersData.role_id == 2
-                            ? [1, 0]
-                            : [1],
-                      },
-                    ],
-                  }
+                  [Op.and]: [
+                    {
+                      isActive:
+                        usersData.role_id == 1 || usersData.role_id == 2
+                          ? [1, 0]
+                          : [1],
+                    },
+                  ],
+                }
             ),
             attributes: [
               "id",
@@ -270,13 +268,13 @@ class MasterController {
         where: Object.assign(
           manager
             ? {
-                id: manager,
-                isActive: 1,
-              }
+              id: manager,
+              isActive: 1,
+            }
             : {
-                manager: null,
-                isActive: 1,
-              }
+              manager: null,
+              isActive: 1,
+            }
         ),
         attributes: { exclude: ["password", "role_id", "designation_id"] },
         include: [
@@ -550,23 +548,23 @@ class MasterController {
         where: Object.assign(
           stateCode
             ? {
-                stateCode,
-              }
+              stateCode,
+            }
             : {},
           stateName
             ? {
-                stateName,
-              }
+              stateName,
+            }
             : {},
           countryId
             ? {
-                countryId,
-              }
+              countryId,
+            }
             : {},
           regionId
             ? {
-                regionId,
-              }
+              regionId,
+            }
             : {}
         ),
       });
@@ -596,8 +594,8 @@ class MasterController {
         where: Object.assign(
           countryId
             ? {
-                countryId,
-              }
+              countryId,
+            }
             : {}
         ),
       });
@@ -627,8 +625,8 @@ class MasterController {
         where: Object.assign(
           stateId
             ? {
-                stateId,
-              }
+              stateId,
+            }
             : {}
         ),
       });
@@ -970,27 +968,27 @@ class MasterController {
               : [["webPosition", "asc"]],
             attributes: mobile
               ? [
-                  "cardId",
-                  "cardName",
-                  "mobileUrl",
-                  "isCardWorking",
-                  "mobileLightFontColor",
-                  "mobileIcon",
-                  "mobileLightBackgroundColor",
-                  "mobilePosition",
-                  "mobileDarkFontColor",
-                  "mobileDarkBackgroundColor",
-                ]
+                "cardId",
+                "cardName",
+                "mobileUrl",
+                "isCardWorking",
+                "mobileLightFontColor",
+                "mobileIcon",
+                "mobileLightBackgroundColor",
+                "mobilePosition",
+                "mobileDarkFontColor",
+                "mobileDarkBackgroundColor",
+              ]
               : [
-                  "cardId",
-                  "cardName",
-                  "isCardWorking",
-                  "webUrl",
-                  "webFontColor",
-                  "webBackgroundColor",
-                  "webIcon",
-                  "webPosition",
-                ],
+                "cardId",
+                "cardName",
+                "isCardWorking",
+                "webUrl",
+                "webFontColor",
+                "webBackgroundColor",
+                "webIcon",
+                "webPosition",
+              ],
           });
 
           const dashboardJson = JSON.stringify(dashboardData);
