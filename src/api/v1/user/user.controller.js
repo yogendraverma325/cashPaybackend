@@ -1263,9 +1263,18 @@ class UserController {
         include: [{
           model: db.employeeMaster,
           attributes: ['empCode', 'name', 'email'],
+          include: [{
+            model: db.companyLocationMaster,
+            // attributes:['']
+          }]
         }]
       })
 
+      console.log(separationData.dataValues.employee.name)
+      // return respHelper(res, {
+      //   status: 200,
+      //   data: separationData
+      // })
       const d = Math.floor(Date.now() / 1000);
 
       await db.separationMaster.update({
@@ -1299,6 +1308,32 @@ class UserController {
           resignationAutoId: result.resignationAutoId
         }
       })
+
+      const mailArray = [{
+        email: "manishkmmaurya23@gmail.com",
+        name: "Manish Maurya"
+      }]
+
+      for (const element of mailArray) {
+        eventEmitter.emit("clearenceInitiated", JSON.stringify({
+          email: element.email,
+          recipientName: element.name,
+          empCode: separationData.dataValues.employee.empCode,
+          empName: separationData.dataValues.employee.name,
+          officeLocation: "Noida",
+          department: "IT",
+          officeMobileNumber: "85843847486",
+          sbuName: 'hbjfdbj',
+          reportingName: "Nitesh Kumar",
+          dateOfJoining: "2022-04-07",
+          dateOfResignation: '2024-09-19',
+          lastWorkingDay: "2024-12-31",
+          personalMailID: 'manishkmmaurya23@gmail.com',
+          personalMobileNumber: '7607700415'
+        }))
+      }
+
+
 
       return respHelper(res, {
         status: 200,
