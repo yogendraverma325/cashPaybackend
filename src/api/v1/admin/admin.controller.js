@@ -347,10 +347,10 @@ class AdminController {
         designation,
         buSearch,
         sbuSearch,
-        areaSearch,
-        isActive
+        areaSearch
       } = req.query;
 
+      const isActive = req.query.isActive || 1;
       let buFIlter = {};
       let sbbuFIlter = {};
       let functionAreaFIlter = {};
@@ -552,10 +552,19 @@ class AdminController {
         ],
       });
 
-      return respHelper(res, {
-        status: 200,
-        data: employeeData,
-      });
+      if (employeeData.rows.length > 0) {
+        return respHelper(res, {
+          status: 200,
+          data: employeeData,
+        });
+      }
+      else {
+        return respHelper(res, {
+          status: 404,
+          msg: constant.DATA_BLANK,
+          data: employeeData,
+        });
+      }
 
     } catch (error) {
       console.log(error);
@@ -733,7 +742,71 @@ class AdminController {
       }
     }
     catch (error) {
-      logger.error("Error while occuring after activate/deactivate on-boarding employee", error);
+      logger.error("Error while getting activate/deactivate status of on-boarding employee", error);
+      return respHelper(res, { 'status': 500, msg: error?.parent?.sqlMessage });
+    }
+  }
+
+  async updateOnboardEmployee(req, res) {
+    try {
+      let id = req.params.id;
+      let condition = { 'id': id };
+      const updateMetaData = await validator.onboardEmployeeSchema.validateAsync(req.body);
+      let result = await db.employeeStagingMaster.update(updateMetaData, { where: condition });
+
+      // update image
+      if (updateMetaData.image) {
+        const file = await helper.fileUpload(
+          updateMetaData.image,
+          "profileImage",
+          `uploads/${id.toString()}`
+        );
+        await db.employeeStagingMaster.update(
+          { profileImage: file },
+          { where: { id: id } }
+        );
+      }
+
+      return respHelper(res, { 'status': 202, msg: constant.UPDATE_SUCCESS.replace('<module>', 'On-boarding employee details') });
+    }
+    catch (error) {
+      logger.error("Error while getting update employee on-boarding details", error);
+      if (error.isJoi === true) {
+        return respHelper(res, {
+          status: 422,
+          msg: error.details[0].message,
+        });
+      }
+      else {
+        return respHelper(res, {
+          'status': 500, msg: error?.parent?.sqlMessage
+        });
+      }
+    }
+  }
+
+  async getOnboardEmployeeDetails(req, res) {
+    try {
+      let id = req.params.id;
+      let condition = { 'id': id };
+      let attributes = ['name', 'firstName', 'middleName', 'lastName', 'email', 'personalEmail', 'officeMobileNumber', 'personalMobileNumber',
+        'panNo', 'uanNo', 'pfNo', 'employeeType', 'profileImage', 'dateOfJoining', 'manager', 'designation_id', 'functionalAreaId', 'buId', 'sbuId',
+        'shiftId', 'departmentId', 'companyId', 'buHRId', 'buHeadId', 'attendancePolicyId', 'companyLocationId', 'weekOffId', 'gender', 'maritalStatus',
+        'maritalStatusSince', 'nationality', 'probationId', 'dateOfBirth', 'newCustomerName', 'iqTestApplicable', 'positionType'];
+
+      let result = await db.employeeStagingMaster.findOne({ where: condition, attributes: attributes, raw: true });
+      if (result) {
+        let buMappingDetails = await db.buMapping.findOne({ where: { 'buId': result.buId }, attributes: ['buMappingId'], raw: true });
+        let departmentMappingDetails = await db.departmentMapping.findOne({ where: { 'departmentId': result.departmentId }, attributes: ['departmentMappingId'], raw: true });
+
+        return respHelper(res, { 'status': 200, 'msg': constant.DATA_FETCHED, 'data': { ...result, ...buMappingDetails, ...departmentMappingDetails } });
+      }
+      else {
+        return respHelper(res, { 'status': 400, 'msg': constant.DATA_BLANK, 'data': {} });
+      }
+    }
+    catch (error) {
+      logger.error("Error while getting on-boarding employee details", error);
       return respHelper(res, { 'status': 500, msg: error?.parent?.sqlMessage });
     }
   }

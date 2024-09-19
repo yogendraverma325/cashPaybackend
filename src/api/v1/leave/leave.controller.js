@@ -1115,7 +1115,12 @@ class LeaveController {
         (acc, el) => acc + parseFloat(el.leaveCount),
         0
       );
-      console.log("pendingLeaveCount", totalWorkingDays, "pendingLeaveCount", pendingLeaveCount);
+      console.log(
+        "pendingLeaveCount",
+        totalWorkingDays,
+        "pendingLeaveCount",
+        pendingLeaveCount
+      );
       console.log("getCombinedVal", getCombinedVal);
       const totalWorkingDaysCalculated = Math.max(
         0,
@@ -1382,8 +1387,51 @@ class LeaveController {
       const employeeIds = employees.map((emp) => emp.id);
       if (employeeIds.length > 0) {
         // Step 3: Update the leaveMapping table for those employees
+        await db.leaveMapping.destroy({
+          where: {
+            leaveAutoId: 1,
+            EmployeeId: {
+              [Op.in]: employeeIds,
+            },
+          },
+        });
+
+        return respHelper(res, {
+          status: 200,
+          message: "Leave updated successfully",
+        });
+      } else {
+        return respHelper(res, {
+          status: 404,
+          message: "No employees found with employeeType = 4",
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      return respHelper(res, {
+        status: 500,
+        message: "Internal Server Error",
+      });
+    }
+  }
+
+  async leaveIdDeleteELForOffRole(req, res) {
+    try {
+      // Step 1: Fetch employee IDs with employeeType = 4
+      const employees = await db.employeeMaster.findAll({
+        attributes: ["id"],
+        where: {
+          employeeType: 3,
+        },
+
+        raw: true, // Fetch only raw data (no sequelize model wrapping)
+      });
+      // Step 2: Extract the employee IDs into an array
+      const employeeIds = employees.map((emp) => emp.id);
+      if (employeeIds.length > 0) {
+        // Step 3: Update the leaveMapping table for those employees
         await db.leaveMapping.update(
-          { leaveAutoId: 6, availableLeave: req.body.availableLeave },
+          { leaveAutoId: 1, availableLeave: req.body.availableLeave },
           {
             where: {
               EmployeeId: {
@@ -1403,6 +1451,66 @@ class LeaveController {
           message: "No employees found with employeeType = 4",
         });
       }
+    } catch (error) {
+      console.log(error);
+      return respHelper(res, {
+        status: 500,
+        message: "Internal Server Error",
+      });
+    }
+  }
+
+  async leaveAssignEmployee(req, res) {
+    try {
+      // Fetch employees and their leave mappings
+      const employees = await db.employeeMaster.findAll({
+        attributes: ["id", "employeeType"],
+        where: {
+          employeeType: [3, 4],
+        },
+        include: [
+          {
+            model: db.leaveMapping,
+            attributes: ["leaveMappingId", "EmployeeId"],
+            as: "employeeLeaves",
+            required: false, // Fetch employees even if there are no leave mappings
+          },
+        ],
+      });
+
+      // Filter employees where employeeLeaves is an empty array
+      const filteredEmployees = employees.filter(
+        (employee) => employee.employeeLeaves.length === 0
+      );
+
+      for (let index = 0; index < filteredEmployees.length; index++) {
+        const element = filteredEmployees[index];
+        if (element.employeeType == 3) {
+          const objOffRole = {
+            EmployeeId: element.id,
+            leaveAutoId: 6,
+          };
+          await db.leaveMapping.create(objOffRole)
+        }
+        if (element.employeeType == 4) {
+          const objOffRole = [
+            {
+              EmployeeId: element.id,
+              leaveAutoId: 1,
+            },
+            {
+              EmployeeId: element.id,
+              leaveAutoId: 6,
+            },
+          ];
+          await db.leaveMapping.bulkCreate(objOffRole)
+        }
+      }
+
+      return respHelper(res, {
+        status: 200,
+        message: "Leave updated successfully",
+      });
     } catch (error) {
       console.log(error);
       return respHelper(res, {

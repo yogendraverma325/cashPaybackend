@@ -18,6 +18,7 @@ class UserController {
         nest: true,
         attributes: ["id", "empCode", "name", "firstName", "lastName", "email"],
         where: {
+          isActive:1,
           [Op.or]: [
             { empCode: { [Op.like]: `%${search}%` } },
             { name: { [Op.like]: `%${search}%` } },
@@ -801,7 +802,6 @@ class UserController {
 
   async separationDetails(req, res) {
     try {
-
       const separationData = await db.separationMaster.findAll({
         where: {
           [Op.or]: [{
@@ -1020,7 +1020,8 @@ class UserController {
         l1ReasonOfResignation: result.l1ReasonOfResignation,
         l1Remark: result.l1Remark,
         l1SubmissionDate: moment(),
-        l1RequestStatus: "L1_Approved",
+        l1RequestStatus: "Approved",
+        finalStatus:5,
         submitType: result.submitType,
         createdBy: req.userId,
         createdDt: moment(),

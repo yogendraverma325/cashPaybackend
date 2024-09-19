@@ -82,6 +82,7 @@ const msg = function (res, data) {
                 statusCode: 404,
                 status: false,
                 message: data.msg || constant.NOT_FOUND,
+                data: data.data || []
             });
 
             break;
