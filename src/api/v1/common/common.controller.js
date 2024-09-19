@@ -147,6 +147,12 @@ class commonController {
       });
     } catch (error) {
       console.log(error);
+      if (error.isJoi === true) {
+        return respHelper(res, {
+          status: 422,
+          msg: error.details[0].message,
+        });
+      }
       return respHelper(res, {
         status: 500,
       });
@@ -1198,7 +1204,13 @@ class commonController {
         msg: constant.DETAILS_ADDED.replace("<module>", "Work Experience"),
       });
     } catch (error) {
-      console.log("error", error);
+      console.log(error);
+      if (error.isJoi === true) {
+        return respHelper(res, {
+          status: 422,
+          msg: error.details[0].message,
+        });
+      }
       return respHelper(res, {
         status: 500,
       });
@@ -1237,10 +1249,16 @@ class commonController {
         ),
       });
     } catch (error) {
-      console.log("error",error)
+      console.log(error);
+    if (error.isJoi === true) {
       return respHelper(res, {
-        status: 500,
+        status: 422,
+        msg: error.details[0].message,
       });
+    }
+    return respHelper(res, {
+      status: 500,
+    });
     }
   }
   
@@ -1331,10 +1349,15 @@ class commonController {
       msg: constant.DETAILS_ADDED.replace("<module>", "Certificates"),
     });
    } catch (error) {
-    console.log("error", error);
+    console.log(error);
+    if (error.isJoi === true) {
+      return respHelper(res, {
+        status: 422,
+        msg: error.details[0].message,
+      });
+    }
     return respHelper(res, {
       status: 500,
-      data: error,
     });
    }
   }
@@ -1360,10 +1383,17 @@ class commonController {
         ),
       });
     } catch (error) {
-    return respHelper(res, {
-      status: 500,
-      data: error,
-    });
+      console.log(error);
+      if (error.isJoi === true) {
+        return respHelper(res, {
+          status: 422,
+          msg: error.details[0].message,
+        });
+      }
+      return respHelper(res, {
+        status: 500,
+      });
+   
     }
   }
 

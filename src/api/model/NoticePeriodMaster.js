@@ -14,13 +14,11 @@ export default (sequelize, Sequelize) => {
             allowNull: false,
             unique: true,
         },
-        noticePeriodDuration: {
+        nPDaysAfterConfirmation:{
             type: Sequelize.INTEGER,
-            allowNull: false,
         },
-        noticePeriodType: {
-            type: Sequelize.STRING(50),
-            allowNull: false,
+        nPDaysInProbation:{
+            type: Sequelize.INTEGER,
         },
         createdDt: {
             type: Sequelize.DATEONLY,
