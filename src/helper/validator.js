@@ -94,7 +94,7 @@ const unlockAccountSchema = Joi.object({
 
 const updateBiographicalDetailsSchema = Joi.object({
   userId: Joi.number().label("User ID"),
-  maritalStatus: Joi.number().required().label("Marital Status"),
+  maritalStatus: Joi.number().allow(null).required().label("Marital Status"),
   mobileAccess: Joi.number().label("Mobile Access").optional(),
   laptopSystem: Joi.string().trim().label("System").optional(),
   nationality: Joi.string()
@@ -382,6 +382,7 @@ const forgotPasswordSchema = Joi.object({
 });
 
 const employeeUpdateInfo = Joi.object({
+  userId:Joi.number().label("User ID").optional(),
   adhrNo: Joi.string()
     .trim()
     .min(12)

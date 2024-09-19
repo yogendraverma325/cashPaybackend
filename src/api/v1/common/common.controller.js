@@ -1143,7 +1143,7 @@ class commonController {
     try {
       const result = await validator.employeeUpdateInfo.validateAsync(req.body);
 
-      const userId = req.body.employeeId > 0 ? req.body.employeeId : req.userId;
+      const userId = req.body.userId > 0 ? req.body.userId : req.userId;
       await db.employeeMaster.update(req.body, { where: { id: userId } });
   
       return respHelper(res, {
