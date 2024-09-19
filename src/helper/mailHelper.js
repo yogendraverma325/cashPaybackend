@@ -62,6 +62,14 @@ export default function getAllListeners(eventEmitter) {
     eventEmitter.on('managerApprovesSeparation', async (input) => {
         await managerApprovesSeparation(input)
     })
+
+    eventEmitter.on("clearenceInitiated", async (input) => {
+        await clearenceInitiated(input)
+    })
+
+    eventEmitter.on("separationApproveByBUHR", async (input) => {
+        await separationApproveByBUHR(input)
+    })
 }
 
 async function regularizationRequestMail(input) {
@@ -274,6 +282,34 @@ async function managerApprovesSeparation(input) {
             to: userData.email,
             subject: `Separation approval of BU HR- ${userData.empName},${userData.empCode},${userData.bu}`,
             html: await emailTemplate.managerApprovesSeparation(userData)
+        })
+    } catch (error) {
+        console.log(error)
+        logger.error(error)
+    }
+}
+
+async function clearenceInitiated(input) {
+    try {
+        const userData = JSON.parse(input)
+        await helper.mailService({
+            to: userData.email,
+            subject: `Resignation of Member ${userData.empName} (${userData.empCode}) - ${userData.bu} | Clearance initiated`,
+            html: await emailTemplate.clearanceInitiated(userData)
+        })
+    } catch (error) {
+        console.log(error)
+        logger.error(error)
+    }
+}
+
+async function separationApproveByBUHR(input) {
+    try {
+        const userData = JSON.parse(input)
+        await helper.mailService({
+            to: userData.email,
+            subject: `Resignation Acceptance ${userData.empCode}, ${userData.empName}`,
+            html: await emailTemplate.separationApproveByBUHR(userData)
         })
     } catch (error) {
         console.log(error)

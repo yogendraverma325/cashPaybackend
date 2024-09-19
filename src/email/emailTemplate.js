@@ -2246,7 +2246,7 @@ const separationApproveByBUHR = async (data) => {
                                 ><span style="font-family: Arial"
                                   >Dear&nbsp;</span
                                 ></span
-                              ><strong>Employee Full Name</strong
+                              ><strong>${data.empName}</strong
                               ><br style="font-size: 12px" /><br
                                 style="font-size: 12px"
                               /><span
@@ -2259,14 +2259,13 @@ const separationApproveByBUHR = async (data) => {
                                     font-weight: bolder;
                                     font-family: Arial;
                                   "
-                                  >Date of Resignation</span
+                                  >${moment(data.dateOfResignation).format("DD-MM-YYYY")}</span
                                 ></span
                               ><span style="font-size: 12px"
                                 ><span style="font-family: Arial"
-                                  >&nbsp;and your last working day in Team
-                                  Computers would be&nbsp;</span
+                                  >&nbsp;and your last working day in ${data.companyName} would be&nbsp;</span
                                 ></span
-                              ><b>Final Last working day</b
+                              ><b>${moment(data.lastWorkingDay).format("DD-MM-YYYY")}</b
                               ><span style="font-family: Georgia"
                                 ><span style="font-family: Arial">.</span></span
                               >

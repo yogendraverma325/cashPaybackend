@@ -715,7 +715,7 @@ class UserController {
         include: [
           {
             model: db.noticePeriodMaster,
-            attributes: ["noticePeriodDuration"],
+            attributes: ["nPDaysAfterConfirmation"],
           },
           {
             model: db.departmentMaster,
@@ -738,7 +738,7 @@ class UserController {
       });
 
       const lastWorkingDay = moment(result.resignationDate, "YYYY-MM-DD").add(
-        existUser.dataValues.noticeperiodmaster.noticePeriodDuration,
+        existUser.dataValues.noticeperiodmaster.nPDaysAfterConfirmation,
         "days"
       );
 
@@ -747,7 +747,7 @@ class UserController {
       await db.separationMaster.create({
         employeeId: existUser.dataValues.id,
         initiatedBy: "Self",
-        noticePeriodDay: existUser.dataValues.noticeperiodmaster.noticePeriodDuration,
+        noticePeriodDay: existUser.dataValues.noticeperiodmaster.nPDaysAfterConfirmation,
         noticePeriodLastWorkingDay: lastWorkingDay.format("YYYY-MM-DD"),
         resignationDate: result.resignationDate,
         empProposedLastWorkingDay: result.empProposedLastWorkingDay,
@@ -964,7 +964,7 @@ class UserController {
         include: [
           {
             model: db.noticePeriodMaster,
-            attributes: ["noticePeriodDuration"],
+            attributes: ["nPDaysAfterConfirmation"],
           },
         ],
       });
@@ -973,7 +973,7 @@ class UserController {
         where: { buId: existUser.dataValues.buId, companyId: existUser.dataValues.companyId }
       })
       const lastWorkingDay = moment(result.resignationDate, "YYYY-MM-DD").add(
-        existUser.dataValues.noticeperiodmaster.noticePeriodDuration,
+        existUser.dataValues.noticeperiodmaster.nPDaysAfterConfirmation,
         "days"
       );
 
@@ -1006,7 +1006,7 @@ class UserController {
         resignationDate: result.resignationDate,
         initiatedBy: "Other",
         noticePeriodDay:
-          existUser.dataValues.noticeperiodmaster.noticePeriodDuration,
+          existUser.dataValues.noticeperiodmaster.nPDaysAfterConfirmation,
         noticePeriodLastWorkingDay: lastWorkingDay.format("YYYY-MM-DD"),
         empProposedLastWorkingDay: result.empProposedLastWorkingDay,
         empProposedRecoveryDays: recoveryDays > 0 ? recoveryDays : 0,
@@ -1051,13 +1051,13 @@ class UserController {
         include: [
           {
             model: db.noticePeriodMaster,
-            attributes: ["noticePeriodDuration"],
+            attributes: ["nPDaysAfterConfirmation"],
           },
         ],
       });
 
       const lastWorkingDay = moment(result.resignationDate, "YYYY-MM-DD").add(
-        existUser.dataValues.noticeperiodmaster.noticePeriodDuration,
+        existUser.dataValues.noticeperiodmaster.nPDaysAfterConfirmation,
         "days"
       );
 
@@ -1090,7 +1090,7 @@ class UserController {
         resignationDate: result.resignationDate,
         initiatedBy: "Other",
         noticePeriodDay:
-          existUser.dataValues.noticeperiodmaster.noticePeriodDuration,
+          existUser.dataValues.noticeperiodmaster.nPDaysAfterConfirmation,
         noticePeriodLastWorkingDay: lastWorkingDay.format("YYYY-MM-DD"),
         // empProposedLastWorkingDay: result.empProposedLastWorkingDay,
         // empProposedRecoveryDays: recoveryDays > 0 ? recoveryDays : 0,
@@ -1259,22 +1259,34 @@ class UserController {
         where: {
           resignationAutoId: result.resignationAutoId
         },
-        attributes: ['initiatedBy'],
+        attributes: ['initiatedBy', 'resignationDate'],
         include: [{
           model: db.employeeMaster,
-          attributes: ['empCode', 'name', 'email'],
+          attributes: ['empCode', 'name', 'email', 'officeMobileNumber', 'personalEmail', 'personalMobileNumber', 'dateOfJoining'],
           include: [{
             model: db.companyLocationMaster,
-            // attributes:['']
+            attributes: ['address1']
+          }, {
+            model: db.departmentMaster,
+            attributes: ['departmentName', 'departmentCode']
+          }, {
+            model: db.employeeMaster,
+            as: 'managerData',
+            attributes: ['name']
+          }, {
+            model: db.sbuMaster,
+            attributes: ['sbuName']
+          }, {
+            model: db.buMaster,
+            attributes: ['buName']
+          }, {
+            model: db.companyMaster,
+            attributes: ['companyName']
           }]
         }]
       })
 
-      console.log(separationData.dataValues.employee.name)
-      // return respHelper(res, {
-      //   status: 200,
-      //   data: separationData
-      // })
+
       const d = Math.floor(Date.now() / 1000);
 
       await db.separationMaster.update({
@@ -1309,9 +1321,18 @@ class UserController {
         }
       })
 
+      eventEmitter.emit("separationApproveByBUHR", JSON.stringify({
+        email: separationData.dataValues.employee.email,
+        empName: separationData.dataValues.employee.name,
+        empCode: separationData.dataValues.employee.empCode,
+        dateOfResignation: separationData.dataValues.resignationDate,
+        companyName: separationData.dataValues.employee.companymaster.companyName,
+        lastWorkingDay: result.l2LastWorkingDay,
+      }))
+
       const mailArray = [{
-        email: "manishkmmaurya23@gmail.com",
-        name: "Manish Maurya"
+        email: "manishmaurya@teamcomputers.com",
+        name: "Rag Ranjan"
       }]
 
       for (const element of mailArray) {
@@ -1320,20 +1341,19 @@ class UserController {
           recipientName: element.name,
           empCode: separationData.dataValues.employee.empCode,
           empName: separationData.dataValues.employee.name,
-          officeLocation: "Noida",
-          department: "IT",
-          officeMobileNumber: "85843847486",
-          sbuName: 'hbjfdbj',
-          reportingName: "Nitesh Kumar",
-          dateOfJoining: "2022-04-07",
-          dateOfResignation: '2024-09-19',
-          lastWorkingDay: "2024-12-31",
-          personalMailID: 'manishkmmaurya23@gmail.com',
-          personalMobileNumber: '7607700415'
+          officeLocation: separationData.dataValues.employee.companylocationmaster.address1,
+          department: `${separationData.dataValues.employee.departmentmaster.departmentName} (${separationData.dataValues.employee.departmentmaster.departmentCode})`,
+          officeMobileNumber: separationData.dataValues.employee.officeMobileNumber,
+          sbuName: separationData.dataValues.employee.sbumaster.sbuName,
+          bu: separationData.dataValues.employee.bumaster.buName,
+          reportingName: separationData.dataValues.employee.managerData.name,
+          dateOfJoining: separationData.dataValues.employee.dateOfJoining,
+          dateOfResignation: separationData.dataValues.resignationDate,
+          lastWorkingDay: result.l2LastWorkingDay,
+          personalMailID: separationData.dataValues.employee.personalEmail,
+          personalMobileNumber: separationData.dataValues.employee.personalMobileNumber
         }))
       }
-
-
 
       return respHelper(res, {
         status: 200,

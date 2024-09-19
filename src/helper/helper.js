@@ -240,7 +240,7 @@ const getEmpProfile = async (EMP_ID) => {
       },
       {
         model: db.noticePeriodMaster,
-        attributes: ['noticePeriodDuration']
+        attributes: ['nPDaysAfterConfirmation']
       },
       {
         model: db.buMaster,
