@@ -1,3 +1,8 @@
+//--------------------------------2024-09-19----------------------------------------//
+ALTER TABLE tara.managerhistory 
+CHANGE COLUMN fromDate fromDate DATE NOT NULL ,
+CHANGE COLUMN toDate toDate DATE NULL DEFAULT NULL ;
+
 //-----------------------------------2024-09-16---------------------------------------------//
 ALTER TABLE `tara`.`regularization` 
 ADD COLUMN `regularizeLocationType` VARCHAR(100) NULL DEFAULT NULL AFTER `regularizePunchOutDate`;

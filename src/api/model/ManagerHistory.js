@@ -12,10 +12,10 @@ export default (sequelize, Sequelize) => {
             type: Sequelize.INTEGER
         },
         fromDate: {
-            type: Sequelize.STRING
+            type: Sequelize.DATE
         },
         toDate: {
-            type: Sequelize.STRING
+            type: Sequelize.DATE
         },
         createdAt: {
             type: Sequelize.DATE
