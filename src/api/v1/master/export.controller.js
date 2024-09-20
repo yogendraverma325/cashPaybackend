@@ -856,15 +856,64 @@ class MasterController {
             const isValidAttendancePolicy = await validateAttendancePolicy(obj.attendancePolicy);
             const isValidCompanyLocation = await validateCompanyLocation(obj.companyLocation);
             const isValidWeekOff = await validateWeekOff(obj.weekOff);
+            const isValidateEmployee = await validateEmployee(obj.personalMobileNumber, obj.email);
 
-            if(!error && isValidCompany.status && isValidEmployeeType.status && isValidProbation.status && isValidManager.status && isValidDesignation.status && 
-              isValidFunctionalArea.status && isValidBU.status && isValidSBU.status && isValidShift.status && isValidBUHR.status && isValidBUHead.status && 
-              isValidAttendancePolicy.status && isValidCompanyLocation.status && isValidWeekOff.status && isValidDepartment.status) {
-              validEmployees.push(obj);
+            if (!error && isValidCompany.status && isValidEmployeeType.status && isValidProbation.status && isValidManager.status && isValidDesignation.status &&
+              isValidFunctionalArea.status && isValidBU.status && isValidSBU.status && isValidShift.status && isValidBUHR.status && isValidBUHead.status &&
+              isValidAttendancePolicy.status && isValidCompanyLocation.status && isValidWeekOff.status && isValidDepartment.status && isValidateEmployee.status) {
+              
+              // prepare employee object
+              let newEmployee = {
+                name: obj.name,
+                firstName: obj.firstName,
+                middleName: obj.middleName,
+                lastName: obj.lastName,
+                email: obj.email,
+                personalEmail: obj.personalEmail,
+                panNo: obj.panNo,
+                uanNo: obj.uanNo,
+                pfNo: obj.pfNo,
+                officeMobileNumber: obj.officeMobileNumber,
+                personalMobileNumber: obj.personalMobileNumber,
+                gender: obj.gender,
+                dateOfBirth: obj.dateOfBirth,
+                dateOfJoining: obj.dateOfJoining,
+                maritalStatus: obj.maritalStatus,
+                maritalStatusSince: obj.maritalStatusSince,
+                nationality: obj.nationality,
+                probation: isValidProbation.data.probationId,
+                newCustomerName: obj.newCustomerName,
+                iqTestApplicable: obj.iqTestApplicable,
+                positionType: obj.positionType,
+                company: isValidCompany.data.companyId,
+                bu: isValidBU.data.buId,
+                sbu: isValidSBU.data.sbuId,
+                department: isValidDepartment.data.departmentId,
+                functionalArea: isValidFunctionalArea.data.functionalAreaId,
+                buHR: isValidBUHR.data.id,
+                buHead: isValidBUHead.data.id,
+                employeeType: isValidEmployeeType.data.empTypeId,
+                manager: isValidManager.data.id,
+                designation: isValidDesignation.data.designationId,
+                shift: isValidShift.data.shiftId,
+                attendancePolicy: isValidAttendancePolicy.data.attendancePolicyId,
+                companyLocation: isValidCompanyLocation.data.companyLocationId,
+                weekOff: isValidWeekOff.data.weekOffId
+              }
+
+              const password = await helper.generateRandomPassword();
+              const encryptedPassword = await helper.encryptPassword(password);
+              newEmployee.password = encryptedPassword;
+              newEmployee.role_id = 3;
+              newEmployee.isTempPassword = 1;
+              
+              validEmployees.push(newEmployee);
             }
             else {
               const errors = handleErrors(error);
-              const masterErrors = { 
+              const masterErrors = {
+                index: employee.Index,
+                ...errors,
                 company: isValidCompany.message,
                 employeeType: isValidEmployeeType.message,
                 probation: isValidProbation.message,
@@ -879,9 +928,10 @@ class MasterController {
                 attendancePolicy: isValidAttendancePolicy.message,
                 companyLocation: isValidCompanyLocation.message,
                 weekOff: isValidWeekOff.message,
-                department: isValidDepartment.message
+                department: isValidDepartment.message,
+                alreadyExist: isValidateEmployee.message
               }
-              invalidEmployees.push({ ...errors, masterErrors });
+              invalidEmployees.push(masterErrors);
             }
           }
 
@@ -930,13 +980,13 @@ const createObj = (obj) => {
     panNo: obj.Pan_No,
     uanNo: obj.UAN_No,
     pfNo: obj.PF_No,
-    officeMobileNumber: obj.Official_Mobile_Number.toString(),
-    personalMobileNumber: obj.Personal_Mobile_Number.toString(),
+    officeMobileNumber: obj.Official_Mobile_Number?.toString(),
+    personalMobileNumber: obj.Personal_Mobile_Number?.toString(),
     gender: obj.Gender,
-    dateOfBirth: obj.Date_of_Birth.toString(),
-    dateOfJoining: obj.Date_of_Joining.toString(),
+    dateOfBirth: convertExcelDate(obj.Date_of_Birth),
+    dateOfJoining: convertExcelDate(obj.Date_of_Joining),
     maritalStatus: obj.Marital_Status,
-    maritalStatusSince: obj.Date_of_Married,
+    maritalStatusSince: (obj.Date_of_Married != 'NA') ? convertExcelDate(obj.Date_of_Married) : '',
     nationality: obj.Nationality,
     probation: obj.Probation,
     newCustomerName: obj.New_Customer_Name,
@@ -1000,7 +1050,7 @@ const handleErrors = (error) => {
 
 const validateCompany = async (name) => {
   let isVerify = await db.companyMaster.findOne({ where: { 'companyName': name }, attributes: ['companyId'] });
-  if(isVerify) {
+  if (isVerify) {
     return { status: true, message: '', data: isVerify }
   }
   else {
@@ -1010,7 +1060,7 @@ const validateCompany = async (name) => {
 
 const validateEmployeeType = async (name) => {
   let isVerify = await db.employeeTypeMaster.findOne({ where: { 'emptypename': name }, attributes: ['empTypeId'] });
-  if(isVerify) {
+  if (isVerify) {
     return { status: true, message: '', data: isVerify }
   }
   else {
@@ -1020,7 +1070,7 @@ const validateEmployeeType = async (name) => {
 
 const validateProbation = async (name) => {
   let isVerify = await db.probationMaster.findOne({ where: { 'probationName': name }, attributes: ['probationId'] });
-  if(isVerify) {
+  if (isVerify) {
     return { status: true, message: '', data: isVerify }
   }
   else {
@@ -1030,7 +1080,7 @@ const validateProbation = async (name) => {
 
 const validateManager = async (empCode) => {
   let isVerify = await db.employeeMaster.findOne({ where: { 'empCode': empCode }, attributes: ['id'] });
-  if(isVerify) {
+  if (isVerify) {
     return { status: true, message: '', data: isVerify }
   }
   else {
@@ -1040,7 +1090,7 @@ const validateManager = async (empCode) => {
 
 const validateDesignation = async (name) => {
   let isVerify = await db.designationMaster.findOne({ where: { 'name': name }, attributes: ['designationId'] });
-  if(isVerify) {
+  if (isVerify) {
     return { status: true, message: '', data: isVerify }
   }
   else {
@@ -1050,7 +1100,7 @@ const validateDesignation = async (name) => {
 
 const validateFunctionalArea = async (name) => {
   let isVerify = await db.functionalAreaMaster.findOne({ where: { 'functionalAreaName': name }, attributes: ['functionalAreaId'] });
-  if(isVerify) {
+  if (isVerify) {
     return { status: true, message: '', data: isVerify }
   }
   else {
@@ -1060,7 +1110,7 @@ const validateFunctionalArea = async (name) => {
 
 const validateBU = async (name) => {
   let isVerify = await db.buMaster.findOne({ where: { 'buName': name }, attributes: ['buId'] });
-  if(isVerify) {
+  if (isVerify) {
     return { status: true, message: '', data: isVerify }
   }
   else {
@@ -1070,7 +1120,7 @@ const validateBU = async (name) => {
 
 const validateSBU = async (name) => {
   let isVerify = await db.sbuMaster.findOne({ where: { 'sbuName': name }, attributes: ['sbuId'] });
-  if(isVerify) {
+  if (isVerify) {
     return { status: true, message: '', data: isVerify }
   }
   else {
@@ -1080,7 +1130,7 @@ const validateSBU = async (name) => {
 
 const validateShift = async (name) => {
   let isVerify = await db.shiftMaster.findOne({ where: { 'shiftName': name }, attributes: ['shiftId'] });
-  if(isVerify) {
+  if (isVerify) {
     return { status: true, message: '', data: isVerify }
   }
   else {
@@ -1090,7 +1140,7 @@ const validateShift = async (name) => {
 
 const validateDepartment = async (name) => {
   let isVerify = await db.departmentMaster.findOne({ where: { 'departmentName': name }, attributes: ['departmentId'] });
-  if(isVerify) {
+  if (isVerify) {
     return { status: true, message: '', data: isVerify }
   }
   else {
@@ -1100,7 +1150,7 @@ const validateDepartment = async (name) => {
 
 const validateBUHR = async (empCode) => {
   let isVerify = await db.employeeMaster.findOne({ where: { 'empCode': empCode }, attributes: ['id'] });
-  if(isVerify) {
+  if (isVerify) {
     return { status: true, message: '', data: isVerify }
   }
   else {
@@ -1110,7 +1160,7 @@ const validateBUHR = async (empCode) => {
 
 const validateBUHead = async (empCode) => {
   let isVerify = await db.employeeMaster.findOne({ where: { 'empCode': empCode }, attributes: ['id'] });
-  if(isVerify) {
+  if (isVerify) {
     return { status: true, message: '', data: isVerify }
   }
   else {
@@ -1120,7 +1170,7 @@ const validateBUHead = async (empCode) => {
 
 const validateAttendancePolicy = async (name) => {
   let isVerify = await db.attendancePolicymaster.findOne({ where: { 'policyName': name }, attributes: ['attendancePolicyId'] });
-  if(isVerify) {
+  if (isVerify) {
     return { status: true, message: '', data: isVerify }
   }
   else {
@@ -1130,7 +1180,7 @@ const validateAttendancePolicy = async (name) => {
 
 const validateCompanyLocation = async (searchKey) => {
   let isVerify = await db.companyLocationMaster.findOne({ where: { 'address1': searchKey }, attributes: ['companyLocationId'] });
-  if(isVerify) {
+  if (isVerify) {
     return { status: true, message: '', data: isVerify }
   }
   else {
@@ -1140,12 +1190,36 @@ const validateCompanyLocation = async (searchKey) => {
 
 const validateWeekOff = async (name) => {
   let isVerify = await db.weekOffMaster.findOne({ where: { 'weekOffName': name }, attributes: ['weekOffId'] });
-  if(isVerify) {
+  if (isVerify) {
     return { status: true, message: '', message: '', data: isVerify }
   }
   else {
     return { status: false, message: 'Invalid week off', data: {} }
   }
+}
+
+const validateEmployee = async (personalMobileNumber, email) => {
+  let isVerify = await db.employeeStagingMaster.findOne({
+    where: {
+      [Op.or]: [
+        { 'personalMobileNumber': personalMobileNumber },
+        { 'email': email }
+      ]
+    },
+    attributes: ['id']
+  });
+  if (isVerify) {
+    return { status: false, message: 'User already exist', data: {} }
+  }
+  else {
+    return { status: true, message: '', data: {} }
+  }
+}
+
+// Function to convert Excel serial date to JS Date
+const convertExcelDate = (serial) => {
+  const date = new Date((serial - 25569) * 86400 * 1000);
+  return moment(date).format('YYYY-MM-DD');
 }
 
 export default new MasterController();

@@ -19,5 +19,5 @@ export default Express
 
     .post("/employeeMissedData", masterExportController.employeeMissedData)
 
-    .post("/onboardingEmployeeImport", upload.single('excelFile'), masterExportController.onboardingEmployeeImport)
+    .post("/onboardingEmployee", upload.single('excelFile'), masterExportController.onboardingEmployeeImport)
 

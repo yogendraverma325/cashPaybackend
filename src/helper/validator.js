@@ -762,18 +762,19 @@ const importOnboardEmployeeSchema = Joi.object({
   email: Joi.string().trim().email().required().label("Email"),
   personalEmail: Joi.string().trim().email().required().label("Personal Email"),
   firstName: Joi.string().trim().required().label("First Name"),
-  middleName: Joi.string().trim().allow("").label("Middle Name"),
-  lastName: Joi.string().trim().allow("").label("Last Name"),
+  middleName: Joi.string().trim().allow("").default('NA').label("Middle Name"),
+  lastName: Joi.string().trim().allow("").default('NA').label("Last Name"),
 
   panNo: Joi.string().trim().length(10).required().label("PAN Number"),
-  uanNo: Joi.string().trim().length(12).allow("").label("UAN Number"),
-  pfNo: Joi.string().trim().length(22).allow("").label("PF Number"),
+  uanNo: Joi.string().trim().allow("").default('NA').label("UAN Number"),
+  pfNo: Joi.string().trim().allow("").default('NA').label("PF Number"),
   employeeType: Joi.string().required().label("Employee Type"),
   image: Joi.string().allow(""),
 
   officeMobileNumber: Joi.string()
     .trim()
     .length(10)
+    .required()
     .label("Office Mobile Number"),
   personalMobileNumber: Joi.string()
     .trim()
@@ -798,11 +799,7 @@ const importOnboardEmployeeSchema = Joi.object({
 
   gender: Joi.string().valid('Male','Female','Do not want to disclose','Transgender','Other').required().label("Gender"),
   maritalStatus: Joi.string().valid('Married', 'Single', 'Divorced', 'Separated', 'Widowed', 'Others').required().label("Marital Status"),
-  maritalStatusSince: Joi.date().when('maritalStatus', {
-    is: 'Married',
-    then: Joi.required().label("Marital Status Since"),
-    otherwise: Joi.forbidden(),
-  }),
+  maritalStatusSince: Joi.string().allow('').default('NA').label("Marital Status Date"),
   nationality: Joi.string().valid('Indian').required().label("Nationality"),
   probation: Joi.string().required().label("Probation"),
   dateOfBirth: Joi.string().required().label("Date Of Birth"),
