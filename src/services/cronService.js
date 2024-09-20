@@ -13,8 +13,8 @@ cron.schedule("30 7 * * *", async () => {
   await attendanceController.attedanceCron();
 });
 
-cron.schedule('*/10 * * * *',  async () => {
-    await cronController.updateManager();
+cron.schedule('*/10 * * * *', async () => {
+  await cronController.updateManager();
 });
 
 cron.schedule("* * * * *", async () => {

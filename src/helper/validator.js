@@ -382,7 +382,7 @@ const forgotPasswordSchema = Joi.object({
 });
 
 const employeeUpdateInfo = Joi.object({
-  userId:Joi.number().label("User ID").optional(),
+  userId: Joi.number().label("User ID").optional(),
   adhrNo: Joi.string()
     .trim()
     .min(12)
@@ -507,7 +507,7 @@ const separationByEmployee = Joi.object({
   empPersonalMobileNumber: Joi.string()
     .required()
     .label("Personal Mobile Number"),
-  empRemark: Joi.string().trim().max(100).allow("").label("Remark"),
+  empRemark: Joi.number().required().label("Remark"),
   attachment: Joi.string().allow("").optional(),
 });
 
