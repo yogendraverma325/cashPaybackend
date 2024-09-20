@@ -1443,7 +1443,6 @@ class AttendanceController {
       }
       eventEmitter.emit('regularizeAckMail', JSON.stringify(obj))
 
-    
       return respHelper(res, {
         status: 200,
         msg: message.REGULARIZATION_ACTION.replace(
@@ -1681,7 +1680,7 @@ class AttendanceController {
             required: false,
             where: {
               attendanceDate: lastDayDate,
-              needAttendanceCron:1
+              needAttendanceCron: 1
             },
           },
           {
@@ -1891,7 +1890,7 @@ class AttendanceController {
                 attendanceShiftEndDate: moment().format("YYYY-MM-DD"),
                 attendancePresentStatus: presentStatus,
                 needAttendanceCron: 0,
-                weekOffId:(singleEmp.weekOffMaster) ? singleEmp.weekOffMaster.weekOffId : 0
+                weekOffId: (singleEmp.weekOffMaster) ? singleEmp.weekOffMaster.weekOffId : 0
               },
               {
                 where: {
@@ -1907,7 +1906,7 @@ class AttendanceController {
               attendanceShiftId: singleEmp.shiftId,
               attendancePresentStatus: presentStatus,
               needAttendanceCron: 0,
-              weekOffId:(singleEmp.weekOffMaster) ? singleEmp.weekOffMaster.weekOffId : 0
+              weekOffId: (singleEmp.weekOffMaster) ? singleEmp.weekOffMaster.weekOffId : 0
             });
           }
         })
