@@ -1,3 +1,5 @@
+INSERT INTO `tara`.`pincodemaster` (`pincode`, `cityId`, `areaName`, `isHead`, `createdAt`) VALUES ('110044', '568', 'NA', '0', '2024-02-29 15:55:22.833');
+
 //--------------------------------2024-09-19----------------------------------------//
 ALTER TABLE tara.managerhistory 
 CHANGE COLUMN fromDate fromDate DATE NOT NULL ,

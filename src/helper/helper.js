@@ -227,11 +227,16 @@ const getEmpProfile = async (EMP_ID) => {
   const EMP_DATA = await db.employeeMaster.findOne({
     where: {
       id: EMP_ID,
+      isActive: 1
     },
     attributes: {
       exclude: ["password", "role_id", "designation_id"],
     },
     include: [
+      {
+        model: db.salutationMaster,
+        attributes:['salutationId','salutation']
+      },
       {
         model: db.functionalAreaMaster,
         required: true,
@@ -633,6 +638,13 @@ const empMarkLeaveOfGivenDate = async function (userId, inputData, batch) {
     },
     attributes: ["leaveName"],
   });
+  let leaveReason
+  if (inputData.status == "approved") {
+    leaveReason = 'auto-approved'
+  }
+  if (inputData.status == "pending") {
+    leaveReason = 'pending at manager'
+  }
 
   eventEmitter.emit(
     "autoLeaveDeductionMail",
@@ -640,6 +652,7 @@ const empMarkLeaveOfGivenDate = async function (userId, inputData, batch) {
       email: leaveDeductionData.email,
       name: leaveDeductionData.name,
       date: inputData.appliedFor,
+      leaveReason,
       shiftStartTime: leaveDeductionData["shiftsmaster.shiftStartTime"],
       shiftEndTime: leaveDeductionData["shiftsmaster.shiftEndTime"],
       leaveType: leaveData.leaveName,
