@@ -275,6 +275,15 @@ class AdminController {
   async updateManager(req, res) {
     try {
       const result = await validator.updateManagerSchema.validateAsync(req.body)
+     
+      for (const iterator of result) {
+        if (iterator.user === iterator.manager) {
+          return respHelper(res, {
+            msg: `Employee can't be their own manager`,
+            status: 400
+          });
+        }
+      }
 
       for (const iterator of result) {
         let createHistory = {
@@ -286,35 +295,6 @@ class AdminController {
           createdAt: moment().format("YYYY-MM-DD HH:mm:ss"),
         };
         await db.managerHistory.create(createHistory);
-        // let getInfoEmp = await db.employeeMaster.findOne({
-        //   attributes: ["id", "empCode", "name", "manager", "createdAt", "updatedAt"],
-        //   where: { id: iterator.user },
-        // });
-        // if (getInfoEmp) {
-        //   let createHistory = {
-        //     employeeId: getInfoEmp.dataValues.id,
-        //     managerId: getInfoEmp.dataValues.manager ? getInfoEmp.dataValues.manager : 1,
-        //     fromDate: moment(getInfoEmp.dataValues.createdAt).format("YYYY-MM-DD"),
-        //     toDate: moment().format("YYYY-MM-DD"),
-        //     createdBy: req.userId,
-        //     updatedBy: req.userId,
-        //     createdAt: moment().format("YYYY-MM-DD HH:mm:ss"),
-        //     updatedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
-        //   };
-        //   await db.managerHistory.create(createHistory);
-        //   await db.employeeMaster.update(
-        //     {
-        //       manager: iterator.manager
-        //     },
-        //     {
-        //       where: {
-        //         id: iterator.user,
-        //       },
-        //     }
-        //   );
-        // } else {
-        //   console.log("employee not found");
-        // }
       }
 
       return respHelper(res, {
