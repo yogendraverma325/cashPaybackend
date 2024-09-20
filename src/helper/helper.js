@@ -233,6 +233,10 @@ const getEmpProfile = async (EMP_ID) => {
     },
     include: [
       {
+        model: db.salutationMaster,
+        attributes:['salutationId','salutation']
+      },
+      {
         model: db.functionalAreaMaster,
         required: true,
         attributes: [
