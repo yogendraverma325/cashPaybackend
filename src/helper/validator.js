@@ -494,8 +494,7 @@ const separationByEmployee = Joi.object({
   resignationDate: Joi.string().required().label("Resignation Date"),
   empProposedLastWorkingDay: Joi.string().label("Proposed Last Working Days"),
   empProposedRecoveryDays: Joi.number().label("Proposed Recovery Days"),
-  empReasonOfResignation: Joi.string()
-    .trim()
+  empReasonOfResignation: Joi.number()
     .required()
     .label("Reason of Resignation"),
   empNewOrganizationName: Joi.string()
@@ -507,7 +506,7 @@ const separationByEmployee = Joi.object({
   empPersonalMobileNumber: Joi.string()
     .required()
     .label("Personal Mobile Number"),
-  empRemark: Joi.number().required().label("Remark"),
+  empRemark: Joi.string().trim().max(100).allow("").label("Remark"),
   attachment: Joi.string().allow("").optional(),
 });
 
