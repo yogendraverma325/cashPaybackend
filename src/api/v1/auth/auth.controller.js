@@ -64,7 +64,7 @@ class AuthController {
             Object.assign(
               { wrongPasswordCount: existUser.dataValues.wrongPasswordCount + 1 },
               (existUser.dataValues.wrongPasswordCount === 2) ? {
-                accountRecoveryTime: moment().add(parseInt(process.env.ACCOUNT_RECOVERY_TIME), 'hours')
+                accountRecoveryTime: moment().add(parseInt(process.env.ACCOUNT_RECOVERY_TIME), 'minutes')
               } : null
             ), {
             where: {

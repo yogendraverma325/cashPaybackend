@@ -382,7 +382,7 @@ const forgotPasswordSchema = Joi.object({
 });
 
 const employeeUpdateInfo = Joi.object({
-  userId:Joi.number().label("User ID").optional(),
+  userId: Joi.number().label("User ID").optional(),
   adhrNo: Joi.string()
     .trim()
     .min(12)
@@ -494,8 +494,7 @@ const separationByEmployee = Joi.object({
   resignationDate: Joi.string().required().label("Resignation Date"),
   empProposedLastWorkingDay: Joi.string().label("Proposed Last Working Days"),
   empProposedRecoveryDays: Joi.number().label("Proposed Recovery Days"),
-  empReasonOfResignation: Joi.string()
-    .trim()
+  empReasonOfResignation: Joi.number()
     .required()
     .label("Reason of Resignation"),
   empNewOrganizationName: Joi.string()
