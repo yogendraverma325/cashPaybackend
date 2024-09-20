@@ -224,6 +224,7 @@ const getEmpProfile = async (EMP_ID) => {
   const EMP_DATA = await db.employeeMaster.findOne({
     where: {
       id: EMP_ID,
+      isActive: 1
     },
     attributes: {
       exclude: ["password", "role_id", "designation_id"],
