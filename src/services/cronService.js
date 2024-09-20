@@ -13,7 +13,8 @@ cron.schedule("0 16 * * *", async () => {
     await attendanceController.attedanceCron();
 });
 
-cron.schedule("37 21 * * *", async () => {
+cron.schedule('*/10 * * * *',  async () => {
+    console.log("cron is runing in every minutes")
     await cronController.updateManager();
 });
 
