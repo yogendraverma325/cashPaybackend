@@ -81,8 +81,7 @@ const msg = function (res, data) {
             res.status(data.status).json({
                 statusCode: 404,
                 status: false,
-                message: data.msg || constant.NOT_FOUND,
-                data: data.data || []
+                message: data.msg || constant.NOT_FOUND
             });
 
             break;
