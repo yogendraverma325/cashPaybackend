@@ -74,11 +74,11 @@ class commonController {
       await db.biographicalDetails.update(updateObj, {
         where: { userId: userId },
       });
-      
+
       if (result.salutationId) {
         await db.employeeMaster.update(
           {
-            name: result.lastName !== null ? getUserDetails.firstName + " " + result.lastName : getUserDetails.firstName,
+            name : result.lastName ? `${getUserDetails.firstName} ${result.lastName}` : getUserDetails.firstName,
             salutationId: result.salutationId,
             middleName: result.middleName,
             lastName: result.lastName,
