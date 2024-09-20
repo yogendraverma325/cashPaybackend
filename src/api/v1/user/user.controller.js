@@ -215,6 +215,11 @@ class UserController {
                 },
                 as: "lwfStateName",
               },
+              {
+                model:db.lwfDesignationMaster,
+                attributes:['lwfDesignationId','lwfDesignationName'],
+                as: "lwfDesignationName"
+              }
             ],
           },
           {
@@ -266,7 +271,7 @@ class UserController {
             model: db.paymentDetails,
             required: false,
             where: {
-              isActive: 1,
+              status: "approved",
             },
             attributes: {
               exclude: [
