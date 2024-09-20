@@ -147,6 +147,12 @@ class commonController {
       });
     } catch (error) {
       console.log(error);
+      if (error.isJoi === true) {
+        return respHelper(res, {
+          status: 422,
+          msg: error.details[0].message,
+        });
+      }
       return respHelper(res, {
         status: 500,
       });
@@ -1141,7 +1147,7 @@ class commonController {
     try {
       const result = await validator.employeeUpdateInfo.validateAsync(req.body);
 
-      const userId = req.body.employeeId > 0 ? req.body.employeeId : req.userId;
+      const userId = req.body.userId > 0 ? req.body.userId : req.userId;
       await db.employeeMaster.update(req.body, { where: { id: userId } });
 
       return respHelper(res, {
@@ -1196,7 +1202,13 @@ class commonController {
         msg: constant.DETAILS_ADDED.replace("<module>", "Work Experience"),
       });
     } catch (error) {
-      console.log("error", error);
+      console.log(error);
+      if (error.isJoi === true) {
+        return respHelper(res, {
+          status: 422,
+          msg: error.details[0].message,
+        });
+      }
       return respHelper(res, {
         status: 500,
       });
@@ -1236,10 +1248,16 @@ class commonController {
         ),
       });
     } catch (error) {
-      console.log("error", error)
+      console.log(error);
+    if (error.isJoi === true) {
       return respHelper(res, {
-        status: 500,
+        status: 422,
+        msg: error.details[0].message,
       });
+    }
+    return respHelper(res, {
+      status: 500,
+    });
     }
   }
 
@@ -1325,17 +1343,22 @@ class commonController {
       };
       await db.employeeCertificates.create(obj);
 
+    return respHelper(res, {
+      status: 200,
+      msg: constant.DETAILS_ADDED.replace("<module>", "Certificates"),
+    });
+   } catch (error) {
+    console.log(error);
+    if (error.isJoi === true) {
       return respHelper(res, {
-        status: 200,
-        msg: constant.DETAILS_ADDED.replace("<module>", "Certificates"),
-      });
-    } catch (error) {
-      console.log("error", error);
-      return respHelper(res, {
-        status: 500,
-        data: error,
+        status: 422,
+        msg: error.details[0].message,
       });
     }
+    return respHelper(res, {
+      status: 500,
+    });
+   }
   }
 
   async updateCertificates(req, res) {
@@ -1360,10 +1383,17 @@ class commonController {
         ),
       });
     } catch (error) {
+      console.log(error);
+      if (error.isJoi === true) {
+        return respHelper(res, {
+          status: 422,
+          msg: error.details[0].message,
+        });
+      }
       return respHelper(res, {
         status: 500,
-        data: error,
       });
+   
     }
   }
 
