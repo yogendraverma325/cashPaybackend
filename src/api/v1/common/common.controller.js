@@ -73,7 +73,7 @@ class commonController {
         where: { userId: userId },
       });
       if (result.salutationId) {
-        await db.employeeMaster.update({ salutationId: result.salutationId, middleName: result.middleName }, {
+        await db.employeeMaster.update({ salutationId: result.salutationId,middleName: result.middleName,lastName:result.lastName}, {
           where: { id: userId },
         });
       }
