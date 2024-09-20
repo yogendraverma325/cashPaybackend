@@ -634,6 +634,13 @@ const empMarkLeaveOfGivenDate = async function (userId, inputData, batch) {
     },
     attributes: ["leaveName"],
   });
+  let leaveReason
+  if (inputData.status == "approved") {
+    leaveReason = 'auto-approved'
+  }
+  if (inputData.status == "pending") {
+    leaveReason = 'pending at manager'
+  }
 
   eventEmitter.emit(
     "autoLeaveDeductionMail",
@@ -641,6 +648,7 @@ const empMarkLeaveOfGivenDate = async function (userId, inputData, batch) {
       email: leaveDeductionData.email,
       name: leaveDeductionData.name,
       date: inputData.appliedFor,
+      leaveReason,
       shiftStartTime: leaveDeductionData["shiftsmaster.shiftStartTime"],
       shiftEndTime: leaveDeductionData["shiftsmaster.shiftEndTime"],
       leaveType: leaveData.leaveName,
