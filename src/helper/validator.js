@@ -346,7 +346,7 @@ const updateManagerSchema = Joi.array()
     Joi.object({
       user: Joi.number().required().label("User"),
       manager: Joi.number().required().label("Manager"),
-      date: Joi.string().allow("").label("Date"),
+      date: Joi.string().label("Date").required()
     })
   )
   .messages({
