@@ -14,7 +14,6 @@ cron.schedule("0 16 * * *", async () => {
 });
 
 cron.schedule('*/10 * * * *',  async () => {
-    console.log("cron is runing in every minutes")
     await cronController.updateManager();
 });
 
