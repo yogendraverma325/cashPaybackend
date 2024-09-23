@@ -599,6 +599,17 @@ Date 09-17-2024
 ALTER TABLE `tara`.`employeestaging` 
 CHANGE COLUMN `employeeType` `employeeType` INT NULL DEFAULT NULL ;
 
+Date 09-23-2024
+
+newCustomerName make INT from string
+
+ALTER TABLE `tara`.`employeestaging` 
+CHANGE COLUMN `newCustomerName` `newCustomerId` INT NULL DEFAULT NULL ;
+
+ALTER TABLE `tara`.`employeestaging` 
+CHANGE COLUMN `newCustomerId` `newCustomerNameId` INT NULL DEFAULT NULL ;
+
+
 
 
 

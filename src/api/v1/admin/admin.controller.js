@@ -320,13 +320,12 @@ class AdminController {
 
       return respHelper(res, {
         status: 200,
-        msg: "Onboarding has been completed successfully.",
+        msg: "Employee successfully added to the pending list.",
       });
 
     }
     catch (error) {
-      console.log(error);
-      logger.error(error);
+      logger.error("Error while creating employee", error);
       if (error.isJoi === true) {
         return respHelper(res, {
           status: 422,
@@ -583,7 +582,7 @@ class AdminController {
       for (let i = 0; i < selectedUsers.length; i++) {
 
         // get employee on-boarding details by id
-        const employeeOnboardingDetails = await db.employeeStagingMaster.findOne({ 'id': selectedUsers[i] });
+        const employeeOnboardingDetails = await db.employeeStagingMaster.findOne({ where: { 'id': selectedUsers[i] } });
         if (employeeOnboardingDetails) {
           const existUser = await db.employeeMaster.findOne({
             where: {
@@ -767,10 +766,10 @@ class AdminController {
         );
       }
 
-      return respHelper(res, { 'status': 202, msg: constant.UPDATE_SUCCESS.replace('<module>', 'On-boarding employee details') });
+      return respHelper(res, { 'status': 202, msg: constant.UPDATE_SUCCESS.replace('<module>', 'Employee details') });
     }
     catch (error) {
-      logger.error("Error while getting update employee on-boarding details", error);
+      logger.error("Error while getting update employee details", error);
       if (error.isJoi === true) {
         return respHelper(res, {
           status: 422,
@@ -792,7 +791,7 @@ class AdminController {
       let attributes = ['name', 'firstName', 'middleName', 'lastName', 'email', 'personalEmail', 'officeMobileNumber', 'personalMobileNumber',
         'panNo', 'uanNo', 'pfNo', 'employeeType', 'profileImage', 'dateOfJoining', 'manager', 'designation_id', 'functionalAreaId', 'buId', 'sbuId',
         'shiftId', 'departmentId', 'companyId', 'buHRId', 'buHeadId', 'attendancePolicyId', 'companyLocationId', 'weekOffId', 'gender', 'maritalStatus',
-        'maritalStatusSince', 'nationality', 'probationId', 'dateOfBirth', 'newCustomerName', 'iqTestApplicable', 'positionType'];
+        'maritalStatusSince', 'nationality', 'probationId', 'dateOfBirth', 'newCustomerNameId', 'iqTestApplicable', 'positionType'];
 
       let result = await db.employeeStagingMaster.findOne({ where: condition, attributes: attributes, raw: true });
       if (result) {

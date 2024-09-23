@@ -10,6 +10,8 @@ import moment from "moment";
 import helper from "../../../helper/helper.js";
 import validator from "../../../helper/validator.js";
 
+const maritalStatusOptions = { 'Married': 1, 'Single': 2, 'Divorced': 3, 'Separated': 4, 'Widowed': 5, 'Others': 6 };
+
 
 async function getDataFromCache(key) {
   return client.lRange(key, 0, -1);
@@ -856,11 +858,13 @@ class MasterController {
             const isValidAttendancePolicy = await validateAttendancePolicy(obj.attendancePolicy);
             const isValidCompanyLocation = await validateCompanyLocation(obj.companyLocation);
             const isValidWeekOff = await validateWeekOff(obj.weekOff);
+            const isValidNewCustomerName = await validateNewCustomerName(obj.newCustomerName);
             const isValidateEmployee = await validateEmployee(obj.personalMobileNumber, obj.email);
 
             if (!error && isValidCompany.status && isValidEmployeeType.status && isValidProbation.status && isValidManager.status && isValidDesignation.status &&
               isValidFunctionalArea.status && isValidBU.status && isValidSBU.status && isValidShift.status && isValidBUHR.status && isValidBUHead.status &&
-              isValidAttendancePolicy.status && isValidCompanyLocation.status && isValidWeekOff.status && isValidDepartment.status && isValidateEmployee.status) {
+              isValidAttendancePolicy.status && isValidCompanyLocation.status && isValidWeekOff.status && isValidDepartment.status && isValidateEmployee.status &&
+              isValidNewCustomerName.status) {
               
               // prepare employee object
               let newEmployee = {
@@ -878,12 +882,12 @@ class MasterController {
                 gender: obj.gender,
                 dateOfBirth: obj.dateOfBirth,
                 dateOfJoining: obj.dateOfJoining,
-                maritalStatus: obj.maritalStatus,
+                maritalStatus: maritalStatusOptions[obj.maritalStatus],
                 maritalStatusSince: obj.maritalStatusSince,
                 nationality: obj.nationality,
                 probation: isValidProbation.data.probationId,
-                newCustomerName: obj.newCustomerName,
-                iqTestApplicable: obj.iqTestApplicable,
+                newCustomerId: isValidNewCustomerName.data.newCustomerId,
+                iqTestApplicable: (obj.iqTestApplicable == 'Yes') ? 1 : 0,
                 positionType: obj.positionType,
                 company: isValidCompany.data.companyId,
                 bu: isValidBU.data.buId,
@@ -898,7 +902,8 @@ class MasterController {
                 shift: isValidShift.data.shiftId,
                 attendancePolicy: isValidAttendancePolicy.data.attendancePolicyId,
                 companyLocation: isValidCompanyLocation.data.companyLocationId,
-                weekOff: isValidWeekOff.data.weekOffId
+                weekOff: isValidWeekOff.data.weekOffId,
+                customerNameId: isValidNewCustomerName.data.newCustomerNameId
               }
 
               const password = await helper.generateRandomPassword();
@@ -907,7 +912,8 @@ class MasterController {
               newEmployee.role_id = 3;
               newEmployee.isTempPassword = 1;
               
-              validEmployees.push(newEmployee);
+              validEmployees.push({ ...newEmployee, index: employee.Index });
+              const createdEmployees = await db.employeeStagingMaster.create(newEmployee);
             }
             else {
               const errors = handleErrors(error);
@@ -941,9 +947,7 @@ class MasterController {
             // successData.push(...createdEmployees.map(e => e.toJSON()));
             successData.push(validEmployees);
           }
-          else {
-            failureData.push(...invalidEmployees);
-          }
+          failureData.push(...invalidEmployees);
         }
 
         return respHelper(res, {
@@ -1195,6 +1199,16 @@ const validateWeekOff = async (name) => {
   }
   else {
     return { status: false, message: 'Invalid week off', data: {} }
+  }
+}
+
+const validateNewCustomerName = async (name) => {
+  let isVerify = await db.newCustomerNameMaster.findOne({ where: { 'newCustomerName': name }, attributes: ['newCustomerNameId'] });
+  if (isVerify) {
+    return { status: true, message: '', message: '', data: isVerify }
+  }
+  else {
+    return { status: false, message: 'Invalid new customer id off', data: {} }
   }
 }
 

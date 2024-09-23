@@ -78,6 +78,7 @@ import SeparationReason from "../api/model/SeparationReason.js";
 import SeparationStatus from "../api/model/SeparationStatus.js";
 import EmployeeStaging from "../api/model/EmployeeStaging.js";
 import ProbationMaster from "../api/model/ProbationMaster.js";
+import NewCustomerNameMaster from "../api/model/NewCustomerNameMaster.js";
 
 import literal from "sequelize";
 import QueryTypes from "sequelize";
@@ -221,6 +222,8 @@ db.attendanceHistory = AttendanceHistory(sequelize, Sequelize);
 db.employeeStagingMaster = EmployeeStaging(sequelize, Sequelize);
 db.probationMaster = ProbationMaster(sequelize, Sequelize);
 db.separationStatus = SeparationStatus(sequelize, Sequelize);
+db.newCustomerNameMaster = NewCustomerNameMaster(sequelize, Sequelize);
+
 db.holidayCompanyLocationConfiguration.hasOne(db.holidayMaster, {
   foreignKey: "holidayId",
   sourceKey: "holidayId",

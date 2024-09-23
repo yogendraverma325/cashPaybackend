@@ -654,8 +654,7 @@ class MasterController {
           where: query,
           attributes: ["companyLocationId", "address1"],
           include: [
-            { model: db.pinCodeMaster, attributes: ["pincode"] },
-            { model: db.cityMaster, attributes: ["cityName"] },
+            { model: db.cityMaster, attributes: ["cityName"] }
           ],
         });
 
@@ -1302,6 +1301,27 @@ class MasterController {
       });
     }
   }
+
+  async newCustomerName(req, res) {
+    try {
+      let query = { isActive: 1 };
+      const newCustomerNameData = await db.newCustomerNameMaster.findAll({
+        where: query,
+        attributes: ["newCustomerNameId", "newCustomerName"],
+      });
+
+      return respHelper(res, {
+        status: 200,
+        data: newCustomerNameData,
+      });
+    } catch (error) {
+      logger.error("Error while getting new customer name list", error);
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+
 }
 
 export default new MasterController();
