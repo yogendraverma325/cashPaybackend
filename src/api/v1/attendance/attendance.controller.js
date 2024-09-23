@@ -895,9 +895,18 @@ class AttendanceController {
       const user = req.query.user || req.userId;
       const year = req.query.year;
       const month = req.query.month;
-      const companyLocationId = req.userData.companyLocationId;
-      const weekOffId = req.userData.weekOffId;
-      const shiftId = req.userData.shiftId;
+
+      const companyWeekShift = await db.employeeMaster.findOne({
+        attributes: ["id", "companyLocationId", "weekOffId", "shiftId"],
+        where: { id: user },
+      });
+
+      const companyLocationId = companyWeekShift
+        ? companyWeekShift.companyLocationId
+        : 0; //req.userData.companyLocationId;
+      const weekOffId = companyWeekShift ? companyWeekShift.weekOffId : 0; //req.userData.weekOffId;
+      const shiftId = companyWeekShift ? companyWeekShift.shiftId : 0; //req.userData.shiftId;
+
       if (!year || !month) {
         return respHelper(res, {
           status: 400,
@@ -1242,7 +1251,6 @@ class AttendanceController {
             default:
               occurrenceDayCondition = {};
           }
-
           let checkWeekOff = await db.weekOffDayMappingMaster.findOne({
             where: occurrenceDayCondition,
           });
