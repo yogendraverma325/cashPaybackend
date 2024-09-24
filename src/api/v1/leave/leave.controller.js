@@ -633,7 +633,7 @@ class LeaveController {
             weekOffId: EMP_DATA.weekOffId,
             fromDate: req.body.fromDate,
             toDate: req.body.toDate,
-            source: JSON.stringify(req.deviceSource),
+            source: req.device,
           };
           arr.push(recordData);
           //const record = await db.employeeLeaveTransactions.create(recordData);
@@ -1466,7 +1466,7 @@ class LeaveController {
       const employees = await db.employeeMaster.findAll({
         attributes: ["id", "employeeType"],
         where: {
-          isActive:1,
+          isActive: 1,
           employeeType: [3, 4],
         },
         include: [
@@ -1511,7 +1511,7 @@ class LeaveController {
       return respHelper(res, {
         status: 200,
         message: "Leave updated successfully",
-        data:filteredEmployees.length
+        data: filteredEmployees.length
 
       });
     } catch (error) {

@@ -168,7 +168,7 @@ const validateUser = async (req, existUser) => {
   await db.loginDetails.create({
     employeeId: existUser.dataValues.id,
     loginIP: req.headers['x-real-ip'] || await helper.ip(req._remoteAddress),
-    loginDevice: `${req.deviceSource.os ? req.deviceSource.os.name : 'OS Name'} - ${req.deviceSource.device ? req.deviceSource.device.type : 'Device Type'}`,
+    loginDevice: req.headers.source ? req.headers.source : null,
     createdDt: moment()
   });
 
@@ -177,7 +177,7 @@ const validateUser = async (req, existUser) => {
       id: existUser.id,
       name: existUser.name,
       role: existUser.role.name,
-      device: req.deviceSource.device ? req.deviceSource.device.type : 'Other'
+      device: req.headers.source ? req.headers.source : null
     },
   };
 
