@@ -839,7 +839,7 @@ class MasterController {
 
           for (const employee of chunk) {
             let obj = createObj(employee);
-
+            
             // validate fields
             const { error } = await validator.importOnboardEmployeeSchema.validate(obj);
 
@@ -849,26 +849,24 @@ class MasterController {
             const isValidManager = await validateManager(obj.manager);
             const isValidDesignation = await validateDesignation(obj.designation);
             const isValidFunctionalArea = await validateFunctionalArea(obj.functionalArea);
-            const isValidBU = await validateBU(obj.bu);
+            const isValidBU = await validateBU(obj.bu, isValidCompany);
             const isValidSBU = await validateSBU(obj.sbu);
             const isValidShift = await validateShift(obj.shift);
             const isValidDepartment = await validateDepartment(obj.department);
-            const isValidBUHR = await validateBUHR(obj.buHR);
-            const isValidBUHead = await validateBUHead(obj.buHead);
             const isValidAttendancePolicy = await validateAttendancePolicy(obj.attendancePolicy);
-            const isValidCompanyLocation = await validateCompanyLocation(obj.companyLocation);
+            const isValidCompanyLocation = await validateCompanyLocation(obj.companyLocation, isValidCompany);
             const isValidWeekOff = await validateWeekOff(obj.weekOff);
             const isValidNewCustomerName = await validateNewCustomerName(obj.newCustomerName);
+            const isValidJobLevel = await validateJobLevel(obj.jobLevel);
             const isValidateEmployee = await validateEmployee(obj.personalMobileNumber, obj.email);
 
             if (!error && isValidCompany.status && isValidEmployeeType.status && isValidProbation.status && isValidManager.status && isValidDesignation.status &&
-              isValidFunctionalArea.status && isValidBU.status && isValidSBU.status && isValidShift.status && isValidBUHR.status && isValidBUHead.status &&
-              isValidAttendancePolicy.status && isValidCompanyLocation.status && isValidWeekOff.status && isValidDepartment.status && isValidateEmployee.status &&
-              isValidNewCustomerName.status) {
+              isValidFunctionalArea.status && isValidBU.status && isValidSBU.status && isValidCompanyLocation.status && isValidDepartment.status 
+              && isValidateEmployee.status && isValidJobLevel.status) {
               
               // prepare employee object
               let newEmployee = {
-                name: obj.name,
+                name: `${obj.firstName} ${obj.middleName} ${obj.lastName}`,
                 firstName: obj.firstName,
                 middleName: obj.middleName,
                 lastName: obj.lastName,
@@ -885,25 +883,25 @@ class MasterController {
                 maritalStatus: maritalStatusOptions[obj.maritalStatus],
                 maritalStatusSince: obj.maritalStatusSince,
                 nationality: obj.nationality,
-                probation: isValidProbation.data.probationId,
-                newCustomerId: isValidNewCustomerName.data.newCustomerId,
+                probationId: isValidProbation.data.probationId,
                 iqTestApplicable: (obj.iqTestApplicable == 'Yes') ? 1 : 0,
                 positionType: obj.positionType,
-                company: isValidCompany.data.companyId,
-                bu: isValidBU.data.buId,
-                sbu: isValidSBU.data.sbuId,
-                department: isValidDepartment.data.departmentId,
-                functionalArea: isValidFunctionalArea.data.functionalAreaId,
-                buHR: isValidBUHR.data.id,
-                buHead: isValidBUHead.data.id,
+                companyId: isValidCompany.data.companyId,
+                buId: isValidBU.data.buId,
+                sbuId: isValidSBU.data.sbuId,
+                departmentId: isValidDepartment.data.departmentId,
+                functionalAreaId: isValidFunctionalArea.data.functionalAreaId,
+                buHRId: isValidBU.data.buHR,
+                buHeadId: isValidBU.data.buHead,
                 employeeType: isValidEmployeeType.data.empTypeId,
                 manager: isValidManager.data.id,
-                designation: isValidDesignation.data.designationId,
-                shift: isValidShift.data.shiftId,
-                attendancePolicy: isValidAttendancePolicy.data.attendancePolicyId,
-                companyLocation: isValidCompanyLocation.data.companyLocationId,
-                weekOff: isValidWeekOff.data.weekOffId,
-                customerNameId: isValidNewCustomerName.data.newCustomerNameId
+                designation_id: isValidDesignation.data.designationId,
+                shiftId: isValidShift.data?.shiftId,
+                attendancePolicyId: isValidAttendancePolicy.data?.attendancePolicyId,
+                companyLocationId: isValidCompanyLocation.data.companyLocationId,
+                weekOffId: isValidWeekOff.data?.weekOffId,
+                newCustomerNameId: isValidNewCustomerName.data?.newCustomerNameId,
+                jobLevelId: isValidJobLevel.data?.jobLevelId
               }
 
               const password = await helper.generateRandomPassword();
@@ -913,6 +911,7 @@ class MasterController {
               newEmployee.isTempPassword = 1;
               
               validEmployees.push({ ...newEmployee, index: employee.Index });
+              console.log(newEmployee)
               const createdEmployees = await db.employeeStagingMaster.create(newEmployee);
             }
             else {
@@ -929,12 +928,11 @@ class MasterController {
                 bu: isValidBU.message,
                 sbu: isValidSBU.message,
                 shift: isValidShift.message,
-                buHR: isValidBUHR.message,
-                buHead: isValidBUHead.message,
                 attendancePolicy: isValidAttendancePolicy.message,
                 companyLocation: isValidCompanyLocation.message,
                 weekOff: isValidWeekOff.message,
                 department: isValidDepartment.message,
+                jobLevel: isValidJobLevel.message,
                 alreadyExist: isValidateEmployee.message
               }
               invalidEmployees.push(masterErrors);
@@ -948,6 +946,42 @@ class MasterController {
             successData.push(validEmployees);
           }
           failureData.push(...invalidEmployees);
+        }
+
+        if(failureData.length > 0) {
+          const errorRecords = failureData.map((record, index) => (
+            Object.entries(record)
+              .filter(([key, value]) => value && key !== 'index')
+              .map(([key, value]) => {
+                return { index: record.index, error: value }
+              })
+            ));
+          console.log(errorRecords)
+          // let data = [
+          //   {
+          //       sheet: `Employee Excel Error Reports`,
+          //       columns: [
+          //           { label: 'Index', value: (row) => row.user ? row.user.name || "" : "" },
+          //           { label: 'Organization / Feeder Name', value: (row) => row.user ? row.user.name || "" : "" }
+          //       ],
+          //       content: response.data
+          //   }
+          // ];
+
+          // let settings = {
+          //     writeOptions: {
+          //         type: 'buffer',
+          //         bookType: 'xlsx'
+          //     }
+          // }
+
+          // const buffer = xlsx(data, settings);
+          // let milisecond = moment().valueOf().toString();
+          // res.writeHead(200, {
+          //     'Content-Type': 'application/octet-stream',
+          //     "Content-disposition": `attachment; filename=${sub_category_name}_Reports_${milisecond}.xlsx`
+          // });
+          // res.end(buffer);
         }
 
         return respHelper(res, {
@@ -975,41 +1009,39 @@ class MasterController {
 
 const createObj = (obj) => {
   return {
-    name: obj.Name,
-    firstName: obj.First_Name,
-    middleName: obj.Middle_Name,
-    lastName: obj.Last_Name,
     email: obj.Email,
     personalEmail: obj.Personal_Email,
-    panNo: obj.Pan_No,
-    uanNo: obj.UAN_No,
-    pfNo: obj.PF_No,
+    firstName: obj.First_Name,
+    middleName: replaceNAWithNull(obj.Middle_Name),
+    lastName: replaceNAWithNull(obj.Last_Name),
+    panNo: replaceNAWithNull(obj.Pan_No),
+    uanNo: replaceNAWithNull(obj.UAN_No),
+    pfNo: replaceNAWithNull(obj.PF_No),
+    employeeType: obj.Employee_Type_Name,
     officeMobileNumber: obj.Official_Mobile_Number?.toString(),
     personalMobileNumber: obj.Personal_Mobile_Number?.toString(),
     gender: obj.Gender,
     dateOfBirth: convertExcelDate(obj.Date_of_Birth),
     dateOfJoining: convertExcelDate(obj.Date_of_Joining),
     maritalStatus: obj.Marital_Status,
-    maritalStatusSince: (obj.Date_of_Married != 'NA') ? convertExcelDate(obj.Date_of_Married) : '',
-    nationality: obj.Nationality,
-    probation: obj.Probation,
-    newCustomerName: obj.New_Customer_Name,
+    maritalStatusSince: (obj.Marital_Since != 'NA' && obj.Marital_Since != '') ? convertExcelDate(obj.Marital_Since) : '',
+    nationality: obj.Nationality_Name,
+    probation: obj.Probation_Name,
+    newCustomerName: replaceNAWithNull(obj.New_Customer_Name),
     iqTestApplicable: obj.IQ_Test_Applicable,
     positionType: obj.Position_Type,
-    company: obj.Company,
-    bu: obj.BU,
-    sbu: obj.SBU,
-    department: obj.Department,
-    functionalArea: obj.Functional_Area,
-    buHR: obj.BUHR,
-    buHead: obj.BU_Head,
-    employeeType: obj.Employee_Type,
-    manager: obj.Manager,
-    designation: obj.Designation,
-    shift: obj.Shift,
-    attendancePolicy: obj.Attendance_Policy,
-    companyLocation: obj.Company_Location,
-    weekOff: obj.Week_Off
+    manager: obj.Manager_EMP_CODE,
+    designation: obj.Designation_Name,
+    functionalArea: obj.Functional_Area_Name,
+    bu: obj.BU_Name,
+    sbu: obj.SBU_Name,
+    shift: replaceNAWithNull(obj.Shift_Name),
+    department: obj.Department_Name,
+    company: obj.Company_Name,
+    attendancePolicy: replaceNAWithNull(obj.Attendance_Policy_Name),
+    companyLocation: obj.Company_Location_Name,
+    weekOff: replaceNAWithNull(obj.Week_Off_Name),
+    jobLevel: obj.Job_Level_Name
   }
 }
 
@@ -1112,9 +1144,29 @@ const validateFunctionalArea = async (name) => {
   }
 }
 
-const validateBU = async (name) => {
+const validateBU = async (name, isValidCompany) => {
   let isVerify = await db.buMaster.findOne({ where: { 'buName': name }, attributes: ['buId'] });
   if (isVerify) {
+    const headAndHrData = await db.buMapping.findOne({
+      where: { buId: isVerify.buId, companyId: isValidCompany.data.companyId },
+      include: [
+        {
+          model: db.employeeMaster,
+          attributes: ["id", "name"],
+          as: "buHeadData",
+        },
+        {
+          model: db.employeeMaster,
+          attributes: ["id", "name"],
+          as: "buhrData",
+        },
+      ],
+    });
+
+    if (headAndHrData) {
+      isVerify.buHead = headAndHrData.buHeadData.id;
+      isVerify.buHR = headAndHrData.buhrData.id;
+    }
     return { status: true, message: '', data: isVerify }
   }
   else {
@@ -1133,12 +1185,17 @@ const validateSBU = async (name) => {
 }
 
 const validateShift = async (name) => {
-  let isVerify = await db.shiftMaster.findOne({ where: { 'shiftName': name }, attributes: ['shiftId'] });
-  if (isVerify) {
-    return { status: true, message: '', data: isVerify }
+  if(name) {
+    let isVerify = await db.shiftMaster.findOne({ where: { 'shiftName': name }, attributes: ['shiftId'] });
+    if (isVerify) {
+      return { status: true, message: '', data: isVerify }
+    }
+    else {
+      return { status: false, message: 'Invalid shift', data: {} }
+    }
   }
   else {
-    return { status: false, message: 'Invalid shift', data: {} }
+    return { status: false, message: '', data: {} }
   }
 }
 
@@ -1152,68 +1209,86 @@ const validateDepartment = async (name) => {
   }
 }
 
-const validateBUHR = async (empCode) => {
-  let isVerify = await db.employeeMaster.findOne({ where: { 'empCode': empCode }, attributes: ['id'] });
-  if (isVerify) {
-    return { status: true, message: '', data: isVerify }
-  }
-  else {
-    return { status: false, message: 'Invalid BU HR', data: {} }
-  }
-}
-
-const validateBUHead = async (empCode) => {
-  let isVerify = await db.employeeMaster.findOne({ where: { 'empCode': empCode }, attributes: ['id'] });
-  if (isVerify) {
-    return { status: true, message: '', data: isVerify }
-  }
-  else {
-    return { status: false, message: 'Invalid BU Head', data: {} }
-  }
-}
-
 const validateAttendancePolicy = async (name) => {
-  let isVerify = await db.attendancePolicymaster.findOne({ where: { 'policyName': name }, attributes: ['attendancePolicyId'] });
-  if (isVerify) {
-    return { status: true, message: '', data: isVerify }
+  if(name) {
+    let isVerify = await db.attendancePolicymaster.findOne({ where: { 'policyName': name }, attributes: ['attendancePolicyId'] });
+    if (isVerify) {
+      return { status: true, message: '', data: isVerify }
+    }
+    else {
+      return { status: false, message: 'Invalid attendance policy', data: {} }
+    }
   }
   else {
-    return { status: false, message: 'Invalid attendance policy', data: {} }
+    return { status: false, message: '', data: {} }
   }
 }
 
-const validateCompanyLocation = async (searchKey) => {
-  let isVerify = await db.companyLocationMaster.findOne({ where: { 'address1': searchKey }, attributes: ['companyLocationId'] });
-  if (isVerify) {
-    return { status: true, message: '', data: isVerify }
+const validateCompanyLocation = async (cityName, isValidCompany) => {
+  if(cityName) {
+    cityName = cityName.split(",");
+
+    let isVerify = await db.cityMaster.findOne({ where: { 'cityName': cityName[0] }, attributes: ['cityId'] });
+    if (isVerify) {
+      isVerify = await db.companyLocationMaster.findOne({ where: { 'cityId': isVerify.cityId, 'companyLocationCode': cityName[1].trim(), 'companyId': isValidCompany.data?.companyId }, attributes: ['companyLocationId'] });
+      if(isVerify) {
+        return { status: true, message: '', data: isVerify }
+      }
+      else {
+        return { status: false, message: 'This city has not been mapped.', data: {} }
+      }
+    }
+    else {
+      return { status: false, message: 'Invalid city', data: {} }
+    }
   }
   else {
-    return { status: false, message: 'Invalid company location', data: {} }
+    return { status: false, message: 'Invalid city', data: {} }
   }
 }
 
 const validateWeekOff = async (name) => {
-  let isVerify = await db.weekOffMaster.findOne({ where: { 'weekOffName': name }, attributes: ['weekOffId'] });
-  if (isVerify) {
-    return { status: true, message: '', message: '', data: isVerify }
+  if(name) {
+    let isVerify = await db.weekOffMaster.findOne({ where: { 'weekOffName': name }, attributes: ['weekOffId'] });
+    if (isVerify) {
+      return { status: true, message: '', message: '', data: isVerify }
+    }
+    else {
+      return { status: false, message: 'Invalid week off', data: {} }
+    }
   }
   else {
-    return { status: false, message: 'Invalid week off', data: {} }
+    return { status: false, message: '', data: {} }
   }
 }
 
 const validateNewCustomerName = async (name) => {
-  let isVerify = await db.newCustomerNameMaster.findOne({ where: { 'newCustomerName': name }, attributes: ['newCustomerNameId'] });
-  if (isVerify) {
-    return { status: true, message: '', message: '', data: isVerify }
+  if(name) {
+    let isVerify = await db.newCustomerNameMaster.findOne({ where: { 'newCustomerName': name }, attributes: ['newCustomerNameId'] });
+    if (isVerify) {
+      return { status: true, message: '', message: '', data: isVerify }
+    }
+    else {
+      return { status: false, message: 'Invalid new customer id off', data: {} }
+    }
   }
   else {
-    return { status: false, message: 'Invalid new customer id off', data: {} }
+    return { status: false, message: '', data: {} }
+  }
+}
+
+const validateJobLevel = async (name) => {
+  let isVerify = await db.jobLevelMaster.findOne({ where: { 'jobLevelName': name }, attributes: ['jobLevelId'] });
+  if (isVerify) {
+    return { status: true, message: '', data: isVerify }
+  }
+  else {
+    return { status: false, message: 'Invalid job level', data: {} }
   }
 }
 
 const validateEmployee = async (personalMobileNumber, email) => {
-  let isVerify = await db.employeeStagingMaster.findOne({
+  let isVerify = await db.employeeMaster.findOne({
     where: {
       [Op.or]: [
         { 'personalMobileNumber': personalMobileNumber },
@@ -1226,7 +1301,21 @@ const validateEmployee = async (personalMobileNumber, email) => {
     return { status: false, message: 'User already exist', data: {} }
   }
   else {
-    return { status: true, message: '', data: {} }
+    isVerify = await db.employeeStagingMaster.findOne({
+      where: {
+        [Op.or]: [
+          { 'personalMobileNumber': personalMobileNumber },
+          { 'email': email }
+        ]
+      },
+      attributes: ['id']
+    });
+    if (isVerify) {
+      return { status: false, message: 'User already exist', data: {} }
+    }
+    else {
+      return { status: true, message: '', data: {} }
+    }
   }
 }
 
@@ -1235,5 +1324,9 @@ const convertExcelDate = (serial) => {
   const date = new Date((serial - 25569) * 86400 * 1000);
   return moment(date).format('YYYY-MM-DD');
 }
+
+const replaceNAWithNull = (value) => {
+  return value === 'NA' ? '' : value; // Replace 'NA' with ''
+};
 
 export default new MasterController();

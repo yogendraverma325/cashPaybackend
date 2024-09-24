@@ -609,6 +609,11 @@ CHANGE COLUMN `newCustomerName` `newCustomerId` INT NULL DEFAULT NULL ;
 ALTER TABLE `tara`.`employeestaging` 
 CHANGE COLUMN `newCustomerId` `newCustomerNameId` INT NULL DEFAULT NULL ;
 
+ALTER TABLE tara.companylocationmaster 
+ADD COLUMN companyLocationCode VARCHAR(100) NULL DEFAULT NULL AFTER companyId;
+
+Create new table as newcustomernamemaster
+
 
 
 

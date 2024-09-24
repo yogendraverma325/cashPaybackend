@@ -482,15 +482,8 @@ class MasterController {
 
   async jobLevel(req, res) {
     try {
-      const limit = req.query.limit * 1 || 10;
-      const pageNo = req.query.page * 1 || 1;
-      const offset = (pageNo - 1) * limit;
-
-      const jobLevelData = await db.jobLevelMaster.findAndCountAll({
-        limit,
-        offset,
-      });
-
+      let condition = { 'isActive': 1 };
+      const jobLevelData = await db.jobLevelMaster.findAll({ where: condition });
       return respHelper(res, {
         status: 200,
         data: jobLevelData,
@@ -652,7 +645,7 @@ class MasterController {
         let query = { isActive: 1, companyId: companyId };
         const companyLocationData = await db.companyLocationMaster.findAll({
           where: query,
-          attributes: ["companyLocationId", "address1"],
+          attributes: ["companyLocationId", "address1", "companyLocationCode"],
           include: [
             { model: db.cityMaster, attributes: ["cityName"] }
           ],

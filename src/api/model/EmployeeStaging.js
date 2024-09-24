@@ -131,6 +131,9 @@ export default (sequelize, Sequelize) => {
       companyLocationId: {
         type: Sequelize.INTEGER,
       },
+      jobLevelId: {
+        type: Sequelize.INTEGER
+      },
       weekOffId: {
         type: Sequelize.INTEGER,
       },
