@@ -99,7 +99,7 @@ export default (sequelize, Sequelize) => {
     updatedAt: {
       type: Sequelize.DATE,
     },
-     needAttendanceCron: {
+    needAttendanceCron: {
       type: Sequelize.INTEGER,
     },
     holidayCompanyLocationConfigurationID: {
@@ -108,6 +108,12 @@ export default (sequelize, Sequelize) => {
     weekOffId: {
       type: Sequelize.INTEGER,
     },
+    punchInSource: {
+      type: Sequelize.STRING
+    },
+    punchOutSource: {
+      type: Sequelize.STRING
+    }
   });
   return attendanceMaster;
 };
