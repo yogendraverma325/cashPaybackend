@@ -911,13 +911,13 @@ class MasterController {
               newEmployee.isTempPassword = 1;
               
               validEmployees.push({ ...newEmployee, index: employee.Index });
-              console.log(newEmployee)
               const createdEmployees = await db.employeeStagingMaster.create(newEmployee);
             }
             else {
               const errors = handleErrors(error);
               const masterErrors = {
                 index: employee.Index,
+                companyEmail: obj.email,
                 ...errors,
                 company: isValidCompany.message,
                 employeeType: isValidEmployeeType.message,
@@ -948,48 +948,12 @@ class MasterController {
           failureData.push(...invalidEmployees);
         }
 
-        if(failureData.length > 0) {
-          const errorRecords = failureData.map((record, index) => (
-            Object.entries(record)
-              .filter(([key, value]) => value && key !== 'index')
-              .map(([key, value]) => {
-                return { index: record.index, error: value }
-              })
-            ));
-          console.log(errorRecords)
-          // let data = [
-          //   {
-          //       sheet: `Employee Excel Error Reports`,
-          //       columns: [
-          //           { label: 'Index', value: (row) => row.user ? row.user.name || "" : "" },
-          //           { label: 'Organization / Feeder Name', value: (row) => row.user ? row.user.name || "" : "" }
-          //       ],
-          //       content: response.data
-          //   }
-          // ];
-
-          // let settings = {
-          //     writeOptions: {
-          //         type: 'buffer',
-          //         bookType: 'xlsx'
-          //     }
-          // }
-
-          // const buffer = xlsx(data, settings);
-          // let milisecond = moment().valueOf().toString();
-          // res.writeHead(200, {
-          //     'Content-Type': 'application/octet-stream',
-          //     "Content-disposition": `attachment; filename=${sub_category_name}_Reports_${milisecond}.xlsx`
-          // });
-          // res.end(buffer);
-        }
-
         return respHelper(res, {
           status: 200,
           msg: "File Uploaded Successfully",
           data: {
             successData,
-            failureData,
+            failureData
           },
         });
 
