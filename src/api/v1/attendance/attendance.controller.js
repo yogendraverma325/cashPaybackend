@@ -48,6 +48,7 @@ class AttendanceController {
       }
 
       const currentDate = moment();
+      console.log(currentDate)
 
       const existEmployee = await db.employeeMaster.findOne({
         where: {
@@ -133,6 +134,8 @@ class AttendanceController {
           ); // Add buffer time  to the selected time if buffer allow
 
           const finalShiftStartTime = shiftStartTime.format("HH:mm");
+          console.log("finalShiftStartTime", finalShiftStartTime)
+          console.log("currentDate.format", currentDate.format("HH:mm"))
           if (currentDate.format("HH:mm") < finalShiftStartTime) {
             // campare shift time and current time inclu
             return respHelper(res, {
@@ -235,16 +238,16 @@ class AttendanceController {
 
           console.log("withGraceTime", withGraceTime);
 
-          if (
-            currentDate.format("HH:mm") < finalShiftStartTime ||
-            currentDate.format("HH:mm") > withGraceTime
-          ) {
-            // campare shift time and current time inclu
-            return respHelper(res, {
-              status: 400,
-              msg: message.SHIFT.SHIFT_TIME_INVALID,
-            });
-          }
+          // if (
+          //   currentDate.format("HH:mm") < finalShiftStartTime ||
+          //   currentDate.format("HH:mm") > withGraceTime
+          // ) {
+          //   // campare shift time and current time inclu
+          //   return respHelper(res, {
+          //     status: 400,
+          //     msg: message.SHIFT.SHIFT_TIME_INVALID,
+          //   });
+          // }
 
           await db.attendanceMaster.update(
             {
@@ -1650,6 +1653,8 @@ class AttendanceController {
 
   async attedanceCron() {
     try {
+
+      console.log('time ', moment())
       let lastDayDate = moment().subtract(1, "day").format("YYYY-MM-DD");
       let lastDayDateAnotherFormat = moment()
         .subtract(1, "day")
@@ -1767,6 +1772,8 @@ class AttendanceController {
           isActive: 1,
         },
       });
+
+      // console.log(existEmployees)
 
       await Promise.all(
         existEmployees.map(async (singleEmp) => {
