@@ -614,6 +614,14 @@ ADD COLUMN companyLocationCode VARCHAR(100) NULL DEFAULT NULL AFTER companyId;
 
 Create new table as newcustomernamemaster
 
+25-09-2024
+
+ALTER TABLE `tara`.`employeetypemaster` 
+ADD COLUMN `companyId` INT NOT NULL DEFAULT 1 AFTER `startingIndex`,
+ADD COLUMN `prefix` VARCHAR(45) NULL DEFAULT NULL AFTER `companyId`,
+ADD COLUMN `postfix` VARCHAR(45) NULL DEFAULT NULL AFTER `prefix`;
+
+
 
 
 

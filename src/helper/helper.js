@@ -79,9 +79,8 @@ const mailService = async (data) => {
   const filteredCc = data.cc
     ? data.cc.filter((email) => !data.to.includes(email))
     : undefined;
-
   const testMail = parseInt(process.env.TEST_MAIL);
-  const testMailIDs = ["manishmaurya@teamcomputers.com"];
+  const testMailIDs = ["jay.prakash@teamcomputers.com"];
   const msg = {
     to: testMail ? testMailIDs : data.to,
     from: {

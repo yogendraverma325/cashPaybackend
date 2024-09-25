@@ -903,13 +903,8 @@ class MasterController {
                 newCustomerNameId: isValidNewCustomerName.data?.newCustomerNameId,
                 jobLevelId: isValidJobLevel.data?.jobLevelId
               }
-
-              const password = await helper.generateRandomPassword();
-              const encryptedPassword = await helper.encryptPassword(password);
-              newEmployee.password = encryptedPassword;
-              newEmployee.role_id = 3;
-              newEmployee.isTempPassword = 1;
               
+              newEmployee.role_id = 3;
               validEmployees.push({ ...newEmployee, index: employee.Index });
               const createdEmployees = await db.employeeStagingMaster.create(newEmployee);
             }

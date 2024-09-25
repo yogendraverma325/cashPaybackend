@@ -313,12 +313,7 @@ class AdminController {
           });
         }
 
-        const password = await helper.generateRandomPassword();
-        const encryptedPassword = await helper.encryptPassword(password);
-  
-        result.password = encryptedPassword;
         result.role_id = 3;
-        result.isTempPassword = 1;
   
         const createdUser = await db.employeeStagingMaster.create(result);
   
@@ -618,7 +613,7 @@ class AdminController {
           }
 
           else {
-            const employeeTypeDetails = await db.employeeTypeMaster.findOne({ where: { 'empTypeId': employeeOnboardingDetails.employeeType }, attributes: ['empTypeId', 'empTypeCode', 'startingIndex'] });
+            const employeeTypeDetails = await db.employeeTypeMaster.findOne({ where: { 'empTypeId': employeeOnboardingDetails.employeeType, 'companyId': employeeOnboardingDetails.companyId }, attributes: ['empTypeId', 'empTypeCode', 'startingIndex'] });
             if (employeeTypeDetails) {
 
               let startingIndex = parseInt(employeeTypeDetails.startingIndex) + 1;
