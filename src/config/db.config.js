@@ -352,6 +352,14 @@ db.attendanceMaster.hasOne(db.shiftMaster, {
   foreignKey: "shiftId",
   sourceKey: "attendanceShiftId",
 });
+db.attendanceMaster.hasOne(db.attendancePolicymaster, {
+  foreignKey: "attendancePolicyId",
+  sourceKey: "attendancePolicyId",
+});
+db.attendanceMaster.hasOne(db.weekOffMaster, {
+  foreignKey: "weekOffId",
+  sourceKey: "weekOffId"
+});
 db.regularizationMaster.hasOne(db.attendanceMaster, {
   foreignKey: "attendanceAutoId",
   sourceKey: "attendanceAutoId",

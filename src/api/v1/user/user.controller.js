@@ -1036,7 +1036,9 @@ class UserController {
       await db.separationMaster.create(onBehalfObject)
       return respHelper(res, {
         status: 200,
-        msg: onBehalfObject,
+        //msg: onBehalfObject,
+        msg: constant.SEPARATION_STATUS.replace("<status>", "Initiated")
+
       });
     } catch (error) {
       console.log(error);
