@@ -134,7 +134,7 @@ class AttendanceController {
           ); // Add buffer time  to the selected time if buffer allow
 
           const finalShiftStartTime = shiftStartTime.format("HH:mm");
-          console.log('user', req.userId)
+          console.log('user - while punch in', req.userId)
           console.log("finalShiftStartTime", finalShiftStartTime)
           console.log("currentDate.format", currentDate.format("HH:mm"))
           if (currentDate.format("HH:mm") < finalShiftStartTime) {
@@ -258,7 +258,7 @@ class AttendanceController {
           //     msg: message.SHIFT.SHIFT_TIME_INVALID,
           //   });
           // }
-
+          console.log('user - while punch out', req.userId)
           await db.attendanceMaster.update(
             {
               attendancePunchOutTime: currentDate.format("HH:mm:ss"),
