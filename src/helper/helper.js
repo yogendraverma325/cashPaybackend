@@ -932,6 +932,7 @@ const generateOTP = async function (length) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
+
 export default {
   generateJwtToken,
   checkFolder,
@@ -954,5 +955,6 @@ export default {
   ip,
   generateOTP,
   generateJwtOTPEncrypt,
-  generateJwtOTPDecrypt,
+  generateJwtOTPDecrypt
 };
+
