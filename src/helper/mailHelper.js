@@ -50,6 +50,10 @@ export default function getAllListeners(eventEmitter) {
     eventEmitter.on('separationRejectByBUHR', async (input) => {
         await separationRejectByBUHR(input)
     })
+
+    eventEmitter.on('onboardingEmployeeMail', async (input) => {
+        await onboardingEmployeeMail(input)
+    })
 }
 
 async function regularizationRequestMail(input) {
@@ -220,6 +224,20 @@ async function separationRejectByBUHR(input) {
             to: userData.email,
             subject: `BU HR rejected your resignation ${data.empName} (${data.empCode}),`,
             html: await emailTemplate.separationRejectedByBUHR(userData)
+        })
+    } catch (error) {
+        console.log(error)
+        logger.error(error)
+    }
+}
+
+async function onboardingEmployeeMail(input) {
+    try {
+        const userData = JSON.parse(input)
+        await helper.mailService({
+            to: userData.email,
+            subject: `Welcome to Team's new HRMS Platform | Login credentials`,
+            html: await emailTemplate.onboardingEmployee(userData)
         })
     } catch (error) {
         console.log(error)

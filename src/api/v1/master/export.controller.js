@@ -842,95 +842,97 @@ class MasterController {
             
             // validate fields
             const { error } = await validator.importOnboardEmployeeSchema.validate(obj);
+            if(!error) {
+              const isValidCompany = await validateCompany(obj.company);
+              const isValidEmployeeType = await validateEmployeeType(obj.employeeType);
+              const isValidProbation = await validateProbation(obj.probation);
+              const isValidManager = await validateManager(obj.manager);
+              const isValidDesignation = await validateDesignation(obj.designation);
+              const isValidFunctionalArea = await validateFunctionalArea(obj.functionalArea);
+              const isValidBU = await validateBU(obj.bu, isValidCompany);
+              const isValidSBU = await validateSBU(obj.sbu);
+              const isValidShift = await validateShift(obj.shift);
+              const isValidDepartment = await validateDepartment(obj.department);
+              const isValidAttendancePolicy = await validateAttendancePolicy(obj.attendancePolicy);
+              const isValidCompanyLocation = await validateCompanyLocation(obj.companyLocation, isValidCompany);
+              const isValidWeekOff = await validateWeekOff(obj.weekOff);
+              const isValidNewCustomerName = await validateNewCustomerName(obj.newCustomerName);
+              const isValidJobLevel = await validateJobLevel(obj.jobLevel);
+              const isValidateEmployee = await validateEmployee(obj.personalMobileNumber, obj.email);
 
-            const isValidCompany = await validateCompany(obj.company);
-            const isValidEmployeeType = await validateEmployeeType(obj.employeeType);
-            const isValidProbation = await validateProbation(obj.probation);
-            const isValidManager = await validateManager(obj.manager);
-            const isValidDesignation = await validateDesignation(obj.designation);
-            const isValidFunctionalArea = await validateFunctionalArea(obj.functionalArea);
-            const isValidBU = await validateBU(obj.bu, isValidCompany);
-            const isValidSBU = await validateSBU(obj.sbu);
-            const isValidShift = await validateShift(obj.shift);
-            const isValidDepartment = await validateDepartment(obj.department);
-            const isValidAttendancePolicy = await validateAttendancePolicy(obj.attendancePolicy);
-            const isValidCompanyLocation = await validateCompanyLocation(obj.companyLocation, isValidCompany);
-            const isValidWeekOff = await validateWeekOff(obj.weekOff);
-            const isValidNewCustomerName = await validateNewCustomerName(obj.newCustomerName);
-            const isValidJobLevel = await validateJobLevel(obj.jobLevel);
-            const isValidateEmployee = await validateEmployee(obj.personalMobileNumber, obj.email);
+              if(isValidCompany.status && isValidEmployeeType.status && isValidProbation.status && isValidManager.status && isValidDesignation.status &&
+                isValidFunctionalArea.status && isValidBU.status && isValidSBU.status && isValidCompanyLocation.status && isValidDepartment.status 
+                && isValidateEmployee.status && isValidJobLevel.status) {
+                  // prepare employee object
+                  let newEmployee = {
+                    name: `${obj.firstName} ${obj.middleName} ${obj.lastName}`.replace(/\s+/g, ' ').trim(),
+                    firstName: obj.firstName,
+                    middleName: obj.middleName,
+                    lastName: obj.lastName,
+                    email: obj.email,
+                    personalEmail: obj.personalEmail,
+                    panNo: obj.panNo,
+                    uanNo: obj.uanNo,
+                    pfNo: obj.pfNo,
+                    officeMobileNumber: obj.officeMobileNumber,
+                    personalMobileNumber: obj.personalMobileNumber,
+                    gender: obj.gender,
+                    dateOfBirth: obj.dateOfBirth,
+                    dateOfJoining: obj.dateOfJoining,
+                    maritalStatus: maritalStatusOptions[obj.maritalStatus],
+                    maritalStatusSince: obj.maritalStatusSince,
+                    nationality: obj.nationality,
+                    probationId: isValidProbation.data.probationId,
+                    iqTestApplicable: (obj.iqTestApplicable == 'Yes') ? 1 : 0,
+                    positionType: obj.positionType,
+                    companyId: isValidCompany.data.companyId,
+                    buId: isValidBU.data.buId,
+                    sbuId: isValidSBU.data.sbuId,
+                    departmentId: isValidDepartment.data.departmentId,
+                    functionalAreaId: isValidFunctionalArea.data.functionalAreaId,
+                    buHRId: isValidBU.data.buHR,
+                    buHeadId: isValidBU.data.buHead,
+                    employeeType: isValidEmployeeType.data.empTypeId,
+                    manager: isValidManager.data.id,
+                    designation_id: isValidDesignation.data.designationId,
+                    shiftId: isValidShift.data?.shiftId,
+                    attendancePolicyId: isValidAttendancePolicy.data?.attendancePolicyId,
+                    companyLocationId: isValidCompanyLocation.data.companyLocationId,
+                    weekOffId: isValidWeekOff.data?.weekOffId,
+                    newCustomerNameId: isValidNewCustomerName.data?.newCustomerNameId,
+                    jobLevelId: isValidJobLevel.data?.jobLevelId
+                  }
 
-            if (!error && isValidCompany.status && isValidEmployeeType.status && isValidProbation.status && isValidManager.status && isValidDesignation.status &&
-              isValidFunctionalArea.status && isValidBU.status && isValidSBU.status && isValidCompanyLocation.status && isValidDepartment.status 
-              && isValidateEmployee.status && isValidJobLevel.status) {
-              
-              // prepare employee object
-              let newEmployee = {
-                name: `${obj.firstName} ${obj.middleName} ${obj.lastName}`,
-                firstName: obj.firstName,
-                middleName: obj.middleName,
-                lastName: obj.lastName,
-                email: obj.email,
-                personalEmail: obj.personalEmail,
-                panNo: obj.panNo,
-                uanNo: obj.uanNo,
-                pfNo: obj.pfNo,
-                officeMobileNumber: obj.officeMobileNumber,
-                personalMobileNumber: obj.personalMobileNumber,
-                gender: obj.gender,
-                dateOfBirth: obj.dateOfBirth,
-                dateOfJoining: obj.dateOfJoining,
-                maritalStatus: maritalStatusOptions[obj.maritalStatus],
-                maritalStatusSince: obj.maritalStatusSince,
-                nationality: obj.nationality,
-                probationId: isValidProbation.data.probationId,
-                iqTestApplicable: (obj.iqTestApplicable == 'Yes') ? 1 : 0,
-                positionType: obj.positionType,
-                companyId: isValidCompany.data.companyId,
-                buId: isValidBU.data.buId,
-                sbuId: isValidSBU.data.sbuId,
-                departmentId: isValidDepartment.data.departmentId,
-                functionalAreaId: isValidFunctionalArea.data.functionalAreaId,
-                buHRId: isValidBU.data.buHR,
-                buHeadId: isValidBU.data.buHead,
-                employeeType: isValidEmployeeType.data.empTypeId,
-                manager: isValidManager.data.id,
-                designation_id: isValidDesignation.data.designationId,
-                shiftId: isValidShift.data?.shiftId,
-                attendancePolicyId: isValidAttendancePolicy.data?.attendancePolicyId,
-                companyLocationId: isValidCompanyLocation.data.companyLocationId,
-                weekOffId: isValidWeekOff.data?.weekOffId,
-                newCustomerNameId: isValidNewCustomerName.data?.newCustomerNameId,
-                jobLevelId: isValidJobLevel.data?.jobLevelId
+                  newEmployee.role_id = 3;
+                  validEmployees.push({ ...newEmployee, index: employee.Index });
+                  const createdEmployees = await db.employeeStagingMaster.create(newEmployee);
               }
-              
-              newEmployee.role_id = 3;
-              validEmployees.push({ ...newEmployee, index: employee.Index });
-              const createdEmployees = await db.employeeStagingMaster.create(newEmployee);
+              else {
+                  const masterErrors = {
+                    index: employee.Index,
+                    companyEmail: obj.email,
+                    company: isValidCompany.message,
+                    employeeType: isValidEmployeeType.message,
+                    probation: isValidProbation.message,
+                    manager: isValidManager.message,
+                    designation: isValidDesignation.message,
+                    functionalArea: isValidFunctionalArea.message,
+                    bu: isValidBU.message,
+                    sbu: isValidSBU.message,
+                    shift: isValidShift.message,
+                    attendancePolicy: isValidAttendancePolicy.message,
+                    companyLocation: isValidCompanyLocation.message,
+                    weekOff: isValidWeekOff.message,
+                    department: isValidDepartment.message,
+                    jobLevel: isValidJobLevel.message,
+                    alreadyExist: isValidateEmployee.message
+                  }
+                  invalidEmployees.push(masterErrors);
+              }
             }
             else {
               const errors = handleErrors(error);
-              const masterErrors = {
-                index: employee.Index,
-                companyEmail: obj.email,
-                ...errors,
-                company: isValidCompany.message,
-                employeeType: isValidEmployeeType.message,
-                probation: isValidProbation.message,
-                manager: isValidManager.message,
-                designation: isValidDesignation.message,
-                functionalArea: isValidFunctionalArea.message,
-                bu: isValidBU.message,
-                sbu: isValidSBU.message,
-                shift: isValidShift.message,
-                attendancePolicy: isValidAttendancePolicy.message,
-                companyLocation: isValidCompanyLocation.message,
-                weekOff: isValidWeekOff.message,
-                department: isValidDepartment.message,
-                jobLevel: isValidJobLevel.message,
-                alreadyExist: isValidateEmployee.message
-              }
-              invalidEmployees.push(masterErrors);
+              invalidEmployees.push({ ...errors, index: employee.Index, companyEmail: obj.email });
             }
           }
 
@@ -1285,7 +1287,7 @@ const convertExcelDate = (serial) => {
 }
 
 const replaceNAWithNull = (value) => {
-  return value === 'NA' ? '' : value; // Replace 'NA' with ''
+  return (value === 'NA' || value === undefined || value === '' || value === null) ? '' : value; // Replace 'NA' with ''
 };
 
 export default new MasterController();

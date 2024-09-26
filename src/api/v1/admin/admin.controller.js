@@ -695,6 +695,15 @@ class AdminController {
 
                 const createdUserJobDetails = await db.jobDetails.create(newEmployeeJobDetails);
 
+                eventEmitter.emit(
+                  "onboardingEmployeeMail",
+                  JSON.stringify({
+                    firstName: employeeOnboardingDetails.firstName,
+                    empCode: empCode,
+                    password: password
+                  })
+                );
+
                 await db.employeeStagingMaster.destroy({
                   where: {
                     id: selectedUsers[i]
