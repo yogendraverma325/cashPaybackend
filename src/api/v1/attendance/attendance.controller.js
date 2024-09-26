@@ -134,6 +134,7 @@ class AttendanceController {
           ); // Add buffer time  to the selected time if buffer allow
 
           const finalShiftStartTime = shiftStartTime.format("HH:mm");
+          console.log('user', req.userId)
           console.log("finalShiftStartTime", finalShiftStartTime)
           console.log("currentDate.format", currentDate.format("HH:mm"))
           if (currentDate.format("HH:mm") < finalShiftStartTime) {
@@ -187,21 +188,21 @@ class AttendanceController {
             },
           });
 
-        if(!checkAttendance){
-          await db.attendanceMaster.create(creationObject);
-          await db.attendanceHistory.create({
-            date: currentDate.format("YYYY-MM-DD"),
-            time: currentDate.format("HH:mm:ss"),
-            status: "Punch In",
-            employeeId: req.userId,
-            location: result.location,
-            lat: result.latitude,
-            long: result.longitude,
-            createdBy: req.userId,
-            createdAt: currentDate,
-          });
-        }
-         
+          if (!checkAttendance) {
+            await db.attendanceMaster.create(creationObject);
+            await db.attendanceHistory.create({
+              date: currentDate.format("YYYY-MM-DD"),
+              time: currentDate.format("HH:mm:ss"),
+              status: "Punch In",
+              employeeId: req.userId,
+              location: result.location,
+              lat: result.latitude,
+              long: result.longitude,
+              createdBy: req.userId,
+              createdAt: currentDate,
+            });
+          }
+
           return respHelper(res, {
             status: 200,
             msg: message.PUNCH_IN_SUCCESS,
