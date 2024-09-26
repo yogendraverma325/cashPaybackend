@@ -754,7 +754,7 @@ const remainingLeaveCount = async function (
 
 const isDayWorking = async function (startDate, weekOffId, companyLocationId) {
   let appliedFor = moment(startDate).add(0, "days").format("YYYY-MM-DD");
-
+console.log("appliedFor",appliedFor)
   let lastDayDateAnotherFormat = moment(appliedFor).format("DD-MM-YYYY");
   let parsedDate = moment(lastDayDateAnotherFormat, "DD-MM-YYYY");
   let dayCode = parseInt(moment(appliedFor).format("d")) + 1;
@@ -827,8 +827,95 @@ const isDayWorking = async function (startDate, weekOffId, companyLocationId) {
       workingCount += 1;
     }
   }
+  console.log("workingCountworkingCount",workingCount)
   return workingCount;
 };
+
+const isDayWorkingForReport = async function (startDate, weekOffId, companyLocationId) {
+  let appliedFor = moment(startDate).add(0, "days").format("YYYY-MM-DD");
+  console.log("appliedFor", appliedFor);
+
+  let lastDayDateAnotherFormat = moment(appliedFor).format("DD-MM-YYYY");
+  let parsedDate = moment(lastDayDateAnotherFormat, "DD-MM-YYYY");
+  let dayCode = parseInt(moment(appliedFor).format("d")) + 1; // Day of the week (1-7)
+
+  let dayOfMonth = parsedDate.date();
+  let occurrence = Math.ceil(dayOfMonth / 7); // Calculate occurrence of the day in the month
+
+  // Output the result
+  let occurrenceDayCondition = {};
+  switch (occurrence) {
+    case 1:
+      occurrenceDayCondition = {
+        dayId: dayCode,
+        isfirstDayOff: 1,
+      };
+      break;
+    case 2:
+      occurrenceDayCondition = {
+        dayId: dayCode,
+        isSecondDayOff: 1,
+      };
+      break;
+    case 3:
+      occurrenceDayCondition = {
+        dayId: dayCode,
+        isThirdyDayOff: 1,
+      };
+      break;
+    case 4:
+      occurrenceDayCondition = {
+        dayId: dayCode,
+        isFourthDayOff: 1,
+      };
+      break;
+    case 5:
+      occurrenceDayCondition = {
+        dayId: dayCode,
+        isFivethDayOff: 1,
+      };
+      break;
+    default:
+      occurrenceDayCondition = {};
+  }
+
+  // Check if the day is a week off
+  const weekOffDay = await db.weekOffMaster.findOne({
+    where: { weekOffId: weekOffId },
+    include: [
+      {
+        model: db.weekOffDayMappingMaster,
+        required: false,
+        where: occurrenceDayCondition,
+      },
+    ],
+  });
+
+  // If the day is a week off, return "W"
+  if (weekOffDay && weekOffDay.weekOffDayMappingMasters.length > 0) {
+    return "W"; // Week off
+  }
+
+  // Check if the day is a holiday
+  const employeeHoliday = await db.holidayCompanyLocationConfiguration.findOne({
+    where: { companyLocationId: companyLocationId },
+    include: {
+      model: db.holidayMaster,
+      where: { holidayDate: appliedFor },
+      as: "holidayDetails",
+      required: true,
+    },
+  });
+
+  // If the day is a holiday, return "H"
+  if (employeeHoliday) {
+    return "H"; // Holiday
+  }
+
+  // If it's neither a week off nor a holiday, return 1 to indicate a working day
+  return 1; // Working day
+};
+
 
 // const getCombineValue = async function (leaveFirstHalf, leaveSecondHalf) {
 //   let combineValue = "0.00";
@@ -955,6 +1042,7 @@ export default {
   ip,
   generateOTP,
   generateJwtOTPEncrypt,
-  generateJwtOTPDecrypt
+  generateJwtOTPDecrypt,
+  isDayWorkingForReport
 };
 

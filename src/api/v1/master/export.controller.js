@@ -1604,14 +1604,210 @@ class MasterController {
 
 //it working for others but not for holiday using for loop
 
+// async attendanceSummary(req, res) {
+//   try {
+
+//     const { year, month } = req.params;
+
+//     // Define start and end dates for the month
+//     const fromDate = moment(`${year}-09-25`, "YYYY-MM-DD"); // Starting from 14th Sept
+//     const toDate = moment(`${year}-10-02`, "YYYY-MM-DD"); // Until 4th Oct
+
+//     // Calculate the total number of days between fromDate and toDate
+//     const totalDays = toDate.diff(fromDate, "days") + 1; // Add 1 to include the toDate
+
+//     // Fetch all attendance data for the specified range
+//     const attendanceData = await db.attendanceMaster.findAll({
+//       attributes: [
+//         "employeeId",
+//         "attendanceDate",
+//         "attendanceStatus",
+//         "attendancePresentStatus",
+//       ],
+//       where: {
+//         employeeId:1119,
+//         attendanceDate: {
+//           [db.Sequelize.Op.between]: [
+//             fromDate.format("YYYY-MM-DD"),
+//             toDate.format("YYYY-MM-DD"),
+//           ],
+//         },
+//       },
+//       include: [
+//         {
+//           model: db.employeeMaster,
+//           attributes: ["id", "name", "empCode", "weekOffId", "companyLocationId"],
+//         },
+//         {
+//           model: db.regularizationMaster,
+//           as: "latest_Regularization_Request",
+//           attributes: ["regularizeId"],
+//         },
+//       ],
+//     });
+
+//     // Create a unique list of employee IDs from the attendance data
+//     const employeeIds = [...new Set(attendanceData.map((record) => record.employeeId))];
+
+//     const finalData = [];
+
+//     const today = moment().startOf("day"); // Get today's date, ignoring time
+
+//     // Use for loop to process each employee's data sequentially
+//     for (let i = 0; i < employeeIds.length; i++) {
+//       const employeeId = employeeIds[i];
+
+//       const employeeRecords = attendanceData.filter(
+//         (record) => record.employeeId === employeeId
+//       );
+
+//       // Initialize employee data, starting with name and empCode first
+//       const employeeRecord = {
+//         empId: employeeRecords[0].employee.id,
+//         name: employeeRecords[0].employee.name,
+//         empCode: employeeRecords[0].employee.empCode,
+//         weekOffId: employeeRecords[0].employee.weekOffId || 0,
+//         companyLocationId: employeeRecords[0].employee.companyLocationId || 0,
+//       };
+
+//       // Initialize an object for all days, with default status 'A' (Absent)
+//       const dayRecords = {};
+//       let attendanceCount = { P: 0, A: 0, SA: 0, R: 0, H: 0 }; // Track attendance status counts
+
+//       for (let dayOffset = 0; dayOffset < totalDays; dayOffset++) {
+//         const currentDay = moment(fromDate).add(dayOffset, "days"); // Calculate each day from the start date
+//         const currentDate = moment(fromDate).add(dayOffset, "days").format("YYYY-MM-DD"); // Calculate each day from the start date
+//         const dayKey = currentDay.format("DD"); // Day of the month
+//         const isDayWorking = await helper.isDayWorking(currentDate,employeeRecord.weekOffId,employeeRecord.companyLocationId)
+//         console.log("isDayWorkingisDayWorking",isDayWorking)
+//         dayRecords[dayKey] = "A"; // Default to 'A' (Absent)
+
+//         if (currentDay.isBefore(today)) {
+//           dayRecords[dayKey] = "A"; // For past dates, default to "A" if no data
+//         } else if (currentDay.isSame(today)) {
+//           dayRecords[dayKey] = "-"; // For today, set "-" if no data
+//         } else if (currentDay.isAfter(today)) {
+//           dayRecords[dayKey] = "-"; // For future dates, return blank
+//         }
+//       }
+
+//       // Process each attendance record for the employee
+//       employeeRecords.forEach((record) => {
+//         const day = moment(record.attendanceDate).format("DD");
+//         let status = "A"; // Default to 'A' (Absent)
+
+//         // Update status based on attendancePresentStatus
+//         if (record.attendancePresentStatus === "present") {
+//           status = "P";
+//           attendanceCount.P++; // Increment Present count
+//         } else if (record.attendancePresentStatus === "singlePunchAbsent") {
+//           status = "SA";
+//           attendanceCount.SA++; // Increment Single Punch Absent count
+//         } else if (record.attendancePresentStatus === "absent") {
+//           status = "A";
+//           attendanceCount.A++; // Increment Absent count
+//         }
+
+//         // Modify status if there are regularization requests
+//         if (record.latest_Regularization_Request) {
+//           status = `${status},R`;
+//           attendanceCount.R++; // Increment Regularization count
+//         }
+
+//         dayRecords[day] = status;
+//       });
+
+//       // Combine name, empCode, attendance counts, and the ordered days
+//       const orderedEmployeeRecord = {
+//         name: employeeRecord.name,
+//         empCode: employeeRecord.empCode,
+//         ...dayRecords,
+//         P: attendanceCount.P,  // Present count
+//         A: attendanceCount.A,  // Absent count
+//         SA: attendanceCount.SA, // Single Punch Absent count
+//         R: attendanceCount.R,  // Regularization count
+//         SystemU: 0,
+//         C: 0,
+//         U: 0,
+//         L: 0,
+//         H: attendanceCount.H,
+//         W: 0,
+//         PayableDays: 0,
+//       };
+
+//       finalData.push(orderedEmployeeRecord); // Push each employee record into finalData array
+//     }
+
+//     if (finalData.length > 0) {
+//       const timestamp = Date.now();
+
+//       // Dynamically generate columns for each day of the range
+//       const dayColumns = [];
+//       for (let dayOffset = 0; dayOffset < totalDays; dayOffset++) {
+//         const currentDay = moment(fromDate).add(dayOffset, "days");
+//         const dayLabel = currentDay.format("DD-MMM");
+//         dayColumns.push({ label: dayLabel, value: currentDay.format("DD") });
+//       }
+
+//       const data = [
+//         {
+//           sheet: "Attendance Summary",
+//           columns: [
+//             { label: "Employee Code", value: "empCode" }, // Fixed column
+//             { label: "Employee Name", value: "name" },    // Fixed column
+//             ...dayColumns, // Dynamic day columns
+//             { label: "P", value: "P" }, // Present count
+//             { label: "A", value: "A" }, // Absent count
+//             { label: "SA", value: "SA" }, // Single Punch Absent count
+//             { label: "R", value: "R" }, // Regularization count
+//             { label: "W", value: "W" },
+//             { label: "H", value: "H" },
+//             { label: "L", value: "L" },
+//             { label: "U", value: "U" },
+//             { label: "System U", value: "SystemU" },
+//             { label: "P (Payroll)", value: "P" },
+//             { label: "Payable Days", value: "PayableDays" },
+//           ],
+//           content: finalData,
+//         },
+//       ];
+
+//       let settings = {
+//         writeOptions: {
+//           type: "buffer",
+//           bookType: "xlsx",
+//           RTL: true,
+//         },
+//       };
+
+//       const buffer = xlsx(data, settings);
+//       res.writeHead(200, {
+//         "Content-Type": "application/octet-stream",
+//         "Content-disposition": `attachment; filename=attendance_${timestamp}.xlsx`,
+//       });
+//       res.end(buffer);
+//     } else {
+//       return respHelper(res, {
+//         status: 404,
+//         message: "data not found",
+//       });
+//     }
+//   } catch (error) {
+//     console.error(error);
+//     return res.status(500).json({
+//       status: false,
+//       message: "Internal Server Error",
+//     });
+//   }
+// }
+
 async attendanceSummary(req, res) {
   try {
-
     const { year, month } = req.params;
 
     // Define start and end dates for the month
-    const fromDate = moment(`${year}-09-14`, "YYYY-MM-DD"); // Starting from 14th Sept
-    const toDate = moment(`${year}-10-04`, "YYYY-MM-DD"); // Until 4th Oct
+    const fromDate = moment(`${year}-09-14`, "YYYY-MM-DD"); // Starting from 25th Sept
+    const toDate = moment(`${year}-10-02`, "YYYY-MM-DD"); // Until 2nd Oct
 
     // Calculate the total number of days between fromDate and toDate
     const totalDays = toDate.diff(fromDate, "days") + 1; // Add 1 to include the toDate
@@ -1625,6 +1821,7 @@ async attendanceSummary(req, res) {
         "attendancePresentStatus",
       ],
       where: {
+        //employeeId: 3201,
         attendanceDate: {
           [db.Sequelize.Op.between]: [
             fromDate.format("YYYY-MM-DD"),
@@ -1649,7 +1846,6 @@ async attendanceSummary(req, res) {
     const employeeIds = [...new Set(attendanceData.map((record) => record.employeeId))];
 
     const finalData = [];
-
     const today = moment().startOf("day"); // Get today's date, ignoring time
 
     // Use for loop to process each employee's data sequentially
@@ -1660,6 +1856,12 @@ async attendanceSummary(req, res) {
         (record) => record.employeeId === employeeId
       );
 
+      // Check if employeeRecords is empty
+      if (employeeRecords.length === 0) {
+        // If there are no records for this employee, you can continue to the next iteration
+        continue;
+      }
+
       // Initialize employee data, starting with name and empCode first
       const employeeRecord = {
         empId: employeeRecords[0].employee.id,
@@ -1668,32 +1870,46 @@ async attendanceSummary(req, res) {
         weekOffId: employeeRecords[0].employee.weekOffId || 0,
         companyLocationId: employeeRecords[0].employee.companyLocationId || 0,
       };
+      console.log("")
 
       // Initialize an object for all days, with default status 'A' (Absent)
       const dayRecords = {};
-      let attendanceCount = { P: 0, A: 0, SA: 0, R: 0, H: 0 }; // Track attendance status counts
+      let attendanceCount = { P: 0, A: 0, SA: 0, R: 0, H: 0, W: 0 }; // Track attendance status counts
 
       for (let dayOffset = 0; dayOffset < totalDays; dayOffset++) {
         const currentDay = moment(fromDate).add(dayOffset, "days"); // Calculate each day from the start date
-        const currentDate = moment(fromDate).add(dayOffset, "days").format("YYYY-MM-DD"); // Calculate each day from the start date
+        const currentDate = currentDay.format("YYYY-MM-DD"); // Format current day as string
         const dayKey = currentDay.format("DD"); // Day of the month
-        const isDayWorking = await helper.isDayWorking(currentDate,employeeRecord.weekOffId,employeeRecord.companyLocationId)
-        console.log("isDayWorkingisDayWorking",isDayWorking)
-        dayRecords[dayKey] = "A"; // Default to 'A' (Absent)
 
-        if (currentDay.isBefore(today)) {
-          dayRecords[dayKey] = "A"; // For past dates, default to "A" if no data
-        } else if (currentDay.isSame(today)) {
-          dayRecords[dayKey] = "-"; // For today, set "-" if no data
-        } else if (currentDay.isAfter(today)) {
-          dayRecords[dayKey] = "-"; // For future dates, return blank
+        // Use the helper function to check if the day is working, a week off, or a holiday
+        const isDayWorking = await helper.isDayWorkingForReport(currentDate, employeeRecord.weekOffId, employeeRecord.companyLocationId);
+
+        if (isDayWorking === "H") {
+          // It's a holiday
+          dayRecords[dayKey] = "H";
+          attendanceCount.H++; // Increment Holiday count
+        } else if (isDayWorking === "W") {
+          // It's a week off
+          dayRecords[dayKey] = "W";
+          attendanceCount.W++; // Increment Week off count
+        } else {
+          // If it's a working day
+          dayRecords[dayKey] = "A"; // Default to 'A' (Absent)
+
+          if (currentDay.isBefore(today)) {
+            dayRecords[dayKey] = "A"; // For past dates, default to "A" if no data
+          } else if (currentDay.isSame(today)) {
+            dayRecords[dayKey] = "-"; // For today, set "-" if no data
+          } else if (currentDay.isAfter(today)) {
+            dayRecords[dayKey] = "-"; // For future dates, return blank
+          }
         }
       }
 
       // Process each attendance record for the employee
       employeeRecords.forEach((record) => {
         const day = moment(record.attendanceDate).format("DD");
-        let status = "A"; // Default to 'A' (Absent)
+        let status = dayRecords[day] === "H" || dayRecords[day] === "W" ? dayRecords[day] : "A"; // Default to 'A', 'H', or 'W'
 
         // Update status based on attendancePresentStatus
         if (record.attendancePresentStatus === "present") {
@@ -1729,9 +1945,9 @@ async attendanceSummary(req, res) {
         C: 0,
         U: 0,
         L: 0,
-        H: attendanceCount.H,
-        W: 0,
-        PayableDays: 0,
+        H: attendanceCount.H, // Total Holidays
+        W: attendanceCount.W, // Total Week Offs
+        PayableDays: attendanceCount.P + attendanceCount.R + attendanceCount.H, // Example calculation for payable days
       };
 
       finalData.push(orderedEmployeeRecord); // Push each employee record into finalData array
@@ -1759,13 +1975,12 @@ async attendanceSummary(req, res) {
             { label: "A", value: "A" }, // Absent count
             { label: "SA", value: "SA" }, // Single Punch Absent count
             { label: "R", value: "R" }, // Regularization count
-            { label: "W", value: "W" },
-            { label: "H", value: "H" },
+            { label: "W", value: "W" }, // Week Off count
+            { label: "H", value: "H" }, // Holiday count
             { label: "L", value: "L" },
             { label: "U", value: "U" },
             { label: "System U", value: "SystemU" },
-            { label: "P (Payroll)", value: "P" },
-            { label: "Payable Days", value: "PayableDays" },
+            { label: "Payable Days", value: "PayableDays" }, // Payable Days
           ],
           content: finalData,
         },
@@ -1787,7 +2002,7 @@ async attendanceSummary(req, res) {
       res.end(buffer);
     } else {
       return respHelper(res, {
-        status: 200,
+        status: 404,
         message: "data not found",
       });
     }
@@ -1799,6 +2014,7 @@ async attendanceSummary(req, res) {
     });
   }
 }
+
 
 // async attendanceSummary(req, res) {
 //   try {
