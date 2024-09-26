@@ -1778,218 +1778,221 @@ class AttendanceController {
           },
         ],
         where: {
-          isActive: 1,
+          isActive: 1
         },
       });
 
-      // console.log(existEmployees)
+      // await Promise.all(
+      //   existEmployees.map(async (singleEmp) => {
+      for (const singleEmp of existEmployees) {
+        let presentStatus = null;
 
-      await Promise.all(
-        existEmployees.map(async (singleEmp) => {
-          let presentStatus = null;
+        if (singleEmp.weekOffMaster.weekOffDayMappingMasters.length > 0) {
+          presentStatus = "weeklyOff";
+        } else if (
+          singleEmp.holidaycompanylocationconfigurations.length > 0
+        ) {
+          presentStatus = "holiday";
+        } else if (singleEmp.employeeleavetransaction) {
+          presentStatus = "leave";
+        } else {
+          presentStatus = "absent";
+        }
 
-          if (singleEmp.weekOffMaster.weekOffDayMappingMasters.length > 0) {
-            presentStatus = "weeklyOff";
-          } else if (
-            singleEmp.holidaycompanylocationconfigurations.length > 0
-          ) {
-            presentStatus = "holiday";
-          } else if (singleEmp.employeeleavetransaction) {
-            presentStatus = "leave";
-          } else {
-            presentStatus = "absent";
-          }
+        if (singleEmp.attendancemaster) {
+          console.log("attendancce ka data hai")
+          if (singleEmp.attendancemaster.needAttendanceCron == 1) {
+            if (
+              singleEmp.attendancemaster.attendancePunchInTime &&
+              singleEmp.attendancemaster.attendancePunchOutTime
+            ) {
+              presentStatus = "present";
+              let isHalfDay_late_by = null;
+              let halfDayFor_late_by = null;
+              let isHalfDay_total_work = null;
+              let halfDayFor_total_work = null;
 
-          if (singleEmp.attendancemaster) {
-            if (singleEmp.attendancemaster.needAttendanceCron == 1) {
               if (
-                singleEmp.attendancemaster.attendancePunchInTime &&
-                singleEmp.attendancemaster.attendancePunchOutTime
+                singleEmp.attendancePolicymaster
+                  .isleaveDeductPolicyLateDuration == 1
               ) {
-                presentStatus = "present";
-                let isHalfDay_late_by = null;
-                let halfDayFor_late_by = null;
-                let isHalfDay_total_work = null;
-                let halfDayFor_total_work = null;
+                const time = moment.duration(
+                  singleEmp.attendancemaster.attendanceLateBy
+                );
 
-                if (
-                  singleEmp.attendancePolicymaster
-                    .isleaveDeductPolicyLateDuration == 1
-                ) {
-                  const time = moment.duration(
-                    singleEmp.attendancemaster.attendanceLateBy
-                  );
-
-                  // Calculate the total minutes
-                  let totalMinutesLateMinutes =
-                    time.hours() * 60 + time.minutes() + time.seconds() / 60;
-                  if (totalMinutesLateMinutes > 0) {
-                    totalMinutesLateMinutes =
-                      totalMinutesLateMinutes +
-                      singleEmp.attendancePolicymaster.graceTimeClockIn; // Adjust Grace time with late by for leave calculation
-                  }
-
-                  if (
-                    totalMinutesLateMinutes >=
-                    singleEmp.attendancePolicymaster
-                      .leaveDeductPolicyLateDurationHalfDayTime &&
-                    totalMinutesLateMinutes <
-                    singleEmp.attendancePolicymaster
-                      .leaveDeductPolicyLateDurationFullDayTime
-                  ) {
-                    isHalfDay_late_by = 1;
-                    halfDayFor_late_by = 1;
-                  } else if (
-                    totalMinutesLateMinutes >
-                    singleEmp.attendancePolicymaster
-                      .leaveDeductPolicyLateDurationHalfDayTime &&
-                    totalMinutesLateMinutes >=
-                    singleEmp.attendancePolicymaster
-                      .leaveDeductPolicyLateDurationFullDayTime
-                  ) {
-                    isHalfDay_late_by = 0;
-                    halfDayFor_late_by = 0;
-                  }
+                // Calculate the total minutes
+                let totalMinutesLateMinutes =
+                  time.hours() * 60 + time.minutes() + time.seconds() / 60;
+                if (totalMinutesLateMinutes > 0) {
+                  totalMinutesLateMinutes =
+                    totalMinutesLateMinutes +
+                    singleEmp.attendancePolicymaster.graceTimeClockIn; // Adjust Grace time with late by for leave calculation
                 }
 
                 if (
+                  totalMinutesLateMinutes >=
                   singleEmp.attendancePolicymaster
-                    .isleaveDeductPolicyWorkDuration == 1
+                    .leaveDeductPolicyLateDurationHalfDayTime &&
+                  totalMinutesLateMinutes <
+                  singleEmp.attendancePolicymaster
+                    .leaveDeductPolicyLateDurationFullDayTime
                 ) {
-                  const timeWorkDuration = moment.duration(
-                    singleEmp.attendancemaster.attendanceWorkingTime
-                  );
-
-                  // Calculate the total minutes
-                  const totalMinutesTotalHoursMinutes =
-                    timeWorkDuration.hours() * 60 +
-                    timeWorkDuration.minutes() +
-                    timeWorkDuration.seconds() / 60;
-
-                  if (
-                    totalMinutesTotalHoursMinutes <
-                    singleEmp.attendancePolicymaster
-                      .leaveDeductPolicyWorkDurationHalfDayTime &&
-                    totalMinutesTotalHoursMinutes <
-                    singleEmp.attendancePolicymaster
-                      .leaveDeductPolicyWorkDurationFullDayTime
-                  ) {
-                    isHalfDay_total_work = 0;
-                    halfDayFor_total_work = 0;
-                  } else if (
-                    totalMinutesTotalHoursMinutes >
-                    singleEmp.attendancePolicymaster
-                      .leaveDeductPolicyWorkDurationHalfDayTime &&
-                    totalMinutesTotalHoursMinutes <
-                    singleEmp.attendancePolicymaster
-                      .leaveDeductPolicyWorkDurationFullDayTime
-                  ) {
-                    isHalfDay_total_work = 1;
-                    halfDayFor_total_work = 1;
-                  }
-                }
-
-                let markHalfDay = null;
-                let markHalfDayType = null;
-                if (isHalfDay_late_by == 0 || isHalfDay_total_work == 0) {
-                  markHalfDay = 0;
-                  markHalfDayType = 0;
+                  isHalfDay_late_by = 1;
+                  halfDayFor_late_by = 1;
                 } else if (
-                  isHalfDay_late_by == 1 &&
-                  isHalfDay_total_work == 1
+                  totalMinutesLateMinutes >
+                  singleEmp.attendancePolicymaster
+                    .leaveDeductPolicyLateDurationHalfDayTime &&
+                  totalMinutesLateMinutes >=
+                  singleEmp.attendancePolicymaster
+                    .leaveDeductPolicyLateDurationFullDayTime
                 ) {
-                  markHalfDay = 0;
-                  markHalfDayType = 0;
-                } else if (
-                  isHalfDay_late_by == 1 &&
-                  isHalfDay_total_work == null
-                ) {
-                  markHalfDay = 1;
-                  markHalfDayType = 1;
-                } else if (
-                  isHalfDay_late_by == null &&
-                  isHalfDay_total_work == 1
-                ) {
-                  markHalfDay = 1;
-                  markHalfDayType = 2;
+                  isHalfDay_late_by = 0;
+                  halfDayFor_late_by = 0;
                 }
-
-                if (markHalfDay != null) {
-                  let EMP_DATA = await helper.getEmpProfile(singleEmp.id);
-                  if (EMP_DATA) {
-                    await helper.empMarkLeaveOfGivenDate(
-                      singleEmp.id,
-                      {
-                        employeeId: singleEmp.id, // Replace with actual employee ID
-                        attendanceShiftId: singleEmp.shiftsmaster.shiftId, // Replace with actual attendance shift ID
-                        attendancePolicyId:
-                          singleEmp.attendancePolicymaster.attendancePolicyId, // Replace with actual attendance policy ID
-                        leaveAutoId:
-                          singleEmp.attendancePolicymaster
-                            .leaveDeductPolicyLateDurationLeaveType, // Replace with actual leave auto ID
-                        appliedOn: moment(lastDayDate).format("YYYY-MM-DD"), // Replace with actual applied on date
-                        appliedFor: lastDayDate, // Replace with actual applied for date
-                        fromDate: lastDayDate,
-                        toDate: lastDayDate,
-                        isHalfDay: markHalfDay, // Replace with actual is half day value (0 or 1)
-                        halfDayFor: markHalfDayType, // Replace with actual half day for value
-                        leaveCount: markHalfDay == 1 ? 0.5 : 1,
-                        status:
-                          isHalfDay_total_work == null ? "approved" : "pending", // Replace with actual status
-                        reason: "Late By/ Work Duration", // Replace with actual reason
-                        message: "Late By/ Work Duration",
-                        pendingAt: EMP_DATA.managerData.id, // Replace with actual pending at value
-                        createdBy: singleEmp.id, // Replace with actual creator user ID
-                        createdAt: moment(), // Replace with actual creation date
-                        punchInTime:
-                          singleEmp.attendancemaster.attendancePunchInTime,
-                        punchOutTime:
-                          singleEmp.attendancemaster.attendancePunchOutTime,
-                        weekOffId: singleEmp.weekOffMaster
-                          ? singleEmp.weekOffMaster.weekOffId
-                          : 0,
-                      },
-                      "id_" + moment().format("YYYYMMDDHHmmss") + singleEmp.id
-                    );
-                  }
-                }
-              } else {
-                presentStatus = "singlePunchAbsent";
               }
-              await db.attendanceMaster.update(
-                {
-                  attendanceShiftEndDate:
-                    moment(lastDayDate).format("YYYY-MM-DD"),
-                  attendancePresentStatus: presentStatus,
-                  needAttendanceCron: 0,
-                  weekOffId: singleEmp.weekOffMaster
-                    ? singleEmp.weekOffMaster.weekOffId
-                    : 0,
-                },
-                {
-                  where: {
-                    attendanceAutoId:
-                      singleEmp.attendancemaster.attendanceAutoId,
-                  },
+
+              if (
+                singleEmp.attendancePolicymaster
+                  .isleaveDeductPolicyWorkDuration == 1
+              ) {
+                const timeWorkDuration = moment.duration(
+                  singleEmp.attendancemaster.attendanceWorkingTime
+                );
+
+                // Calculate the total minutes
+                const totalMinutesTotalHoursMinutes =
+                  timeWorkDuration.hours() * 60 +
+                  timeWorkDuration.minutes() +
+                  timeWorkDuration.seconds() / 60;
+
+                if (
+                  totalMinutesTotalHoursMinutes <
+                  singleEmp.attendancePolicymaster
+                    .leaveDeductPolicyWorkDurationHalfDayTime &&
+                  totalMinutesTotalHoursMinutes <
+                  singleEmp.attendancePolicymaster
+                    .leaveDeductPolicyWorkDurationFullDayTime
+                ) {
+                  isHalfDay_total_work = 0;
+                  halfDayFor_total_work = 0;
+                } else if (
+                  totalMinutesTotalHoursMinutes >
+                  singleEmp.attendancePolicymaster
+                    .leaveDeductPolicyWorkDurationHalfDayTime &&
+                  totalMinutesTotalHoursMinutes <
+                  singleEmp.attendancePolicymaster
+                    .leaveDeductPolicyWorkDurationFullDayTime
+                ) {
+                  isHalfDay_total_work = 1;
+                  halfDayFor_total_work = 1;
                 }
-              );
+              }
+
+              let markHalfDay = null;
+              let markHalfDayType = null;
+              if (isHalfDay_late_by == 0 || isHalfDay_total_work == 0) {
+                markHalfDay = 0;
+                markHalfDayType = 0;
+              } else if (
+                isHalfDay_late_by == 1 &&
+                isHalfDay_total_work == 1
+              ) {
+                markHalfDay = 0;
+                markHalfDayType = 0;
+              } else if (
+                isHalfDay_late_by == 1 &&
+                isHalfDay_total_work == null
+              ) {
+                markHalfDay = 1;
+                markHalfDayType = 1;
+              } else if (
+                isHalfDay_late_by == null &&
+                isHalfDay_total_work == 1
+              ) {
+                markHalfDay = 1;
+                markHalfDayType = 2;
+              }
+
+              if (markHalfDay != null) {
+                let EMP_DATA = await helper.getEmpProfile(singleEmp.id);
+                if (EMP_DATA) {
+                  await helper.empMarkLeaveOfGivenDate(
+                    singleEmp.id,
+                    {
+                      employeeId: singleEmp.id, // Replace with actual employee ID
+                      attendanceShiftId: singleEmp.shiftsmaster.shiftId, // Replace with actual attendance shift ID
+                      attendancePolicyId:
+                        singleEmp.attendancePolicymaster.attendancePolicyId, // Replace with actual attendance policy ID
+                      leaveAutoId:
+                        singleEmp.attendancePolicymaster
+                          .leaveDeductPolicyLateDurationLeaveType, // Replace with actual leave auto ID
+                      appliedOn: moment(lastDayDate).format("YYYY-MM-DD"), // Replace with actual applied on date
+                      appliedFor: lastDayDate, // Replace with actual applied for date
+                      fromDate: lastDayDate,
+                      toDate: lastDayDate,
+                      isHalfDay: markHalfDay, // Replace with actual is half day value (0 or 1)
+                      halfDayFor: markHalfDayType, // Replace with actual half day for value
+                      leaveCount: markHalfDay == 1 ? 0.5 : 1,
+                      status:
+                        isHalfDay_total_work == null ? "approved" : "pending", // Replace with actual status
+                      reason: "Late By/ Work Duration", // Replace with actual reason
+                      message: "Late By/ Work Duration",
+                      pendingAt: EMP_DATA.managerData.id, // Replace with actual pending at value
+                      createdBy: singleEmp.id, // Replace with actual creator user ID
+                      createdAt: moment(), // Replace with actual creation date
+                      punchInTime:
+                        singleEmp.attendancemaster.attendancePunchInTime,
+                      punchOutTime:
+                        singleEmp.attendancemaster.attendancePunchOutTime,
+                      weekOffId: singleEmp.weekOffMaster
+                        ? singleEmp.weekOffMaster.weekOffId
+                        : 0,
+                    },
+                    "id_" + moment().format("YYYYMMDDHHmmss") + singleEmp.id
+                  );
+                }
+              }
+            } else {
+              presentStatus = "singlePunchAbsent";
             }
-          } else {
-            await db.attendanceMaster.create({
-              attendanceDate: moment().subtract(1, "day").format("YYYY-MM-DD"),
-              employeeId: singleEmp.id,
-              attendancePolicyId: singleEmp.attendancePolicyId,
-              attendanceShiftId: singleEmp.shiftId,
-              attendancePresentStatus: presentStatus,
-              needAttendanceCron: 0,
-              weekOffId: singleEmp.weekOffMaster
-                ? singleEmp.weekOffMaster.weekOffId
-                : 0,
-            });
+            await db.attendanceMaster.update(
+              {
+                attendanceShiftEndDate:
+                  moment(lastDayDate).format("YYYY-MM-DD"),
+                attendancePresentStatus: presentStatus,
+                needAttendanceCron: 0,
+                weekOffId: singleEmp.weekOffMaster
+                  ? singleEmp.weekOffMaster.weekOffId
+                  : 0,
+              },
+              {
+                where: {
+                  attendanceAutoId:
+                    singleEmp.attendancemaster.attendanceAutoId,
+                },
+              }
+            );
           }
-        })
-      );
-    } catch (error) { }
+        } else {
+          console.log("attendancce ka data nhi hai")
+          await db.attendanceMaster.create({
+            attendanceDate: moment().subtract(1, "day").format("YYYY-MM-DD"),
+            employeeId: singleEmp.id,
+            attendancePolicyId: singleEmp.attendancePolicyId,
+            attendanceShiftId: singleEmp.shiftId,
+            attendancePresentStatus: presentStatus,
+            needAttendanceCron: 0,
+            weekOffId: singleEmp.weekOffMaster
+              ? singleEmp.weekOffMaster.weekOffId
+              : 0,
+          });
+        }
+      }
+
+    } catch (error) {
+      console.log(error)
+    }
 
     // return respHelper(res, {
     //   status: 200,
@@ -2462,213 +2465,214 @@ class AttendanceController {
         },
       });
 
-      await Promise.all(
-        existEmployees.map(async (singleEmp) => {
-          let presentStatus = null;
+      for (const singleEmp of existEmployees) {
+        let presentStatus = null;
 
-          if (singleEmp.weekOffMaster.weekOffDayMappingMasters.length > 0) {
-            presentStatus = "weeklyOff";
-          } else if (
-            singleEmp.holidaycompanylocationconfigurations.length > 0
-          ) {
-            presentStatus = "holiday";
-          } else if (singleEmp.employeeleavetransaction) {
-            presentStatus = "leave";
-          } else {
-            presentStatus = "absent";
-          }
+        if (singleEmp.weekOffMaster.weekOffDayMappingMasters.length > 0) {
+          presentStatus = "weeklyOff";
+        } else if (
+          singleEmp.holidaycompanylocationconfigurations.length > 0
+        ) {
+          presentStatus = "holiday";
+        } else if (singleEmp.employeeleavetransaction) {
+          presentStatus = "leave";
+        } else {
+          presentStatus = "absent";
+        }
 
-          if (singleEmp.attendancemaster) {
-            if (singleEmp.attendancemaster.needAttendanceCron == 1) {
+        if (singleEmp.attendancemaster) {
+          if (singleEmp.attendancemaster.needAttendanceCron == 1) {
+            if (
+              singleEmp.attendancemaster.attendancePunchInTime &&
+              singleEmp.attendancemaster.attendancePunchOutTime
+            ) {
+              presentStatus = "present";
+              let isHalfDay_late_by = null;
+              let halfDayFor_late_by = null;
+              let isHalfDay_total_work = null;
+              let halfDayFor_total_work = null;
+
               if (
-                singleEmp.attendancemaster.attendancePunchInTime &&
-                singleEmp.attendancemaster.attendancePunchOutTime
+                singleEmp.attendancePolicymaster
+                  .isleaveDeductPolicyLateDuration == 1
               ) {
-                presentStatus = "present";
-                let isHalfDay_late_by = null;
-                let halfDayFor_late_by = null;
-                let isHalfDay_total_work = null;
-                let halfDayFor_total_work = null;
+                const time = moment.duration(
+                  singleEmp.attendancemaster.attendanceLateBy
+                );
 
-                if (
-                  singleEmp.attendancePolicymaster
-                    .isleaveDeductPolicyLateDuration == 1
-                ) {
-                  const time = moment.duration(
-                    singleEmp.attendancemaster.attendanceLateBy
-                  );
-
-                  // Calculate the total minutes
-                  let totalMinutesLateMinutes =
-                    time.hours() * 60 + time.minutes() + time.seconds() / 60;
-                  if (totalMinutesLateMinutes > 0) {
-                    totalMinutesLateMinutes =
-                      totalMinutesLateMinutes +
-                      singleEmp.attendancePolicymaster.graceTimeClockIn; // Adjust Grace time with late by for leave calculation
-                  }
-
-                  if (
-                    totalMinutesLateMinutes >=
-                    singleEmp.attendancePolicymaster
-                      .leaveDeductPolicyLateDurationHalfDayTime &&
-                    totalMinutesLateMinutes <
-                    singleEmp.attendancePolicymaster
-                      .leaveDeductPolicyLateDurationFullDayTime
-                  ) {
-                    isHalfDay_late_by = 1;
-                    halfDayFor_late_by = 1;
-                  } else if (
-                    totalMinutesLateMinutes >
-                    singleEmp.attendancePolicymaster
-                      .leaveDeductPolicyLateDurationHalfDayTime &&
-                    totalMinutesLateMinutes >=
-                    singleEmp.attendancePolicymaster
-                      .leaveDeductPolicyLateDurationFullDayTime
-                  ) {
-                    isHalfDay_late_by = 0;
-                    halfDayFor_late_by = 0;
-                  }
+                // Calculate the total minutes
+                let totalMinutesLateMinutes =
+                  time.hours() * 60 + time.minutes() + time.seconds() / 60;
+                if (totalMinutesLateMinutes > 0) {
+                  totalMinutesLateMinutes =
+                    totalMinutesLateMinutes +
+                    singleEmp.attendancePolicymaster.graceTimeClockIn; // Adjust Grace time with late by for leave calculation
                 }
 
                 if (
+                  totalMinutesLateMinutes >=
                   singleEmp.attendancePolicymaster
-                    .isleaveDeductPolicyWorkDuration == 1
+                    .leaveDeductPolicyLateDurationHalfDayTime &&
+                  totalMinutesLateMinutes <
+                  singleEmp.attendancePolicymaster
+                    .leaveDeductPolicyLateDurationFullDayTime
                 ) {
-                  const timeWorkDuration = moment.duration(
-                    singleEmp.attendancemaster.attendanceWorkingTime
-                  );
-
-                  // Calculate the total minutes
-                  const totalMinutesTotalHoursMinutes =
-                    timeWorkDuration.hours() * 60 +
-                    timeWorkDuration.minutes() +
-                    timeWorkDuration.seconds() / 60;
-
-                  if (
-                    totalMinutesTotalHoursMinutes <
-                    singleEmp.attendancePolicymaster
-                      .leaveDeductPolicyWorkDurationHalfDayTime &&
-                    totalMinutesTotalHoursMinutes <
-                    singleEmp.attendancePolicymaster
-                      .leaveDeductPolicyWorkDurationFullDayTime
-                  ) {
-                    isHalfDay_total_work = 0;
-                    halfDayFor_total_work = 0;
-                  } else if (
-                    totalMinutesTotalHoursMinutes >
-                    singleEmp.attendancePolicymaster
-                      .leaveDeductPolicyWorkDurationHalfDayTime &&
-                    totalMinutesTotalHoursMinutes <
-                    singleEmp.attendancePolicymaster
-                      .leaveDeductPolicyWorkDurationFullDayTime
-                  ) {
-                    isHalfDay_total_work = 1;
-                    halfDayFor_total_work = 1;
-                  }
-                }
-
-                let markHalfDay = null;
-                let markHalfDayType = null;
-                if (isHalfDay_late_by == 0 || isHalfDay_total_work == 0) {
-                  markHalfDay = 0;
-                  markHalfDayType = 0;
+                  isHalfDay_late_by = 1;
+                  halfDayFor_late_by = 1;
                 } else if (
-                  isHalfDay_late_by == 1 &&
-                  isHalfDay_total_work == 1
+                  totalMinutesLateMinutes >
+                  singleEmp.attendancePolicymaster
+                    .leaveDeductPolicyLateDurationHalfDayTime &&
+                  totalMinutesLateMinutes >=
+                  singleEmp.attendancePolicymaster
+                    .leaveDeductPolicyLateDurationFullDayTime
                 ) {
-                  markHalfDay = 0;
-                  markHalfDayType = 0;
-                } else if (
-                  isHalfDay_late_by == 1 &&
-                  isHalfDay_total_work == null
-                ) {
-                  markHalfDay = 1;
-                  markHalfDayType = 1;
-                } else if (
-                  isHalfDay_late_by == null &&
-                  isHalfDay_total_work == 1
-                ) {
-                  markHalfDay = 1;
-                  markHalfDayType = 2;
+                  isHalfDay_late_by = 0;
+                  halfDayFor_late_by = 0;
                 }
-
-                if (markHalfDay != null) {
-                  let EMP_DATA = await helper.getEmpProfile(singleEmp.id);
-
-                  if (EMP_DATA) {
-                    await helper.empMarkLeaveOfGivenDate(
-                      singleEmp.id,
-                      {
-                        employeeId: singleEmp.id, // Replace with actual employee ID
-                        attendanceShiftId: singleEmp.shiftsmaster.shiftId, // Replace with actual attendance shift ID
-                        attendancePolicyId:
-                          singleEmp.attendancePolicymaster.attendancePolicyId, // Replace with actual attendance policy ID
-                        leaveAutoId:
-                          singleEmp.attendancePolicymaster
-                            .leaveDeductPolicyLateDurationLeaveType, // Replace with actual leave auto ID
-                        appliedOn: moment().format("YYYY-MM-DD"), // Replace with actual applied on date
-                        appliedFor: lastDayDate, // Replace with actual applied for date
-                        fromDate: lastDayDate,
-                        toDate: lastDayDate,
-                        isHalfDay: markHalfDay, // Replace with actual is half day value (0 or 1)
-                        halfDayFor: markHalfDayType, // Replace with actual half day for value
-                        leaveCount: markHalfDay == 1 ? 0.5 : 1,
-                        status:
-                          isHalfDay_total_work == null ? "approved" : "pending", // Replace with actual status
-                        reason: "Late By/ Work Duration", // Replace with actual reason
-                        message: "Late By/ Work Duration",
-                        pendingAt: EMP_DATA.managerData.id, // Replace with actual pending at value
-                        createdBy: singleEmp.id, // Replace with actual creator user ID
-                        createdAt: moment(), // Replace with actual creation date
-                        punchInTime:
-                          singleEmp.attendancemaster.attendancePunchInTime,
-                        punchOutTime:
-                          singleEmp.attendancemaster.attendancePunchOutTime,
-                        weekOffId: singleEmp.weekOffMaster
-                          ? singleEmp.weekOffMaster.weekOffId
-                          : 0,
-                      },
-                      "id_" + moment().format("YYYYMMDDHHmmss") + singleEmp.id
-                    );
-                  }
-                }
-              } else {
-                presentStatus = "singlePunchAbsent";
               }
-              await db.attendanceMaster.update(
-                {
-                  attendanceShiftEndDate:
-                    moment(lastDayDate).format("YYYY-MM-DD"),
-                  attendancePresentStatus: presentStatus,
-                  needAttendanceCron: 0,
-                  weekOffId: singleEmp.weekOffMaster
-                    ? singleEmp.weekOffMaster.weekOffId
-                    : 0,
-                },
-                {
-                  where: {
-                    attendanceAutoId:
-                      singleEmp.attendancemaster.attendanceAutoId,
-                  },
+
+              if (
+                singleEmp.attendancePolicymaster
+                  .isleaveDeductPolicyWorkDuration == 1
+              ) {
+                const timeWorkDuration = moment.duration(
+                  singleEmp.attendancemaster.attendanceWorkingTime
+                );
+
+                // Calculate the total minutes
+                const totalMinutesTotalHoursMinutes =
+                  timeWorkDuration.hours() * 60 +
+                  timeWorkDuration.minutes() +
+                  timeWorkDuration.seconds() / 60;
+
+                if (
+                  totalMinutesTotalHoursMinutes <
+                  singleEmp.attendancePolicymaster
+                    .leaveDeductPolicyWorkDurationHalfDayTime &&
+                  totalMinutesTotalHoursMinutes <
+                  singleEmp.attendancePolicymaster
+                    .leaveDeductPolicyWorkDurationFullDayTime
+                ) {
+                  isHalfDay_total_work = 0;
+                  halfDayFor_total_work = 0;
+                } else if (
+                  totalMinutesTotalHoursMinutes >
+                  singleEmp.attendancePolicymaster
+                    .leaveDeductPolicyWorkDurationHalfDayTime &&
+                  totalMinutesTotalHoursMinutes <
+                  singleEmp.attendancePolicymaster
+                    .leaveDeductPolicyWorkDurationFullDayTime
+                ) {
+                  isHalfDay_total_work = 1;
+                  halfDayFor_total_work = 1;
                 }
-              );
+              }
+
+              let markHalfDay = null;
+              let markHalfDayType = null;
+              if (isHalfDay_late_by == 0 || isHalfDay_total_work == 0) {
+                markHalfDay = 0;
+                markHalfDayType = 0;
+              } else if (
+                isHalfDay_late_by == 1 &&
+                isHalfDay_total_work == 1
+              ) {
+                markHalfDay = 0;
+                markHalfDayType = 0;
+              } else if (
+                isHalfDay_late_by == 1 &&
+                isHalfDay_total_work == null
+              ) {
+                markHalfDay = 1;
+                markHalfDayType = 1;
+              } else if (
+                isHalfDay_late_by == null &&
+                isHalfDay_total_work == 1
+              ) {
+                markHalfDay = 1;
+                markHalfDayType = 2;
+              }
+
+              if (markHalfDay != null) {
+                let EMP_DATA = await helper.getEmpProfile(singleEmp.id);
+
+                if (EMP_DATA) {
+                  await helper.empMarkLeaveOfGivenDate(
+                    singleEmp.id,
+                    {
+                      employeeId: singleEmp.id, // Replace with actual employee ID
+                      attendanceShiftId: singleEmp.shiftsmaster.shiftId, // Replace with actual attendance shift ID
+                      attendancePolicyId:
+                        singleEmp.attendancePolicymaster.attendancePolicyId, // Replace with actual attendance policy ID
+                      leaveAutoId:
+                        singleEmp.attendancePolicymaster
+                          .leaveDeductPolicyLateDurationLeaveType, // Replace with actual leave auto ID
+                      appliedOn: moment().format("YYYY-MM-DD"), // Replace with actual applied on date
+                      appliedFor: lastDayDate, // Replace with actual applied for date
+                      fromDate: lastDayDate,
+                      toDate: lastDayDate,
+                      isHalfDay: markHalfDay, // Replace with actual is half day value (0 or 1)
+                      halfDayFor: markHalfDayType, // Replace with actual half day for value
+                      leaveCount: markHalfDay == 1 ? 0.5 : 1,
+                      status:
+                        isHalfDay_total_work == null ? "approved" : "pending", // Replace with actual status
+                      reason: "Late By/ Work Duration", // Replace with actual reason
+                      message: "Late By/ Work Duration",
+                      pendingAt: EMP_DATA.managerData.id, // Replace with actual pending at value
+                      createdBy: singleEmp.id, // Replace with actual creator user ID
+                      createdAt: moment(), // Replace with actual creation date
+                      punchInTime:
+                        singleEmp.attendancemaster.attendancePunchInTime,
+                      punchOutTime:
+                        singleEmp.attendancemaster.attendancePunchOutTime,
+                      weekOffId: singleEmp.weekOffMaster
+                        ? singleEmp.weekOffMaster.weekOffId
+                        : 0,
+                    },
+                    "id_" + moment().format("YYYYMMDDHHmmss") + singleEmp.id
+                  );
+                }
+              }
+            } else {
+              presentStatus = "singlePunchAbsent";
             }
-          } else {
-            await db.attendanceMaster.create({
-              attendanceDate: moment(lastDayDate).format("YYYY-MM-DD"),
-              employeeId: singleEmp.id,
-              attendancePolicyId: singleEmp.attendancePolicyId,
-              attendanceShiftId: singleEmp.shiftId,
-              attendancePresentStatus: presentStatus,
-              needAttendanceCron: 0,
-              weekOffId: singleEmp.weekOffMaster
-                ? singleEmp.weekOffMaster.weekOffId
-                : 0,
-            });
+            await db.attendanceMaster.update(
+              {
+                attendanceShiftEndDate:
+                  moment(lastDayDate).format("YYYY-MM-DD"),
+                attendancePresentStatus: presentStatus,
+                needAttendanceCron: 0,
+                weekOffId: singleEmp.weekOffMaster
+                  ? singleEmp.weekOffMaster.weekOffId
+                  : 0,
+              },
+              {
+                where: {
+                  attendanceAutoId:
+                    singleEmp.attendancemaster.attendanceAutoId,
+                },
+              }
+            );
           }
-        })
-      );
-    } catch (error) { }
+        } else {
+          await db.attendanceMaster.create({
+            attendanceDate: moment(lastDayDate).format("YYYY-MM-DD"),
+            employeeId: singleEmp.id,
+            attendancePolicyId: singleEmp.attendancePolicyId,
+            attendanceShiftId: singleEmp.shiftId,
+            attendancePresentStatus: presentStatus,
+            needAttendanceCron: 0,
+            weekOffId: singleEmp.weekOffMaster
+              ? singleEmp.weekOffMaster.weekOffId
+              : 0,
+          });
+        }
+
+      }
+    } catch (error) {
+      console.log(error)
+    }
 
     // return respHelper(res, {
     //   status: 200,
