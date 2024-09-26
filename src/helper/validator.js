@@ -535,7 +535,7 @@ const managerInputOnseparation = Joi.object({
 const rejectSeparation = Joi.object({
   resignationAutoId: Joi.number(),
   reason: Joi.string().trim().label("Reason"),
-  remark: Joi.string().trim().max(100).label("Remark"),
+  remark: Joi.string().trim().max(100).allow("").label("Comment"),
 });
 
 const buhrInputOnSeparation = Joi.object({

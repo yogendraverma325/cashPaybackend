@@ -221,7 +221,7 @@ db.attendanceHistory = AttendanceHistory(sequelize, Sequelize);
 db.employeeStagingMaster = EmployeeStaging(sequelize, Sequelize);
 db.probationMaster = ProbationMaster(sequelize, Sequelize);
 db.separationStatus = SeparationStatus(sequelize, Sequelize);
-db.lwfDesignationMaster = LwfDesignationMaster(sequelize,Sequelize)
+db.lwfDesignationMaster = LwfDesignationMaster(sequelize, Sequelize)
 db.holidayCompanyLocationConfiguration.hasOne(db.holidayMaster, {
   foreignKey: "holidayId",
   sourceKey: "holidayId",
@@ -654,16 +654,22 @@ db.separationMaster.hasOne(db.separationReason, {
   sourceKey: "l2ReasonOfSeparation",
   as: "l2ReasonofSeparation",
 });
+
+db.separationMaster.hasOne(db.separationReason, {
+  foreignKey: "separationReasonAutoId",
+  sourceKey: "empReasonOfResignation",
+  as: "empReasonofResignation",
+});
 db.separationMaster.hasOne(db.separationReason, {
   foreignKey: "separationReasonAutoId",
   sourceKey: "l1ReasonOfResignation",
   as: "l1ReasonofResignation",
 });
 
-db.employeeMaster.hasMany(db.leaveMapping,{
-  foreignKey:'EmployeeId',
-  sourceKey:'id',
-  as:'employeeLeaves'
+db.employeeMaster.hasMany(db.leaveMapping, {
+  foreignKey: 'EmployeeId',
+  sourceKey: 'id',
+  as: 'employeeLeaves'
 })
 
 export default db;

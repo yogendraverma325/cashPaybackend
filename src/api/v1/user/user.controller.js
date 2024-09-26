@@ -18,7 +18,7 @@ class UserController {
         nest: true,
         attributes: ["id", "empCode", "name", "firstName", "lastName", "email"],
         where: {
-          isActive:1,
+          isActive: 1,
           [Op.or]: [
             { empCode: { [Op.like]: `%${search}%` } },
             { name: { [Op.like]: `%${search}%` } },
@@ -216,8 +216,8 @@ class UserController {
                 as: "lwfStateName",
               },
               {
-                model:db.lwfDesignationMaster,
-                attributes:['lwfDesignationId','lwfDesignationName'],
+                model: db.lwfDesignationMaster,
+                attributes: ['lwfDesignationId', 'lwfDesignationName'],
                 as: "lwfDesignationName"
               }
             ],
@@ -835,6 +835,11 @@ class UserController {
           },
           {
             model: db.separationReason,
+            as: "empReasonofResignation",
+            attributes: ['separationReason']
+          },
+          {
+            model: db.separationReason,
             as: 'l2ReasonofSeparation',
             attributes: ['separationReason']
           },
@@ -1026,7 +1031,7 @@ class UserController {
         l1Remark: result.l1Remark,
         l1SubmissionDate: moment(),
         l1RequestStatus: "Approved",
-        finalStatus:5,
+        finalStatus: 5,
         submitType: result.submitType,
         createdBy: req.userId,
         createdDt: moment(),
@@ -1184,7 +1189,7 @@ class UserController {
 
       if (parseInt(req.userId) === parseInt(resignationData.dataValues.employee.manager)) {
         rejectObject = {
-          l1Remark: result.remark,
+          l1Remark: result.remark != '' ? result.remark : null,
           l1RejectionReason: result.reason,
           l1SubmissionDate: moment(),
           l1RequestStatus: "Rejected",
@@ -1220,7 +1225,7 @@ class UserController {
       } else if (parseInt(req.userId) === parseInt(resignationData.dataValues.employee.buHRId)) {
         rejectObject = {
           l2SubmissionDate: moment(),
-          l2Remark: result.remark,
+          l2Remark: result.remark != '' ? result.remark : null,
           l2RejectionReason: result.reason,
           l2RequestStatus: "Rejected",
           finalStatus: 6
