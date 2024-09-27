@@ -613,13 +613,13 @@ class AdminController {
           }
 
           else {
-            const employeeTypeDetails = await db.employeeTypeMaster.findOne({ where: { 'empTypeId': employeeOnboardingDetails.employeeType, 'companyId': employeeOnboardingDetails.companyId }, attributes: ['empTypeId', 'empTypeCode', 'startingIndex'] });
+            const employeeTypeDetails = await db.employeeTypeMaster.findOne({ where: { 'empTypeId': employeeOnboardingDetails.employeeType, 'companyId': employeeOnboardingDetails.companyId }, attributes: ['empTypeId', 'prefix', 'startingIndex'] });
             if (employeeTypeDetails) {
 
               let startingIndex = parseInt(employeeTypeDetails.startingIndex) + 1;
 
-              if (employeeTypeDetails.empTypeId != 4) {
-                startingIndex = `${employeeTypeDetails.empTypeCode}-${startingIndex}`;
+              if (employeeTypeDetails.prefix) {
+                startingIndex = `${employeeTypeDetails.prefix}-${startingIndex}`;
               }
 
               const empCode = startingIndex;
