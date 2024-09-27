@@ -180,28 +180,19 @@ class AttendanceController {
             weekOffId: existEmployee.weekOffId,
             punchInSource: req.device
           };
-          const checkAttendance = await db.attendanceMaster.findOne({
-            raw: true,
-            where: {
-              employeeId: req.userId,
-              attendanceDate: currentDate.format("YYYY-MM-DD"),
-            },
-          });
 
-          if (!checkAttendance) {
-            await db.attendanceMaster.create(creationObject);
-            await db.attendanceHistory.create({
-              date: currentDate.format("YYYY-MM-DD"),
-              time: currentDate.format("HH:mm:ss"),
-              status: "Punch In",
-              employeeId: req.userId,
-              location: result.location,
-              lat: result.latitude,
-              long: result.longitude,
-              createdBy: req.userId,
-              createdAt: currentDate,
-            });
-          }
+          await db.attendanceMaster.create(creationObject);
+          await db.attendanceHistory.create({
+            date: currentDate.format("YYYY-MM-DD"),
+            time: currentDate.format("HH:mm:ss"),
+            status: "Punch In",
+            employeeId: req.userId,
+            location: result.location,
+            lat: result.latitude,
+            long: result.longitude,
+            createdBy: req.userId,
+            createdAt: currentDate,
+          });
 
           return respHelper(res, {
             status: 200,
