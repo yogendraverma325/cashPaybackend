@@ -34,5 +34,6 @@ router.use("/leave", authentication.authenticate, leave);
 router.use("/admin/master", authentication.authenticate, adminMasterRoutes);
 
 router.use("/cron", cronRoutes)
+router.use("/import", masterExportRoutes);
 
 export default router;

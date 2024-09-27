@@ -7,9 +7,11 @@ import client from "../../../config/redisDb.config.js";
 import pkg from "xlsx";
 import bcrypt from "bcrypt";
 import moment from "moment";
-//const {readFile} = pkg
 import helper from "../../../helper/helper.js";
-//const XLSX = require('xlsx');
+import validator from "../../../helper/validator.js";
+
+const maritalStatusOptions = { 'Married': 1, 'Single': 2, 'Divorced': 3, 'Separated': 4, 'Widowed': 5, 'Others': 6 };
+
 
 async function getDataFromCache(key) {
   return client.lRange(key, 0, -1);
@@ -2383,6 +2385,328 @@ async attendanceSummary(req, res) {
 
 
 }
+
+const createObj = (obj) => {
+  return {
+    email: obj.Email,
+    personalEmail: obj.Personal_Email,
+    firstName: obj.First_Name,
+    middleName: replaceNAWithNull(obj.Middle_Name),
+    lastName: replaceNAWithNull(obj.Last_Name),
+    panNo: replaceNAWithNull(obj.Pan_No),
+    uanNo: replaceNAWithNull(obj.UAN_No),
+    pfNo: replaceNAWithNull(obj.PF_No),
+    employeeType: obj.Employee_Type_Name,
+    officeMobileNumber: obj.Official_Mobile_Number?.toString(),
+    personalMobileNumber: obj.Personal_Mobile_Number?.toString(),
+    gender: obj.Gender,
+    dateOfBirth: convertExcelDate(obj.Date_of_Birth),
+    dateOfJoining: convertExcelDate(obj.Date_of_Joining),
+    maritalStatus: obj.Marital_Status,
+    maritalStatusSince: (obj.Marital_Since != 'NA' && obj.Marital_Since != '') ? convertExcelDate(obj.Marital_Since) : '',
+    nationality: obj.Nationality_Name,
+    probation: obj.Probation_Name,
+    newCustomerName: replaceNAWithNull(obj.New_Customer_Name),
+    iqTestApplicable: obj.IQ_Test_Applicable,
+    positionType: obj.Position_Type,
+    manager: obj.Manager_EMP_CODE,
+    designation: obj.Designation_Name,
+    functionalArea: obj.Functional_Area_Name,
+    bu: obj.BU_Name,
+    sbu: obj.SBU_Name,
+    shift: replaceNAWithNull(obj.Shift_Name),
+    department: obj.Department_Name,
+    company: obj.Company_Name,
+    attendancePolicy: replaceNAWithNull(obj.Attendance_Policy_Name),
+    companyLocation: obj.Company_Location_Name,
+    weekOff: replaceNAWithNull(obj.Week_Off_Name),
+    jobLevel: obj.Job_Level_Name
+  }
+}
+
+const handleErrors = (error) => {
+  const errors = {
+    name: error ? error.details.find(d => d.context.key === 'name')?.message : null,
+    email: error ? error.details.find(d => d.context.key === 'email')?.message : null,
+    personalEmail: error ? error.details.find(d => d.context.key === 'personalEmail')?.message : null,
+    firstName: error ? error.details.find(d => d.context.key === 'firstName')?.message : null,
+    panNo: error ? error.details.find(d => d.context.key === 'panNo')?.message : null,
+    uanNo: error ? error.details.find(d => d.context.key === 'uanNo')?.message : null,
+    pfNo: error ? error.details.find(d => d.context.key === 'pfNo')?.message : null,
+    employeeType: error ? error.details.find(d => d.context.key === 'employeeType')?.message : null,
+    officeMobileNumber: error ? error.details.find(d => d.context.key === 'officeMobileNumber')?.message : null,
+    personalMobileNumber: error ? error.details.find(d => d.context.key === 'personalMobileNumber')?.message : null,
+    dateOfJoining: error ? error.details.find(d => d.context.key === 'dateOfJoining')?.message : null,
+    manager: error ? error.details.find(d => d.context.key === 'manager')?.message : null,
+    designation: error ? error.details.find(d => d.context.key === 'designation')?.message : null,
+    functionalArea: error ? error.details.find(d => d.context.key === 'functionalArea')?.message : null,
+    bu: error ? error.details.find(d => d.context.key === 'bu')?.message : null,
+    sbu: error ? error.details.find(d => d.context.key === 'sbu')?.message : null,
+    shift: error ? error.details.find(d => d.context.key === 'shift')?.message : null,
+    department: error ? error.details.find(d => d.context.key === 'department')?.message : null,
+    company: error ? error.details.find(d => d.context.key === 'company')?.message : null,
+    buHR: error ? error.details.find(d => d.context.key === 'buHR')?.message : null,
+    buHead: error ? error.details.find(d => d.context.key === 'buHead')?.message : null,
+    attendancePolicy: error ? error.details.find(d => d.context.key === 'attendancePolicy')?.message : null,
+    companyLocation: error ? error.details.find(d => d.context.key === 'companyLocation')?.message : null,
+    weekOff: error ? error.details.find(d => d.context.key === 'weekOff')?.message : null,
+    gender: error ? error.details.find(d => d.context.key === 'gender')?.message : null,
+    maritalStatus: error ? error.details.find(d => d.context.key === 'maritalStatus')?.message : null,
+    maritalStatusSince: error ? error.details.find(d => d.context.key === 'maritalStatusSince')?.message : null,
+    nationality: error ? error.details.find(d => d.context.key === 'nationality')?.message : null,
+    probation: error ? error.details.find(d => d.context.key === 'probation')?.message : null,
+    dateOfBirth: error ? error.details.find(d => d.context.key === 'dateOfBirth')?.message : null,
+    newCustomerName: error ? error.details.find(d => d.context.key === 'newCustomerName')?.message : null,
+    iqTestApplicable: error ? error.details.find(d => d.context.key === 'iqTestApplicable')?.message : null,
+    positionType: error ? error.details.find(d => d.context.key === 'positionType')?.message : null
+  }
+  return errors;
+}
+
+const validateCompany = async (name) => {
+  let isVerify = await db.companyMaster.findOne({ where: { 'companyName': name }, attributes: ['companyId'] });
+  if (isVerify) {
+    return { status: true, message: '', data: isVerify }
+  }
+  else {
+    return { status: false, message: 'Invalid company name', data: {} }
+  }
+}
+
+const validateEmployeeType = async (name) => {
+  let isVerify = await db.employeeTypeMaster.findOne({ where: { 'emptypename': name }, attributes: ['empTypeId'] });
+  if (isVerify) {
+    return { status: true, message: '', data: isVerify }
+  }
+  else {
+    return { status: false, message: 'Invalid employee type', data: {} }
+  }
+}
+
+const validateProbation = async (name) => {
+  let isVerify = await db.probationMaster.findOne({ where: { 'probationName': name }, attributes: ['probationId'] });
+  if (isVerify) {
+    return { status: true, message: '', data: isVerify }
+  }
+  else {
+    return { status: false, message: 'Invalid probation', data: {} }
+  }
+}
+
+const validateManager = async (empCode) => {
+  let isVerify = await db.employeeMaster.findOne({ where: { 'empCode': empCode }, attributes: ['id'] });
+  if (isVerify) {
+    return { status: true, message: '', data: isVerify }
+  }
+  else {
+    return { status: false, message: 'Invalid manager', data: {} }
+  }
+}
+
+const validateDesignation = async (name) => {
+  let isVerify = await db.designationMaster.findOne({ where: { 'name': name }, attributes: ['designationId'] });
+  if (isVerify) {
+    return { status: true, message: '', data: isVerify }
+  }
+  else {
+    return { status: false, message: 'Invalid designation', data: {} }
+  }
+}
+
+const validateFunctionalArea = async (name) => {
+  let isVerify = await db.functionalAreaMaster.findOne({ where: { 'functionalAreaName': name }, attributes: ['functionalAreaId'] });
+  if (isVerify) {
+    return { status: true, message: '', data: isVerify }
+  }
+  else {
+    return { status: false, message: 'Invalid functional area', data: {} }
+  }
+}
+
+const validateBU = async (name, isValidCompany) => {
+  let isVerify = await db.buMaster.findOne({ where: { 'buName': name }, attributes: ['buId'] });
+  if (isVerify) {
+    const headAndHrData = await db.buMapping.findOne({
+      where: { buId: isVerify.buId, companyId: isValidCompany.data.companyId },
+      include: [
+        {
+          model: db.employeeMaster,
+          attributes: ["id", "name"],
+          as: "buHeadData",
+        },
+        {
+          model: db.employeeMaster,
+          attributes: ["id", "name"],
+          as: "buhrData",
+        },
+      ],
+    });
+
+    if (headAndHrData) {
+      isVerify.buHead = headAndHrData.buHeadData.id;
+      isVerify.buHR = headAndHrData.buhrData.id;
+    }
+    return { status: true, message: '', data: isVerify }
+  }
+  else {
+    return { status: false, message: 'Invalid BU', data: {} }
+  }
+}
+
+const validateSBU = async (name) => {
+  let isVerify = await db.sbuMaster.findOne({ where: { 'sbuName': name }, attributes: ['sbuId'] });
+  if (isVerify) {
+    return { status: true, message: '', data: isVerify }
+  }
+  else {
+    return { status: false, message: 'Invalid SBU', data: {} }
+  }
+}
+
+const validateShift = async (name) => {
+  if(name) {
+    let isVerify = await db.shiftMaster.findOne({ where: { 'shiftName': name }, attributes: ['shiftId'] });
+    if (isVerify) {
+      return { status: true, message: '', data: isVerify }
+    }
+    else {
+      return { status: false, message: 'Invalid shift', data: {} }
+    }
+  }
+  else {
+    return { status: false, message: '', data: {} }
+  }
+}
+
+const validateDepartment = async (name) => {
+  let isVerify = await db.departmentMaster.findOne({ where: { 'departmentName': name }, attributes: ['departmentId'] });
+  if (isVerify) {
+    return { status: true, message: '', data: isVerify }
+  }
+  else {
+    return { status: false, message: 'Invalid department', data: {} }
+  }
+}
+
+const validateAttendancePolicy = async (name) => {
+  if(name) {
+    let isVerify = await db.attendancePolicymaster.findOne({ where: { 'policyName': name }, attributes: ['attendancePolicyId'] });
+    if (isVerify) {
+      return { status: true, message: '', data: isVerify }
+    }
+    else {
+      return { status: false, message: 'Invalid attendance policy', data: {} }
+    }
+  }
+  else {
+    return { status: false, message: '', data: {} }
+  }
+}
+
+const validateCompanyLocation = async (cityName, isValidCompany) => {
+  if(cityName) {
+    cityName = cityName.split(",");
+
+    let isVerify = await db.cityMaster.findOne({ where: { 'cityName': cityName[0] }, attributes: ['cityId'] });
+    if (isVerify) {
+      isVerify = await db.companyLocationMaster.findOne({ where: { 'cityId': isVerify.cityId, 'companyLocationCode': cityName[1].trim(), 'companyId': isValidCompany.data?.companyId }, attributes: ['companyLocationId'] });
+      if(isVerify) {
+        return { status: true, message: '', data: isVerify }
+      }
+      else {
+        return { status: false, message: 'This city has not been mapped.', data: {} }
+      }
+    }
+    else {
+      return { status: false, message: 'Invalid city', data: {} }
+    }
+  }
+  else {
+    return { status: false, message: 'Invalid city', data: {} }
+  }
+}
+
+const validateWeekOff = async (name) => {
+  if(name) {
+    let isVerify = await db.weekOffMaster.findOne({ where: { 'weekOffName': name }, attributes: ['weekOffId'] });
+    if (isVerify) {
+      return { status: true, message: '', message: '', data: isVerify }
+    }
+    else {
+      return { status: false, message: 'Invalid week off', data: {} }
+    }
+  }
+  else {
+    return { status: false, message: '', data: {} }
+  }
+}
+
+const validateNewCustomerName = async (name) => {
+  if(name) {
+    let isVerify = await db.newCustomerNameMaster.findOne({ where: { 'newCustomerName': name }, attributes: ['newCustomerNameId'] });
+    if (isVerify) {
+      return { status: true, message: '', message: '', data: isVerify }
+    }
+    else {
+      return { status: false, message: 'Invalid new customer id off', data: {} }
+    }
+  }
+  else {
+    return { status: false, message: '', data: {} }
+  }
+}
+
+const validateJobLevel = async (name) => {
+  let isVerify = await db.jobLevelMaster.findOne({ where: { 'jobLevelName': name }, attributes: ['jobLevelId'] });
+  if (isVerify) {
+    return { status: true, message: '', data: isVerify }
+  }
+  else {
+    return { status: false, message: 'Invalid job level', data: {} }
+  }
+}
+
+const validateEmployee = async (personalMobileNumber, email) => {
+  let isVerify = await db.employeeMaster.findOne({
+    where: {
+      [Op.or]: [
+        { 'personalMobileNumber': personalMobileNumber },
+        { 'email': email }
+      ]
+    },
+    attributes: ['id']
+  });
+  if (isVerify) {
+    return { status: false, message: 'User already exist', data: {} }
+  }
+  else {
+    isVerify = await db.employeeStagingMaster.findOne({
+      where: {
+        [Op.or]: [
+          { 'personalMobileNumber': personalMobileNumber },
+          { 'email': email }
+        ]
+      },
+      attributes: ['id']
+    });
+    if (isVerify) {
+      return { status: false, message: 'User already exist', data: {} }
+    }
+    else {
+      return { status: true, message: '', data: {} }
+    }
+  }
+}
+
+// Function to convert Excel serial date to JS Date
+const convertExcelDate = (serial) => {
+  const date = new Date((serial - 25569) * 86400 * 1000);
+  return moment(date).format('YYYY-MM-DD');
+}
+
+const replaceNAWithNull = (value) => {
+  return (value === 'NA' || value === undefined || value === '' || value === null) ? '' : value; // Replace 'NA' with ''
+};
 
 export default new MasterController();
 
