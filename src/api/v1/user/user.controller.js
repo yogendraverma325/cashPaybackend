@@ -988,8 +988,9 @@ class UserController {
       );
 
       const d = Math.floor(Date.now() / 1000);
-      if (result.l1Attachment) {
-        var separationEmpAttachment = await helper.fileUpload(
+      let separationEmpAttachment = null
+      if (result.l1Attachment != "") {
+        separationEmpAttachment = await helper.fileUpload(
           result.l1Attachment,
           `separation_attachment_${d}`,
           `uploads/${existUser.dataValues.empCode}`
@@ -1028,7 +1029,7 @@ class UserController {
         replacementRequiredBy: result.replacementRequiredBy,
         l1ReasonForProposedRecoveryDays: result.l1ReasonForProposedRecoveryDays,
         l1ReasonOfResignation: result.l1ReasonOfResignation,
-        l1Remark: result.l1Remark,
+        l1Remark: result.l1Remark != "" ? result.l1Remark : null,
         l1SubmissionDate: moment(),
         l1RequestStatus: "Approved",
         finalStatus: 5,
@@ -1036,7 +1037,7 @@ class UserController {
         createdBy: req.userId,
         createdDt: moment(),
         pendingAt: headAndHrData ? headAndHrData.dataValues.buHrId : null,
-        ...(result.l1Attachment !== "" && { l1Attachment: separationEmpAttachment })
+        l1Attachment: separationEmpAttachment
       };
       await db.separationMaster.create(onBehalfObject)
       return respHelper(res, {

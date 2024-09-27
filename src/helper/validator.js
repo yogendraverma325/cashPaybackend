@@ -585,8 +585,8 @@ const onBehalfSeperationByManager = Joi.object({
   l1CustomerName: Joi.string().trim().label("Customer Name"),
   replacementRequired: Joi.boolean().label("Replacement Required"),
   replacementRequiredBy: Joi.string().label("Replacement Required By"),
-  l1Remark: Joi.string().trim().max(100).label("Remark"),
-  l1Attachment: Joi.string().allow("").optional(),
+  l1Remark: Joi.string().trim().max(100).allow("").label("Remark"),
+  l1Attachment: Joi.string().allow(""),
   submitType: Joi.number(),
 });
 
