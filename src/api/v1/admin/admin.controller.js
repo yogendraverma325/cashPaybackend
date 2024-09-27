@@ -275,7 +275,7 @@ class AdminController {
   async updateManager(req, res) {
     try {
       const result = await validator.updateManagerSchema.validateAsync(req.body)
-     
+
       for (const iterator of result) {
         if (iterator.user === iterator.manager) {
           return respHelper(res, {
@@ -355,9 +355,9 @@ class AdminController {
         }
 
         result.role_id = 3;
-  
+
         const createdUser = await db.employeeStagingMaster.create(result);
-  
+
         if (result.image) {
           const file = await helper.fileUpload(
             result.image,
@@ -369,7 +369,7 @@ class AdminController {
             { where: { id: createdUser.dataValues.id } }
           );
         }
-  
+
         return respHelper(res, {
           status: 200,
           msg: "Employee successfully added to the pending list.",
@@ -739,6 +739,7 @@ class AdminController {
                 eventEmitter.emit(
                   "onboardingEmployeeMail",
                   JSON.stringify({
+                    email: employeeOnboardingDetails.email,
                     firstName: employeeOnboardingDetails.firstName,
                     empCode: empCode,
                     password: password
