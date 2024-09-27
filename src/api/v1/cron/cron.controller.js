@@ -129,7 +129,6 @@ class CronController {
         fromDate: moment().format("YYYY-MM-DD"),
       },
     });
-
     if (managerData.length != 0) {
       for (const element of managerData) {
         await db.employeeMaster.update(

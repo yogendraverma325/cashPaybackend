@@ -43,14 +43,14 @@ class CommonController {
             let search = req.query.search || '';
             let pageLimit = parseInt(req.query.limit) || Pagination.perPage;
 
-            let query = { 
+            let query = {
                 ...(search && { 'typeName': { [Op.like]: `%${search}%` } })
             };
 
             let aggregate = {
                 where: query,
                 attributes: ['companyTypeId', 'typeName', 'createdAt', 'isActive'],
-                order: [[ "companyTypeId", "DESC" ]],
+                order: [["companyTypeId", "DESC"]],
                 limit: pageLimit,
                 offset: (page - 1) * pageLimit
             }
@@ -179,14 +179,14 @@ class CommonController {
             let search = req.query.search || '';
             let pageLimit = parseInt(req.query.limit) || Pagination.perPage;
 
-            let query = { 
+            let query = {
                 ...(search && { 'bandCode': { [Op.like]: `%${search}%` } })
             };
 
             let aggregate = {
                 where: query,
                 attributes: ['bandId', 'bandCode', 'bandDesc', 'createdAt', 'isActive'],
-                order: [[ "bandId", "DESC" ]],
+                order: [["bandId", "DESC"]],
                 limit: pageLimit,
                 offset: (page - 1) * pageLimit
             }
@@ -315,14 +315,14 @@ class CommonController {
             let search = req.query.search || '';
             let pageLimit = parseInt(req.query.limit) || Pagination.perPage;
 
-            let query = { 
+            let query = {
                 ...(search && { 'jobLevelName': { [Op.like]: `%${search}%` } })
             };
 
             let aggregate = {
                 where: query,
                 attributes: ['jobLevelId', 'jobLevelName', 'jobLevelCode', 'createdAt', 'isActive'],
-                order: [[ "jobLevelId", "DESC" ]],
+                order: [["jobLevelId", "DESC"]],
                 limit: pageLimit,
                 offset: (page - 1) * pageLimit
             }

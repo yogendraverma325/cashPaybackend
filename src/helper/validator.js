@@ -94,7 +94,7 @@ const unlockAccountSchema = Joi.object({
 
 const updateBiographicalDetailsSchema = Joi.object({
   userId: Joi.number().label("User ID"),
-  maritalStatus: Joi.number().required().label("Marital Status"),
+  maritalStatus: Joi.number().allow(null).required().label("Marital Status"),
   mobileAccess: Joi.number().label("Mobile Access").optional(),
   laptopSystem: Joi.string().trim().label("System").optional(),
   nationality: Joi.string()
@@ -346,7 +346,7 @@ const updateManagerSchema = Joi.array()
     Joi.object({
       user: Joi.number().required().label("User"),
       manager: Joi.number().required().label("Manager"),
-      date: Joi.string().allow("").label("Date"),
+      date: Joi.string().label("Date").required()
     })
   )
   .messages({
@@ -382,6 +382,7 @@ const forgotPasswordSchema = Joi.object({
 });
 
 const employeeUpdateInfo = Joi.object({
+  userId: Joi.number().label("User ID").optional(),
   adhrNo: Joi.string()
     .trim()
     .min(12)
@@ -493,8 +494,7 @@ const separationByEmployee = Joi.object({
   resignationDate: Joi.string().required().label("Resignation Date"),
   empProposedLastWorkingDay: Joi.string().label("Proposed Last Working Days"),
   empProposedRecoveryDays: Joi.number().label("Proposed Recovery Days"),
-  empReasonOfResignation: Joi.string()
-    .trim()
+  empReasonOfResignation: Joi.number()
     .required()
     .label("Reason of Resignation"),
   empNewOrganizationName: Joi.string()
@@ -535,7 +535,7 @@ const managerInputOnseparation = Joi.object({
 const rejectSeparation = Joi.object({
   resignationAutoId: Joi.number(),
   reason: Joi.string().trim().label("Reason"),
-  remark: Joi.string().trim().max(100).label("Remark"),
+  remark: Joi.string().trim().max(100).allow("").label("Comment"),
 });
 
 const buhrInputOnSeparation = Joi.object({
@@ -585,8 +585,8 @@ const onBehalfSeperationByManager = Joi.object({
   l1CustomerName: Joi.string().trim().label("Customer Name"),
   replacementRequired: Joi.boolean().label("Replacement Required"),
   replacementRequiredBy: Joi.string().label("Replacement Required By"),
-  l1Remark: Joi.string().trim().max(100).label("Remark"),
-  l1Attachment: Joi.string().allow("").optional(),
+  l1Remark: Joi.string().trim().max(100).allow("").label("Remark"),
+  l1Attachment: Joi.string().allow(""),
   submitType: Joi.number(),
 });
 
@@ -758,6 +758,11 @@ const onBehalfSeperationByBUHr = Joi.object({
   submitType: Joi.number(),
 });
 
+const revokeSeparation = Joi.object({
+  reason: Joi.number().required().label('Reason'),
+  remark: Joi.string().trim().allow("").label("Remark")
+})
+
 const importOnboardEmployeeSchema = Joi.object({
   email: Joi.string().trim().email().required().label("Email"),
   personalEmail: Joi.string().trim().email().required().label("Personal Email"),
@@ -795,7 +800,7 @@ const importOnboardEmployeeSchema = Joi.object({
   companyLocation: Joi.string().required().label("Company Location"),
   weekOff: Joi.string().allow("").label("Week Off"),
 
-  gender: Joi.string().valid('Male','Female','Do not want to disclose','Transgender','Other').required().label("Gender"),
+  gender: Joi.string().valid('Male', 'Female', 'Do not want to disclose', 'Transgender', 'Other').required().label("Gender"),
   maritalStatus: Joi.string().valid('Married', 'Single', 'Divorced', 'Separated', 'Widowed', 'Others').required().label("Marital Status"),
   maritalStatusSince: Joi.string().allow('').default('NA').label("Marital Status Date"),
   nationality: Joi.string().valid('Indian').required().label("Nationality"),
@@ -849,5 +854,6 @@ export default {
   onBehalfSeperationByBUHr,
   onboardEmployeeSchema,
   createTMCSchema,
+  revokeSeparation,
   importOnboardEmployeeSchema
 };

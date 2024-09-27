@@ -220,40 +220,81 @@ class AdminController {
     }
   }
 
+  // async updateManager(req, res) {
+  //   try {
+  //     const result = await validator.updateManagerSchema.validateAsync(req.body)
+
+  //     for (const iterator of result) {
+  //       let getInfoEmp = await db.employeeMaster.findOne({
+  //         attributes: ["id", "empCode", "name", "manager", "createdAt", "updatedAt"],
+  //         where: { id: iterator.user },
+  //       });
+  //       if (getInfoEmp) {
+  //         let createHistory = {
+  //           employeeId: getInfoEmp.dataValues.id,
+  //           managerId: getInfoEmp.dataValues.manager ? getInfoEmp.dataValues.manager : 1,
+  //           fromDate: moment(getInfoEmp.dataValues.createdAt).format("YYYY-MM-DD"),
+  //           toDate: moment().format("YYYY-MM-DD"),
+  //           createdBy: req.userId,
+  //           updatedBy: req.userId,
+  //           createdAt: moment().format("YYYY-MM-DD HH:mm:ss"),
+  //           updatedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
+  //         };
+  //         await db.managerHistory.create(createHistory);
+  //         await db.employeeMaster.update(
+  //           {
+  //             manager: iterator.manager
+  //           },
+  //           {
+  //             where: {
+  //               id: iterator.user,
+  //             },
+  //           }
+  //         );
+  //       } else {
+  //         console.log("employee not found");
+  //       }
+  //     }
+
+  //     return respHelper(res, {
+  //       status: 200,
+  //     });
+  //   } catch (error) {
+  //     console.log("error", error);
+  //     if (error.isJoi) {
+  //       return respHelper(res, {
+  //         msg: error.details[0].message,
+  //         status: 422
+  //       })
+  //     }
+  //     return respHelper(res, {
+  //       status: 500,
+  //     });
+  //   }
+  // }
   async updateManager(req, res) {
     try {
       const result = await validator.updateManagerSchema.validateAsync(req.body)
 
       for (const iterator of result) {
-        let getInfoEmp = await db.employeeMaster.findOne({
-          attributes: ["id", "empCode", "name", "manager", "createdAt", "updatedAt"],
-          where: { id: iterator.user },
-        });
-        if (getInfoEmp) {
-          let createHistory = {
-            employeeId: getInfoEmp.dataValues.id,
-            managerId: getInfoEmp.dataValues.manager ? getInfoEmp.dataValues.manager : 1,
-            fromDate: moment(getInfoEmp.dataValues.createdAt).format("YYYY-MM-DD"),
-            toDate: moment().format("YYYY-MM-DD"),
-            createdBy: req.userId,
-            updatedBy: req.userId,
-            createdAt: moment().format("YYYY-MM-DD HH:mm:ss"),
-            updatedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
-          };
-          await db.managerHistory.create(createHistory);
-          await db.employeeMaster.update(
-            {
-              manager: iterator.manager
-            },
-            {
-              where: {
-                id: iterator.user,
-              },
-            }
-          );
-        } else {
-          console.log("employee not found");
+        if (iterator.user === iterator.manager) {
+          return respHelper(res, {
+            msg: `Employee can't be their own manager`,
+            status: 400
+          });
         }
+      }
+
+      for (const iterator of result) {
+        let createHistory = {
+          employeeId: iterator.user,
+          managerId: iterator.manager,
+          fromDate: iterator.date ? iterator.date : moment().add(1, 'day').format("YYYY-MM-DD"),
+          toDate: null,
+          createdBy: req.userId,
+          createdAt: moment().format("YYYY-MM-DD HH:mm:ss"),
+        };
+        await db.managerHistory.create(createHistory);
       }
 
       return respHelper(res, {
@@ -314,9 +355,9 @@ class AdminController {
         }
 
         result.role_id = 3;
-  
+
         const createdUser = await db.employeeStagingMaster.create(result);
-  
+
         if (result.image) {
           const file = await helper.fileUpload(
             result.image,
@@ -328,7 +369,7 @@ class AdminController {
             { where: { id: createdUser.dataValues.id } }
           );
         }
-  
+
         return respHelper(res, {
           status: 200,
           msg: "Employee successfully added to the pending list.",
@@ -698,6 +739,7 @@ class AdminController {
                 eventEmitter.emit(
                   "onboardingEmployeeMail",
                   JSON.stringify({
+                    email: employeeOnboardingDetails.email,
                     firstName: employeeOnboardingDetails.firstName,
                     empCode: empCode,
                     password: password

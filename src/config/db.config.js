@@ -78,6 +78,7 @@ import SeparationReason from "../api/model/SeparationReason.js";
 import SeparationStatus from "../api/model/SeparationStatus.js";
 import EmployeeStaging from "../api/model/EmployeeStaging.js";
 import ProbationMaster from "../api/model/ProbationMaster.js";
+import LwfDesignationMaster from "../api/model/LwfDesignationMaster.js"
 import NewCustomerNameMaster from "../api/model/NewCustomerNameMaster.js";
 
 import literal from "sequelize";
@@ -97,7 +98,7 @@ const sequelize = new Sequelize(
       timestamps: false,
     },
     pool: {
-      max: 200,
+      max: 2000,
       min: 0,
       acquire: 30000,
       idle: 10000,
@@ -222,6 +223,7 @@ db.attendanceHistory = AttendanceHistory(sequelize, Sequelize);
 db.employeeStagingMaster = EmployeeStaging(sequelize, Sequelize);
 db.probationMaster = ProbationMaster(sequelize, Sequelize);
 db.separationStatus = SeparationStatus(sequelize, Sequelize);
+db.lwfDesignationMaster = LwfDesignationMaster(sequelize, Sequelize)
 db.newCustomerNameMaster = NewCustomerNameMaster(sequelize, Sequelize);
 
 db.holidayCompanyLocationConfiguration.hasOne(db.holidayMaster, {
@@ -353,6 +355,14 @@ db.employeeMaster.hasOne(db.attendanceMaster, {
 db.attendanceMaster.hasOne(db.shiftMaster, {
   foreignKey: "shiftId",
   sourceKey: "attendanceShiftId",
+});
+db.attendanceMaster.hasOne(db.attendancePolicymaster, {
+  foreignKey: "attendancePolicyId",
+  sourceKey: "attendancePolicyId",
+});
+db.attendanceMaster.hasOne(db.weekOffMaster, {
+  foreignKey: "weekOffId",
+  sourceKey: "weekOffId"
 });
 db.regularizationMaster.hasOne(db.attendanceMaster, {
   foreignKey: "attendanceAutoId",
@@ -554,6 +564,11 @@ db.jobDetails.hasOne(db.stateMaster, {
   sourceKey: "lwfState",
   as: "lwfStateName",
 });
+db.jobDetails.hasOne(db.lwfDesignationMaster, {
+  foreignKey: "lwfDesignationId",
+  sourceKey: "lwfDesignation",
+  as: "lwfDesignationName"
+});
 db.employeeMaster.hasMany(db.employeeWorkExperience, {
   foreignKey: "userId",
   sourceKey: "id",
@@ -643,16 +658,22 @@ db.separationMaster.hasOne(db.separationReason, {
   sourceKey: "l2ReasonOfSeparation",
   as: "l2ReasonofSeparation",
 });
+
+db.separationMaster.hasOne(db.separationReason, {
+  foreignKey: "separationReasonAutoId",
+  sourceKey: "empReasonOfResignation",
+  as: "empReasonofResignation",
+});
 db.separationMaster.hasOne(db.separationReason, {
   foreignKey: "separationReasonAutoId",
   sourceKey: "l1ReasonOfResignation",
   as: "l1ReasonofResignation",
 });
 
-db.employeeMaster.hasMany(db.leaveMapping,{
-  foreignKey:'EmployeeId',
-  sourceKey:'id',
-  as:'employeeLeaves'
+db.employeeMaster.hasMany(db.leaveMapping, {
+  foreignKey: 'EmployeeId',
+  sourceKey: 'id',
+  as: 'employeeLeaves'
 })
 
 export default db;

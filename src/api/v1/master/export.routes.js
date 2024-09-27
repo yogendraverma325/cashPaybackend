@@ -18,6 +18,9 @@ export default Express
     .get("/employeeImportNew", upload.single('excelFile'), masterExportController.employeeImportNew)
 
     .post("/employeeMissedData", masterExportController.employeeMissedData)
+    .get("/attendanceReport", masterExportController.attendanceReport)
+    .get("/attendanceSummary/:year/:month", masterExportController.attendanceSummary)
+
 
     .post("/onboardingEmployee", upload.single('excelFile'), masterExportController.onboardingEmployeeImport)
 

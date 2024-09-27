@@ -70,9 +70,9 @@ class LeaveController {
         where: Object.assign(
           query === "raisedByMe"
             ? {
-                employeeId: req.userId,
-                status: "pending",
-              }
+              employeeId: req.userId,
+              status: "pending",
+            }
             : { pendingAt: req.userId, status: "pending" }
         ),
         attributes: { exclude: ["createdBy", "updatedBy", "updatedAt"] },
@@ -621,10 +621,10 @@ class LeaveController {
             leaveAttachment:
               result.attachment != ""
                 ? await helper.fileUpload(
-                    result.attachment,
-                    `leaveAttachment_${uuid}`,
-                    `uploads/${EMP_DATA.empCode}`
-                  )
+                  result.attachment,
+                  `leaveAttachment_${uuid}`,
+                  `uploads/${EMP_DATA.empCode}`
+                )
                 : null,
             pendingAt: EMP_DATA.managerData.id, // Replace with actual pending at value
             createdBy: req.userId, // Replace with actual creator user ID
@@ -633,7 +633,7 @@ class LeaveController {
             weekOffId: EMP_DATA.weekOffId,
             fromDate: req.body.fromDate,
             toDate: req.body.toDate,
-            source: JSON.stringify(req.deviceSource),
+            source: req.device,
           };
           arr.push(recordData);
           //const record = await db.employeeLeaveTransactions.create(recordData);
@@ -1466,6 +1466,7 @@ class LeaveController {
       const employees = await db.employeeMaster.findAll({
         attributes: ["id", "employeeType"],
         where: {
+          isActive: 1,
           employeeType: [3, 4],
         },
         include: [
@@ -1510,6 +1511,8 @@ class LeaveController {
       return respHelper(res, {
         status: 200,
         message: "Leave updated successfully",
+        data: filteredEmployees.length
+
       });
     } catch (error) {
       console.log(error);
