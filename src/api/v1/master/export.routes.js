@@ -18,6 +18,6 @@ export default Express
 
     .post("/employeeMissedData", masterExportController.employeeMissedData)
     .get("/attendanceReport", masterExportController.attendanceReport)
-    .get("/attendanceSummary/:year/:month", masterExportController.attendanceSummary)
+    .get("/attendanceSummary", masterExportController.attendanceSummary)
 
 
