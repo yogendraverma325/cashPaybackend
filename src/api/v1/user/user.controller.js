@@ -1492,7 +1492,12 @@ class UserController {
             where: {
               separationAutoId: separationData.dataValues.resignationAutoId
             },
-            attributes: ['separationTrailAutoId']
+            attributes: ['separationTrailAutoId'],
+            include: [{
+              model: db.employeeMaster,
+              attributes: ['empCode', 'name'],
+              as: 'actionBy'
+            }]
           }]
         })
         separationData.dataValues.separationTrails = separationTrails
