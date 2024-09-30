@@ -321,37 +321,46 @@ class AdminController {
   async onboardEmployee(req, res) {
     try {
       const result = await validator.onboardEmployeeSchema.validateAsync(req.body);
-
-      let existUser = await db.employeeMaster.findOne({
-        where: {
+      let query = {
           [Op.or]: [
             { 'personalMobileNumber': result.personalMobileNumber },
-            { 'email': result.email }
+            ...(result.email && { 'email': result.email }),
+            { 'personalEmail': result.personalEmail }
           ]
-        },
-      });
+      };
+
+      let existUser = await db.employeeMaster.findOne({ where: query });
 
       if (existUser) {
-        return respHelper(res, {
-          status: 400,
-          msg: constant.ALREADY_EXISTS.replace("<module>", "User"),
-        });
-      }
-      else {
-        existUser = await db.employeeStagingMaster.findOne({
-          where: {
-            [Op.or]: [
-              { 'personalMobileNumber': result.personalMobileNumber },
-              { 'email': result.email }
-            ]
-          },
-        });
-
-        if (existUser) {
+        if(existUser.email == result.email) {
           return respHelper(res, {
             status: 400,
-            msg: constant.ALREADY_EXISTS.replace("<module>", "User"),
+            msg: "Employee company email already exists.",
           });
+        }
+        else {
+          return respHelper(res, {
+            status: 400,
+            msg: "Employee personal email/mobile no. already exists.",
+          });
+        }
+      }
+      else {
+        existUser = await db.employeeStagingMaster.findOne({ where: query });
+
+        if (existUser) {
+          if(existUser.email == result.email) {
+            return respHelper(res, {
+              status: 400,
+              msg: "Employee company email already exists.",
+            });
+          }
+          else {
+            return respHelper(res, {
+              status: 400,
+              msg: "Employee personal email/mobile no. already exists.",
+            });
+          }
         }
 
         result.role_id = 3;
@@ -372,7 +381,7 @@ class AdminController {
 
         return respHelper(res, {
           status: 200,
-          msg: "Employee successfully added to the pending list.",
+          msg: "Employee added successfully.",
         });
       }
 
@@ -637,20 +646,29 @@ class AdminController {
         // get employee on-boarding details by id
         const employeeOnboardingDetails = await db.employeeStagingMaster.findOne({ where: { 'id': selectedUsers[i] } });
         if (employeeOnboardingDetails) {
-          const existUser = await db.employeeMaster.findOne({
-            where: {
-              [Op.or]: [
-                { 'personalMobileNumber': employeeOnboardingDetails.personalMobileNumber },
-                { 'email': employeeOnboardingDetails.email }
-              ]
-            },
-          });
+          let query = {
+            [Op.or]: [
+              { 'personalMobileNumber': employeeOnboardingDetails.personalMobileNumber },
+              ...(employeeOnboardingDetails.email && { 'email': employeeOnboardingDetails.email }),
+              { 'personalEmail': employeeOnboardingDetails.personalEmail }
+            ]
+          };
+
+          const existUser = await db.employeeMaster.findOne({ where: query });
 
           if (existUser) {
-            return respHelper(res, {
-              status: 400,
-              msg: constant.ALREADY_EXISTS.replace("<module>", "User"),
-            });
+            if(existUser.email == employeeOnboardingDetails.email) {
+              return respHelper(res, {
+                status: 400,
+                msg: "Employee company email already exists.",
+              });
+            }
+            else {
+              return respHelper(res, {
+                status: 400,
+                msg: "Employee personal email/mobile no. already exists.",
+              });
+            }
           }
 
           else {

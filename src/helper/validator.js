@@ -650,7 +650,7 @@ const updateAddress = Joi.object({
 
 const onboardEmployeeSchema = Joi.object({
   name: Joi.string().trim().required().label("Name"),
-  email: Joi.string().trim().email().required().label("Email"),
+  email: Joi.string().trim().email().allow("").label("Email"),
   personalEmail: Joi.string().trim().email().required().label("Personal Email"),
   firstName: Joi.string().trim().required().label("First Name"),
   middleName: Joi.string().trim().allow("").label("Middle Name"),
@@ -764,7 +764,7 @@ const revokeSeparation = Joi.object({
 })
 
 const importOnboardEmployeeSchema = Joi.object({
-  email: Joi.string().trim().email().required().label("Email"),
+  email: Joi.string().trim().email().allow("").label("Email"),
   personalEmail: Joi.string().trim().email().required().label("Personal Email"),
   firstName: Joi.string().trim().required().label("First Name"),
   middleName: Joi.string().trim().allow("").default('NA').label("Middle Name"),
@@ -779,7 +779,6 @@ const importOnboardEmployeeSchema = Joi.object({
   officeMobileNumber: Joi.string()
     .trim()
     .length(10)
-    .required()
     .label("Office Mobile Number"),
   personalMobileNumber: Joi.string()
     .trim()

@@ -2428,7 +2428,7 @@ class MasterController {
               const isValidWeekOff = await validateWeekOff(obj.weekOff);
               const isValidNewCustomerName = await validateNewCustomerName(obj.newCustomerName);
               const isValidJobLevel = await validateJobLevel(obj.jobLevel);
-              const isValidateEmployee = await validateEmployee(obj.personalMobileNumber, obj.email);
+              const isValidateEmployee = await validateEmployee(obj.personalMobileNumber, obj.email, obj.personalEmail);
 
               if (isValidCompany.status && isValidEmployeeType.status && isValidProbation.status && isValidManager.status && isValidDesignation.status &&
                 isValidFunctionalArea.status && isValidBU.status && isValidSBU.status && isValidCompanyLocation.status && isValidDepartment.status
@@ -2818,31 +2818,39 @@ const validateJobLevel = async (name) => {
   }
 }
 
-const validateEmployee = async (personalMobileNumber, email) => {
-  let isVerify = await db.employeeMaster.findOne({
-    where: {
+const validateEmployee = async (personalMobileNumber, email, personalEmail) => {
+  let query = {
       [Op.or]: [
         { 'personalMobileNumber': personalMobileNumber },
-        { 'email': email }
+        { 'email': email },
+        { 'personalEmail': personalEmail }
       ]
-    },
-    attributes: ['id']
+  };
+
+  let isVerify = await db.employeeMaster.findOne({
+    where: query,
+    attributes: ['id', 'email']
   });
   if (isVerify) {
-    return { status: false, message: 'User already exist', data: {} }
+    if(isVerify.email == email) {
+      return { status: false, message: 'Employee company email already exists.', data: {} }
+    }
+    else {
+      return { status: false, message: 'Employee personal email/mobile no. already exists.', data: {} }
+    }
   }
   else {
     isVerify = await db.employeeStagingMaster.findOne({
-      where: {
-        [Op.or]: [
-          { 'personalMobileNumber': personalMobileNumber },
-          { 'email': email }
-        ]
-      },
-      attributes: ['id']
+      where: query,
+      attributes: ['id', 'email']
     });
     if (isVerify) {
-      return { status: false, message: 'User already exist', data: {} }
+      if(isVerify.email == email) {
+        return { status: false, message: 'Employee company email already exists.', data: {} }
+      }
+      else {
+        return { status: false, message: 'Employee personal email/mobile no. already exists.', data: {} }
+      }
     }
     else {
       return { status: true, message: '', data: {} }
