@@ -80,6 +80,7 @@ import EmployeeStaging from "../api/model/EmployeeStaging.js";
 import ProbationMaster from "../api/model/ProbationMaster.js";
 import LwfDesignationMaster from "../api/model/LwfDesignationMaster.js"
 import NewCustomerNameMaster from "../api/model/NewCustomerNameMaster.js";
+import SeparationTrails from '../api/model/SeparationTrails.js'
 
 import literal from "sequelize";
 import QueryTypes from "sequelize";
@@ -225,6 +226,7 @@ db.probationMaster = ProbationMaster(sequelize, Sequelize);
 db.separationStatus = SeparationStatus(sequelize, Sequelize);
 db.lwfDesignationMaster = LwfDesignationMaster(sequelize, Sequelize)
 db.newCustomerNameMaster = NewCustomerNameMaster(sequelize, Sequelize);
+db.separationTrail = SeparationTrails(sequelize, Sequelize)
 
 db.holidayCompanyLocationConfiguration.hasOne(db.holidayMaster, {
   foreignKey: "holidayId",
@@ -675,5 +677,11 @@ db.employeeMaster.hasMany(db.leaveMapping, {
   sourceKey: 'id',
   as: 'employeeLeaves'
 })
+
+db.separationStatus.hasOne(db.separationTrail, { foreignKey: 'separationStatus', sourceKey: 'separationStatusAutoId' })
+
+db.separationTrail.hasOne(db.separationMaster, { foreignKey: 'resignationAutoId', sourceKey: 'separationAutoId' })
+db.separationMaster.hasMany(db.separationTrail, { foreignKey: 'separationAutoId', sourceKey: 'resignationAutoId' })
+db.separationMaster.hasOne(db.employeeMaster, { foreignKey: 'id', sourceKey: 'pendingAt', as: 'pending' })
 
 export default db;

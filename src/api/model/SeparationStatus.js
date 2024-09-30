@@ -11,6 +11,9 @@ export default (sequelize, Sequelize) => {
         separationStatusDesc: {
             type: Sequelize.STRING(255)
         },
+        statusTrail: {
+            type: Sequelize.TINYINT(1)
+        },
         createdDt: {
             type: Sequelize.DATE
         },

@@ -750,7 +750,7 @@ class UserController {
 
       const d = Math.floor(Date.now() / 1000);
 
-      await db.separationMaster.create({
+      const createdData = await db.separationMaster.create({
         employeeId: existUser.dataValues.id,
         initiatedBy: "Self",
         noticePeriodDay: existUser.dataValues.noticeperiodmaster.nPDaysAfterConfirmation,
@@ -771,6 +771,13 @@ class UserController {
           `uploads/${existUser.dataValues.empCode}`
         ) : null,
         empSubmissionDate: moment()
+      })
+
+      await db.separationTrail.create({
+        separationAutoId: createdData.dataValues.resignationAutoId,
+        separationStatus: 2,
+        createdBy: req.userId,
+        createdDt: moment()
       })
 
       eventEmitter.emit("initiateSeparation", JSON.stringify({
@@ -929,6 +936,13 @@ class UserController {
         }
       }
       );
+
+      await db.separationTrail.create({
+        separationAutoId: result.resignationAutoId,
+        separationStatus: 5,
+        createdBy: req.userId,
+        createdDt: moment()
+      })
 
       eventEmitter.emit("separationApprovalAcknowledgementToUser", JSON.stringify({
         email: separationData.dataValues.employee.email,
@@ -1335,6 +1349,13 @@ class UserController {
         }
       })
 
+      await db.separationTrail.create({
+        separationAutoId: result.resignationAutoId,
+        separationStatus: 9,
+        createdBy: req.userId,
+        createdDt: moment()
+      })
+
       eventEmitter.emit("separationApproveByBUHR", JSON.stringify({
         email: separationData.dataValues.employee.email,
         empName: separationData.dataValues.employee.name,
@@ -1431,6 +1452,58 @@ class UserController {
           msg: error.details[0].message
         });
       }
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+
+  async separationTrails(req, res) {
+    try {
+      const user = req.query.user || req.userId
+
+      const separationData = await db.separationMaster.findOne({
+        where: {
+          employeeId: user,
+          finalStatus: {
+            [Op.notIn]: [3, 6, 7, 10, 11]
+          }
+        },
+        include: [{
+          model: db.employeeMaster,
+          as: 'pending',
+          attributes: ['empCode', 'name']
+        },
+        {
+          model: db.separationStatus,
+          attributes: ['separationStatusDesc']
+        }]
+      })
+
+      if (separationData) {
+        const separationTrails = await db.separationStatus.findAll({
+          where: {
+            statusTrail: 1
+          },
+          attributes: ['separationStatusAutoId', 'separationStatusCode', 'separationStatusDesc'],
+          include: [{
+            model: db.separationTrail,
+            required: false,
+            where: {
+              separationAutoId: separationData.dataValues.resignationAutoId
+            },
+            attributes: ['separationTrailAutoId']
+          }]
+        })
+        separationData.dataValues.separationTrails = separationTrails
+      }
+
+      return respHelper(res, {
+        status: 200,
+        data: separationData
+      });
+    } catch (error) {
+      console.log(error)
       return respHelper(res, {
         status: 500,
       });
