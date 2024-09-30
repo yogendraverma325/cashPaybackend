@@ -82,7 +82,6 @@ const mailService = async (data) => {
   const filteredCc = data.cc
     ? data.cc.filter((email) => !data.to.includes(email))
     : undefined;
-
   const testMail = parseInt(process.env.TEST_MAIL);
   const testMailIDs = process.env.TEST_MAIL_ID.split(",");
   console.log("Incoming Mail--->>", data.to);
@@ -235,7 +234,7 @@ const getEmpProfile = async (EMP_ID) => {
     include: [
       {
         model: db.salutationMaster,
-        attributes:['salutationId','salutation']
+        attributes: ['salutationId', 'salutation']
       },
       {
         model: db.functionalAreaMaster,

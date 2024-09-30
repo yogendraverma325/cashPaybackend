@@ -56,8 +56,8 @@ export default (sequelize, Sequelize) => {
       dateOfBirth: {
         type: Sequelize.DATE
       },
-      newCustomerName: {
-        type: Sequelize.STRING(50)
+      newCustomerNameId: {
+        type: Sequelize.INTEGER
       },
       iqTestApplicable: {
         type: Sequelize.INTEGER
@@ -130,6 +130,9 @@ export default (sequelize, Sequelize) => {
       },
       companyLocationId: {
         type: Sequelize.INTEGER,
+      },
+      jobLevelId: {
+        type: Sequelize.INTEGER
       },
       weekOffId: {
         type: Sequelize.INTEGER,

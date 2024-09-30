@@ -134,6 +134,7 @@ class AttendanceController {
           ); // Add buffer time  to the selected time if buffer allow
 
           const finalShiftStartTime = shiftStartTime.format("HH:mm");
+          console.log('user - while punch in', req.userId)
           console.log("finalShiftStartTime", finalShiftStartTime)
           console.log("currentDate.format", currentDate.format("HH:mm"))
           if (currentDate.format("HH:mm") < finalShiftStartTime) {
@@ -179,15 +180,7 @@ class AttendanceController {
             weekOffId: existEmployee.weekOffId,
             punchInSource: req.device
           };
-          const checkAttendance = await db.attendanceMaster.findOne({
-            raw: true,
-            where: {
-              employeeId: req.userId,
-              attendanceDate: currentDate.format("YYYY-MM-DD"),
-            },
-          });
 
-        if(!checkAttendance){
           await db.attendanceMaster.create(creationObject);
           await db.attendanceHistory.create({
             date: currentDate.format("YYYY-MM-DD"),
@@ -200,8 +193,7 @@ class AttendanceController {
             createdBy: req.userId,
             createdAt: currentDate,
           });
-        }
-         
+
           return respHelper(res, {
             status: 200,
             msg: message.PUNCH_IN_SUCCESS,
@@ -257,7 +249,7 @@ class AttendanceController {
           //     msg: message.SHIFT.SHIFT_TIME_INVALID,
           //   });
           // }
-
+          console.log('user - while punch out', req.userId)
           await db.attendanceMaster.update(
             {
               attendancePunchOutTime: currentDate.format("HH:mm:ss"),
@@ -1267,64 +1259,74 @@ class AttendanceController {
           let checkWeekOff = await db.weekOffDayMappingMaster.findOne({
             where: occurrenceDayCondition,
           });
-          return {
-            attendanceAutoId: attendance.attendanceAutoId || 0,
-            employeeId: attendance.employeeId || 0,
-            attendanceShiftId: attendance.attendanceShiftId || 0,
-            attendancePolicyId: attendance.attendancePolicyId || 0,
-            attendanceRegularizeId: attendance.attendanceRegularizeId || 0,
-            attendanceDate: attendance.attendanceDate || fullDate,
-            day: moment(fullDate).format("dddd"),
-            attandanceShiftStartDate:
-              attendance.attandanceShiftStartDate || fullDate,
-            attendanceShiftEndDate:
-              attendance.attendanceShiftEndDate || fullDate,
-            attendancePunchInTime: attendance.attendancePunchInTime || null,
-            attendancePunchOutTime: attendance.attendancePunchOutTime || null,
-            attendanceLateBy: attendance.attendanceLateBy || "",
-            attendancePunchInRemark: attendance.attendancePunchInRemark || "",
-            attendancePunchOutRemark: attendance.attendancePunchOutRemark || "",
-            attendancePunchInLocationType:
-              attendance.attendancePunchInLocationType || "",
-            attendancePunchOutLocationType:
-              attendance.attendancePunchOutLocationType || "",
-            attendanceStatus: attendance.attendanceStatus || "NA",
-            attendancePresentStatus:
-              attendance.attendancePresentStatus !== undefined
-                ? attendance.attendancePresentStatus
-                : checkWeekOff !== null
-                  ? "weeklyOff"
-                  : "NA",
-            attendanceRegularizeStatus:
-              attendance.attendanceRegularizeStatus || "NA",
-            attendanceManagerUpdateDate:
-              attendance.attendanceManagerUpdateDate || "NA",
-            attendancePunchInLocation:
-              attendance.attendancePunchInLocation || "NA",
-            attendancePunchInLatitude:
-              attendance.attendancePunchInLatitude || "",
-            attendancePunchInLongitude:
-              attendance.attendancePunchInLongitude || "",
-            attendancePunchOutLocation:
-              attendance.attendancePunchOutLocation || "",
-            attendancePunchOutLatitude:
-              attendance.attendancePunchOutLatitude || "",
-            attendancePunchOutLongitude:
-              attendance.attendancePunchOutLongitude || "",
-            attendanceWorkingTime: attendance.attendanceWorkingTime || null,
-            attendanceRegularizeCount:
-              attendance.attendanceRegularizeCount || 0,
-            employeeLeaveTransactionsId:
-              attendance.employeeLeaveTransactionsId || 0,
-            needAttendanceCron: attendance.needAttendanceCron || 0,
-            holidayCompanyLocationConfigurationID:
-              attendance.holidayCompanyLocationConfigurationID || 0,
-            holidayLocationMappingDetails: holiday ? [holiday] : [],
-            latest_Regularization_Request:
-              attendance.latest_Regularization_Request || [],
-            employeeLeaveTransactionDetails: leaveTransactions,
-            attendanceShiftEmployee: shiftMaster,
-          };
+
+          const attendancceDate = attendance.attendanceDate || fullDate
+          const daysDifference = moment().diff(attendancceDate, 'days')
+          return Object.assign(
+            daysDifference > 0 && daysDifference <= parseInt(process.env.REGULARIZE_DAYS_LIMIT) ? {
+              enableRegularize: true
+            } : {
+              enableRegularize: false
+            },
+            {
+              attendanceAutoId: attendance.attendanceAutoId || 0,
+              employeeId: attendance.employeeId || 0,
+              attendanceShiftId: attendance.attendanceShiftId || 0,
+              attendancePolicyId: attendance.attendancePolicyId || 0,
+              attendanceRegularizeId: attendance.attendanceRegularizeId || 0,
+              attendanceDate: attendance.attendanceDate || fullDate,
+              day: moment(fullDate).format("dddd"),
+              attandanceShiftStartDate:
+                attendance.attandanceShiftStartDate || fullDate,
+              attendanceShiftEndDate:
+                attendance.attendanceShiftEndDate || fullDate,
+              attendancePunchInTime: attendance.attendancePunchInTime || null,
+              attendancePunchOutTime: attendance.attendancePunchOutTime || null,
+              attendanceLateBy: attendance.attendanceLateBy || "",
+              attendancePunchInRemark: attendance.attendancePunchInRemark || "",
+              attendancePunchOutRemark: attendance.attendancePunchOutRemark || "",
+              attendancePunchInLocationType:
+                attendance.attendancePunchInLocationType || "",
+              attendancePunchOutLocationType:
+                attendance.attendancePunchOutLocationType || "",
+              attendanceStatus: attendance.attendanceStatus || "NA",
+              attendancePresentStatus:
+                attendance.attendancePresentStatus !== undefined
+                  ? attendance.attendancePresentStatus
+                  : checkWeekOff !== null
+                    ? "weeklyOff"
+                    : "NA",
+              attendanceRegularizeStatus:
+                attendance.attendanceRegularizeStatus || "NA",
+              attendanceManagerUpdateDate:
+                attendance.attendanceManagerUpdateDate || "NA",
+              attendancePunchInLocation:
+                attendance.attendancePunchInLocation || "NA",
+              attendancePunchInLatitude:
+                attendance.attendancePunchInLatitude || "",
+              attendancePunchInLongitude:
+                attendance.attendancePunchInLongitude || "",
+              attendancePunchOutLocation:
+                attendance.attendancePunchOutLocation || "",
+              attendancePunchOutLatitude:
+                attendance.attendancePunchOutLatitude || "",
+              attendancePunchOutLongitude:
+                attendance.attendancePunchOutLongitude || "",
+              attendanceWorkingTime: attendance.attendanceWorkingTime || null,
+              attendanceRegularizeCount:
+                attendance.attendanceRegularizeCount || 0,
+              employeeLeaveTransactionsId:
+                attendance.employeeLeaveTransactionsId || 0,
+              needAttendanceCron: attendance.needAttendanceCron || 0,
+              holidayCompanyLocationConfigurationID:
+                attendance.holidayCompanyLocationConfigurationID || 0,
+              holidayLocationMappingDetails: holiday ? [holiday] : [],
+              latest_Regularization_Request:
+                attendance.latest_Regularization_Request || [],
+              employeeLeaveTransactionDetails: leaveTransactions,
+              attendanceShiftEmployee: shiftMaster,
+            }
+          )
         })
       );
       return respHelper(res, {

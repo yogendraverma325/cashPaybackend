@@ -2889,6 +2889,132 @@ const clearanceInitiated = async (data) => {
 `
 }
 
+const onboardingEmployee = async (data) => {
+  return `
+    <!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Document</title>
+</head>
+
+<body>
+  <table style="border-collapse:collapse;line-height:100%!important;width:100%!important;font-family:sans-serif"
+    border="0" cellpadding="0" cellspacing="0" align="center">
+    <tbody>
+      <tr>
+        <td style="padding-top:20px;padding-bottom:20px">
+          <table
+            style="border-collapse:collapse;max-width:635px;min-width:550px;width:auto;margin:0 auto;border:0.5px solid #eee"
+            align="center">
+            <tbody>
+              <tr>
+                <td>
+                  <table style="border-collapse:collapse;margin:0 auto;width:100%" align="center">
+                    <tbody>
+                      <tr style="background:#fff">
+                        <td colspan="2" style="padding:20px;padding-bottom:0" valign="top">
+                          <table style="width:100%">
+                            <tbody>
+                              <tr>
+                                <td colspan="2" style="padding-bottom:20px;text-align:left;border-bottom:1px solid #eee"
+                                  valign="middle">
+                                  <img
+                                      height="45"
+                                      src="${process.env.PROXY_URL}/api/uploads/assets/team-new.png"
+                                      alt="Logo"
+                                  />
+                                  <img
+                                    height="45"
+                                    src="${process.env.PROXY_URL}/api/uploads/assets/tara_small.png"
+                                    alt="Logo"
+                                    style="float: right"
+                                  />
+                              </tr>
+                            </tbody>
+                          </table>
+                        </td>
+                      </tr>
+                      <tr style="min-height:300px;background:#fff">
+                        <td colspan="2" style="padding:20px" valign="top">
+                          <div style="line-height:1.5">
+                            <span style="font-family:Calibri;font-size:14px">Dear ${data.firstName},</span>
+                          </div>
+                          <div style="line-height:1.5">
+                            <br>
+                          </div>
+                          <div style="line-height:1.5">
+                            <span style="font-family:Calibri;font-size:14px">Welcome to Tara, To start using your new
+                              HRMS platform, please do the following -&nbsp;</span>
+                          </div>
+                          <div style="line-height:1.5">
+                            <br>
+                          </div>
+                          <div style="line-height:1.5">
+                            <span style="font-family:Calibri;font-size:14px"><b>Mobile App -&nbsp;</b></span>
+                          </div>
+                          <ol>
+                            <li style="line-height:1.5"><span style="font-family:Calibri;font-size:14px">Download the
+                                TARA HRMS application from Play Store/Apple Store</span></li>
+                            <li style="line-height:1.5"><span style="font-family:Calibri;font-size:14px">Your User ID
+                                (Employee ID)&nbsp; -&nbsp;</span><span style="font-family:Calibri;font-size:14px">${data.empCode}</span></li>
+                            <li style="line-height:1.5"><span style="font-family:Calibri;font-size:14px">Password
+                                -&nbsp;</span><span style="font-family:Calibri;font-size:14px">${data.password}</span></li>
+                          </ol>
+                          <div style="line-height:1.5">
+                            <br>
+                          </div>
+                          <div style="line-height:1.5">
+                            <span style="font-family:Calibri;font-size:14px"><b>Laptop/PC -&nbsp;</b></span>
+                          </div>
+                          <ol>
+                            <li style="line-height:1.5"><span style="font-family:Calibri;font-size:14px">Please use the
+                                following URL -&nbsp;</span><span style="font-family:Calibri;font-size:14px"><u><a
+                                    href="https://tara.teamcomputers.com" target="_blank"
+                                    data-saferedirecturl="https://www.google.com/url?q=https://tara.teamcomputers.com/&amp;source=gmail&amp;ust=1727407654468000&amp;usg=AOvVaw0u4ezRJDHPE2alMMkynFks">tara.teamcomputers.com</a></u></span>
+                            </li>
+                            <li style="line-height:1.5"><span style="font-family:Calibri;font-size:14px">Your User ID
+                                (Employee ID) -&nbsp;</span><span style="font-family:Calibri;font-size:14px">${data.empCode}</span></li>
+                            <li style="line-height:1.5"><span style="font-family:Calibri;font-size:14px">Password
+                                -&nbsp;</span><span style="font-family:Calibri;font-size:14px">${data.password}</span></li>
+                          </ol>
+                          <div style="line-height:1.5">
+                            <span style="font-family:Calibri;font-size:14px"><br><span
+                                style="font-size:14px;font-family:Calibri">In case you face any problems, please contact
+                                us!</span></span>
+                          </div>
+                          <div style="line-height:1.5">
+                            <span style="font-family:Calibri"><br><span
+                                style="font-size:14px;font-family:Calibri">Regards,</span></span><span
+                              style="font-family:Calibri"><br></span><span
+                              style="font-size:14px;font-family:Calibri">Team HRM</span><span
+                              style="font-family:Calibri"><span
+                                style="font-size:14px;font-family:Calibri"><br></span></span><span
+                              style="font-family:Calibri;font-size:14px">Team Computers</span>
+                          </div><br>
+                          <table
+                            style="width:100%;font-size:12px;font-family:Century Gothic,CenturyGothic,AppleGothic,sans-serif">
+                            <tbody></tbody>
+                          </table>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</body>
+
+</html>`
+}
+
 export default {
   regularizationRequestMail,
   resetPasswordMail,
@@ -2906,5 +3032,6 @@ export default {
   managerRejectsSeparation,
   managerApprovesSeparation,
   separationApproveByBUHR,
-  clearanceInitiated
+  clearanceInitiated,
+  onboardingEmployee
 };

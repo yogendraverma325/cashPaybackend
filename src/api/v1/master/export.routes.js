@@ -3,6 +3,7 @@ import masterExportController from './export.controller.js'
 import authentication from '../../../middleware/authentication.js';
 import multer from 'multer';
 import rateLimit from '../../../middleware/rateLimit.js';
+import authorization from '../../../middleware/authorization.js';
 
 // Set up multer to handle file uploads
 const storage = multer.memoryStorage();
@@ -20,4 +21,6 @@ export default Express
     .get("/attendanceReport", masterExportController.attendanceReport)
     .get("/attendanceSummary", masterExportController.attendanceSummary)
 
+
+    .post("/onboardingEmployee", upload.single('excelFile'), masterExportController.onboardingEmployeeImport)
 

@@ -11,6 +11,9 @@ export default (sequelize, Sequelize) => {
         companyId: {
             type: Sequelize.INTEGER,
         },
+        companyLocationCode: {
+            type: Sequelize.STRING
+        },
         countryId: {
             type: Sequelize.INTEGER,
         },

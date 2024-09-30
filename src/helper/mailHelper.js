@@ -70,6 +70,10 @@ export default function getAllListeners(eventEmitter) {
     eventEmitter.on("separationApproveByBUHR", async (input) => {
         await separationApproveByBUHR(input)
     })
+
+    eventEmitter.on('onboardingEmployeeMail', async (input) => {
+        await onboardingEmployeeMail(input)
+    })
 }
 
 async function regularizationRequestMail(input) {
@@ -255,7 +259,8 @@ async function separationApprovalAcknowledgementToUser(input) {
             subject: `Manager accepted the resignation of Employee`,
             html: await emailTemplate.separationApprovalAcknowledgementToUser(userData)
         })
-    } catch (error) {
+    }
+    catch {
         console.log(error)
         logger.error(error)
     }
@@ -310,6 +315,20 @@ async function separationApproveByBUHR(input) {
             to: userData.email,
             subject: `Resignation Acceptance ${userData.empCode}, ${userData.empName}`,
             html: await emailTemplate.separationApproveByBUHR(userData)
+        })
+    } catch (error) {
+        console.log(error)
+        logger.error(error)
+    }
+}
+
+async function onboardingEmployeeMail(input) {
+    try {
+        const userData = JSON.parse(input)
+        await helper.mailService({
+            to: userData.email,
+            subject: `Welcome to Team's new HRMS Platform | Login credentials`,
+            html: await emailTemplate.onboardingEmployee(userData)
         })
     } catch (error) {
         console.log(error)

@@ -7,9 +7,11 @@ import client from "../../../config/redisDb.config.js";
 import pkg from "xlsx";
 import bcrypt from "bcrypt";
 import moment from "moment";
-//const {readFile} = pkg
 import helper from "../../../helper/helper.js";
-//const XLSX = require('xlsx');
+import validator from "../../../helper/validator.js";
+
+const maritalStatusOptions = { 'Married': 1, 'Single': 2, 'Divorced': 3, 'Separated': 4, 'Widowed': 5, 'Others': 6 };
+
 
 async function getDataFromCache(key) {
   return client.lRange(key, 0, -1);
@@ -43,12 +45,12 @@ class MasterController {
         where: Object.assign(
           search
             ? {
-                [Op.or]: [
-                  { empCode: { [Op.like]: `%${search}%` } },
-                  { name: { [Op.like]: `%${search}%` } },
-                  { email: { [Op.like]: `%${search}%` } },
-                ],
-              }
+              [Op.or]: [
+                { empCode: { [Op.like]: `%${search}%` } },
+                { name: { [Op.like]: `%${search}%` } },
+                { email: { [Op.like]: `%${search}%` } },
+              ],
+            }
             : {}
         ),
         include: [
@@ -694,11 +696,9 @@ class MasterController {
       const limit = parseInt(req.query.limit) || 10;
       const pageNo = parseInt(req.query.page) || 1;
       const offset = (pageNo - 1) * limit;
-      const cacheKey = `employeeList:${pageNo}:${limit}:${search || ""}:${
-        department || ""
-      }:${designation || ""}:${buSearch || ""}:${sbuSearch || ""}:${
-        areaSearch || ""
-      }`;
+      const cacheKey = `employeeList:${pageNo}:${limit}:${search || ""}:${department || ""
+        }:${designation || ""}:${buSearch || ""}:${sbuSearch || ""}:${areaSearch || ""
+        }`;
 
       let employeeData = [];
       await client.get(cacheKey).then(async (data) => {
@@ -1009,312 +1009,285 @@ class MasterController {
     }
   }
 
-async attendanceSummary(req, res) {
-  try {
-    const { startDate, endDate, search } = req.query;
-    const fromDate = moment(startDate, "YYYY-MM-DD"); 
-    const toDate = moment(endDate, "YYYY-MM-DD");
+  async onboardingEmployeeImport(req, res) {
+    const transaction = await db.sequelize.transaction(); // Start the transaction
+    try {
+      // Read Excel file
+      if (!req.file) {
+        return respHelper(res, {
+          status: 400,
+          msg: "File is required!"
+        });
+      }
+      else {
+        const workbookEmployee = pkg.readFile(req.file.path);
+        const sheetNameEmployee = workbookEmployee.SheetNames[0];
+        const Employees = pkg.utils.sheet_to_json(
+          workbookEmployee.Sheets[sheetNameEmployee]
+        );
 
-    const totalDays = toDate.diff(fromDate, "days") + 1;
+        const successData = [];
+        const failureData = [];
 
-    const attendanceData = await db.attendanceMaster.findAll({
-      attributes: [
-        "employeeId",
-        "attendanceDate",
-        "attendancePresentStatus",
-      ],
-      where: {
-        //employeeId: 65,
-        attendanceDate: {
-          [db.Sequelize.Op.between]: [
-            fromDate.format("YYYY-MM-DD"),
-            toDate.format("YYYY-MM-DD"),
-          ],
-        },
-      },
-      include: [
-        {
-          model: db.employeeMaster,
-          attributes: ["id", "name", "empCode", "weekOffId", "companyLocationId"],
-          where: {
-            isActive:1,
-            ...(search && {
-              [Op.or]: [
-                { empCode: { [Op.like]: `%${search}%` } },
-                { name: { [Op.like]: `%${search}%` } },
-                { email: { [Op.like]: `%${search}%` } },
-              ],
-            }),
+        // process data in chunks
+        const chunkSize = 10;
+
+        for (let i = 0; i < Employees.length; i += chunkSize) {
+          const chunk = Employees.slice(i, i + chunkSize);
+          const validEmployees = [];
+          const invalidEmployees = [];
+
+          for (const employee of chunk) {
+            let obj = createObj(employee);
+
+            // validate fields
+            const { error } = await validator.importOnboardEmployeeSchema.validate(obj);
+            if (!error) {
+              const isValidCompany = await validateCompany(obj.company);
+              const isValidEmployeeType = await validateEmployeeType(obj.employeeType);
+              const isValidProbation = await validateProbation(obj.probation);
+              const isValidManager = await validateManager(obj.manager);
+              const isValidDesignation = await validateDesignation(obj.designation);
+              const isValidFunctionalArea = await validateFunctionalArea(obj.functionalArea);
+              const isValidBU = await validateBU(obj.bu, isValidCompany);
+              const isValidSBU = await validateSBU(obj.sbu);
+              const isValidShift = await validateShift(obj.shift);
+              const isValidDepartment = await validateDepartment(obj.department);
+              const isValidAttendancePolicy = await validateAttendancePolicy(obj.attendancePolicy);
+              const isValidCompanyLocation = await validateCompanyLocation(obj.companyLocation, isValidCompany);
+              const isValidWeekOff = await validateWeekOff(obj.weekOff);
+              const isValidNewCustomerName = await validateNewCustomerName(obj.newCustomerName);
+              const isValidJobLevel = await validateJobLevel(obj.jobLevel);
+              const isValidateEmployee = await validateEmployee(obj.personalMobileNumber, obj.email);
+
+              if (isValidCompany.status && isValidEmployeeType.status && isValidProbation.status && isValidManager.status && isValidDesignation.status &&
+                isValidFunctionalArea.status && isValidBU.status && isValidSBU.status && isValidCompanyLocation.status && isValidDepartment.status
+                && isValidateEmployee.status && isValidJobLevel.status) {
+                // prepare employee object
+                let newEmployee = {
+                  name: `${obj.firstName} ${obj.middleName} ${obj.lastName}`.replace(/\s+/g, ' ').trim(),
+                  firstName: obj.firstName,
+                  middleName: obj.middleName,
+                  lastName: obj.lastName,
+                  email: obj.email,
+                  personalEmail: obj.personalEmail,
+                  panNo: obj.panNo,
+                  uanNo: obj.uanNo,
+                  pfNo: obj.pfNo,
+                  officeMobileNumber: obj.officeMobileNumber,
+                  personalMobileNumber: obj.personalMobileNumber,
+                  gender: obj.gender,
+                  dateOfBirth: obj.dateOfBirth,
+                  dateOfJoining: obj.dateOfJoining,
+                  maritalStatus: maritalStatusOptions[obj.maritalStatus],
+                  maritalStatusSince: obj.maritalStatusSince,
+                  nationality: obj.nationality,
+                  probationId: isValidProbation.data.probationId,
+                  iqTestApplicable: (obj.iqTestApplicable == 'Yes') ? 1 : 0,
+                  positionType: obj.positionType,
+                  companyId: isValidCompany.data.companyId,
+                  buId: isValidBU.data.buId,
+                  sbuId: isValidSBU.data.sbuId,
+                  departmentId: isValidDepartment.data.departmentId,
+                  functionalAreaId: isValidFunctionalArea.data.functionalAreaId,
+                  buHRId: isValidBU.data.buHR,
+                  buHeadId: isValidBU.data.buHead,
+                  employeeType: isValidEmployeeType.data.empTypeId,
+                  manager: isValidManager.data.id,
+                  designation_id: isValidDesignation.data.designationId,
+                  shiftId: isValidShift.data?.shiftId,
+                  attendancePolicyId: isValidAttendancePolicy.data?.attendancePolicyId,
+                  companyLocationId: isValidCompanyLocation.data.companyLocationId,
+                  weekOffId: isValidWeekOff.data?.weekOffId,
+                  newCustomerNameId: isValidNewCustomerName.data?.newCustomerNameId,
+                  jobLevelId: isValidJobLevel.data?.jobLevelId
+                }
+
+                newEmployee.role_id = 3;
+                validEmployees.push({ ...newEmployee, index: employee.Index });
+                const createdEmployees = await db.employeeStagingMaster.create(newEmployee);
+              }
+              else {
+                const masterErrors = {
+                  index: employee.Index,
+                  companyEmail: obj.email,
+                  company: isValidCompany.message,
+                  employeeType: isValidEmployeeType.message,
+                  probation: isValidProbation.message,
+                  manager: isValidManager.message,
+                  designation: isValidDesignation.message,
+                  functionalArea: isValidFunctionalArea.message,
+                  bu: isValidBU.message,
+                  sbu: isValidSBU.message,
+                  shift: isValidShift.message,
+                  attendancePolicy: isValidAttendancePolicy.message,
+                  companyLocation: isValidCompanyLocation.message,
+                  weekOff: isValidWeekOff.message,
+                  department: isValidDepartment.message,
+                  jobLevel: isValidJobLevel.message,
+                  alreadyExist: isValidateEmployee.message
+                }
+                invalidEmployees.push(masterErrors);
+              }
+            }
+            else {
+              const errors = handleErrors(error);
+              invalidEmployees.push({ ...errors, index: employee.Index, companyEmail: obj.email });
+            }
+          }
+
+          // bulk create valid data
+          if (validEmployees.length > 0) {
+            // const createdEmployees = await db.employeeStagingMaster.bulkCreate(validEmployees);
+            // successData.push(...createdEmployees.map(e => e.toJSON()));
+            successData.push(validEmployees);
+          }
+          failureData.push(...invalidEmployees);
+        }
+
+        return respHelper(res, {
+          status: 200,
+          msg: "File Uploaded Successfully",
+          data: {
+            successData,
+            failureData
           },
-        },
-        {
-          model: db.regularizationMaster,
-          as: "latest_Regularization_Request",
-          attributes: ["regularizeId"],
-        },
-      ],
-    });
+        });
 
-    const employeeIds = [...new Set(attendanceData.map((record) => record.employeeId))];
-    const finalData = [];
-    const today = moment().startOf("day");
-
-    for (const employeeId of employeeIds) {
-      const employeeRecords = attendanceData.filter(
-        (record) => record.employeeId === employeeId
-      );
-
-      if (employeeRecords.length === 0) continue;
-
-      const employeeRecord = {
-        empId: employeeRecords[0].employee?.id || null,
-        name: employeeRecords[0].employee?.name || 'Unknown',
-        empCode: employeeRecords[0].employee?.empCode || 'N/A',
-        weekOffId: employeeRecords[0].employee?.weekOffId || 0,
-        companyLocationId: employeeRecords[0].employee?.companyLocationId || 0,
-      };
-
-      const dayRecords = {};
-      let attendanceCount = { P: 0, A: 0, SA: 0, R: 0, H: 0, W: 0, L: 0, U: 0 };
-
-      // Fetch approved leave transactions for the employee
-      const leaveTransactions = await db.employeeLeaveTransactions.findAll({
-        attributes: ["employeeId", "leaveAutoId", "leaveCount", "appliedFor"],
+      }
+    }
+    catch (error) {
+      await transaction.rollback(); // Rollback the transaction in case of an error
+      console.log(error);
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+  
+  async attendanceSummary(req, res) {
+    try {
+      const { startDate, endDate, search } = req.query;
+      const fromDate = moment(startDate, "YYYY-MM-DD"); 
+      const toDate = moment(endDate, "YYYY-MM-DD");
+  
+      const totalDays = toDate.diff(fromDate, "days") + 1;
+  
+      const attendanceData = await db.attendanceMaster.findAll({
+        attributes: [
+          "employeeId",
+          "attendanceDate",
+          "attendancePresentStatus",
+        ],
         where: {
-          employeeId: employeeRecord.empId,
-          [Op.or]: [
-            { source: { [Op.ne]: 'system_generated' } },  // Source is not 'system_generated'
-            { source: null }  // Source is null
-          ],   
-         status: "approved",
-          appliedFor: {
+          //employeeId: 65,
+          attendanceDate: {
             [db.Sequelize.Op.between]: [
               fromDate.format("YYYY-MM-DD"),
               toDate.format("YYYY-MM-DD"),
             ],
           },
         },
-        raw: true,
+        include: [
+          {
+            model: db.employeeMaster,
+            attributes: ["id", "name", "empCode", "weekOffId", "companyLocationId"],
+            where: {
+              isActive:1,
+              ...(search && {
+                [Op.or]: [
+                  { empCode: { [Op.like]: `%${search}%` } },
+                  { name: { [Op.like]: `%${search}%` } },
+                  { email: { [Op.like]: `%${search}%` } },
+                ],
+              }),
+            },
+          },
+          {
+            model: db.regularizationMaster,
+            as: "latest_Regularization_Request",
+            attributes: ["regularizeId"],
+          },
+        ],
       });
-      const getLeaveForDay = (date) =>
-        leaveTransactions.find((leave) => leave.appliedFor === date);
-
-      for (let dayOffset = 0; dayOffset < totalDays; dayOffset++) {
-        const currentDay = moment(fromDate).add(dayOffset, "days");
-        const currentDate = currentDay.format("YYYY-MM-DD");
-        const dayKey = currentDay.format("DD");
-
-        // Check if the day is a holiday or week off using isDayWorking function
-        const isDayWorking = await helper.isDayWorkingForReport(
-          currentDate,
-          employeeRecord.weekOffId,
-          employeeRecord.companyLocationId
+  
+      const employeeIds = [...new Set(attendanceData.map((record) => record.employeeId))];
+      const finalData = [];
+      const today = moment().startOf("day");
+  
+      for (const employeeId of employeeIds) {
+        const employeeRecords = attendanceData.filter(
+          (record) => record.employeeId === employeeId
         );
-
-        // If the day is a holiday, set status to H
-        if (isDayWorking === "H") {
-
-          const leave = getLeaveForDay(currentDate);
-          const attendanceRecord = employeeRecords.find(
-            (record) => record.attendanceDate === currentDate
+  
+        if (employeeRecords.length === 0) continue;
+  
+        const employeeRecord = {
+          empId: employeeRecords[0].employee?.id || null,
+          name: employeeRecords[0].employee?.name || 'Unknown',
+          empCode: employeeRecords[0].employee?.empCode || 'N/A',
+          weekOffId: employeeRecords[0].employee?.weekOffId || 0,
+          companyLocationId: employeeRecords[0].employee?.companyLocationId || 0,
+        };
+  
+        const dayRecords = {};
+        let attendanceCount = { P: 0, A: 0, SA: 0, R: 0, H: 0, W: 0, L: 0, U: 0 };
+  
+        // Fetch approved leave transactions for the employee
+        const leaveTransactions = await db.employeeLeaveTransactions.findAll({
+          attributes: ["employeeId", "leaveAutoId", "leaveCount", "appliedFor"],
+          where: {
+            employeeId: employeeRecord.empId,
+            [Op.or]: [
+              { source: { [Op.ne]: 'system_generated' } },  // Source is not 'system_generated'
+              { source: null }  // Source is null
+            ],   
+           status: "approved",
+            appliedFor: {
+              [db.Sequelize.Op.between]: [
+                fromDate.format("YYYY-MM-DD"),
+                toDate.format("YYYY-MM-DD"),
+              ],
+            },
+          },
+          raw: true,
+        });
+        const getLeaveForDay = (date) =>
+          leaveTransactions.find((leave) => leave.appliedFor === date);
+  
+        for (let dayOffset = 0; dayOffset < totalDays; dayOffset++) {
+          const currentDay = moment(fromDate).add(dayOffset, "days");
+          const currentDate = currentDay.format("YYYY-MM-DD");
+          const dayKey = currentDay.format("DD");
+  
+          // Check if the day is a holiday or week off using isDayWorking function
+          const isDayWorking = await helper.isDayWorkingForReport(
+            currentDate,
+            employeeRecord.weekOffId,
+            employeeRecord.companyLocationId
           );
-          if (attendanceRecord) {
-            const { attendancePresentStatus } = attendanceRecord;
-
-            // Set attendance based on the presence status
-            if (attendancePresentStatus === "present") {
-              dayRecords[dayKey] = "P"; // Initially set to P
-              attendanceCount.P++;
-
-              // Check for regularization
-              if (attendanceRecord.latest_Regularization_Request.length > 0) {
-                dayRecords[dayKey] = `${dayRecords[dayKey]},R`; // Append R for regularization
-                attendanceCount.R++;
-              }
-
-              // If there was a leave, append it after regularization
-              if (leave) {
-                // Determine the leave status based on leaveCount and leaveAutoId
-                let leaveStatus = leave.leaveCount === '1.0' ? 'L' : (leave.leaveAutoId == 6 ? '0.5U' : '0.5L');
-                dayRecords[dayKey] = `${dayRecords[dayKey]},${leaveStatus}`; // Append leave status
-                //attendanceCount.L++;
-                attendanceCount.L += parseFloat(leave.leaveCount);
-              }
-
-              if (isDayWorking === "H") {
-                dayRecords[dayKey] = `${dayRecords[dayKey]},H`; // Append R for regularization
-                // attendanceCount.R++;
-              }
-
-            } else if (attendancePresentStatus === "singlePunchAbsent") {
-              dayRecords[dayKey] = "SA";
-              attendanceCount.SA++;
-
-              if (attendanceRecord.latest_Regularization_Request.length > 0) {
-                dayRecords[dayKey] = `${dayRecords[dayKey]},R`; // Append R for regularization
-                attendanceCount.R++;
-              }
-
-              // If there was a leave, append it after regularization
-              if (leave) {
-                // Determine the leave status based on leaveCount and leaveAutoId
-                let leaveStatus = leave.leaveCount === '1.0' ? 'L' : (leave.leaveAutoId == 6 ? '0.5U' : '0.5L');
-                dayRecords[dayKey] = `${dayRecords[dayKey]},${leaveStatus}`; // Append leave status
-                //attendanceCount.L++;
-                attendanceCount.L += parseFloat(leave.leaveCount);
-              }
-
-              if (isDayWorking === "H") {
-                dayRecords[dayKey] = `${dayRecords[dayKey]},H`; // Append R for regularization
-                // attendanceCount.R++;
-              }
-
-            } else if (attendancePresentStatus === "absent") {
-              dayRecords[dayKey] = "A";
-              attendanceCount.A++;
-
-              if (attendanceRecord.latest_Regularization_Request.length > 0) {
-                dayRecords[dayKey] = `${dayRecords[dayKey]},R`; // Append R for regularization
-                attendanceCount.R++;
-              }
-
-              // If there was a leave, append it after regularization
-              if (leave) {
-                // Determine the leave status based on leaveCount and leaveAutoId
-                let leaveStatus = leave.leaveCount === '1.0' ? 'L' : (leave.leaveAutoId == 6 ? '0.5U' : '0.5L');
-                dayRecords[dayKey] = `${dayRecords[dayKey]},${leaveStatus}`; // Append leave status
-               // attendanceCount.L++;
-               attendanceCount.L += parseFloat(leave.leaveCount);
-              }
-
-              if (isDayWorking === "H") {
-                dayRecords[dayKey] = `${dayRecords[dayKey]},H`; // Append R for regularization
-                // attendanceCount.R++;
-              }
-
-            } else {
-              // If there are no attendance records, set to '-'
-                dayRecords[dayKey] = "H"; // Set to H for holiday
-                attendanceCount.H++;
-            }
-          } else {
-            // If there are no attendance records, set to '-'
-            dayRecords[dayKey] = "H"; // Set to H for holiday
-            attendanceCount.H++;
-          }
-         
-        } 
-        // If the day is a week off, set status to W
-        else if (isDayWorking === "W") {
-          const leave = getLeaveForDay(currentDate);
-          const attendanceRecord = employeeRecords.find(
-            (record) => record.attendanceDate === currentDate
-          );
-
-          if (attendanceRecord) {
-            const { attendancePresentStatus } = attendanceRecord;
-
-            // Set attendance based on the presence status
-            if (attendancePresentStatus === "present") {
-              dayRecords[dayKey] = "P"; // Initially set to P
-              attendanceCount.P++;
-
-              // Check for regularization
-              if (attendanceRecord.latest_Regularization_Request.length > 0) {
-                dayRecords[dayKey] = `${dayRecords[dayKey]},R`; // Append R for regularization
-                attendanceCount.R++;
-              }
-
-              // If there was a leave, append it after regularization
-              if (leave) {
-                // Determine the leave status based on leaveCount and leaveAutoId
-                let leaveStatus = leave.leaveCount === '1.0' ? 'L' : (leave.leaveAutoId == 6 ? '0.5U' : '0.5L');
-                dayRecords[dayKey] = `${dayRecords[dayKey]},${leaveStatus}`; // Append leave status
-                //attendanceCount.L++;
-                attendanceCount.L += parseFloat(leave.leaveCount);
-              }
-
-              if (isDayWorking === "W") {
-                dayRecords[dayKey] = `${dayRecords[dayKey]},W`; // Append R for regularization
-                // attendanceCount.R++;
-              }
-
-            } else if (attendancePresentStatus === "singlePunchAbsent") {
-              dayRecords[dayKey] = "SA";
-              attendanceCount.SA++;
-
-              if (attendanceRecord.latest_Regularization_Request.length > 0) {
-                dayRecords[dayKey] = `${dayRecords[dayKey]},R`; // Append R for regularization
-                attendanceCount.R++;
-              }
-
-              // If there was a leave, append it after regularization
-              if (leave) {
-                // Determine the leave status based on leaveCount and leaveAutoId
-                let leaveStatus = leave.leaveCount === '1.0' ? 'L' : (leave.leaveAutoId == 6 ? '0.5U' : '0.5L');
-                dayRecords[dayKey] = `${dayRecords[dayKey]},${leaveStatus}`; // Append leave status
-               // attendanceCount.L++;
-               attendanceCount.L += parseFloat(leave.leaveCount);
-              }
-
-              if (isDayWorking === "W") {
-                dayRecords[dayKey] = `${dayRecords[dayKey]},W`; // Append R for regularization
-                // attendanceCount.R++;
-              }
-
-            } else if (attendancePresentStatus === "absent") {
-              dayRecords[dayKey] = "A";
-              attendanceCount.A++;
-
-              if (attendanceRecord.latest_Regularization_Request.length > 0) {
-                dayRecords[dayKey] = `${dayRecords[dayKey]},R`; // Append R for regularization
-                attendanceCount.R++;
-              }
-
-              // If there was a leave, append it after regularization
-              if (leave) {
-                // Determine the leave status based on leaveCount and leaveAutoId
-                let leaveStatus = leave.leaveCount === '1.0' ? 'L' : (leave.leaveAutoId == 6 ? '0.5U' : '0.5L');
-                dayRecords[dayKey] = `${dayRecords[dayKey]},${leaveStatus}`; // Append leave status
-                //attendanceCount.L++;
-                attendanceCount.L += parseFloat(leave.leaveCount);
-              }
-
-              if (isDayWorking === "W") {
-                dayRecords[dayKey] = `${dayRecords[dayKey]},W`; // Append R for regularization
-                // attendanceCount.R++;
-              }
-
-            } else {
-              dayRecords[dayKey] = "W"; // Set to W for week off
-              attendanceCount.W++;
-            }
-          }else{
-              dayRecords[dayKey] = "W"; // Set to W for week off
-              attendanceCount.W++;
-          }
-        } 
-        else {
-          // Check for approved leave first
-          const leave = getLeaveForDay(currentDate);
+  
+          // If the day is a holiday, set status to H
+          if (isDayWorking === "H") {
+  
+            const leave = getLeaveForDay(currentDate);
             const attendanceRecord = employeeRecords.find(
               (record) => record.attendanceDate === currentDate
             );
-
             if (attendanceRecord) {
               const { attendancePresentStatus } = attendanceRecord;
-
+  
               // Set attendance based on the presence status
               if (attendancePresentStatus === "present") {
                 dayRecords[dayKey] = "P"; // Initially set to P
                 attendanceCount.P++;
-
+  
                 // Check for regularization
                 if (attendanceRecord.latest_Regularization_Request.length > 0) {
                   dayRecords[dayKey] = `${dayRecords[dayKey]},R`; // Append R for regularization
                   attendanceCount.R++;
                 }
-
+  
                 // If there was a leave, append it after regularization
                 if (leave) {
                   // Determine the leave status based on leaveCount and leaveAutoId
@@ -1323,15 +1296,21 @@ async attendanceSummary(req, res) {
                   //attendanceCount.L++;
                   attendanceCount.L += parseFloat(leave.leaveCount);
                 }
+  
+                if (isDayWorking === "H") {
+                  dayRecords[dayKey] = `${dayRecords[dayKey]},H`; // Append R for regularization
+                  // attendanceCount.R++;
+                }
+  
               } else if (attendancePresentStatus === "singlePunchAbsent") {
                 dayRecords[dayKey] = "SA";
                 attendanceCount.SA++;
-
+  
                 if (attendanceRecord.latest_Regularization_Request.length > 0) {
                   dayRecords[dayKey] = `${dayRecords[dayKey]},R`; // Append R for regularization
                   attendanceCount.R++;
                 }
-
+  
                 // If there was a leave, append it after regularization
                 if (leave) {
                   // Determine the leave status based on leaveCount and leaveAutoId
@@ -1340,15 +1319,68 @@ async attendanceSummary(req, res) {
                   //attendanceCount.L++;
                   attendanceCount.L += parseFloat(leave.leaveCount);
                 }
+  
+                if (isDayWorking === "H") {
+                  dayRecords[dayKey] = `${dayRecords[dayKey]},H`; // Append R for regularization
+                  // attendanceCount.R++;
+                }
+  
               } else if (attendancePresentStatus === "absent") {
                 dayRecords[dayKey] = "A";
                 attendanceCount.A++;
-
+  
                 if (attendanceRecord.latest_Regularization_Request.length > 0) {
                   dayRecords[dayKey] = `${dayRecords[dayKey]},R`; // Append R for regularization
                   attendanceCount.R++;
                 }
-
+  
+                // If there was a leave, append it after regularization
+                if (leave) {
+                  // Determine the leave status based on leaveCount and leaveAutoId
+                  let leaveStatus = leave.leaveCount === '1.0' ? 'L' : (leave.leaveAutoId == 6 ? '0.5U' : '0.5L');
+                  dayRecords[dayKey] = `${dayRecords[dayKey]},${leaveStatus}`; // Append leave status
+                 // attendanceCount.L++;
+                 attendanceCount.L += parseFloat(leave.leaveCount);
+                }
+  
+                if (isDayWorking === "H") {
+                  dayRecords[dayKey] = `${dayRecords[dayKey]},H`; // Append R for regularization
+                  // attendanceCount.R++;
+                }
+  
+              } else {
+                // If there are no attendance records, set to '-'
+                  dayRecords[dayKey] = "H"; // Set to H for holiday
+                  attendanceCount.H++;
+              }
+            } else {
+              // If there are no attendance records, set to '-'
+              dayRecords[dayKey] = "H"; // Set to H for holiday
+              attendanceCount.H++;
+            }
+           
+          } 
+          // If the day is a week off, set status to W
+          else if (isDayWorking === "W") {
+            const leave = getLeaveForDay(currentDate);
+            const attendanceRecord = employeeRecords.find(
+              (record) => record.attendanceDate === currentDate
+            );
+  
+            if (attendanceRecord) {
+              const { attendancePresentStatus } = attendanceRecord;
+  
+              // Set attendance based on the presence status
+              if (attendancePresentStatus === "present") {
+                dayRecords[dayKey] = "P"; // Initially set to P
+                attendanceCount.P++;
+  
+                // Check for regularization
+                if (attendanceRecord.latest_Regularization_Request.length > 0) {
+                  dayRecords[dayKey] = `${dayRecords[dayKey]},R`; // Append R for regularization
+                  attendanceCount.R++;
+                }
+  
                 // If there was a leave, append it after regularization
                 if (leave) {
                   // Determine the leave status based on leaveCount and leaveAutoId
@@ -1357,113 +1389,559 @@ async attendanceSummary(req, res) {
                   //attendanceCount.L++;
                   attendanceCount.L += parseFloat(leave.leaveCount);
                 }
+  
+                if (isDayWorking === "W") {
+                  dayRecords[dayKey] = `${dayRecords[dayKey]},W`; // Append R for regularization
+                  // attendanceCount.R++;
+                }
+  
+              } else if (attendancePresentStatus === "singlePunchAbsent") {
+                dayRecords[dayKey] = "SA";
+                attendanceCount.SA++;
+  
+                if (attendanceRecord.latest_Regularization_Request.length > 0) {
+                  dayRecords[dayKey] = `${dayRecords[dayKey]},R`; // Append R for regularization
+                  attendanceCount.R++;
+                }
+  
+                // If there was a leave, append it after regularization
+                if (leave) {
+                  // Determine the leave status based on leaveCount and leaveAutoId
+                  let leaveStatus = leave.leaveCount === '1.0' ? 'L' : (leave.leaveAutoId == 6 ? '0.5U' : '0.5L');
+                  dayRecords[dayKey] = `${dayRecords[dayKey]},${leaveStatus}`; // Append leave status
+                 // attendanceCount.L++;
+                 attendanceCount.L += parseFloat(leave.leaveCount);
+                }
+  
+                if (isDayWorking === "W") {
+                  dayRecords[dayKey] = `${dayRecords[dayKey]},W`; // Append R for regularization
+                  // attendanceCount.R++;
+                }
+  
+              } else if (attendancePresentStatus === "absent") {
+                dayRecords[dayKey] = "A";
+                attendanceCount.A++;
+  
+                if (attendanceRecord.latest_Regularization_Request.length > 0) {
+                  dayRecords[dayKey] = `${dayRecords[dayKey]},R`; // Append R for regularization
+                  attendanceCount.R++;
+                }
+  
+                // If there was a leave, append it after regularization
+                if (leave) {
+                  // Determine the leave status based on leaveCount and leaveAutoId
+                  let leaveStatus = leave.leaveCount === '1.0' ? 'L' : (leave.leaveAutoId == 6 ? '0.5U' : '0.5L');
+                  dayRecords[dayKey] = `${dayRecords[dayKey]},${leaveStatus}`; // Append leave status
+                  //attendanceCount.L++;
+                  attendanceCount.L += parseFloat(leave.leaveCount);
+                }
+  
+                if (isDayWorking === "W") {
+                  dayRecords[dayKey] = `${dayRecords[dayKey]},W`; // Append R for regularization
+                  // attendanceCount.R++;
+                }
+  
+              } else {
+                dayRecords[dayKey] = "W"; // Set to W for week off
+                attendanceCount.W++;
               }
-            } else {
-              // If there are no attendance records, set to '-'
-              //dayRecords[dayKey] = "-";
-              //If it's a working day
-
-            //new changes
-          dayRecords[dayKey] = "A"; // Default to 'A' (Absent)
-
-          if (currentDay.isBefore(today)) {
-            dayRecords[dayKey] = "A"; // For past dates, default to "A" if no data
-          } else if (currentDay.isSame(today)) {
-            dayRecords[dayKey] = "-"; // For today, set "-" if no data
-          } else if (currentDay.isAfter(today)) {
-            dayRecords[dayKey] = "-"; // For future dates, return blank
-          }
+            }else{
+                dayRecords[dayKey] = "W"; // Set to W for week off
+                attendanceCount.W++;
             }
-          //}
-        }
-
-        // Ensure future or current day shows '-'
-        if (currentDay.isAfter(today) || currentDay.isSame(today)) {
-          if (!dayRecords[dayKey]) {
-            dayRecords[dayKey] = "-"; // Default to '-' for future/current days if not already set
+          } 
+          else {
+            // Check for approved leave first
+            const leave = getLeaveForDay(currentDate);
+              const attendanceRecord = employeeRecords.find(
+                (record) => record.attendanceDate === currentDate
+              );
+  
+              if (attendanceRecord) {
+                const { attendancePresentStatus } = attendanceRecord;
+  
+                // Set attendance based on the presence status
+                if (attendancePresentStatus === "present") {
+                  dayRecords[dayKey] = "P"; // Initially set to P
+                  attendanceCount.P++;
+  
+                  // Check for regularization
+                  if (attendanceRecord.latest_Regularization_Request.length > 0) {
+                    dayRecords[dayKey] = `${dayRecords[dayKey]},R`; // Append R for regularization
+                    attendanceCount.R++;
+                  }
+  
+                  // If there was a leave, append it after regularization
+                  if (leave) {
+                    // Determine the leave status based on leaveCount and leaveAutoId
+                    let leaveStatus = leave.leaveCount === '1.0' ? 'L' : (leave.leaveAutoId == 6 ? '0.5U' : '0.5L');
+                    dayRecords[dayKey] = `${dayRecords[dayKey]},${leaveStatus}`; // Append leave status
+                    //attendanceCount.L++;
+                    attendanceCount.L += parseFloat(leave.leaveCount);
+                  }
+                } else if (attendancePresentStatus === "singlePunchAbsent") {
+                  dayRecords[dayKey] = "SA";
+                  attendanceCount.SA++;
+  
+                  if (attendanceRecord.latest_Regularization_Request.length > 0) {
+                    dayRecords[dayKey] = `${dayRecords[dayKey]},R`; // Append R for regularization
+                    attendanceCount.R++;
+                  }
+  
+                  // If there was a leave, append it after regularization
+                  if (leave) {
+                    // Determine the leave status based on leaveCount and leaveAutoId
+                    let leaveStatus = leave.leaveCount === '1.0' ? 'L' : (leave.leaveAutoId == 6 ? '0.5U' : '0.5L');
+                    dayRecords[dayKey] = `${dayRecords[dayKey]},${leaveStatus}`; // Append leave status
+                    //attendanceCount.L++;
+                    attendanceCount.L += parseFloat(leave.leaveCount);
+                  }
+                } else if (attendancePresentStatus === "absent") {
+                  dayRecords[dayKey] = "A";
+                  attendanceCount.A++;
+  
+                  if (attendanceRecord.latest_Regularization_Request.length > 0) {
+                    dayRecords[dayKey] = `${dayRecords[dayKey]},R`; // Append R for regularization
+                    attendanceCount.R++;
+                  }
+  
+                  // If there was a leave, append it after regularization
+                  if (leave) {
+                    // Determine the leave status based on leaveCount and leaveAutoId
+                    let leaveStatus = leave.leaveCount === '1.0' ? 'L' : (leave.leaveAutoId == 6 ? '0.5U' : '0.5L');
+                    dayRecords[dayKey] = `${dayRecords[dayKey]},${leaveStatus}`; // Append leave status
+                    //attendanceCount.L++;
+                    attendanceCount.L += parseFloat(leave.leaveCount);
+                  }
+                }
+              } else {
+                // If there are no attendance records, set to '-'
+                //dayRecords[dayKey] = "-";
+                //If it's a working day
+  
+              //new changes
+            dayRecords[dayKey] = "A"; // Default to 'A' (Absent)
+  
+            if (currentDay.isBefore(today)) {
+              dayRecords[dayKey] = "A"; // For past dates, default to "A" if no data
+            } else if (currentDay.isSame(today)) {
+              dayRecords[dayKey] = "-"; // For today, set "-" if no data
+            } else if (currentDay.isAfter(today)) {
+              dayRecords[dayKey] = "-"; // For future dates, return blank
+            }
+              }
+            //}
+          }
+  
+          // Ensure future or current day shows '-'
+          if (currentDay.isAfter(today) || currentDay.isSame(today)) {
+            if (!dayRecords[dayKey]) {
+              dayRecords[dayKey] = "-"; // Default to '-' for future/current days if not already set
+            }
           }
         }
+  
+        const orderedEmployeeRecord = {
+          name: employeeRecord.name,
+          empCode: employeeRecord.empCode,
+          ...dayRecords,
+          P: attendanceCount.P,
+          A: attendanceCount.A,
+          SA: attendanceCount.SA,
+          R: attendanceCount.R,
+          L: attendanceCount.L,
+          U: attendanceCount.U,
+          H: attendanceCount.H,
+          W: attendanceCount.W,
+          SU: 0,
+          C: 0,
+          Payroll:attendanceCount.P,
+          PayableDays: attendanceCount.P + attendanceCount.W - attendanceCount.SA
+        };
+  
+        finalData.push(orderedEmployeeRecord);
       }
-
-      const orderedEmployeeRecord = {
-        name: employeeRecord.name,
-        empCode: employeeRecord.empCode,
-        ...dayRecords,
-        P: attendanceCount.P,
-        A: attendanceCount.A,
-        SA: attendanceCount.SA,
-        R: attendanceCount.R,
-        L: attendanceCount.L,
-        U: attendanceCount.U,
-        H: attendanceCount.H,
-        W: attendanceCount.W,
-        SU: 0,
-        C: 0,
-        Payroll:attendanceCount.P,
-        PayableDays: attendanceCount.P + attendanceCount.W - attendanceCount.SA
-      };
-
-      finalData.push(orderedEmployeeRecord);
-    }
-
-    if (finalData.length > 0) {
-      const timestamp = Date.now();
-      const dayColumns = [];
-
-      for (let dayOffset = 0; dayOffset < totalDays; dayOffset++) {
-        const currentDay = moment(fromDate).add(dayOffset, "days");
-        dayColumns.push({ label: currentDay.format("DD-MMM"), value: currentDay.format("DD") });
+  
+      if (finalData.length > 0) {
+        const timestamp = Date.now();
+        const dayColumns = [];
+  
+        for (let dayOffset = 0; dayOffset < totalDays; dayOffset++) {
+          const currentDay = moment(fromDate).add(dayOffset, "days");
+          dayColumns.push({ label: currentDay.format("DD-MMM"), value: currentDay.format("DD") });
+        }
+  
+        const data = [
+          {
+            sheet: "Attendance Summary",
+            columns: [
+              { label: "Employee Code", value: "empCode" },
+              { label: "Employee Name", value: "name" },
+              ...dayColumns,
+              { label: "P", value: "P" },
+              { label: "A", value: "A" },
+              { label: "SA", value: "SA" },
+              { label: "R", value: "R" },
+              { label: "W", value: "W" },
+              { label: "H", value: "H" },
+              { label: "L", value: "L" },
+              { label: "U", value: "U" },
+              { label: "SYSTEM U", value: "SU" },
+              { label: "C", value: "C" },
+              { label: "P (Payroll)", value: "Payroll" },
+              { label: "Payable Days", value: "PayableDays" },
+            ],
+            content: finalData,
+          },
+        ];
+  
+        const buffer = xlsx(data, {
+          writeOptions: { type: "buffer", bookType: "xlsx", RTL: true },
+        });
+  
+        res.writeHead(200, {
+          "Content-Type": "application/octet-stream",
+          "Content-disposition": `attachment; filename=attendance_1_${timestamp}.xlsx`,
+        });
+        return res.end(buffer);
+      } else {
+        return respHelper(res, {
+          status: 404,
+          message: "Data not found",
+        });
       }
-
-      const data = [
-        {
-          sheet: "Attendance Summary",
-          columns: [
-            { label: "Employee Code", value: "empCode" },
-            { label: "Employee Name", value: "name" },
-            ...dayColumns,
-            { label: "P", value: "P" },
-            { label: "A", value: "A" },
-            { label: "SA", value: "SA" },
-            { label: "R", value: "R" },
-            { label: "W", value: "W" },
-            { label: "H", value: "H" },
-            { label: "L", value: "L" },
-            { label: "U", value: "U" },
-            { label: "SYSTEM U", value: "SU" },
-            { label: "C", value: "C" },
-            { label: "P (Payroll)", value: "Payroll" },
-            { label: "Payable Days", value: "PayableDays" },
-          ],
-          content: finalData,
-        },
-      ];
-
-      const buffer = xlsx(data, {
-        writeOptions: { type: "buffer", bookType: "xlsx", RTL: true },
-      });
-
-      res.writeHead(200, {
-        "Content-Type": "application/octet-stream",
-        "Content-disposition": `attachment; filename=attendance_${timestamp}.xlsx`,
-      });
-      return res.end(buffer);
-    } else {
-      return respHelper(res, {
-        status: 404,
-        message: "Data not found",
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({
+        status: false,
+        message: "Internal Server Error",
       });
     }
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({
-      status: false,
-      message: "Internal Server Error",
-    });
+  }  
+
+}
+
+const createObj = (obj) => {
+  return {
+    email: obj.Email,
+    personalEmail: obj.Personal_Email,
+    firstName: obj.First_Name,
+    middleName: replaceNAWithNull(obj.Middle_Name),
+    lastName: replaceNAWithNull(obj.Last_Name),
+    panNo: replaceNAWithNull(obj.Pan_No),
+    uanNo: replaceNAWithNull(obj.UAN_No),
+    pfNo: replaceNAWithNull(obj.PF_No),
+    employeeType: obj.Employee_Type_Name,
+    officeMobileNumber: obj.Official_Mobile_Number?.toString(),
+    personalMobileNumber: obj.Personal_Mobile_Number?.toString(),
+    gender: obj.Gender,
+    dateOfBirth: convertExcelDate(obj.Date_of_Birth),
+    dateOfJoining: convertExcelDate(obj.Date_of_Joining),
+    maritalStatus: obj.Marital_Status,
+    maritalStatusSince: (obj.Marital_Since != 'NA' && obj.Marital_Since != '') ? convertExcelDate(obj.Marital_Since) : '',
+    nationality: obj.Nationality_Name,
+    probation: obj.Probation_Name,
+    newCustomerName: replaceNAWithNull(obj.New_Customer_Name),
+    iqTestApplicable: obj.IQ_Test_Applicable,
+    positionType: obj.Position_Type,
+    manager: obj.Manager_EMP_CODE,
+    designation: obj.Designation_Name,
+    functionalArea: obj.Functional_Area_Name,
+    bu: obj.BU_Name,
+    sbu: obj.SBU_Name,
+    shift: replaceNAWithNull(obj.Shift_Name),
+    department: obj.Department_Name,
+    company: obj.Company_Name,
+    attendancePolicy: replaceNAWithNull(obj.Attendance_Policy_Name),
+    companyLocation: obj.Company_Location_Name,
+    weekOff: replaceNAWithNull(obj.Week_Off_Name),
+    jobLevel: obj.Job_Level_Name
   }
 }
 
+const handleErrors = (error) => {
+  const errors = {
+    name: error ? error.details.find(d => d.context.key === 'name')?.message : null,
+    email: error ? error.details.find(d => d.context.key === 'email')?.message : null,
+    personalEmail: error ? error.details.find(d => d.context.key === 'personalEmail')?.message : null,
+    firstName: error ? error.details.find(d => d.context.key === 'firstName')?.message : null,
+    panNo: error ? error.details.find(d => d.context.key === 'panNo')?.message : null,
+    uanNo: error ? error.details.find(d => d.context.key === 'uanNo')?.message : null,
+    pfNo: error ? error.details.find(d => d.context.key === 'pfNo')?.message : null,
+    employeeType: error ? error.details.find(d => d.context.key === 'employeeType')?.message : null,
+    officeMobileNumber: error ? error.details.find(d => d.context.key === 'officeMobileNumber')?.message : null,
+    personalMobileNumber: error ? error.details.find(d => d.context.key === 'personalMobileNumber')?.message : null,
+    dateOfJoining: error ? error.details.find(d => d.context.key === 'dateOfJoining')?.message : null,
+    manager: error ? error.details.find(d => d.context.key === 'manager')?.message : null,
+    designation: error ? error.details.find(d => d.context.key === 'designation')?.message : null,
+    functionalArea: error ? error.details.find(d => d.context.key === 'functionalArea')?.message : null,
+    bu: error ? error.details.find(d => d.context.key === 'bu')?.message : null,
+    sbu: error ? error.details.find(d => d.context.key === 'sbu')?.message : null,
+    shift: error ? error.details.find(d => d.context.key === 'shift')?.message : null,
+    department: error ? error.details.find(d => d.context.key === 'department')?.message : null,
+    company: error ? error.details.find(d => d.context.key === 'company')?.message : null,
+    buHR: error ? error.details.find(d => d.context.key === 'buHR')?.message : null,
+    buHead: error ? error.details.find(d => d.context.key === 'buHead')?.message : null,
+    attendancePolicy: error ? error.details.find(d => d.context.key === 'attendancePolicy')?.message : null,
+    companyLocation: error ? error.details.find(d => d.context.key === 'companyLocation')?.message : null,
+    weekOff: error ? error.details.find(d => d.context.key === 'weekOff')?.message : null,
+    gender: error ? error.details.find(d => d.context.key === 'gender')?.message : null,
+    maritalStatus: error ? error.details.find(d => d.context.key === 'maritalStatus')?.message : null,
+    maritalStatusSince: error ? error.details.find(d => d.context.key === 'maritalStatusSince')?.message : null,
+    nationality: error ? error.details.find(d => d.context.key === 'nationality')?.message : null,
+    probation: error ? error.details.find(d => d.context.key === 'probation')?.message : null,
+    dateOfBirth: error ? error.details.find(d => d.context.key === 'dateOfBirth')?.message : null,
+    newCustomerName: error ? error.details.find(d => d.context.key === 'newCustomerName')?.message : null,
+    iqTestApplicable: error ? error.details.find(d => d.context.key === 'iqTestApplicable')?.message : null,
+    positionType: error ? error.details.find(d => d.context.key === 'positionType')?.message : null
+  }
+  return errors;
 }
+
+const validateCompany = async (name) => {
+  let isVerify = await db.companyMaster.findOne({ where: { 'companyName': name }, attributes: ['companyId'] });
+  if (isVerify) {
+    return { status: true, message: '', data: isVerify }
+  }
+  else {
+    return { status: false, message: 'Invalid company name', data: {} }
+  }
+}
+
+const validateEmployeeType = async (name) => {
+  let isVerify = await db.employeeTypeMaster.findOne({ where: { 'emptypename': name }, attributes: ['empTypeId'] });
+  if (isVerify) {
+    return { status: true, message: '', data: isVerify }
+  }
+  else {
+    return { status: false, message: 'Invalid employee type', data: {} }
+  }
+}
+
+const validateProbation = async (name) => {
+  let isVerify = await db.probationMaster.findOne({ where: { 'probationName': name }, attributes: ['probationId'] });
+  if (isVerify) {
+    return { status: true, message: '', data: isVerify }
+  }
+  else {
+    return { status: false, message: 'Invalid probation', data: {} }
+  }
+}
+
+const validateManager = async (empCode) => {
+  let isVerify = await db.employeeMaster.findOne({ where: { 'empCode': empCode }, attributes: ['id'] });
+  if (isVerify) {
+    return { status: true, message: '', data: isVerify }
+  }
+  else {
+    return { status: false, message: 'Invalid manager', data: {} }
+  }
+}
+
+const validateDesignation = async (name) => {
+  let isVerify = await db.designationMaster.findOne({ where: { 'name': name }, attributes: ['designationId'] });
+  if (isVerify) {
+    return { status: true, message: '', data: isVerify }
+  }
+  else {
+    return { status: false, message: 'Invalid designation', data: {} }
+  }
+}
+
+const validateFunctionalArea = async (name) => {
+  let isVerify = await db.functionalAreaMaster.findOne({ where: { 'functionalAreaName': name }, attributes: ['functionalAreaId'] });
+  if (isVerify) {
+    return { status: true, message: '', data: isVerify }
+  }
+  else {
+    return { status: false, message: 'Invalid functional area', data: {} }
+  }
+}
+
+const validateBU = async (name, isValidCompany) => {
+  let isVerify = await db.buMaster.findOne({ where: { 'buName': name }, attributes: ['buId'] });
+  if (isVerify) {
+    const headAndHrData = await db.buMapping.findOne({
+      where: { buId: isVerify.buId, companyId: isValidCompany.data.companyId },
+      include: [
+        {
+          model: db.employeeMaster,
+          attributes: ["id", "name"],
+          as: "buHeadData",
+        },
+        {
+          model: db.employeeMaster,
+          attributes: ["id", "name"],
+          as: "buhrData",
+        },
+      ],
+    });
+
+    if (headAndHrData) {
+      isVerify.buHead = headAndHrData.buHeadData.id;
+      isVerify.buHR = headAndHrData.buhrData.id;
+    }
+    return { status: true, message: '', data: isVerify }
+  }
+  else {
+    return { status: false, message: 'Invalid BU', data: {} }
+  }
+}
+
+const validateSBU = async (name) => {
+  let isVerify = await db.sbuMaster.findOne({ where: { 'sbuName': name }, attributes: ['sbuId'] });
+  if (isVerify) {
+    return { status: true, message: '', data: isVerify }
+  }
+  else {
+    return { status: false, message: 'Invalid SBU', data: {} }
+  }
+}
+
+const validateShift = async (name) => {
+  if (name) {
+    let isVerify = await db.shiftMaster.findOne({ where: { 'shiftName': name }, attributes: ['shiftId'] });
+    if (isVerify) {
+      return { status: true, message: '', data: isVerify }
+    }
+    else {
+      return { status: false, message: 'Invalid shift', data: {} }
+    }
+  }
+  else {
+    return { status: false, message: '', data: {} }
+  }
+}
+
+const validateDepartment = async (name) => {
+  let isVerify = await db.departmentMaster.findOne({ where: { 'departmentName': name }, attributes: ['departmentId'] });
+  if (isVerify) {
+    return { status: true, message: '', data: isVerify }
+  }
+  else {
+    return { status: false, message: 'Invalid department', data: {} }
+  }
+}
+
+const validateAttendancePolicy = async (name) => {
+  if (name) {
+    let isVerify = await db.attendancePolicymaster.findOne({ where: { 'policyName': name }, attributes: ['attendancePolicyId'] });
+    if (isVerify) {
+      return { status: true, message: '', data: isVerify }
+    }
+    else {
+      return { status: false, message: 'Invalid attendance policy', data: {} }
+    }
+  }
+  else {
+    return { status: false, message: '', data: {} }
+  }
+}
+
+const validateCompanyLocation = async (cityName, isValidCompany) => {
+  if (cityName) {
+    cityName = cityName.split(",");
+
+    let isVerify = await db.cityMaster.findOne({ where: { 'cityName': cityName[0] }, attributes: ['cityId'] });
+    if (isVerify) {
+      isVerify = await db.companyLocationMaster.findOne({ where: { 'cityId': isVerify.cityId, 'companyLocationCode': cityName[1].trim(), 'companyId': isValidCompany.data?.companyId }, attributes: ['companyLocationId'] });
+      if (isVerify) {
+        return { status: true, message: '', data: isVerify }
+      }
+      else {
+        return { status: false, message: 'This city has not been mapped.', data: {} }
+      }
+    }
+    else {
+      return { status: false, message: 'Invalid city', data: {} }
+    }
+  }
+  else {
+    return { status: false, message: 'Invalid city', data: {} }
+  }
+}
+
+const validateWeekOff = async (name) => {
+  if (name) {
+    let isVerify = await db.weekOffMaster.findOne({ where: { 'weekOffName': name }, attributes: ['weekOffId'] });
+    if (isVerify) {
+      return { status: true, message: '', message: '', data: isVerify }
+    }
+    else {
+      return { status: false, message: 'Invalid week off', data: {} }
+    }
+  }
+  else {
+    return { status: false, message: '', data: {} }
+  }
+}
+
+const validateNewCustomerName = async (name) => {
+  if (name) {
+    let isVerify = await db.newCustomerNameMaster.findOne({ where: { 'newCustomerName': name }, attributes: ['newCustomerNameId'] });
+    if (isVerify) {
+      return { status: true, message: '', message: '', data: isVerify }
+    }
+    else {
+      return { status: false, message: 'Invalid new customer id off', data: {} }
+    }
+  }
+  else {
+    return { status: false, message: '', data: {} }
+  }
+}
+
+const validateJobLevel = async (name) => {
+  let isVerify = await db.jobLevelMaster.findOne({ where: { 'jobLevelName': name }, attributes: ['jobLevelId'] });
+  if (isVerify) {
+    return { status: true, message: '', data: isVerify }
+  }
+  else {
+    return { status: false, message: 'Invalid job level', data: {} }
+  }
+}
+
+const validateEmployee = async (personalMobileNumber, email) => {
+  let isVerify = await db.employeeMaster.findOne({
+    where: {
+      [Op.or]: [
+        { 'personalMobileNumber': personalMobileNumber },
+        { 'email': email }
+      ]
+    },
+    attributes: ['id']
+  });
+  if (isVerify) {
+    return { status: false, message: 'User already exist', data: {} }
+  }
+  else {
+    isVerify = await db.employeeStagingMaster.findOne({
+      where: {
+        [Op.or]: [
+          { 'personalMobileNumber': personalMobileNumber },
+          { 'email': email }
+        ]
+      },
+      attributes: ['id']
+    });
+    if (isVerify) {
+      return { status: false, message: 'User already exist', data: {} }
+    }
+    else {
+      return { status: true, message: '', data: {} }
+    }
+  }
+}
+
+// Function to convert Excel serial date to JS Date
+const convertExcelDate = (serial) => {
+  const date = new Date((serial - 25569) * 86400 * 1000);
+  return moment(date).format('YYYY-MM-DD');
+}
+
+const replaceNAWithNull = (value) => {
+  return (value === 'NA' || value === undefined || value === '' || value === null) ? '' : value; // Replace 'NA' with ''
+};
 
 export default new MasterController();
 

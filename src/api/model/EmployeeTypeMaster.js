@@ -17,6 +17,15 @@ export default (sequelize, Sequelize) => {
     startingIndex: {
       type: Sequelize.INTEGER,
     },
+    companyId: {
+      type: Sequelize.INTEGER
+    },
+    prefix: {
+      type: Sequelize.STRING
+    },
+    postfix: {
+      type: Sequelize.STRING
+    },
     createdAt: {
       type: Sequelize.DATE,
     },
