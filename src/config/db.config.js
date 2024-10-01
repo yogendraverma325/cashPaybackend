@@ -683,7 +683,6 @@ db.separationStatus.hasOne(db.separationTrail, { foreignKey: 'separationStatus',
 db.separationTrail.hasOne(db.separationMaster, { foreignKey: 'resignationAutoId', sourceKey: 'separationAutoId' })
 db.separationMaster.hasMany(db.separationTrail, { foreignKey: 'separationAutoId', sourceKey: 'resignationAutoId' })
 db.separationMaster.hasOne(db.employeeMaster, { foreignKey: 'id', sourceKey: 'pendingAt', as: 'pending' })
-
-db.separationTrail.hasOne(db.employeeMaster, { foreignKey: 'id', sourceKey: 'createdBy', as: 'actionBy' })
+db.separationTrail.hasOne(db.employeeMaster, { foreignKey: 'id', sourceKey: 'pendingAt', as: 'pendingat' })
 
 export default db;

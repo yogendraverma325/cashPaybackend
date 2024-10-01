@@ -11,6 +11,12 @@ export default (sequelize, Sequelize) => {
         separationStatus: {
             type: Sequelize.INTEGER
         },
+        pending: {
+            type: Sequelize.BOOLEAN
+        },
+        pendingAt: {
+            type: Sequelize.INTEGER
+        },
         createdBy: {
             type: Sequelize.INTEGER
         },

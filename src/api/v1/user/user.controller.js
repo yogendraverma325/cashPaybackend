@@ -3,7 +3,7 @@ import respHelper from "../../../helper/respHelper.js";
 import commonController from "../common/common.controller.js";
 import helper from "../../../helper/helper.js";
 import validator from "../../../helper/validator.js";
-import { Op, where } from "sequelize";
+import { Op } from "sequelize";
 import constant from "../../../constant/messages.js";
 import eventEmitter from "../../../services/eventService.js";
 import fs from "fs";
@@ -776,6 +776,26 @@ class UserController {
       await db.separationTrail.create({
         separationAutoId: createdData.dataValues.resignationAutoId,
         separationStatus: 2,
+        pending: 0,
+        pendingAt: user,
+        createdBy: req.userId,
+        createdDt: moment()
+      })
+
+      await db.separationTrail.create({
+        separationAutoId: createdData.dataValues.resignationAutoId,
+        separationStatus: 5,
+        pending: 1,
+        pendingAt: existUser.dataValues.manager,
+        createdBy: req.userId,
+        createdDt: moment()
+      })
+
+      await db.separationTrail.create({
+        separationAutoId: createdData.dataValues.resignationAutoId,
+        separationStatus: 9,
+        pending: 1,
+        pendingAt: existUser.dataValues.buHRId,
         createdBy: req.userId,
         createdDt: moment()
       })
@@ -903,12 +923,6 @@ class UserController {
         }]
       })
 
-      // return respHelper(res, {
-      //   status: 200,
-      //   msg: constant.SEPARATION_STATUS.replace("<status>", 'Approved'),
-      //   data: separationData
-      // });
-
       const d = Math.floor(Date.now() / 1000);
 
       await db.separationMaster.update({
@@ -937,11 +951,15 @@ class UserController {
       }
       );
 
-      await db.separationTrail.create({
-        separationAutoId: result.resignationAutoId,
-        separationStatus: 5,
-        createdBy: req.userId,
-        createdDt: moment()
+      await db.separationTrail.update({
+        pending: 0,
+        updatedBy: req.userId,
+        updatedDt: moment()
+      }, {
+        where: {
+          separationAutoId: result.resignationAutoId,
+          separationStatus: 5,
+        }
       })
 
       eventEmitter.emit("separationApprovalAcknowledgementToUser", JSON.stringify({
@@ -1038,7 +1056,7 @@ class UserController {
         l1ProposedLastWorkingDay: result.l1ProposedLastWorkingDay,
         l1ProposedRecoveryDays: proposedRecoveryDays > 0 ? proposedRecoveryDays : 0,
         l1BillingType: result.l1BillingType,
-        l1CustomerName: result.l1CustomerName,
+        l1CustomerName: result.l1CustomerName != '' ? result.l1CustomerName : null,
         replacementRequired: result.replacementRequired,
         replacementRequiredBy: result.replacementRequiredBy,
         l1ReasonForProposedRecoveryDays: result.l1ReasonForProposedRecoveryDays,
@@ -1056,11 +1074,16 @@ class UserController {
       await db.separationMaster.create(onBehalfObject)
       return respHelper(res, {
         status: 200,
-        //msg: onBehalfObject,
         msg: constant.SEPARATION_STATUS.replace("<status>", "Initiated")
 
       });
     } catch (error) {
+      if (error.isJoi === true) {
+        return respHelper(res, {
+          status: 500,
+          msg: error.details[0].message
+        });
+      }
       console.log(error);
       return respHelper(res, {
         status: 500,
@@ -1144,6 +1167,7 @@ class UserController {
         createdDt: moment(),
         l1RequestStatus: "L1_Approved",
         l2RequestStatus: "L2_Approved",
+        finalStatus: 9,
         submitType: result.submitType,
         ...(result.l2Attachment !== "" && { l2Attachment: separationEmpAttachment })
       };
@@ -1153,6 +1177,12 @@ class UserController {
         msg: onBehalfObject,
       });
     } catch (error) {
+      if (error.isJoi === true) {
+        return respHelper(res, {
+          status: 500,
+          msg: error.details[0].message
+        });
+      }
       console.log(error);
       return respHelper(res, {
         status: 500,
@@ -1485,21 +1515,21 @@ class UserController {
           where: {
             statusTrail: 1
           },
-          attributes: ['separationStatusAutoId', 'separationStatusCode', 'separationStatusDesc'],
+          attributes: ['separationStatusAutoId', 'separationStatusCode', 'separationStatusDesc', 'separationLabel'],
           include: [{
             model: db.separationTrail,
             required: false,
             where: {
               separationAutoId: separationData.dataValues.resignationAutoId
             },
-            attributes: ['separationTrailAutoId'],
+            attributes: ['separationTrailAutoId', 'pending'],
             include: [{
               model: db.employeeMaster,
               attributes: ['empCode', 'name'],
-              as: 'actionBy'
+              as: 'pendingat'
             }]
           }]
-        })
+        });
         separationData.dataValues.separationTrails = separationTrails
       }
 

@@ -582,7 +582,7 @@ const onBehalfSeperationByManager = Joi.object({
     .required()
     .label("Reason Of Resignation"),
   l1BillingType: Joi.string(),
-  l1CustomerName: Joi.string().trim().label("Customer Name"),
+  l1CustomerName: Joi.string().trim().allow("").label("Customer Name"),
   replacementRequired: Joi.boolean().label("Replacement Required"),
   replacementRequiredBy: Joi.string().label("Replacement Required By"),
   l1Remark: Joi.string().trim().max(100).allow("").label("Remark"),
