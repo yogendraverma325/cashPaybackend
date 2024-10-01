@@ -665,6 +665,7 @@ const onboardEmployeeSchema = Joi.object({
   officeMobileNumber: Joi.string()
     .trim()
     .length(10)
+    .allow("")
     .label("Office Mobile Number"),
   personalMobileNumber: Joi.string()
     .trim()
@@ -779,6 +780,7 @@ const importOnboardEmployeeSchema = Joi.object({
   officeMobileNumber: Joi.string()
     .trim()
     .length(10)
+    .allow("")
     .label("Office Mobile Number"),
   personalMobileNumber: Joi.string()
     .trim()

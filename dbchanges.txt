@@ -628,6 +628,12 @@ ADD COLUMN `companyId` INT NOT NULL DEFAULT 1 AFTER `startingIndex`,
 ADD COLUMN `prefix` VARCHAR(45) NULL DEFAULT NULL AFTER `companyId`,
 ADD COLUMN `postfix` VARCHAR(45) NULL DEFAULT NULL AFTER `prefix`;
 
+01-10-2024
+
+ALTER TABLE `tara`.`companytypemaster` 
+CHANGE COLUMN `isActive` `isActive` TINYINT(1) NOT NULL DEFAULT 1 ;
+
+
 
 
 

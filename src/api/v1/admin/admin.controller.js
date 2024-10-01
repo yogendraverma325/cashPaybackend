@@ -324,7 +324,8 @@ class AdminController {
       let query = {
           [Op.or]: [
             { 'personalMobileNumber': result.personalMobileNumber },
-            ...(result.email && { 'email': result.email }),
+            ...(result.email ? [{ 'email': result.email }] : []),
+            ...(result.officeMobileNumber ? [{ 'officeMobileNumber': result.officeMobileNumber }] : []),
             { 'personalEmail': result.personalEmail }
           ]
       };
@@ -332,10 +333,10 @@ class AdminController {
       let existUser = await db.employeeMaster.findOne({ where: query });
 
       if (existUser) {
-        if(existUser.email == result.email) {
+        if(existUser.email === result.email || existUser.officeMobileNumber === result.officeMobileNumber) {
           return respHelper(res, {
             status: 400,
-            msg: "Employee company email already exists.",
+            msg: "Employee company email/mobile no. already exists.",
           });
         }
         else {
@@ -349,10 +350,10 @@ class AdminController {
         existUser = await db.employeeStagingMaster.findOne({ where: query });
 
         if (existUser) {
-          if(existUser.email == result.email) {
+          if(existUser.email === result.email || existUser.officeMobileNumber === result.officeMobileNumber) {
             return respHelper(res, {
               status: 400,
-              msg: "Employee company email already exists.",
+              msg: "Employee company email/mobile no. already exists.",
             });
           }
           else {
@@ -402,14 +403,32 @@ class AdminController {
 
   async getOnboardEmployee(req, res) {
     try {
-      const {
-        search,
-        department,
-        designation,
-        buSearch,
-        sbuSearch,
-        areaSearch
-      } = req.query;
+      const { search, filterType, filterValue } = req.query;
+      let department = '';
+      let designation = '';
+      let buSearch = '';
+      let sbuSearch = '';
+      let areaSearch = '';
+
+      if(filterType == 'department') {
+        department = filterValue;
+      }
+
+      else if(filterType == 'designation') {
+        designation = filterValue;
+      }
+
+      else if(filterType == 'buSearch') {
+        buSearch = filterValue;
+      }
+
+      else if(filterType == 'sbuSearch') {
+        sbuSearch = filterValue;
+      }
+
+      else if(filterType == 'areaSearch') {
+        areaSearch = filterValue;
+      }
 
       const isActive = req.query.isActive || 1;
       let buFIlter = {};
@@ -545,9 +564,11 @@ class AdminController {
           "id",
           "name",
           "email",
+          "personalEmail",
           "firstName",
           "lastName",
           "officeMobileNumber",
+          "personalMobileNumber",
           "buId",
           "sbuId",
           "isActive",
@@ -649,7 +670,8 @@ class AdminController {
           let query = {
             [Op.or]: [
               { 'personalMobileNumber': employeeOnboardingDetails.personalMobileNumber },
-              ...(employeeOnboardingDetails.email && { 'email': employeeOnboardingDetails.email }),
+              ...(employeeOnboardingDetails.email ? [{ 'email': employeeOnboardingDetails.email }] : []),
+              ...(employeeOnboardingDetails.officeMobileNumber ? [{ 'officeMobileNumber': employeeOnboardingDetails.officeMobileNumber }] : []),
               { 'personalEmail': employeeOnboardingDetails.personalEmail }
             ]
           };
@@ -657,10 +679,10 @@ class AdminController {
           const existUser = await db.employeeMaster.findOne({ where: query });
 
           if (existUser) {
-            if(existUser.email == employeeOnboardingDetails.email) {
+            if(existUser.email === employeeOnboardingDetails.email || existUser.officeMobileNumber === employeeOnboardingDetails.officeMobileNumber) {
               return respHelper(res, {
                 status: 400,
-                msg: "Employee company email already exists.",
+                msg: "Employee company email/mobile no. already exists.",
               });
             }
             else {
@@ -833,6 +855,34 @@ class AdminController {
       let id = req.params.id;
       let condition = { 'id': id };
       const updateMetaData = await validator.onboardEmployeeSchema.validateAsync(req.body);
+
+      let query = {
+          [Op.or]: [
+            { 'personalMobileNumber': updateMetaData.personalMobileNumber },
+            ...(updateMetaData.email ? [{ 'email': updateMetaData.email }] : []),
+            ...(updateMetaData.officeMobileNumber ? [{ 'officeMobileNumber': updateMetaData.officeMobileNumber }] : []),
+            { 'personalEmail': updateMetaData.personalEmail }
+          ],
+          [Op.and]: [ { 'id': { [Op.not]: id } } ]
+      };
+
+      let existUser = await db.employeeMaster.findOne({ where: query });
+
+      if (existUser) {
+        if(existUser.email === updateMetaData.email || existUser.officeMobileNumber === updateMetaData.officeMobileNumber) {
+          return respHelper(res, {
+            status: 400,
+            msg: "Employee company email/mobile no. already exists.",
+          });
+        }
+        else {
+          return respHelper(res, {
+            status: 400,
+            msg: "Employee personal email/mobile no. already exists.",
+          });
+        }
+      }
+
       let result = await db.employeeStagingMaster.update(updateMetaData, { where: condition });
 
       // update image

@@ -2428,7 +2428,7 @@ class MasterController {
               const isValidWeekOff = await validateWeekOff(obj.weekOff);
               const isValidNewCustomerName = await validateNewCustomerName(obj.newCustomerName);
               const isValidJobLevel = await validateJobLevel(obj.jobLevel);
-              const isValidateEmployee = await validateEmployee(obj.personalMobileNumber, obj.email, obj.personalEmail);
+              const isValidateEmployee = await validateEmployee(obj.personalMobileNumber, obj.email, obj.personalEmail, obj.officeMobileNumber);
 
               if (isValidCompany.status && isValidEmployeeType.status && isValidProbation.status && isValidManager.status && isValidDesignation.status &&
                 isValidFunctionalArea.status && isValidBU.status && isValidSBU.status && isValidCompanyLocation.status && isValidDepartment.status
@@ -2818,22 +2818,23 @@ const validateJobLevel = async (name) => {
   }
 }
 
-const validateEmployee = async (personalMobileNumber, email, personalEmail) => {
+const validateEmployee = async (personalMobileNumber, companyEmail, personalEmail, officeMobileNumber) => {
   let query = {
       [Op.or]: [
         { 'personalMobileNumber': personalMobileNumber },
-        { 'email': email },
+        ...(companyEmail ? [{ 'email': companyEmail }] : []),
+        ...(officeMobileNumber ? [{ 'officeMobileNumber': officeMobileNumber }] : []),
         { 'personalEmail': personalEmail }
       ]
   };
 
   let isVerify = await db.employeeMaster.findOne({
     where: query,
-    attributes: ['id', 'email']
+    attributes: ['id', 'email', 'officeMobileNumber']
   });
   if (isVerify) {
-    if(isVerify.email == email) {
-      return { status: false, message: 'Employee company email already exists.', data: {} }
+    if(isVerify.email === email || isVerify.officeMobileNumber === officeMobileNumber) {
+      return { status: false, message: 'Employee company email/mobile no. already exists.', data: {} }
     }
     else {
       return { status: false, message: 'Employee personal email/mobile no. already exists.', data: {} }
@@ -2842,11 +2843,11 @@ const validateEmployee = async (personalMobileNumber, email, personalEmail) => {
   else {
     isVerify = await db.employeeStagingMaster.findOne({
       where: query,
-      attributes: ['id', 'email']
+      attributes: ['id', 'email', 'officeMobileNumber']
     });
     if (isVerify) {
-      if(isVerify.email == email) {
-        return { status: false, message: 'Employee company email already exists.', data: {} }
+      if(isVerify.email === email || isVerify.officeMobileNumber === officeMobileNumber) {
+        return { status: false, message: 'Employee company email/mobile no. already exists.', data: {} }
       }
       else {
         return { status: false, message: 'Employee personal email/mobile no. already exists.', data: {} }
