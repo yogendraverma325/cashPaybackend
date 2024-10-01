@@ -82,6 +82,7 @@ import LwfDesignationMaster from "../api/model/LwfDesignationMaster.js"
 import NewCustomerNameMaster from "../api/model/NewCustomerNameMaster.js";
 import ReportModuleMaster from "../api/model/ReportModuleMaster.js";
 import ReportType from "../api/model/ReportType.js";
+import SeparationTrails from '../api/model/SeparationTrails.js'
 
 import literal from "sequelize";
 import QueryTypes from "sequelize";
@@ -229,6 +230,7 @@ db.lwfDesignationMaster = LwfDesignationMaster(sequelize, Sequelize)
 db.newCustomerNameMaster = NewCustomerNameMaster(sequelize, Sequelize);
 db.reportModuleMaster = ReportModuleMaster(sequelize,Sequelize)
 db.reportType = ReportType(sequelize,Sequelize)
+db.separationTrail = SeparationTrails(sequelize, Sequelize)
 
 db.holidayCompanyLocationConfiguration.hasOne(db.holidayMaster, {
   foreignKey: "holidayId",
@@ -684,5 +686,12 @@ db.reportModuleMaster.hasMany(db.reportType, {
   foreignKey: 'reportModuleId',
   sourceKey: 'reportModuleId'
 })
+db.separationStatus.hasOne(db.separationTrail, { foreignKey: 'separationStatus', sourceKey: 'separationStatusAutoId' })
+
+db.separationTrail.hasOne(db.separationMaster, { foreignKey: 'resignationAutoId', sourceKey: 'separationAutoId' })
+db.separationMaster.hasMany(db.separationTrail, { foreignKey: 'separationAutoId', sourceKey: 'resignationAutoId' })
+db.separationMaster.hasOne(db.employeeMaster, { foreignKey: 'id', sourceKey: 'pendingAt', as: 'pending' })
+
+db.separationTrail.hasOne(db.employeeMaster, { foreignKey: 'id', sourceKey: 'createdBy', as: 'actionBy' })
 
 export default db;
