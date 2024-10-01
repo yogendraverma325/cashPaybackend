@@ -14,6 +14,9 @@ export default (sequelize, Sequelize) => {
         pending: {
             type: Sequelize.BOOLEAN
         },
+        actionDate: {
+            type: Sequelize.DATE,
+        },
         pendingAt: {
             type: Sequelize.INTEGER
         },
