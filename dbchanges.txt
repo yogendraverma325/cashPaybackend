@@ -1,3 +1,33 @@
+
+//-------------------------------------------------2024-09-30-------------------------------------------------//
+
+ALTER TABLE `tara_hrms_live`.`reporttype` 
+ADD COLUMN `reportModuleId` INT NULL DEFAULT NULL AFTER `reportTypeId`;
+
+
+CREATE TABLE `reporttype` (
+  `reportTypeId` INT NOT NULL,
+  `reportTypeName` VARCHAR(255) NULL DEFAULT NULL,
+  `createdAt` DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
+  `createdBy` INT NULL DEFAULT NULL,
+  `updatedBy` INT NULL DEFAULT NULL,
+  `updatedAt` DATETIME NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `isActive` TINYINT(1) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`reportTypeId`));
+
+
+CREATE TABLE `reportmodulemaster` (
+  `reportModuleId` INT NOT NULL,
+  `reportModuleName` VARCHAR(255) NULL DEFAULT NULL,
+  `createdAt` DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
+  `createdBy` INT NULL DEFAULT NULL,
+  `updatedBy` INT NULL DEFAULT NULL,
+  `updatedAt` DATETIME NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `isActive` TINYINT(1) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`reportModuleId`));
+
+//-------------------------------------------------------------------------------------------------------------//
+
 INSERT INTO `tara`.`pincodemaster` (`pincode`, `cityId`, `areaName`, `isHead`, `createdAt`) VALUES ('110044', '568', 'NA', '0', '2024-02-29 15:55:22.833');
 
 //--------------------------------2024-09-19----------------------------------------//

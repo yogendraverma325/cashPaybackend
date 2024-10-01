@@ -1290,12 +1290,17 @@ class AttendanceController {
               attendancePunchOutLocationType:
                 attendance.attendancePunchOutLocationType || "",
               attendanceStatus: attendance.attendanceStatus || "NA",
-              attendancePresentStatus:
-                attendance.attendancePresentStatus !== undefined
-                  ? attendance.attendancePresentStatus
-                  : checkWeekOff !== null
-                    ? "weeklyOff"
-                    : "NA",
+    attendancePresentStatus:
+    
+    attendance.attendancePresentStatus !== undefined && attendance.attendancePresentStatus !== "weeklyOff"
+    ? attendance.attendancePresentStatus:((attendance.attendancePresentStatus == undefined && checkWeekOff !==null) 
+    || attendance.attendancePresentStatus == "weeklyOff") ||(holiday!==null)
+    ?null:"NA",
+                  // : checkWeekOff !== null
+                  //   ? "weeklyOff"
+                  //   : "NA",
+                  
+              isWeeklyOff:checkWeekOff !==null ? [checkWeekOff]:[],   
               attendanceRegularizeStatus:
                 attendance.attendanceRegularizeStatus || "NA",
               attendanceManagerUpdateDate:

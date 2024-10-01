@@ -80,6 +80,8 @@ import EmployeeStaging from "../api/model/EmployeeStaging.js";
 import ProbationMaster from "../api/model/ProbationMaster.js";
 import LwfDesignationMaster from "../api/model/LwfDesignationMaster.js"
 import NewCustomerNameMaster from "../api/model/NewCustomerNameMaster.js";
+import ReportModuleMaster from "../api/model/ReportModuleMaster.js";
+import ReportType from "../api/model/ReportType.js";
 
 import literal from "sequelize";
 import QueryTypes from "sequelize";
@@ -225,6 +227,8 @@ db.probationMaster = ProbationMaster(sequelize, Sequelize);
 db.separationStatus = SeparationStatus(sequelize, Sequelize);
 db.lwfDesignationMaster = LwfDesignationMaster(sequelize, Sequelize)
 db.newCustomerNameMaster = NewCustomerNameMaster(sequelize, Sequelize);
+db.reportModuleMaster = ReportModuleMaster(sequelize,Sequelize)
+db.reportType = ReportType(sequelize,Sequelize)
 
 db.holidayCompanyLocationConfiguration.hasOne(db.holidayMaster, {
   foreignKey: "holidayId",
@@ -674,6 +678,11 @@ db.employeeMaster.hasMany(db.leaveMapping, {
   foreignKey: 'EmployeeId',
   sourceKey: 'id',
   as: 'employeeLeaves'
+})
+
+db.reportModuleMaster.hasMany(db.reportType, {
+  foreignKey: 'reportModuleId',
+  sourceKey: 'reportModuleId'
 })
 
 export default db;

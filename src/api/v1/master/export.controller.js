@@ -1167,7 +1167,7 @@ class MasterController {
   
   async attendanceSummary(req, res) {
     try {
-      const { startDate, endDate, search } = req.query;
+      const { startDate, endDate, search, employeeType, designation, department,areaSearch } = req.query;
       const fromDate = moment(startDate, "YYYY-MM-DD"); 
       const toDate = moment(endDate, "YYYY-MM-DD");
   
@@ -1180,7 +1180,7 @@ class MasterController {
           "attendancePresentStatus",
         ],
         where: {
-          //employeeId: 65,
+         // employeeId: 1335,
           attendanceDate: {
             [db.Sequelize.Op.between]: [
               fromDate.format("YYYY-MM-DD"),
@@ -1194,6 +1194,7 @@ class MasterController {
             attributes: ["id", "name", "empCode", "weekOffId", "companyLocationId"],
             where: {
               isActive:1,
+              ...(employeeType && { employeeType: employeeType}),
               ...(search && {
                 [Op.or]: [
                   { empCode: { [Op.like]: `%${search}%` } },
@@ -1202,6 +1203,33 @@ class MasterController {
                 ],
               }),
             },
+            include:[{
+              model: db.designationMaster,
+              attributes: ["name"],
+              where: {
+                ...(designation && {
+                  name: { [Op.like]: `%${designation}%` },
+                }),
+              }
+            },
+            {
+              model: db.departmentMaster,
+              attributes: ["departmentName"],
+              where: {
+                ...(department && {
+                  departmentName: { [Op.like]: `%${department}%` },
+                })
+              },
+            },   {
+              model: db.functionalAreaMaster,
+              seperate: true,
+              attributes: ["functionalAreaName"],
+              where: {
+                ...(areaSearch && {
+                  functionalAreaName: { [Op.like]: `%${areaSearch}%` },
+                }),
+              },
+            }]
           },
           {
             model: db.regularizationMaster,
@@ -1269,7 +1297,7 @@ class MasterController {
   
           // If the day is a holiday, set status to H
           if (isDayWorking === "H") {
-  
+  console.log("i am in HHHHHHHHH")
             const leave = getLeaveForDay(currentDate);
             const attendanceRecord = employeeRecords.find(
               (record) => record.attendanceDate === currentDate
@@ -1348,6 +1376,9 @@ class MasterController {
                   // attendanceCount.R++;
                 }
   
+              } else if (attendancePresentStatus === "weeklyOff"){
+                dayRecords[dayKey] = "W";
+                attendanceCount.W++;
               } else {
                 // If there are no attendance records, set to '-'
                   dayRecords[dayKey] = "H"; // Set to H for holiday
@@ -1362,16 +1393,18 @@ class MasterController {
           } 
           // If the day is a week off, set status to W
           else if (isDayWorking === "W") {
+            console.log("i am in WWWWWWWW")
+
             const leave = getLeaveForDay(currentDate);
             const attendanceRecord = employeeRecords.find(
               (record) => record.attendanceDate === currentDate
             );
-  
             if (attendanceRecord) {
+              console.log("i am in if")
               const { attendancePresentStatus } = attendanceRecord;
-  
               // Set attendance based on the presence status
               if (attendancePresentStatus === "present") {
+                console.log("presentpresent")
                 dayRecords[dayKey] = "P"; // Initially set to P
                 attendanceCount.P++;
   
@@ -1389,13 +1422,15 @@ class MasterController {
                   //attendanceCount.L++;
                   attendanceCount.L += parseFloat(leave.leaveCount);
                 }
-  
+                
                 if (isDayWorking === "W") {
                   dayRecords[dayKey] = `${dayRecords[dayKey]},W`; // Append R for regularization
                   // attendanceCount.R++;
                 }
   
               } else if (attendancePresentStatus === "singlePunchAbsent") {
+                console.log("singlePunchAbsentsinglePunchAbsent")
+
                 dayRecords[dayKey] = "SA";
                 attendanceCount.SA++;
   
@@ -1419,6 +1454,8 @@ class MasterController {
                 }
   
               } else if (attendancePresentStatus === "absent") {
+                console.log("absentabsentabsentabsentabsent")
+
                 dayRecords[dayKey] = "A";
                 attendanceCount.A++;
   
@@ -1437,20 +1474,31 @@ class MasterController {
                 }
   
                 if (isDayWorking === "W") {
-                  dayRecords[dayKey] = `${dayRecords[dayKey]},W`; // Append R for regularization
-                  // attendanceCount.R++;
+                  dayRecords[dayKey] = "W"//`${dayRecords[dayKey]},W`; // Append R for regularization
+
+                  // dayRecords[dayKey] = "W"//${dayRecords[dayKey]},W`; // Append R for regularization
+                  attendanceCount.W++;
+                  attendanceCount.A--
                 }
   
-              } else {
+              } else if (attendancePresentStatus === "weeklyOff"){
+                console.log("weeklyOffweeklyOffweeklyOff")
+
+                dayRecords[dayKey] = "W";
+                attendanceCount.W++;
+              } 
+              else {
                 dayRecords[dayKey] = "W"; // Set to W for week off
                 attendanceCount.W++;
               }
             }else{
+              console.log("i am in else")
                 dayRecords[dayKey] = "W"; // Set to W for week off
                 attendanceCount.W++;
             }
           } 
           else {
+            console.log("i am in else")
             // Check for approved leave first
             const leave = getLeaveForDay(currentDate);
               const attendanceRecord = employeeRecords.find(
@@ -1513,6 +1561,9 @@ class MasterController {
                     //attendanceCount.L++;
                     attendanceCount.L += parseFloat(leave.leaveCount);
                   }
+                } else if (attendancePresentStatus === "weeklyOff"){
+                  dayRecords[dayKey] = "W";
+                  attendanceCount.W++;
                 }
               } else {
                 // If there are no attendance records, set to '-'
