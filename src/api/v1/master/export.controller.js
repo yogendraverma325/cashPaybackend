@@ -2539,8 +2539,11 @@ class MasterController {
 }
 
 const createObj = (obj) => {
+  let officeMobileNumber = replaceNAWithNull(obj.Official_Mobile_Number);
+  officeMobileNumber = (officeMobileNumber) ? officeMobileNumber.toString() : '';
+  
   return {
-    email: obj.Email,
+    email: replaceNAWithNull(obj.Email),
     personalEmail: obj.Personal_Email,
     firstName: obj.First_Name,
     middleName: replaceNAWithNull(obj.Middle_Name),
@@ -2549,7 +2552,7 @@ const createObj = (obj) => {
     uanNo: replaceNAWithNull(obj.UAN_No),
     pfNo: replaceNAWithNull(obj.PF_No),
     employeeType: obj.Employee_Type_Name,
-    officeMobileNumber: obj.Official_Mobile_Number?.toString(),
+    officeMobileNumber: officeMobileNumber,
     personalMobileNumber: obj.Personal_Mobile_Number?.toString(),
     gender: obj.Gender,
     dateOfBirth: convertExcelDate(obj.Date_of_Birth),
