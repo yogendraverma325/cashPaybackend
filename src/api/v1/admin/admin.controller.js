@@ -336,7 +336,7 @@ class AdminController {
         if(existUser.email === result.email || existUser.officeMobileNumber === result.officeMobileNumber) {
           return respHelper(res, {
             status: 400,
-            msg: "Employee company email/mobile no. already exists.",
+            msg: "Employee company email or official mobile no. already exists.",
           });
         }
         else {
@@ -353,7 +353,7 @@ class AdminController {
           if(existUser.email === result.email || existUser.officeMobileNumber === result.officeMobileNumber) {
             return respHelper(res, {
               status: 400,
-              msg: "Employee company email/mobile no. already exists.",
+              msg: "Employee company email or official mobile no. already exists.",
             });
           }
           else {
@@ -682,7 +682,7 @@ class AdminController {
             if(existUser.email === employeeOnboardingDetails.email || existUser.officeMobileNumber === employeeOnboardingDetails.officeMobileNumber) {
               return respHelper(res, {
                 status: 400,
-                msg: "Employee company email/mobile no. already exists.",
+                msg: "Employee company email or official mobile no. already exists.",
               });
             }
             else {

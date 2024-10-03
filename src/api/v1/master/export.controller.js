@@ -2833,8 +2833,8 @@ const validateEmployee = async (personalMobileNumber, companyEmail, personalEmai
     attributes: ['id', 'email', 'officeMobileNumber']
   });
   if (isVerify) {
-    if(isVerify.email === email || isVerify.officeMobileNumber === officeMobileNumber) {
-      return { status: false, message: 'Employee company email/mobile no. already exists.', data: {} }
+    if(isVerify.email === companyEmail || isVerify.officeMobileNumber === officeMobileNumber) {
+      return { status: false, message: 'Employee company email or official mobile no. already exists.', data: {} }
     }
     else {
       return { status: false, message: 'Employee personal email/mobile no. already exists.', data: {} }
@@ -2846,8 +2846,8 @@ const validateEmployee = async (personalMobileNumber, companyEmail, personalEmai
       attributes: ['id', 'email', 'officeMobileNumber']
     });
     if (isVerify) {
-      if(isVerify.email === email || isVerify.officeMobileNumber === officeMobileNumber) {
-        return { status: false, message: 'Employee company email/mobile no. already exists.', data: {} }
+      if(isVerify.email === companyEmail || isVerify.officeMobileNumber === officeMobileNumber) {
+        return { status: false, message: 'Employee company email or official mobile no. already exists.', data: {} }
       }
       else {
         return { status: false, message: 'Employee personal email/mobile no. already exists.', data: {} }
