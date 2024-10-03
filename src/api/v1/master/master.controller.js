@@ -314,6 +314,7 @@ class MasterController {
             as: "reportie",
             required: false,
             attributes: { exclude: ["password", "role_id", "designation_id"] },
+            where:{isActive:1},
             include: [
               {
                 model: db.roleMaster,
@@ -773,7 +774,8 @@ class MasterController {
 
   async department(req, res) {
     try {
-      let query = { sbuMappingId: req.query.sbuMappingId };
+      const {sbuMappingId} = req.query;
+      let query = {...(sbuMappingId && { sbuMappingId: sbuMappingId })}
       let subQuery = { isActive: 1 };
 
       const departmentData = await db.departmentMapping.findAll({

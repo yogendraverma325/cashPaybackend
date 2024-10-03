@@ -818,10 +818,9 @@ class MasterController {
     }
   }
 
-  async attendanceReport(req, res) {
+  async allAttendancePunchDetails(req, res) {
     try {
-      const { startDate, endDate , search } = req.query;
-
+      const { startDate, endDate , search, employeeType, businessUnit, grade, companyLocation } = req.query;
       const attendanceData = await db.attendanceMaster.findAll({
         attributes: [
           "attendanceDate",
@@ -843,6 +842,9 @@ class MasterController {
             attributes: ["id", "name", "empCode"],
             where: {
               isActive:1,
+              ...(employeeType && { employeeType: employeeType.split(',')}),
+              ...(businessUnit && { buId: businessUnit.split(',')}),
+              ...(companyLocation && { companyLocationId: companyLocation.split(',')}),
               ...(search && {
                 [Op.or]: [
                   { empCode: { [Op.like]: `%${search}%` } },
@@ -852,6 +854,19 @@ class MasterController {
               }),
             },
             include: [
+              {
+                model: db.jobDetails,
+                attributes: ["jobId"],
+                where: {
+                  ...(grade && {
+                     gradeId: grade.split(',')
+                  }),
+                },
+                include:[{
+                  model: db.gradeMaster,
+                  attributes: ["gradeName"],
+                }]
+              },
               {
                 model: db.buMaster,
                 attributes: ["buName", "buCode"],
@@ -896,6 +911,7 @@ class MasterController {
         raw: true,
       });
 
+      if(attendanceData.length > 0){
       const simplifiedData = await Promise.all(
         attendanceData.map(async (record) => ({
           employeeCode: record["employee.empCode"],
@@ -931,6 +947,7 @@ class MasterController {
           attendancePunchOutLocation:
             record.attendancePunchOutLocation || "N/A",
           status:"APPROVED",  
+          grade:record['employee.employeejobdetail.grademaster.gradeName'],
           shiftName: record["shiftsmaster.shiftName"],
           shiftStartTime: record["shiftsmaster.shiftStartTime"],
           shiftEndTime: record["shiftsmaster.shiftEndTime"],
@@ -970,6 +987,8 @@ class MasterController {
                 value: "attendancePunchOutLocation",
               },
               { label: "Status(Pending/Approved/Rejected)", value: "status" },
+              { label: "Grade", value: "grade" },           
+             
               { label: "Shift Name", value: "shiftName" },
               { label: "Shift Start Time", value: "shiftStartTime" },
               { label: "Shift End Time", value: "shiftEndTime" },
@@ -1000,6 +1019,13 @@ class MasterController {
         });
         res.end(buffer);
       }
+    }
+    else{
+      return respHelper(res, {
+        status: 404,
+        message: "Data not found",
+      });
+    }
     } catch (error) {
       console.error(error);
       return res.status(500).json({
@@ -1167,7 +1193,7 @@ class MasterController {
   
   async attendanceSummary(req, res) {
     try {
-      const { startDate, endDate, search, employeeType, designation, department,areaSearch } = req.query;
+      const { startDate, endDate, search, employeeType, designation, department,areaSearch, grade, companyLocation } = req.query;
       const fromDate = moment(startDate, "YYYY-MM-DD"); 
       const toDate = moment(endDate, "YYYY-MM-DD");
   
@@ -1195,6 +1221,7 @@ class MasterController {
             where: {
               isActive:1,
               ...(employeeType && { employeeType: employeeType}),
+              ...(companyLocation && { companyLocationId: companyLocation.split(',')}),
               ...(search && {
                 [Op.or]: [
                   { empCode: { [Op.like]: `%${search}%` } },
@@ -1204,6 +1231,18 @@ class MasterController {
               }),
             },
             include:[{
+              model: db.jobDetails,
+              attributes: ["jobId"],
+              where: {
+                ...(grade && {
+                  gradeId: grade.split(',')
+                }),
+              },
+              include:[{
+                model: db.gradeMaster,
+                attributes: ["gradeName"],
+              }]
+            },{
               model: db.designationMaster,
               attributes: ["name"],
               where: {
@@ -1297,7 +1336,6 @@ class MasterController {
   
           // If the day is a holiday, set status to H
           if (isDayWorking === "H") {
-  console.log("i am in HHHHHHHHH")
             const leave = getLeaveForDay(currentDate);
             const attendanceRecord = employeeRecords.find(
               (record) => record.attendanceDate === currentDate
@@ -1667,7 +1705,7 @@ class MasterController {
         status: false,
         message: "Internal Server Error",
       });
-    }
+    } 
   }  
 
 }

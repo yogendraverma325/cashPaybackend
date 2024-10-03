@@ -1,3 +1,13 @@
+//------------------------------------------------2024-10-03-------------------------------------------------//
+
+CREATE TABLE `tara_hrms_live`.`taskhistorymaster` (
+  `taskHistoryId` INT NOT NULL AUTO_INCREMENT,
+  `taskHistoryName` VARCHAR(255) NULL DEFAULT NULL,
+  `createdAt` INT NULL DEFAULT NULL,
+  `createdBy` VARCHAR(255) NULL,
+  `updatedAt` INT NULL DEFAULT NULL,
+  `isActive` TINYINT(1) NULL DEFAULT 1,
+  PRIMARY KEY (`taskHistoryId`));
 
 //-------------------------------------------------2024-09-30-------------------------------------------------//
 
