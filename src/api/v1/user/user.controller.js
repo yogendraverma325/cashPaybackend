@@ -1012,10 +1012,6 @@ class UserController {
           },
         ],
       });
-      const headAndHrData = await db.buMapping.findOne({
-        attributes: ['buMappingId', 'headId', 'buHrId'],
-        where: { buId: existUser.dataValues.buId, companyId: existUser.dataValues.companyId }
-      })
       const lastWorkingDay = moment(result.resignationDate, "YYYY-MM-DD").add(
         existUser.dataValues.noticeperiodmaster.nPDaysAfterConfirmation,
         "days"
@@ -1070,7 +1066,7 @@ class UserController {
         submitType: result.submitType,
         createdBy: req.userId,
         createdDt: moment(),
-        pendingAt: headAndHrData ? headAndHrData.dataValues.buHrId : null,
+        pendingAt: existUser.dataValues.buHRId,
         l1Attachment: separationEmpAttachment
       };
       const createdData = await db.separationMaster.create(onBehalfObject)
@@ -1098,7 +1094,6 @@ class UserController {
       return respHelper(res, {
         status: 200,
         msg: constant.SEPARATION_STATUS.replace("<status>", "Initiated")
-
       });
     } catch (error) {
       if (error.isJoi === true) {
@@ -1193,7 +1188,8 @@ class UserController {
         l2RequestStatus: "L2_Approved",
         finalStatus: 9,
         submitType: result.submitType,
-        l2Attachment: separationEmpAttachment
+        l2Attachment: separationEmpAttachment,
+        pendingAt: existUser.dataValues.buHRId,
       };
       const createdData = await db.separationMaster.create(onBehalfObject)
 
