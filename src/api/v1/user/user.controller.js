@@ -1514,6 +1514,59 @@ class UserController {
       });
     }
   }
+
+  async taskHistory(req,res){
+    try {
+       const {requestType, fromDate, toDate} = req.query;
+       //attendance request raise by me
+       if(requestType==1){
+        const attendanceRequestRaisebyMe = await db.attendanceMaster.findAll({
+          attributes: [
+            "employeeId",
+            "attendanceDate",
+            "attendancePresentStatus",
+          ],
+          where: {
+           // employeeId: 1335,
+            attendanceDate: {
+              [db.Sequelize.Op.between]: [
+                fromDate.format("YYYY-MM-DD"),
+                toDate.format("YYYY-MM-DD"),
+              ],
+            },
+          },
+          include: [
+            {
+              model: db.regularizationMaster,
+              as: "latest_Regularization_Request",
+              attributes: ["regularizeId"],
+            },
+          ],
+        });
+
+        return respHelper(res, {
+          status: 200,
+          msg: constant.DATA_FETCHED,
+          data:attendanceRequestRaisebyMe
+        });
+       }
+       //leave request raise by me
+       if(requestType==2){
+
+       }
+    } catch (error) {
+      console.log(error);
+      if (error.isJoi === true) {
+        return respHelper(res, {
+          status: 422,
+          msg: error.details[0].message
+        });
+      }
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
 }
 
 export default new UserController();

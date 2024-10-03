@@ -1215,6 +1215,7 @@ class AttendanceController {
           let momentDate = moment(fullDate);
           let dayOfMonth = momentDate.date();
           let occurrence = Math.ceil(dayOfMonth / 7);
+// i need to write code here
 
           let occurrenceDayCondition = {};
           switch (occurrence) {
@@ -1292,7 +1293,7 @@ class AttendanceController {
               attendanceStatus: attendance.attendanceStatus || "NA",
     attendancePresentStatus:
     
-    attendance.attendancePresentStatus !== undefined && attendance.attendancePresentStatus !== "weeklyOff"
+    attendance.attendancePresentStatus !== undefined && attendance.attendancePresentStatus !== "weeklyOff" && attendance.attendancePresentStatus !== "holiday"
     ? attendance.attendancePresentStatus:((attendance.attendancePresentStatus == undefined && checkWeekOff !==null) 
     || attendance.attendancePresentStatus == "weeklyOff") ||(holiday!==null)
     ?null:"NA",
@@ -1326,6 +1327,7 @@ class AttendanceController {
               holidayCompanyLocationConfigurationID:
                 attendance.holidayCompanyLocationConfigurationID || 0,
               holidayLocationMappingDetails: holiday ? [holiday] : [],
+             
               latest_Regularization_Request:
                 attendance.latest_Regularization_Request || [],
               employeeLeaveTransactionDetails: leaveTransactions,

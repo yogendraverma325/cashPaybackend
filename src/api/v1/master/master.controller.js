@@ -1345,6 +1345,27 @@ class MasterController {
       });
     }
   }
+
+  async taskFilter(req, res) {
+    try {
+      let query = { isActive: 1 };
+      const taskFilter = await db.taskFilterMaster.findAll({
+        where: query,
+        //attributes: ['']
+      });
+
+      return respHelper(res, {
+        status: 200,
+        data: taskFilter,
+      });
+    } catch (error) {
+      console.log("errorerror",error)
+      logger.error("Error while getting new customer name list", error);
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
 }
 
 export default new MasterController();

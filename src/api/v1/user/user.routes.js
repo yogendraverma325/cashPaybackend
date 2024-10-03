@@ -50,3 +50,4 @@ export default Express
     .post("/buhrInputOnseparation", authentication.authenticate, userController.buhrInputOnSeparation)
     .post("/revokeSeparation", authentication.authenticate, userController.revokeSeparation)
     .get("/separationTrails", authentication.authenticate, userController.separationTrails)
+    .get("/taskHistory", authentication.authenticate, userController.taskHistory)

@@ -820,7 +820,7 @@ class MasterController {
 
   async allAttendancePunchDetails(req, res) {
     try {
-      const { startDate, endDate , search, employeeType, businessUnit, grade, companyLocation } = req.query;
+      const { startDate, endDate , search, employeeType, businessUnit, grade, companyLocation, employeeIds } = req.query;
       const attendanceData = await db.attendanceMaster.findAll({
         attributes: [
           "attendanceDate",
@@ -842,16 +842,10 @@ class MasterController {
             attributes: ["id", "name", "empCode"],
             where: {
               isActive:1,
+              ...(search && { id: search.split(',')}),
               ...(employeeType && { employeeType: employeeType.split(',')}),
               ...(businessUnit && { buId: businessUnit.split(',')}),
               ...(companyLocation && { companyLocationId: companyLocation.split(',')}),
-              ...(search && {
-                [Op.or]: [
-                  { empCode: { [Op.like]: `%${search}%` } },
-                  { name: { [Op.like]: `%${search}%` } },
-                  { email: { [Op.like]: `%${search}%` } },
-                ],
-              }),
             },
             include: [
               {
@@ -1220,15 +1214,9 @@ class MasterController {
             attributes: ["id", "name", "empCode", "weekOffId", "companyLocationId"],
             where: {
               isActive:1,
+              ...(search && { id: search.split(',')}),
               ...(employeeType && { employeeType: employeeType}),
               ...(companyLocation && { companyLocationId: companyLocation.split(',')}),
-              ...(search && {
-                [Op.or]: [
-                  { empCode: { [Op.like]: `%${search}%` } },
-                  { name: { [Op.like]: `%${search}%` } },
-                  { email: { [Op.like]: `%${search}%` } },
-                ],
-              }),
             },
             include:[{
               model: db.jobDetails,
