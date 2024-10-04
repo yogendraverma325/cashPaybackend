@@ -11,6 +11,15 @@ export default (sequelize, Sequelize) => {
         separationStatus: {
             type: Sequelize.INTEGER
         },
+        pending: {
+            type: Sequelize.BOOLEAN
+        },
+        actionDate: {
+            type: Sequelize.DATE,
+        },
+        pendingAt: {
+            type: Sequelize.INTEGER
+        },
         createdBy: {
             type: Sequelize.INTEGER
         },
