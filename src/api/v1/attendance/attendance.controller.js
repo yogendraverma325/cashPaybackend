@@ -1210,12 +1210,11 @@ class AttendanceController {
           const shiftMaster =
             shiftMasterMap[attendance.attendanceShiftId] ||
             shiftMasterMap[shiftId];
-
+          let currentWeekOffId = attendance.weekOffId || weekOffId; 
           let dayCode = parseInt(moment(fullDate).format("d")) + 1;
           let momentDate = moment(fullDate);
           let dayOfMonth = momentDate.date();
           let occurrence = Math.ceil(dayOfMonth / 7);
-// i need to write code here
 
           let occurrenceDayCondition = {};
           switch (occurrence) {
@@ -1223,35 +1222,35 @@ class AttendanceController {
               occurrenceDayCondition = {
                 dayId: dayCode,
                 isfirstDayOff: 1,
-                weekOffId: weekOffId,
+                weekOffId: currentWeekOffId,
               };
               break;
             case 2:
               occurrenceDayCondition = {
                 dayId: dayCode,
                 isSecondDayOff: 1,
-                weekOffId: weekOffId,
+                weekOffId: currentWeekOffId,
               };
               break;
             case 3:
               occurrenceDayCondition = {
                 dayId: dayCode,
                 isThirdyDayOff: 1,
-                weekOffId: weekOffId,
+                weekOffId: currentWeekOffId,
               };
               break;
             case 4:
               occurrenceDayCondition = {
                 dayId: dayCode,
                 isFourthDayOff: 1,
-                weekOffId: weekOffId,
+                weekOffId: currentWeekOffId,
               };
               break;
             case 5:
               occurrenceDayCondition = {
                 dayId: dayCode,
                 isFivethDayOff: 1,
-                weekOffId: weekOffId,
+                weekOffId: currentWeekOffId,
               };
               break;
             default:
@@ -1274,6 +1273,7 @@ class AttendanceController {
               employeeId: attendance.employeeId || 0,
               attendanceShiftId: attendance.attendanceShiftId || 0,
               attendancePolicyId: attendance.attendancePolicyId || 0,
+              attendanceWeekOffId: attendance.weekOffId || weekOffId,
               attendanceRegularizeId: attendance.attendanceRegularizeId || 0,
               attendanceDate: attendance.attendanceDate || fullDate,
               day: moment(fullDate).format("dddd"),
