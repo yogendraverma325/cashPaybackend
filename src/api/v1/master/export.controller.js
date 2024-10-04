@@ -820,7 +820,7 @@ class MasterController {
 
   async allAttendancePunchDetails(req, res) {
     try {
-      const { startDate, endDate , search, employeeType, businessUnit, grade, companyLocation, employeeIds } = req.query;
+      const { startDate, endDate , search, employeeType, businessUnit, grade, department,companyLocation } = req.query;
       const attendanceData = await db.attendanceMaster.findAll({
         attributes: [
           "attendanceDate",
@@ -841,21 +841,19 @@ class MasterController {
             model: db.employeeMaster,
             attributes: ["id", "name", "empCode"],
             where: {
-              isActive:1,
-              ...(search && { id: search.split(',')}),
-              ...(employeeType && { employeeType: employeeType.split(',')}),
-              ...(businessUnit && { buId: businessUnit.split(',')}),
-              ...(companyLocation && { companyLocationId: companyLocation.split(',')}),
+              isActive: 1,
+              ...(search && { id: { [Op.in]: search.split(',') } }),
+              ...(employeeType && { employeeType: { [Op.in]: employeeType.split(',') } }),
+              ...(businessUnit && { buId: { [Op.in]: businessUnit.split(',') } }),
+              ...(department && { departmentId: { [Op.in]: department.split(',') } }),
+              ...(companyLocation && { companyLocationId: { [Op.in]: companyLocation.split(',') } }),
             },
             include: [
               {
                 model: db.jobDetails,
                 attributes: ["jobId"],
-                where: {
-                  ...(grade && {
-                     gradeId: grade.split(',')
-                  }),
-                },
+                where:{...(grade && { gradeId: { [Op.in]: grade.split(',') } }),
+              },
                 include:[{
                   model: db.gradeMaster,
                   attributes: ["gradeName"],
@@ -1213,19 +1211,19 @@ class MasterController {
             model: db.employeeMaster,
             attributes: ["id", "name", "empCode", "weekOffId", "companyLocationId"],
             where: {
-              isActive:1,
-              ...(search && { id: search.split(',')}),
-              ...(employeeType && { employeeType: employeeType}),
-              ...(companyLocation && { companyLocationId: companyLocation.split(',')}),
+              isActive: 1,
+              ...(search && { id: { [Op.in]: search.split(',') } }),
+              ...(employeeType && { employeeType: { [Op.in]: employeeType.split(',') } }),
+              ...(department && { departmentId: { [Op.in]: department.split(',') } }),
+              ...(designation && { designation_id: { [Op.in]: designation.split(',') } }),
+              ...(companyLocation && { companyLocationId: { [Op.in]: companyLocation.split(',') } }),
+              ...(areaSearch && { functionalAreaId: { [Op.in]: areaSearch.split(',') } }),
+
             },
             include:[{
               model: db.jobDetails,
               attributes: ["jobId"],
-              where: {
-                ...(grade && {
-                  gradeId: grade.split(',')
-                }),
-              },
+              where:{...(grade && { gradeId: { [Op.in]: grade.split(',') } })},      
               include:[{
                 model: db.gradeMaster,
                 attributes: ["gradeName"],
@@ -1233,29 +1231,30 @@ class MasterController {
             },{
               model: db.designationMaster,
               attributes: ["name"],
-              where: {
-                ...(designation && {
-                  name: { [Op.like]: `%${designation}%` },
-                }),
-              }
+              // where: {
+              //   ...(designation && {
+              //     name: { [Op.like]: `%${designation}%` },
+              //   }),
+              // }
             },
             {
               model: db.departmentMaster,
               attributes: ["departmentName"],
-              where: {
-                ...(department && {
-                  departmentName: { [Op.like]: `%${department}%` },
-                })
-              },
-            },   {
+              // where: {
+              //   ...(department && {
+              //     departmentId: { [Op.like]: `%${department}%` },
+              //   })
+              // },
+            },  
+             {
               model: db.functionalAreaMaster,
               seperate: true,
               attributes: ["functionalAreaName"],
-              where: {
-                ...(areaSearch && {
-                  functionalAreaName: { [Op.like]: `%${areaSearch}%` },
-                }),
-              },
+              // where: {
+              //   ...(areaSearch && {
+              //     functionalAreaName: { [Op.like]: `%${areaSearch}%` },
+              //   }),
+              // },
             }]
           },
           {

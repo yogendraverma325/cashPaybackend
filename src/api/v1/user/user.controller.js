@@ -1602,7 +1602,48 @@ class UserController {
     }
   }
 
-  async taskHistory(req,res){
+  async taskHistoryAttendance(req,res){
+    try {
+       const {requestType, fromDate, toDate} = req.query;
+       console.log("req.userId",req.userId)
+       //attendance request raise by me
+        const attendanceRequestRaisebyMe = await db.attendanceMaster.findAll({
+          where: {
+            employeeId: req.userId,
+            attendanceDate: {
+              [db.Sequelize.Op.between]: [fromDate,toDate],
+            },
+          },
+          include: [
+            {
+              model: db.regularizationMaster,
+              as: "latest_Regularization_Request",
+             // attributes: ["regularizeId"],
+              required:true
+            },
+          ],
+        });
+
+        return respHelper(res, {
+          status: 200,
+          msg: constant.DATA_FETCHED,
+          data:attendanceRequestRaisebyMe
+        });
+    } catch (error) {
+      console.log(error);
+      if (error.isJoi === true) {
+        return respHelper(res, {
+          status: 422,
+          msg: error.details[0].message
+        });
+      }
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+
+  async taskHistoryLeave(req,res){
     try {
        const {requestType, fromDate, toDate} = req.query;
        //attendance request raise by me
