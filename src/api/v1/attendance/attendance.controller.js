@@ -1210,6 +1210,7 @@ class AttendanceController {
           const shiftMaster =
             shiftMasterMap[attendance.attendanceShiftId] ||
             shiftMasterMap[shiftId];
+
           let currentWeekOffId = attendance.weekOffId || weekOffId; 
           let dayCode = parseInt(moment(fullDate).format("d")) + 1;
           let momentDate = moment(fullDate);
