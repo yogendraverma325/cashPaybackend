@@ -1997,6 +1997,9 @@ class UserController {
     try {
 
       const separationTasks = await db.separationInitiatedTask.findAll({
+        where: {
+          status: 0
+        },
         attributes: ['initiatedTaskAutoId', 'status', 'createdDt'],
         include: [{
           model: db.employeeMaster,
