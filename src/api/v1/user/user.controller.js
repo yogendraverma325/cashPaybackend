@@ -2000,7 +2000,7 @@ class UserController {
         attributes: ['initiatedTaskAutoId', 'status', 'createdDt'],
         include: [{
           model: db.employeeMaster,
-          attributes: ['empCode', 'name'],
+          attributes: ['id', 'empCode', 'name'],
           include: [{
             model: db.separationMaster,
             attributes: ['l2LastWorkingDay']
