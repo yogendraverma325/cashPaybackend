@@ -1834,7 +1834,14 @@ class UserController {
         attributes: ['initiatedTaskAutoId', 'status', 'createdDt'],
         include: [{
           model: db.employeeMaster,
-          attributes: ['empCode', 'name']
+          attributes: ['empCode', 'name'],
+          include: [{
+            model: db.designationMaster,
+            attributes: ['name', 'code']
+          }, {
+            model: db.companyLocationMaster,
+            attributes: ['address1']
+          }]
         }, {
           model: db.separationTaskMaster,
           attributes: ['taskName']
