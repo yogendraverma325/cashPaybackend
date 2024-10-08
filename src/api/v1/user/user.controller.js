@@ -758,7 +758,7 @@ class UserController {
         noticePeriodLastWorkingDay: lastWorkingDay.format("YYYY-MM-DD"),
         resignationDate: result.resignationDate,
         empProposedLastWorkingDay: result.empProposedLastWorkingDay,
-        empProposedRecoveryDays: result.empProposedRecoveryDays,
+        empProposedRecoveryDays: result.empProposedRecoveryDays > 0 ? result.empProposedRecoveryDays : 0,
         empReasonOfResignation: result.empReasonOfResignation,
         empSalaryHike: result.empSalaryHike,
         empPersonalEmailId: result.empPersonalEmailId,
@@ -768,10 +768,10 @@ class UserController {
         finalStatus: 2,
         empAttachment: result.attachment
           ? await helper.fileUpload(
-              result.attachment,
-              `separation_attachment_${d}`,
-              `uploads/${existUser.dataValues.empCode}`
-            )
+            result.attachment,
+            `separation_attachment_${d}`,
+            `uploads/${existUser.dataValues.empCode}`
+          )
           : null,
         empSubmissionDate: moment(),
       });
@@ -962,10 +962,10 @@ class UserController {
           l1Remark: result.l1Remark,
           l1Attachment: result.attachment
             ? await helper.fileUpload(
-                result.attachment,
-                `separation_attachment_${d}`,
-                `uploads/${separationData.dataValues.employee.empCode}`
-              )
+              result.attachment,
+              `separation_attachment_${d}`,
+              `uploads/${separationData.dataValues.employee.empCode}`
+            )
             : null,
           l1SubmissionDate: moment(),
           pendingAt: separationData.dataValues.employee.buHRId,
@@ -1504,7 +1504,7 @@ class UserController {
         where: {
           resignationAutoId: result.resignationAutoId
         }
-    });
+      });
 
       await db.separationTrail.update(
         {
@@ -1764,13 +1764,13 @@ class UserController {
       const { count, rows: regularizationRequests } =
         await db.regularizationMaster.findAndCountAll({
           where: {
-            regularizeStatus:{[Op.ne]:"Pending"},
+            regularizeStatus: { [Op.ne]: "Pending" },
             ...(fromDate &&
               extendedToDate && {
-                createdAt: {
-                  [db.Sequelize.Op.between]: [fromDate, extendedToDate],
-                },
-              }),
+              createdAt: {
+                [db.Sequelize.Op.between]: [fromDate, extendedToDate],
+              },
+            }),
           },
           include: [
             {
@@ -1784,11 +1784,11 @@ class UserController {
                     ...(search && { name: { [Op.like]: `%${search}%` } }),
                     ...(type === "all"
                       ? {
-                          [Op.or]: [
-                            { id: req.userId },
-                            { manager: req.userId },
-                          ],
-                        }
+                        [Op.or]: [
+                          { id: req.userId },
+                          { manager: req.userId },
+                        ],
+                      }
                       : { id: req.userId }),
                   },
                   include: [
@@ -1856,21 +1856,21 @@ class UserController {
       const { count, rows: leaveRequests } =
         await db.employeeLeaveTransactions.findAndCountAll({
           where: {
-            status:{[Op.ne]:"pending"},
+            status: { [Op.ne]: "pending" },
             ...(isSystemGenerated == 1 && { source: "system_generated" }),
             ...(fromDate &&
               toDate && {
-                appliedFor: {
-                  [db.Sequelize.Op.between]: [fromDate, toDate],
-                },
-              }),
+              appliedFor: {
+                [db.Sequelize.Op.between]: [fromDate, toDate],
+              },
+            }),
             ...(type === "all"
               ? {
-                  [db.Sequelize.Op.or]: [
-                    { employeeId: req.userId },
-                    { pendingAt: req.userId },
-                  ],
-                }
+                [db.Sequelize.Op.or]: [
+                  { employeeId: req.userId },
+                  { pendingAt: req.userId },
+                ],
+              }
               : { employeeId: req.userId }),
           },
           include: [
