@@ -1753,7 +1753,7 @@ class UserController {
 
       const separationFields = await db.separationTaskFields.findAll({
         where: {
-          taskAutoId: 1
+          taskAutoId: req.params.id
         }
       })
 
