@@ -1793,6 +1793,15 @@ class UserController {
           }
         })
       }
+
+      await db.separationInitiatedTask.update({
+        status: 1
+      }, {
+        where: {
+          taskAutoId: req.body[0].taskAutoId,
+          employeeId: req.body[0].user,
+        }
+      })
       // console.log("req.body", req.body)
       // for (let index = 0; index < array.length; index++) {
       //   const element = array[index];
