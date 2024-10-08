@@ -30,11 +30,9 @@ class MasterController {
       const pageNo = req.query.page * 1 || 1;
       const offset = (pageNo - 1) * limit;
 
-      const cacheKey = `employeeList:${pageNo}:${limit}:${search || ""}:${
-        department || ""
-      }:${designation || ""}:${buSearch || ""}:${sbuSearch || ""}:${
-        areaSearch || ""
-      }`;
+      const cacheKey = `employeeList:${pageNo}:${limit}:${search || ""}:${department || ""
+        }:${designation || ""}:${buSearch || ""}:${sbuSearch || ""}:${areaSearch || ""
+        }`;
 
       let employeeData = [];
       await client.get(cacheKey).then(async (data) => {
@@ -129,45 +127,45 @@ class MasterController {
             where: searchId
               ? { id: searchId }
               : Object.assign(
-                  search
-                    ? {
-                        [Op.or]: [
-                          {
-                            empCode: {
-                              [Op.like]: `%${search}%`,
-                            },
-                          },
-                          {
-                            name: {
-                              [Op.like]: `%${search}%`,
-                            },
-                          },
-                          {
-                            email: {
-                              [Op.like]: `%${search}%`,
-                            },
-                          },
-                        ],
-                        [Op.and]: [
-                          {
-                            isActive:
-                              usersData.role_id == 1 || usersData.role_id == 2
-                                ? [1, 0]
-                                : [1],
-                          },
-                        ],
-                      }
-                    : {
-                        [Op.and]: [
-                          {
-                            isActive:
-                              usersData.role_id == 1 || usersData.role_id == 2
-                                ? [1, 0]
-                                : [1],
-                          },
-                        ],
-                      }
-                ),
+                search
+                  ? {
+                    [Op.or]: [
+                      {
+                        empCode: {
+                          [Op.like]: `%${search}%`,
+                        },
+                      },
+                      {
+                        name: {
+                          [Op.like]: `%${search}%`,
+                        },
+                      },
+                      {
+                        email: {
+                          [Op.like]: `%${search}%`,
+                        },
+                      },
+                    ],
+                    [Op.and]: [
+                      {
+                        isActive:
+                          usersData.role_id == 1 || usersData.role_id == 2
+                            ? [1, 0]
+                            : [1],
+                      },
+                    ],
+                  }
+                  : {
+                    [Op.and]: [
+                      {
+                        isActive:
+                          usersData.role_id == 1 || usersData.role_id == 2
+                            ? [1, 0]
+                            : [1],
+                      },
+                    ],
+                  }
+              ),
             attributes: [
               "id",
               "empCode",
@@ -276,13 +274,13 @@ class MasterController {
         where: Object.assign(
           manager
             ? {
-                id: manager,
-                isActive: 1,
-              }
+              id: manager,
+              isActive: 1,
+            }
             : {
-                manager: null,
-                isActive: 1,
-              }
+              manager: null,
+              isActive: 1,
+            }
         ),
         attributes: { exclude: ["password", "role_id", "designation_id"] },
         include: [
@@ -318,7 +316,7 @@ class MasterController {
             as: "reportie",
             required: false,
             attributes: { exclude: ["password", "role_id", "designation_id"] },
-            where:{isActive:1},
+            where: { isActive: 1 },
             include: [
               {
                 model: db.roleMaster,
@@ -435,7 +433,8 @@ class MasterController {
       let search = req.query.search;
       let searchId = req.query.searchId;
       if (search || searchId) {
-        let query = { isActive: 1, designationId: searchId };
+
+        let query = { isActive: 1, 'designationId': searchId };
         if (search) {
           query = { isActive: 1, name: { [Op.like]: `%${search}%` } };
         }
@@ -551,23 +550,23 @@ class MasterController {
         where: Object.assign(
           stateCode
             ? {
-                stateCode,
-              }
+              stateCode,
+            }
             : {},
           stateName
             ? {
-                stateName,
-              }
+              stateName,
+            }
             : {},
           countryId
             ? {
-                countryId,
-              }
+              countryId,
+            }
             : {},
           regionId
             ? {
-                regionId,
-              }
+              regionId,
+            }
             : {}
         ),
       });
@@ -597,8 +596,8 @@ class MasterController {
         where: Object.assign(
           countryId
             ? {
-                countryId,
-              }
+              countryId,
+            }
             : {}
         ),
       });
@@ -628,8 +627,8 @@ class MasterController {
         where: Object.assign(
           stateId
             ? {
-                stateId,
-              }
+              stateId,
+            }
             : {}
         ),
       });
@@ -778,8 +777,8 @@ class MasterController {
 
   async department(req, res) {
     try {
-      const {sbuMappingId} = req.query;
-      let query = {...(sbuMappingId && { sbuMappingId: sbuMappingId })}
+      const { sbuMappingId } = req.query;
+      let query = { ...(sbuMappingId && { sbuMappingId: sbuMappingId }) }
       let subQuery = { isActive: 1 };
 
       const departmentData = await db.departmentMapping.findAll({
@@ -969,27 +968,27 @@ class MasterController {
               : [["webPosition", "asc"]],
             attributes: mobile
               ? [
-                  "cardId",
-                  "cardName",
-                  "mobileUrl",
-                  "isCardWorking",
-                  "mobileLightFontColor",
-                  "mobileIcon",
-                  "mobileLightBackgroundColor",
-                  "mobilePosition",
-                  "mobileDarkFontColor",
-                  "mobileDarkBackgroundColor",
-                ]
+                "cardId",
+                "cardName",
+                "mobileUrl",
+                "isCardWorking",
+                "mobileLightFontColor",
+                "mobileIcon",
+                "mobileLightBackgroundColor",
+                "mobilePosition",
+                "mobileDarkFontColor",
+                "mobileDarkBackgroundColor",
+              ]
               : [
-                  "cardId",
-                  "cardName",
-                  "isCardWorking",
-                  "webUrl",
-                  "webFontColor",
-                  "webBackgroundColor",
-                  "webIcon",
-                  "webPosition",
-                ],
+                "cardId",
+                "cardName",
+                "isCardWorking",
+                "webUrl",
+                "webFontColor",
+                "webBackgroundColor",
+                "webIcon",
+                "webPosition",
+              ],
           });
 
           const dashboardJson = JSON.stringify(dashboardData);
@@ -1324,7 +1323,7 @@ class MasterController {
 
   async reportModule(req, res) {
     try {
-      const {} = req.query;
+      const { } = req.query;
       let query = { isActive: 1 };
       const reportModule = await db.reportModuleMaster.findAll({
         where: query,
@@ -1332,8 +1331,8 @@ class MasterController {
         include: [
           {
             model: db.reportType,
-            attributes:['reportTypeId','reportTypeName'],
-            where:{ isActive: 1 }
+            attributes: ['reportTypeId', 'reportTypeName'],
+            where: { isActive: 1 }
           },
         ]
       });
@@ -1382,8 +1381,26 @@ class MasterController {
         data: taskFilter,
       });
     } catch (error) {
-      console.log("errorerror",error)
+      console.log("errorerror", error)
       logger.error("Error while getting new customer name list", error);
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+
+  async separationTasks(req, res) {
+    try {
+
+      const separationTasksData = await db.separationTaskMaster.findAll()
+
+      return respHelper(res, {
+        status: 200,
+        data: separationTasksData
+      })
+
+    } catch (error) {
+      console.log("error", error)
       return respHelper(res, {
         status: 500,
       });

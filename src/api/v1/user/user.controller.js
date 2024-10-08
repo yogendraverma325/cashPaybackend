@@ -1408,101 +1408,103 @@ class UserController {
 
   async buhrInputOnSeparation(req, res) {
     try {
-      let result = await validator.buhrInputOnSeparation.validateAsync(
-        req.body
-      );
-
+      let result = await validator.buhrInputOnSeparation.validateAsync(req.body)
+      const mailArray = []
       const separationData = await db.separationMaster.findOne({
         where: {
           resignationAutoId: result.resignationAutoId,
         },
-        attributes: ["initiatedBy", "resignationDate"],
-        include: [
-          {
+        attributes: ['initiatedBy', 'resignationDate'],
+        include: [{
+          model: db.employeeMaster,
+          attributes: ['id', 'empCode', 'name', 'email', 'officeMobileNumber', 'personalEmail', 'personalMobileNumber', 'dateOfJoining', "companyId", "buId", "sbuId", "functionalAreaId"],
+          include: [{
+            model: db.companyLocationMaster,
+            attributes: ['address1']
+          }, {
+            model: db.departmentMaster,
+            attributes: ['departmentName', 'departmentCode']
+          }, {
             model: db.employeeMaster,
-            attributes: [
-              "empCode",
-              "name",
-              "email",
-              "officeMobileNumber",
-              "personalEmail",
-              "personalMobileNumber",
-              "dateOfJoining",
-            ],
-            include: [
-              {
-                model: db.companyLocationMaster,
-                attributes: ["address1"],
-              },
-              {
-                model: db.departmentMaster,
-                attributes: ["departmentName", "departmentCode"],
-              },
-              {
-                model: db.employeeMaster,
-                as: "managerData",
-                attributes: ["name"],
-              },
-              {
-                model: db.sbuMaster,
-                attributes: ["sbuName"],
-              },
-              {
-                model: db.buMaster,
-                attributes: ["buName"],
-              },
-              {
-                model: db.companyMaster,
-                attributes: ["companyName"],
-              },
-            ],
-          },
-        ],
-      });
+            as: 'managerData',
+            attributes: ['name']
+          }, {
+            model: db.sbuMaster,
+            attributes: ['sbuName']
+          }, {
+            model: db.buMaster,
+            attributes: ['buName']
+          }, {
+            model: db.companyMaster,
+            attributes: ['companyName']
+          }]
+        }]
+      })
 
       const d = Math.floor(Date.now() / 1000);
 
-      await db.separationMaster.update(
-        {
-          l2LastWorkingDay: result.l2LastWorkingDay,
-          l2RecoveryDays: result.l2RecoveryDays,
-          l2RecoveryDaysReason: result.l2RecoveryDaysReason,
-          l2SeparationType: result.l2SeparationType,
-          l2ReasonOfSeparation: result.l2ReasonOfSeparation,
-          l2NewOrganizationName: result.l2NewOrganizationName
-            ? result.l2NewOrganizationName
-            : null,
-          l2SalaryHike: result.l2SalaryHike ? result.l2SalaryHike : null,
-          doNotReHire: result.doNotReHire,
-          l2BillingType: result.l2BillingType,
-          l2CustomerName:
-            result.l2CustomerName != "" ? result.l2CustomerName : null,
-          shortFallPayoutBasis: result.shortFallPayoutBasis,
-          shortFallPayoutDays: result.shortFallPayoutDays,
-          ndaConfirmation: result.ndaConfirmation,
-          holdFnf: result.holdFnf,
-          holdFnfReason:
-            result.holdFnfReason != "" ? result.holdFnfReason : null,
-          holdFnfTillDate:
-            result.holdFnfTillDate != "" ? result.holdFnfTillDate : null,
-          l2Remark: result.l2Remark,
-          l2Attachment: result.attachment
-            ? await helper.fileUpload(
-                result.attachment,
-                `separation_attachment_${d}`,
-                `uploads/${separationData.dataValues.employee.empCode}`
-              )
-            : null,
-          l2SubmissionDate: moment(),
-          l2RequestStatus: "Approved",
-          finalStatus: 9,
+      const separationOwner = await db.separationTaskMapping.findAll({
+        where: {
+          companyId: separationData.dataValues.employee.companyId,
+          buId: separationData.dataValues.employee.buId,
+          sbuId: separationData.dataValues.employee.sbuId,
+          functionalAreaId: separationData.dataValues.employee.functionalAreaId
         },
-        {
-          where: {
-            resignationAutoId: result.resignationAutoId,
-          },
+        include: [{
+          model: db.separationTaskOwner,
+          attributes: ['taskOwner'],
+          include: [{
+            model: db.employeeMaster,
+            attributes: ['name', 'email']
+          }]
+        }, {
+          model: db.separationTaskConfig,
+          attributes: ['taskConfigName']
+        }, {
+          model: db.separationTaskMaster,
+          attributes: ['taskName'],
+          include: [{
+            model: db.separationTaskFields,
+            attributes: ['taskFieldsAutoId']
+          }]
+
+        }]
+      })
+
+      // console.log("dnccjdbcjb---->>", separationData.dataValues.employee.companyId)
+      // console.log(separationOwner)
+
+      await db.separationMaster.update({
+        l2LastWorkingDay: result.l2LastWorkingDay,
+        l2RecoveryDays: result.l2RecoveryDays,
+        l2RecoveryDaysReason: result.l2RecoveryDaysReason,
+        l2SeparationType: result.l2SeparationType,
+        l2ReasonOfSeparation: result.l2ReasonOfSeparation,
+        l2NewOrganizationName: (result.l2NewOrganizationName) ? result.l2NewOrganizationName : null,
+        l2SalaryHike: (result.l2SalaryHike) ? result.l2SalaryHike : null,
+        doNotReHire: result.doNotReHire,
+        l2BillingType: result.l2BillingType,
+        l2CustomerName: (result.l2CustomerName != '') ? result.l2CustomerName : null,
+        shortFallPayoutBasis: result.shortFallPayoutBasis,
+        shortFallPayoutDays: result.shortFallPayoutDays,
+        ndaConfirmation: result.ndaConfirmation,
+        holdFnf: result.holdFnf,
+        holdFnfReason: (result.holdFnfReason != "") ? result.holdFnfReason : null,
+        holdFnfTillDate: (result.holdFnfTillDate != "") ? result.holdFnfTillDate : null,
+        l2Remark: result.l2Remark,
+        l2Attachment: (result.attachment) ? await helper.fileUpload(
+          result.attachment,
+          `separation_attachment_${d}`,
+          `uploads/${separationData.dataValues.employee.empCode}`
+        ) : null,
+        l2SubmissionDate: moment(),
+        l2RequestStatus: 'Approved',
+        finalStatus: 9
+      }, {
+        where: {
+          resignationAutoId: result.resignationAutoId
         }
-      );
+    });
 
       await db.separationTrail.update(
         {
@@ -1519,25 +1521,40 @@ class UserController {
         }
       );
 
-      eventEmitter.emit(
-        "separationApproveByBUHR",
-        JSON.stringify({
-          email: separationData.dataValues.employee.email,
-          empName: separationData.dataValues.employee.name,
-          empCode: separationData.dataValues.employee.empCode,
-          dateOfResignation: separationData.dataValues.resignationDate,
-          companyName:
-            separationData.dataValues.employee.companymaster.companyName,
-          lastWorkingDay: result.l2LastWorkingDay,
+      for (const element of separationOwner) {
+        // console.log('jbjhjbcdhjb', element.dataValues.taskAutoId)
+        // console.log('nvjurhcrdf', element.dataValues.separationtaskmaster.separationtaskfields)
+        const initiatedTask = await db.separationInitiatedTask.create({
+          employeeId: separationData.dataValues.employee.id,
+          taskAutoId: element.dataValues.taskAutoId,
+          status: 0,
+          createdDt: moment(),
+          createdBy: 1,
+          isActive: 1
         })
-      );
+        if (element.dataValues.separationtaskmaster.separationtaskfields.length > 0) {
+          for (const element2 of element.dataValues.separationtaskmaster.separationtaskfields) {
+            // console.log(element2.dataValues.taskFieldsAutoId)
+            await db.separationFieldValues.create({
+              taskAutoId: element.dataValues.taskAutoId,
+              initiatedTaskAutoId: initiatedTask.dataValues.initiatedTaskAutoId,
+              fields: element2.dataValues.taskFieldsAutoId,
+              employeeId: separationData.dataValues.employee.id,
+              createdDt: moment(),
+              createdBy: 1,
+            })
+          }
+        }
+      }
 
-      const mailArray = [
-        {
-          email: "manishmaurya@teamcomputers.com",
-          name: "Rag Ranjan",
-        },
-      ];
+      eventEmitter.emit("separationApproveByBUHR", JSON.stringify({
+        email: separationData.dataValues.employee.email,
+        empName: separationData.dataValues.employee.name,
+        empCode: separationData.dataValues.employee.empCode,
+        dateOfResignation: separationData.dataValues.resignationDate,
+        companyName: separationData.dataValues.employee.companymaster.companyName,
+        lastWorkingDay: result.l2LastWorkingDay,
+      }))
 
       for (const element of mailArray) {
         eventEmitter.emit(
@@ -1567,7 +1584,8 @@ class UserController {
 
       return respHelper(res, {
         status: 200,
-        msg: constant.SEPARATION_STATUS.replace("<status>", "Approved"),
+        msg: constant.SEPARATION_STATUS.replace("<status>", 'Approved'),
+        data: separationOwner
       });
     } catch (error) {
       console.log(error);
@@ -1890,6 +1908,185 @@ class UserController {
           msg: error.details[0].message,
         });
       }
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+
+  async separationTaskForm(req, res) {
+    try {
+
+      const separationFields = await db.separationTaskFields.findAll({
+        where: {
+          taskAutoId: req.params.id
+        }
+      })
+
+      return respHelper(res, {
+        status: 200,
+        data: separationFields
+      });
+
+    } catch (error) {
+      console.log(error)
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+
+  async separationTaskValues(req, res) {
+    try {
+
+      let reqObj = {
+
+      }
+      for (const element of req.body) {
+        reqObj[element.fieldsCode] = element.value
+      }
+
+      // const result=await validator.
+      // console.log("req body", req.body)
+      for (const element of req.body) {
+        await db.separationFieldValues.update({
+          fieldValues: element.value,
+        }, {
+          where: {
+            taskAutoId: element.taskAutoId,
+            fields: element.id,
+            employeeId: element.user
+          }
+        })
+      }
+
+      await db.separationInitiatedTask.update({
+        status: 1
+      }, {
+        where: {
+          taskAutoId: req.body[0].taskAutoId,
+          employeeId: req.body[0].user,
+        }
+      })
+      // console.log("req.body", req.body)
+      // for (let index = 0; index < array.length; index++) {
+      //   const element = array[index];
+
+      // }
+
+      // console.log("reqObj", reqObj)
+      return respHelper(res, {
+        status: 200,
+      });
+
+    } catch (error) {
+      console.log(error)
+      if (error.isJoi === true) {
+        return respHelper(res, {
+          status: 422,
+          msg: error.details[0].message
+        });
+      }
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+
+  async initiatedTaskList(req, res) {
+    try {
+
+      const separationTasks = await db.separationInitiatedTask.findAll({
+        attributes: ['initiatedTaskAutoId', 'status', 'createdDt'],
+        include: [{
+          model: db.employeeMaster,
+          attributes: ['empCode', 'name'],
+          include: [{
+            model: db.separationMaster,
+            attributes: ['l2LastWorkingDay']
+          }, {
+            model: db.designationMaster,
+            attributes: ['name', 'code']
+          }, {
+            model: db.companyLocationMaster,
+            attributes: ['address1']
+          }]
+        }, {
+          model: db.separationTaskMaster,
+          attributes: ['taskName', 'taskCode']
+        },
+        {
+          model: db.separationTaskMapping,
+          attributes: ['taskMappingAutoId', 'taskConfigAutoId', 'taskAutoId'],
+          required: true,
+          include: [{
+            model: db.separationTaskOwner,
+            attributes: ['taskOwnerAutoId', 'taskMappingAutoId', 'taskOwner', 'isActive'],
+            required: true,
+            where: {
+              taskOwner: req.userId
+            },
+            include: [{
+              model: db.employeeMaster,
+              attributes: ['name', 'empCode']
+            }]
+          }]
+        }]
+      })
+
+      return respHelper(res, {
+        status: 200,
+        data: separationTasks
+      });
+
+    } catch (error) {
+      console.log(error)
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+
+  async empInitiatedTask(req, res) {
+    try {
+      const user = req.userId || req.query.user
+
+      const taskData = await db.separationInitiatedTask.findAll({
+        where: {
+          employeeId: user
+        },
+        attributes: ['initiatedTaskAutoId', 'status', 'createdDt'],
+        include: [{
+          model: db.employeeMaster,
+          attributes: ['empCode', 'name']
+        }, {
+          model: db.separationTaskMaster,
+          attributes: ['taskName']
+        },
+        {
+          model: db.separationTaskMapping,
+          attributes: ['taskMappingAutoId', 'taskConfigAutoId', 'taskAutoId'],
+          required: true,
+          include: [
+
+            {
+              model: db.separationTaskOwner,
+              attributes: ['taskOwnerAutoId', 'taskMappingAutoId', 'taskOwner', 'isActive'],
+              required: true,
+              include: [{
+                model: db.employeeMaster,
+                attributes: ['name', 'empCode']
+              }]
+            }]
+        }]
+      })
+
+      return respHelper(res, {
+        status: 200,
+        data: taskData
+      });
+    } catch (error) {
+      console.log(error)
       return respHelper(res, {
         status: 500,
       });

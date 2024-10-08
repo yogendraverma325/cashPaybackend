@@ -52,3 +52,7 @@ export default Express
     .get("/separationTrails", authentication.authenticate, userController.separationTrails)
     .get("/taskHistoryAttendance", authentication.authenticate, userController.taskHistoryAttendance)
     .get("/taskHistoryLeave", authentication.authenticate, userController.taskHistoryLeave)
+    .get("/separationTaskForm/:id", authentication.authenticate, userController.separationTaskForm)
+    .post("/separationTaskValues", authentication.authenticate, userController.separationTaskValues)
+    .get("/initiatedTask", authentication.authenticate, userController.initiatedTaskList)
+    .get("/empInitiatedTask", authentication.authenticate, userController.empInitiatedTask)
