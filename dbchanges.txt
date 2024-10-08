@@ -1,3 +1,8 @@
+//----------------------------------------------- 2024-10-07-----------------------------------------------//
+
+ALTER TABLE `tara_hrms_live`.`taskfiltermaster` 
+ADD COLUMN `  ` VARCHAR(45) NULL DEFAULT NULL AFTER `taskFilterName`;
+
 //------------------------------------------------2024-10-03-----------------------------------------------//
 
 ALTER TABLE `tara_hrms_live`.`taskhistorymaster` 

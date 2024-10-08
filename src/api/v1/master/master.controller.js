@@ -244,6 +244,10 @@ class MasterController {
                 model: db.companyLocationMaster,
                 attributes: ["address1", "address2"],
               },
+              {
+                model: db.attendancePolicymaster,
+                attributes: ["policyName", "policyCode"],
+              },
             ],
           });
 
@@ -1332,6 +1336,25 @@ class MasterController {
             where:{ isActive: 1 }
           },
         ]
+      });
+
+      return respHelper(res, {
+        status: 200,
+        data: reportModule,
+      });
+    } catch (error) {
+      logger.error("Error while getting new customer name list", error);
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+
+  async shiftMaster(req, res) {
+    try {
+      const {} = req.query;
+      let query = { isActive: 1 };
+      const reportModule = await db.shiftMaster.findAll({
       });
 
       return respHelper(res, {

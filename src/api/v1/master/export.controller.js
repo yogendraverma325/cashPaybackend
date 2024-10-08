@@ -930,7 +930,7 @@ class MasterController {
           (record["employee.managerData.name"] ? 
             record["employee.managerData.name"] + " (" + record["employee.managerData.empCode"] + ")" 
             : "-"),
-          attendanceDate: record.attendanceDate,
+          attendanceDate: moment(record.attendanceDate).format('DD-MM-YYYY'),
           attendanceStatus: record.attendanceStatus,
           attendancePresentStatus: record.attendancePresentStatus,
           attendancePunchInTime: record.attendancePunchInTime || "N/A",
@@ -1015,7 +1015,7 @@ class MasterController {
     else{
       return respHelper(res, {
         status: 404,
-        message: "Data not found",
+        message: "Data not availble for available dates",
       });
     }
     } catch (error) {
@@ -1418,18 +1418,14 @@ class MasterController {
           } 
           // If the day is a week off, set status to W
           else if (isDayWorking === "W") {
-            console.log("i am in WWWWWWWW")
-
             const leave = getLeaveForDay(currentDate);
             const attendanceRecord = employeeRecords.find(
               (record) => record.attendanceDate === currentDate
             );
             if (attendanceRecord) {
-              console.log("i am in if")
               const { attendancePresentStatus } = attendanceRecord;
               // Set attendance based on the presence status
               if (attendancePresentStatus === "present") {
-                console.log("presentpresent")
                 dayRecords[dayKey] = "P"; // Initially set to P
                 attendanceCount.P++;
   
@@ -1454,7 +1450,6 @@ class MasterController {
                 }
   
               } else if (attendancePresentStatus === "singlePunchAbsent") {
-                console.log("singlePunchAbsentsinglePunchAbsent")
 
                 dayRecords[dayKey] = "SA";
                 attendanceCount.SA++;
@@ -1479,7 +1474,6 @@ class MasterController {
                 }
   
               } else if (attendancePresentStatus === "absent") {
-                console.log("absentabsentabsentabsentabsent")
 
                 dayRecords[dayKey] = "A";
                 attendanceCount.A++;
@@ -1507,7 +1501,6 @@ class MasterController {
                 }
   
               } else if (attendancePresentStatus === "weeklyOff"){
-                console.log("weeklyOffweeklyOffweeklyOff")
 
                 dayRecords[dayKey] = "W";
                 attendanceCount.W++;
@@ -1517,13 +1510,11 @@ class MasterController {
                 attendanceCount.W++;
               }
             }else{
-              console.log("i am in else")
                 dayRecords[dayKey] = "W"; // Set to W for week off
                 attendanceCount.W++;
             }
           } 
           else {
-            console.log("i am in else")
             // Check for approved leave first
             const leave = getLeaveForDay(currentDate);
               const attendanceRecord = employeeRecords.find(

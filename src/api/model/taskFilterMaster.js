@@ -8,6 +8,9 @@ export default (sequelize, Sequelize) => {
         taskFilterName: {
             type: Sequelize.STRING
         },
+        taskFor:{
+            type: Sequelize.STRING
+        },
         createdAt: {
             type: Sequelize.DATE
         },
