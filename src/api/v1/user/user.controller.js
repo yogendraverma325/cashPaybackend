@@ -1836,6 +1836,9 @@ class UserController {
           model: db.employeeMaster,
           attributes: ['empCode', 'name'],
           include: [{
+            model: db.separationMaster,
+            attributes: ['l2LastWorkingDay']
+          }, {
             model: db.designationMaster,
             attributes: ['name', 'code']
           }, {
@@ -1844,7 +1847,7 @@ class UserController {
           }]
         }, {
           model: db.separationTaskMaster,
-          attributes: ['taskName']
+          attributes: ['taskName', 'taskCode']
         },
         {
           model: db.separationTaskMapping,

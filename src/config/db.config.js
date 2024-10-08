@@ -720,5 +720,7 @@ db.separationTaskMaster.hasMany(db.separationTaskFields, { foreignKey: 'taskAuto
 db.separationInitiatedTask.hasOne(db.separationTaskMapping, { foreignKey: 'taskAutoId', sourceKey: 'taskAutoId' })
 db.separationInitiatedTask.hasOne(db.separationTaskMaster, { foreignKey: 'taskAutoId', sourceKey: 'taskAutoId' })
 db.separationInitiatedTask.hasOne(db.employeeMaster, { foreignKey: 'id', sourceKey: 'employeeId' })
+db.separationMaster.hasOne(db.employeeMaster, { foreignKey: 'id', sourceKey: 'employeeId' })
+db.employeeMaster.hasOne(db.separationMaster, { foreignKey: 'employeeId', sourceKey: "id" })
 
 export default db;
