@@ -217,9 +217,9 @@ class UserController {
               },
               {
                 model: db.lwfDesignationMaster,
-                attributes: ['lwfDesignationId', 'lwfDesignationName'],
-                as: "lwfDesignationName"
-              }
+                attributes: ["lwfDesignationId", "lwfDesignationName"],
+                as: "lwfDesignationName",
+              },
             ],
           },
           {
@@ -675,7 +675,7 @@ class UserController {
       await db.employeeMaster.update(
         {
           password: await helper.encryptPassword(newPassword),
-          isTempPassword: 0
+          isTempPassword: 0,
         },
         { where: { id: id } }
       );
@@ -702,16 +702,16 @@ class UserController {
         where: {
           employeeId: user,
           finalStatus: {
-            [Op.notIn]: [3, 6, 7, 10, 11]
-          }
-        }
-      })
+            [Op.notIn]: [3, 6, 7, 10, 11],
+          },
+        },
+      });
 
       if (existSeparationData) {
         return respHelper(res, {
           status: 400,
-          msg: constant.SEPARATION_ALREADY_SUBMITTED
-        })
+          msg: constant.SEPARATION_ALREADY_SUBMITTED,
+        });
       }
 
       const existUser = await db.employeeMaster.findOne({
@@ -725,21 +725,21 @@ class UserController {
           },
           {
             model: db.departmentMaster,
-            attributes: ['departmentName']
+            attributes: ["departmentName"],
           },
           {
             model: db.designationMaster,
-            attributes: ['name']
+            attributes: ["name"],
           },
           {
             model: db.employeeMaster,
-            as: 'managerData',
-            attributes: ['name', 'email']
+            as: "managerData",
+            attributes: ["name", "email"],
           },
           {
             model: db.companyMaster,
-            attributes: ['companyName']
-          }
+            attributes: ["companyName"],
+          },
         ],
       });
 
@@ -753,7 +753,8 @@ class UserController {
       const createdData = await db.separationMaster.create({
         employeeId: existUser.dataValues.id,
         initiatedBy: "Self",
-        noticePeriodDay: existUser.dataValues.noticeperiodmaster.nPDaysAfterConfirmation,
+        noticePeriodDay:
+          existUser.dataValues.noticeperiodmaster.nPDaysAfterConfirmation,
         noticePeriodLastWorkingDay: lastWorkingDay.format("YYYY-MM-DD"),
         resignationDate: result.resignationDate,
         empProposedLastWorkingDay: result.empProposedLastWorkingDay,
@@ -765,13 +766,15 @@ class UserController {
         empRemark: result.empRemark,
         pendingAt: existUser.dataValues.manager,
         finalStatus: 2,
-        empAttachment: (result.attachment) ? await helper.fileUpload(
-          result.attachment,
-          `separation_attachment_${d}`,
-          `uploads/${existUser.dataValues.empCode}`
-        ) : null,
-        empSubmissionDate: moment()
-      })
+        empAttachment: result.attachment
+          ? await helper.fileUpload(
+              result.attachment,
+              `separation_attachment_${d}`,
+              `uploads/${existUser.dataValues.empCode}`
+            )
+          : null,
+        empSubmissionDate: moment(),
+      });
 
       await db.separationTrail.create({
         separationAutoId: createdData.dataValues.resignationAutoId,
@@ -780,8 +783,8 @@ class UserController {
         pendingAt: user,
         createdBy: req.userId,
         actionDate: moment(),
-        createdDt: moment()
-      })
+        createdDt: moment(),
+      });
 
       await db.separationTrail.create({
         separationAutoId: createdData.dataValues.resignationAutoId,
@@ -789,8 +792,8 @@ class UserController {
         pending: 1,
         pendingAt: existUser.dataValues.manager,
         createdBy: req.userId,
-        createdDt: moment()
-      })
+        createdDt: moment(),
+      });
 
       await db.separationTrail.create({
         separationAutoId: createdData.dataValues.resignationAutoId,
@@ -798,26 +801,32 @@ class UserController {
         pending: 1,
         pendingAt: existUser.dataValues.buHRId,
         createdBy: req.userId,
-        createdDt: moment()
-      })
+        createdDt: moment(),
+      });
 
-      eventEmitter.emit("initiateSeparation", JSON.stringify({
-        email: existUser.dataValues.managerData.email,
-        recipientName: existUser.dataValues.managerData.name,
-        empName: existUser.dataValues.name,
-        empDesignation: existUser.dataValues.designationmaster.name,
-        empDepartment: existUser.dataValues.departmentmaster.departmentName,
-        companyName: existUser.dataValues.companymaster.companyName
-      }))
+      eventEmitter.emit(
+        "initiateSeparation",
+        JSON.stringify({
+          email: existUser.dataValues.managerData.email,
+          recipientName: existUser.dataValues.managerData.name,
+          empName: existUser.dataValues.name,
+          empDesignation: existUser.dataValues.designationmaster.name,
+          empDepartment: existUser.dataValues.departmentmaster.departmentName,
+          companyName: existUser.dataValues.companymaster.companyName,
+        })
+      );
 
-      eventEmitter.emit("separationUserAcknowledge", JSON.stringify({
-        email: existUser.dataValues.email,
-        companyName: existUser.dataValues.companymaster.companyName
-      }))
+      eventEmitter.emit(
+        "separationUserAcknowledge",
+        JSON.stringify({
+          email: existUser.dataValues.email,
+          companyName: existUser.dataValues.companymaster.companyName,
+        })
+      );
 
       return respHelper(res, {
         status: 200,
-        msg: constant.SEPARATION_STATUS.replace("<status>", "Initiated")
+        msg: constant.SEPARATION_STATUS.replace("<status>", "Initiated"),
       });
     } catch (error) {
       console.log(error);
@@ -837,15 +846,18 @@ class UserController {
     try {
       const separationData = await db.separationMaster.findAll({
         where: {
-          [Op.or]: [{
-            employeeId: req.query.user || req.userId,
-            finalStatus: (req.query.user) ? null : 1
-          }, {
-            pendingAt: req.userId,
-            finalStatus: {
-              [Op.in]: [5, 2]
-            }
-          }]
+          [Op.or]: [
+            {
+              employeeId: req.query.user || req.userId,
+              finalStatus: req.query.user ? null : 1,
+            },
+            {
+              pendingAt: req.userId,
+              finalStatus: {
+                [Op.in]: [5, 2],
+              },
+            },
+          ],
         },
         include: [
           {
@@ -854,28 +866,28 @@ class UserController {
           },
           {
             model: db.separationStatus,
-            attributes: ['separationStatusCode', 'separationStatusDesc']
+            attributes: ["separationStatusCode", "separationStatusDesc"],
           },
           {
             model: db.separationType,
-            as: 'l2Separationtype',
-            attributes: ['separationTypeName']
+            as: "l2Separationtype",
+            attributes: ["separationTypeName"],
           },
           {
             model: db.separationReason,
             as: "empReasonofResignation",
-            attributes: ['separationReason']
+            attributes: ["separationReason"],
           },
           {
             model: db.separationReason,
-            as: 'l2ReasonofSeparation',
-            attributes: ['separationReason']
+            as: "l2ReasonofSeparation",
+            attributes: ["separationReason"],
           },
           {
             model: db.separationReason,
-            as: 'l1ReasonofResignation',
-            attributes: ['separationReason']
-          }
+            as: "l1ReasonofResignation",
+            attributes: ["separationReason"],
+          },
         ],
       });
 
@@ -899,89 +911,114 @@ class UserController {
 
       const separationData = await db.separationMaster.findOne({
         where: {
-          resignationAutoId: result.resignationAutoId
+          resignationAutoId: result.resignationAutoId,
         },
-        attributes: ['initiatedBy'],
-        include: [{
-          model: db.employeeMaster,
-          attributes: ['empCode', 'name', 'email', 'buHRId'],
-          include: [{
-            model: db.companyMaster,
-            attributes: ['companyName']
-          },
+        attributes: ["initiatedBy"],
+        include: [
           {
             model: db.employeeMaster,
-            as: "buhrData",
-            attributes: ['name', 'email']
-          }, {
-            model: db.buMaster,
-            attributes: ['buName']
-          }, {
-            model: db.employeeMaster,
-            as: 'managerData',
-            attributes: ['email', "name"]
-          }]
-        }]
-      })
+            attributes: ["empCode", "name", "email", "buHRId"],
+            include: [
+              {
+                model: db.companyMaster,
+                attributes: ["companyName"],
+              },
+              {
+                model: db.employeeMaster,
+                as: "buhrData",
+                attributes: ["name", "email"],
+              },
+              {
+                model: db.buMaster,
+                attributes: ["buName"],
+              },
+              {
+                model: db.employeeMaster,
+                as: "managerData",
+                attributes: ["email", "name"],
+              },
+            ],
+          },
+        ],
+      });
 
       const d = Math.floor(Date.now() / 1000);
 
-      await db.separationMaster.update({
-        l1ProposedLastWorkingDay: result.l1ProposedLastWorkingDay,
-        l1ProposedRecoveryDays: result.l1ProposedRecoveryDays,
-        l1ReasonForProposedRecoveryDays: result.l1ReasonForProposedRecoveryDays,
-        l1ReasonOfResignation: result.l1ReasonOfResignation,
-        l1BillingType: result.l1BillingType,
-        l1CustomerName: (result.l1CustomerName != "") ? result.l1CustomerName : null,
-        replacementRequired: result.replacementRequired,
-        replacementRequiredBy: (result.replacementRequiredBy != "") ? result.replacementRequiredBy : null,
-        l1Remark: result.l1Remark,
-        l1Attachment: (result.attachment) ? await helper.fileUpload(
-          result.attachment,
-          `separation_attachment_${d}`,
-          `uploads/${separationData.dataValues.employee.empCode}`
-        ) : null,
-        l1SubmissionDate: moment(),
-        pendingAt: separationData.dataValues.employee.buHRId,
-        l1RequestStatus: "Approved",
-        finalStatus: 5
-      }, {
-        where: {
-          resignationAutoId: result.resignationAutoId
+      await db.separationMaster.update(
+        {
+          l1ProposedLastWorkingDay: result.l1ProposedLastWorkingDay,
+          l1ProposedRecoveryDays: result.l1ProposedRecoveryDays,
+          l1ReasonForProposedRecoveryDays:
+            result.l1ReasonForProposedRecoveryDays,
+          l1ReasonOfResignation: result.l1ReasonOfResignation,
+          l1BillingType: result.l1BillingType,
+          l1CustomerName:
+            result.l1CustomerName != "" ? result.l1CustomerName : null,
+          replacementRequired: result.replacementRequired,
+          replacementRequiredBy:
+            result.replacementRequiredBy != ""
+              ? result.replacementRequiredBy
+              : null,
+          l1Remark: result.l1Remark,
+          l1Attachment: result.attachment
+            ? await helper.fileUpload(
+                result.attachment,
+                `separation_attachment_${d}`,
+                `uploads/${separationData.dataValues.employee.empCode}`
+              )
+            : null,
+          l1SubmissionDate: moment(),
+          pendingAt: separationData.dataValues.employee.buHRId,
+          l1RequestStatus: "Approved",
+          finalStatus: 5,
+        },
+        {
+          where: {
+            resignationAutoId: result.resignationAutoId,
+          },
         }
-      }
       );
 
-      await db.separationTrail.update({
-        pending: 0,
-        actionDate: moment(),
-        updatedBy: req.userId,
-        updatedDt: moment()
-      }, {
-        where: {
-          separationAutoId: result.resignationAutoId,
-          separationStatus: 5,
+      await db.separationTrail.update(
+        {
+          pending: 0,
+          actionDate: moment(),
+          updatedBy: req.userId,
+          updatedDt: moment(),
+        },
+        {
+          where: {
+            separationAutoId: result.resignationAutoId,
+            separationStatus: 5,
+          },
         }
-      })
+      );
 
-      eventEmitter.emit("separationApprovalAcknowledgementToUser", JSON.stringify({
-        email: separationData.dataValues.employee.email,
-        recipientName: separationData.dataValues.employee.name,
-        companyName: separationData.dataValues.employee.companymaster.companyName
-      }))
+      eventEmitter.emit(
+        "separationApprovalAcknowledgementToUser",
+        JSON.stringify({
+          email: separationData.dataValues.employee.email,
+          recipientName: separationData.dataValues.employee.name,
+          companyName:
+            separationData.dataValues.employee.companymaster.companyName,
+        })
+      );
 
-      eventEmitter.emit('managerApprovesSeparation', JSON.stringify({
-        email: separationData.dataValues.employee.buhrData.email,
-        recipientName: separationData.dataValues.employee.buhrData.name,
-        empName: separationData.dataValues.employee.name,
-        empCode: separationData.dataValues.employee.empCode,
-        bu: separationData.dataValues.employee.bumaster.buName,
-        managerName: separationData.dataValues.employee.managerData.name
-      }))
+      eventEmitter.emit(
+        "managerApprovesSeparation",
+        JSON.stringify({
+          email: separationData.dataValues.employee.buhrData.email,
+          recipientName: separationData.dataValues.employee.buhrData.name,
+          empName: separationData.dataValues.employee.name,
+          empCode: separationData.dataValues.employee.empCode,
+          bu: separationData.dataValues.employee.bumaster.buName,
+          managerName: separationData.dataValues.employee.managerData.name,
+        })
+      );
 
       return respHelper(res, {
         status: 200,
-        msg: constant.SEPARATION_STATUS.replace("<status>", 'Approved'),
+        msg: constant.SEPARATION_STATUS.replace("<status>", "Approved"),
       });
     } catch (error) {
       console.log(error);
@@ -999,7 +1036,9 @@ class UserController {
 
   async onBehalfManager(req, res) {
     try {
-      const result = await validator.onBehalfSeperationByManager.validateAsync(req.body)
+      const result = await validator.onBehalfSeperationByManager.validateAsync(
+        req.body
+      );
       const user = result.userId || req.userId;
       const existUser = await db.employeeMaster.findOne({
         where: {
@@ -1018,7 +1057,7 @@ class UserController {
       );
 
       const d = Math.floor(Date.now() / 1000);
-      let separationEmpAttachment = null
+      let separationEmpAttachment = null;
       if (result.l1Attachment != "") {
         separationEmpAttachment = await helper.fileUpload(
           result.l1Attachment,
@@ -1052,11 +1091,16 @@ class UserController {
         empProposedLastWorkingDay: result.empProposedLastWorkingDay,
         empProposedRecoveryDays: recoveryDays > 0 ? recoveryDays : 0,
         l1ProposedLastWorkingDay: result.l1ProposedLastWorkingDay,
-        l1ProposedRecoveryDays: proposedRecoveryDays > 0 ? proposedRecoveryDays : 0,
+        l1ProposedRecoveryDays:
+          proposedRecoveryDays > 0 ? proposedRecoveryDays : 0,
         l1BillingType: result.l1BillingType,
-        l1CustomerName: result.l1CustomerName != '' ? result.l1CustomerName : null,
+        l1CustomerName:
+          result.l1CustomerName != "" ? result.l1CustomerName : null,
         replacementRequired: result.replacementRequired,
-        replacementRequiredBy: result.replacementRequiredBy != '' ? result.replacementRequiredBy : null,
+        replacementRequiredBy:
+          result.replacementRequiredBy != ""
+            ? result.replacementRequiredBy
+            : null,
         l1ReasonForProposedRecoveryDays: result.l1ReasonForProposedRecoveryDays,
         l1ReasonOfResignation: result.l1ReasonOfResignation,
         l1Remark: result.l1Remark != "" ? result.l1Remark : null,
@@ -1067,9 +1111,9 @@ class UserController {
         createdBy: req.userId,
         createdDt: moment(),
         pendingAt: existUser.dataValues.buHRId,
-        l1Attachment: separationEmpAttachment
+        l1Attachment: separationEmpAttachment,
       };
-      const createdData = await db.separationMaster.create(onBehalfObject)
+      const createdData = await db.separationMaster.create(onBehalfObject);
 
       await db.separationTrail.create({
         separationAutoId: createdData.dataValues.resignationAutoId,
@@ -1078,8 +1122,8 @@ class UserController {
         pending: 0,
         pendingAt: existUser.dataValues.manager,
         createdBy: req.userId,
-        createdDt: moment()
-      })
+        createdDt: moment(),
+      });
 
       await db.separationTrail.create({
         separationAutoId: createdData.dataValues.resignationAutoId,
@@ -1087,19 +1131,18 @@ class UserController {
         pending: 1,
         pendingAt: existUser.dataValues.buHRId,
         createdBy: req.userId,
-        createdDt: moment()
-      })
-
+        createdDt: moment(),
+      });
 
       return respHelper(res, {
         status: 200,
-        msg: constant.SEPARATION_STATUS.replace("<status>", "Initiated")
+        msg: constant.SEPARATION_STATUS.replace("<status>", "Initiated"),
       });
     } catch (error) {
       if (error.isJoi === true) {
         return respHelper(res, {
           status: 500,
-          msg: error.details[0].message
+          msg: error.details[0].message,
         });
       }
       console.log(error);
@@ -1111,7 +1154,9 @@ class UserController {
 
   async onBehalfBUHr(req, res) {
     try {
-      const result = await validator.onBehalfSeperationByBUHr.validateAsync(req.body)
+      const result = await validator.onBehalfSeperationByBUHr.validateAsync(
+        req.body
+      );
       const user = result.userId || req.userId;
       const existUser = await db.employeeMaster.findOne({
         where: {
@@ -1131,7 +1176,7 @@ class UserController {
       );
 
       const d = Math.floor(Date.now() / 1000);
-      let separationEmpAttachment
+      let separationEmpAttachment;
       if (result.l2Attachment != "") {
         separationEmpAttachment = await helper.fileUpload(
           result.l2Attachment,
@@ -1169,16 +1214,21 @@ class UserController {
         l2RecoveryDaysReason: result.l2RecoveryDaysReason,
         l2SeparationType: result.l2SeparationType,
         l2ReasonOfSeparation: result.l2ReasonOfSeparation,
-        l2NewOrganizationName: result.l2NewOrganizationName != '' ? result.l2NewOrganizationName : null,
+        l2NewOrganizationName:
+          result.l2NewOrganizationName != ""
+            ? result.l2NewOrganizationName
+            : null,
         l2SalaryHike: result.l2SalaryHike,
         doNotReHire: result.doNotReHire,
         l2BillingType: result.l2BillingType,
-        l2CustomerName: result.l2CustomerName != "" ? result.l2CustomerName : null,
+        l2CustomerName:
+          result.l2CustomerName != "" ? result.l2CustomerName : null,
         shortFallPayoutBasis: result.shortFallPayoutBasis,
         shortFallPayoutDays: result.shortFallPayoutDays,
         ndaConfirmation: result.ndaConfirmation,
         holdFnf: result.holdFnf,
-        holdFnfTillDate: result.holdFnfTillDate != '' ? result.holdFnfTillDate : null,
+        holdFnfTillDate:
+          result.holdFnfTillDate != "" ? result.holdFnfTillDate : null,
         holdFnfReason: result.holdFnfReason != "" ? result.holdFnfReason : null,
         l2Remark: result.l2Remark != "" ? result.l2Remark : null,
         l2SubmissionDate: moment(),
@@ -1191,7 +1241,7 @@ class UserController {
         l2Attachment: separationEmpAttachment,
         pendingAt: existUser.dataValues.buHRId,
       };
-      const createdData = await db.separationMaster.create(onBehalfObject)
+      const createdData = await db.separationMaster.create(onBehalfObject);
 
       await db.separationTrail.create({
         separationAutoId: createdData.dataValues.resignationAutoId,
@@ -1200,19 +1250,19 @@ class UserController {
         pending: 0,
         pendingAt: existUser.dataValues.buHRId,
         createdBy: req.userId,
-        createdDt: moment()
-      })
+        createdDt: moment(),
+      });
 
       return respHelper(res, {
         status: 200,
-        msg: constant.SEPARATION_STATUS.replace("<status>", "Initiated")
+        msg: constant.SEPARATION_STATUS.replace("<status>", "Initiated"),
       });
     } catch (error) {
       console.log(error);
       if (error.isJoi === true) {
         return respHelper(res, {
           status: 422,
-          msg: error.details[0].message
+          msg: error.details[0].message,
         });
       }
       return respHelper(res, {
@@ -1223,115 +1273,131 @@ class UserController {
 
   async rejectSeparation(req, res) {
     try {
-      const result = await validator.rejectSeparation.validateAsync(req.body)
+      const result = await validator.rejectSeparation.validateAsync(req.body);
 
       const resignationData = await db.separationMaster.findOne({
         where: {
-          resignationAutoId: result.resignationAutoId
+          resignationAutoId: result.resignationAutoId,
         },
-        include: [{
-          model: db.employeeMaster,
-          attributes: ['empCode', 'name', 'email', 'buHRId', 'manager'],
-          include: [{
-            model: db.companyMaster,
-            attributes: ['companyName']
-          },
-          {
-            model: db.departmentMaster,
-            attributes: ['departmentName']
-          },
-          {
-            model: db.designationMaster,
-            attributes: ['name']
-          },
+        include: [
           {
             model: db.employeeMaster,
-            as: 'managerData',
-            attributes: ['name', 'email']
-          }]
-        }]
-      })
-
-
+            attributes: ["empCode", "name", "email", "buHRId", "manager"],
+            include: [
+              {
+                model: db.companyMaster,
+                attributes: ["companyName"],
+              },
+              {
+                model: db.departmentMaster,
+                attributes: ["departmentName"],
+              },
+              {
+                model: db.designationMaster,
+                attributes: ["name"],
+              },
+              {
+                model: db.employeeMaster,
+                as: "managerData",
+                attributes: ["name", "email"],
+              },
+            ],
+          },
+        ],
+      });
 
       if (!resignationData) {
         return respHelper(res, {
           status: 400,
-          data: constant.SEPARATION_REQUEST_NOT_AVAILABLE
-        })
+          data: constant.SEPARATION_REQUEST_NOT_AVAILABLE,
+        });
       }
 
-      let rejectObject = {}
+      let rejectObject = {};
 
-      if (parseInt(req.userId) === parseInt(resignationData.dataValues.employee.manager)) {
+      if (
+        parseInt(req.userId) ===
+        parseInt(resignationData.dataValues.employee.manager)
+      ) {
         rejectObject = {
-          l1Remark: result.remark != '' ? result.remark : null,
+          l1Remark: result.remark != "" ? result.remark : null,
           l1RejectionReason: result.reason,
           l1SubmissionDate: moment(),
           l1RequestStatus: "Rejected",
-          finalStatus: 6
-        }
+          finalStatus: 6,
+        };
 
-        await db.separationMaster.update(rejectObject,
+        await db.separationMaster.update(rejectObject, {
+          where: {
+            resignationAutoId: result.resignationAutoId,
+          },
+        });
+
+        const mailArray = [
           {
-            where: {
-              resignationAutoId: result.resignationAutoId
-            }
-          }
-        )
-
-        const mailArray = [{
-          email: resignationData.dataValues.employee.email,
-          name: resignationData.dataValues.employee.name
-        }]
+            email: resignationData.dataValues.employee.email,
+            name: resignationData.dataValues.employee.name,
+          },
+        ];
 
         for (const element of mailArray) {
-          eventEmitter.emit("managerRejectsSeparation", JSON.stringify({
-            email: element.email,
-            recipientName: element.name,
-            empName: resignationData.dataValues.employee.name,
-            empCode: resignationData.dataValues.employee.empCode,
-            designation: resignationData.dataValues.employee.designationmaster.name,
-            department: resignationData.dataValues.employee.departmentmaster.departmentName,
-            reportingManager: resignationData.dataValues.employee.managerData.name,
-            companyName: resignationData.dataValues.employee.companymaster.companyName
-          }))
+          eventEmitter.emit(
+            "managerRejectsSeparation",
+            JSON.stringify({
+              email: element.email,
+              recipientName: element.name,
+              empName: resignationData.dataValues.employee.name,
+              empCode: resignationData.dataValues.employee.empCode,
+              designation:
+                resignationData.dataValues.employee.designationmaster.name,
+              department:
+                resignationData.dataValues.employee.departmentmaster
+                  .departmentName,
+              reportingManager:
+                resignationData.dataValues.employee.managerData.name,
+              companyName:
+                resignationData.dataValues.employee.companymaster.companyName,
+            })
+          );
         }
-
-      } else if (parseInt(req.userId) === parseInt(resignationData.dataValues.employee.buHRId)) {
+      } else if (
+        parseInt(req.userId) ===
+        parseInt(resignationData.dataValues.employee.buHRId)
+      ) {
         rejectObject = {
           l2SubmissionDate: moment(),
-          l2Remark: result.remark != '' ? result.remark : null,
+          l2Remark: result.remark != "" ? result.remark : null,
           l2RejectionReason: result.reason,
           l2RequestStatus: "Rejected",
-          finalStatus: 6
-        }
+          finalStatus: 6,
+        };
 
-        await db.separationMaster.update(rejectObject,
-          {
-            where: {
-              resignationAutoId: result.resignationAutoId
-            }
-          }
-        )
+        await db.separationMaster.update(rejectObject, {
+          where: {
+            resignationAutoId: result.resignationAutoId,
+          },
+        });
 
-        eventEmitter.emit("separationRejectByBUHR", JSON.stringify({
-          email: resignationData.dataValues.employee.email,
-          empName: resignationData.dataValues.employee.name,
-          empCode: resignationData.dataValues.employee.empCode
-        }))
+        eventEmitter.emit(
+          "separationRejectByBUHR",
+          JSON.stringify({
+            email: resignationData.dataValues.employee.email,
+            empName: resignationData.dataValues.employee.name,
+            empCode: resignationData.dataValues.employee.empCode,
+          })
+        );
       }
 
       return respHelper(res, {
         status: 200,
-        msg: constant.SEPARATION_STATUS.replace("<status>", 'Rejected')
-      })
+        msg: constant.SEPARATION_STATUS.replace("<status>", "Rejected"),
+      });
     } catch (error) {
       console.log(error);
       if (error.isJoi === true) {
         return respHelper(res, {
           status: 422,
-          msg: error.details[0].message
+          msg: error.details[0].message,
         });
       }
       return respHelper(res, {
@@ -1342,131 +1408,173 @@ class UserController {
 
   async buhrInputOnSeparation(req, res) {
     try {
-      let result = await validator.buhrInputOnSeparation.validateAsync(req.body)
+      let result = await validator.buhrInputOnSeparation.validateAsync(
+        req.body
+      );
 
       const separationData = await db.separationMaster.findOne({
         where: {
-          resignationAutoId: result.resignationAutoId
+          resignationAutoId: result.resignationAutoId,
         },
-        attributes: ['initiatedBy', 'resignationDate'],
-        include: [{
-          model: db.employeeMaster,
-          attributes: ['empCode', 'name', 'email', 'officeMobileNumber', 'personalEmail', 'personalMobileNumber', 'dateOfJoining'],
-          include: [{
-            model: db.companyLocationMaster,
-            attributes: ['address1']
-          }, {
-            model: db.departmentMaster,
-            attributes: ['departmentName', 'departmentCode']
-          }, {
+        attributes: ["initiatedBy", "resignationDate"],
+        include: [
+          {
             model: db.employeeMaster,
-            as: 'managerData',
-            attributes: ['name']
-          }, {
-            model: db.sbuMaster,
-            attributes: ['sbuName']
-          }, {
-            model: db.buMaster,
-            attributes: ['buName']
-          }, {
-            model: db.companyMaster,
-            attributes: ['companyName']
-          }]
-        }]
-      })
-
+            attributes: [
+              "empCode",
+              "name",
+              "email",
+              "officeMobileNumber",
+              "personalEmail",
+              "personalMobileNumber",
+              "dateOfJoining",
+            ],
+            include: [
+              {
+                model: db.companyLocationMaster,
+                attributes: ["address1"],
+              },
+              {
+                model: db.departmentMaster,
+                attributes: ["departmentName", "departmentCode"],
+              },
+              {
+                model: db.employeeMaster,
+                as: "managerData",
+                attributes: ["name"],
+              },
+              {
+                model: db.sbuMaster,
+                attributes: ["sbuName"],
+              },
+              {
+                model: db.buMaster,
+                attributes: ["buName"],
+              },
+              {
+                model: db.companyMaster,
+                attributes: ["companyName"],
+              },
+            ],
+          },
+        ],
+      });
 
       const d = Math.floor(Date.now() / 1000);
 
-      await db.separationMaster.update({
-        l2LastWorkingDay: result.l2LastWorkingDay,
-        l2RecoveryDays: result.l2RecoveryDays,
-        l2RecoveryDaysReason: result.l2RecoveryDaysReason,
-        l2SeparationType: result.l2SeparationType,
-        l2ReasonOfSeparation: result.l2ReasonOfSeparation,
-        l2NewOrganizationName: (result.l2NewOrganizationName) ? result.l2NewOrganizationName : null,
-        l2SalaryHike: (result.l2SalaryHike) ? result.l2SalaryHike : null,
-        doNotReHire: result.doNotReHire,
-        l2BillingType: result.l2BillingType,
-        l2CustomerName: (result.l2CustomerName != '') ? result.l2CustomerName : null,
-        shortFallPayoutBasis: result.shortFallPayoutBasis,
-        shortFallPayoutDays: result.shortFallPayoutDays,
-        ndaConfirmation: result.ndaConfirmation,
-        holdFnf: result.holdFnf,
-        holdFnfReason: (result.holdFnfReason != "") ? result.holdFnfReason : null,
-        holdFnfTillDate: (result.holdFnfTillDate != "") ? result.holdFnfTillDate : null,
-        l2Remark: result.l2Remark,
-        l2Attachment: (result.attachment) ? await helper.fileUpload(
-          result.attachment,
-          `separation_attachment_${d}`,
-          `uploads/${separationData.dataValues.employee.empCode}`
-        ) : null,
-        l2SubmissionDate: moment(),
-        l2RequestStatus: 'Approved',
-        finalStatus: 9
-      }, {
-        where: {
-          resignationAutoId: result.resignationAutoId
+      await db.separationMaster.update(
+        {
+          l2LastWorkingDay: result.l2LastWorkingDay,
+          l2RecoveryDays: result.l2RecoveryDays,
+          l2RecoveryDaysReason: result.l2RecoveryDaysReason,
+          l2SeparationType: result.l2SeparationType,
+          l2ReasonOfSeparation: result.l2ReasonOfSeparation,
+          l2NewOrganizationName: result.l2NewOrganizationName
+            ? result.l2NewOrganizationName
+            : null,
+          l2SalaryHike: result.l2SalaryHike ? result.l2SalaryHike : null,
+          doNotReHire: result.doNotReHire,
+          l2BillingType: result.l2BillingType,
+          l2CustomerName:
+            result.l2CustomerName != "" ? result.l2CustomerName : null,
+          shortFallPayoutBasis: result.shortFallPayoutBasis,
+          shortFallPayoutDays: result.shortFallPayoutDays,
+          ndaConfirmation: result.ndaConfirmation,
+          holdFnf: result.holdFnf,
+          holdFnfReason:
+            result.holdFnfReason != "" ? result.holdFnfReason : null,
+          holdFnfTillDate:
+            result.holdFnfTillDate != "" ? result.holdFnfTillDate : null,
+          l2Remark: result.l2Remark,
+          l2Attachment: result.attachment
+            ? await helper.fileUpload(
+                result.attachment,
+                `separation_attachment_${d}`,
+                `uploads/${separationData.dataValues.employee.empCode}`
+              )
+            : null,
+          l2SubmissionDate: moment(),
+          l2RequestStatus: "Approved",
+          finalStatus: 9,
+        },
+        {
+          where: {
+            resignationAutoId: result.resignationAutoId,
+          },
         }
-      })
+      );
 
-      await db.separationTrail.update({
-        pending: 0,
-        actionDate: moment(),
-        updatedBy: req.userId,
-        updatedDt: moment()
-      }, {
-        where: {
-          separationAutoId: result.resignationAutoId,
-          separationStatus: 9,
+      await db.separationTrail.update(
+        {
+          pending: 0,
+          actionDate: moment(),
+          updatedBy: req.userId,
+          updatedDt: moment(),
+        },
+        {
+          where: {
+            separationAutoId: result.resignationAutoId,
+            separationStatus: 9,
+          },
         }
-      })
+      );
 
-      eventEmitter.emit("separationApproveByBUHR", JSON.stringify({
-        email: separationData.dataValues.employee.email,
-        empName: separationData.dataValues.employee.name,
-        empCode: separationData.dataValues.employee.empCode,
-        dateOfResignation: separationData.dataValues.resignationDate,
-        companyName: separationData.dataValues.employee.companymaster.companyName,
-        lastWorkingDay: result.l2LastWorkingDay,
-      }))
+      eventEmitter.emit(
+        "separationApproveByBUHR",
+        JSON.stringify({
+          email: separationData.dataValues.employee.email,
+          empName: separationData.dataValues.employee.name,
+          empCode: separationData.dataValues.employee.empCode,
+          dateOfResignation: separationData.dataValues.resignationDate,
+          companyName:
+            separationData.dataValues.employee.companymaster.companyName,
+          lastWorkingDay: result.l2LastWorkingDay,
+        })
+      );
 
-      const mailArray = [{
-        email: "manishmaurya@teamcomputers.com",
-        name: "Rag Ranjan"
-      }]
+      const mailArray = [
+        {
+          email: "manishmaurya@teamcomputers.com",
+          name: "Rag Ranjan",
+        },
+      ];
 
       for (const element of mailArray) {
-        eventEmitter.emit("clearenceInitiated", JSON.stringify({
-          email: element.email,
-          recipientName: element.name,
-          empCode: separationData.dataValues.employee.empCode,
-          empName: separationData.dataValues.employee.name,
-          officeLocation: separationData.dataValues.employee.companylocationmaster.address1,
-          department: `${separationData.dataValues.employee.departmentmaster.departmentName} (${separationData.dataValues.employee.departmentmaster.departmentCode})`,
-          officeMobileNumber: separationData.dataValues.employee.officeMobileNumber,
-          sbuName: separationData.dataValues.employee.sbumaster.sbuName,
-          bu: separationData.dataValues.employee.bumaster.buName,
-          reportingName: separationData.dataValues.employee.managerData.name,
-          dateOfJoining: separationData.dataValues.employee.dateOfJoining,
-          dateOfResignation: separationData.dataValues.resignationDate,
-          lastWorkingDay: result.l2LastWorkingDay,
-          personalMailID: separationData.dataValues.employee.personalEmail,
-          personalMobileNumber: separationData.dataValues.employee.personalMobileNumber
-        }))
+        eventEmitter.emit(
+          "clearenceInitiated",
+          JSON.stringify({
+            email: element.email,
+            recipientName: element.name,
+            empCode: separationData.dataValues.employee.empCode,
+            empName: separationData.dataValues.employee.name,
+            officeLocation:
+              separationData.dataValues.employee.companylocationmaster.address1,
+            department: `${separationData.dataValues.employee.departmentmaster.departmentName} (${separationData.dataValues.employee.departmentmaster.departmentCode})`,
+            officeMobileNumber:
+              separationData.dataValues.employee.officeMobileNumber,
+            sbuName: separationData.dataValues.employee.sbumaster.sbuName,
+            bu: separationData.dataValues.employee.bumaster.buName,
+            reportingName: separationData.dataValues.employee.managerData.name,
+            dateOfJoining: separationData.dataValues.employee.dateOfJoining,
+            dateOfResignation: separationData.dataValues.resignationDate,
+            lastWorkingDay: result.l2LastWorkingDay,
+            personalMailID: separationData.dataValues.employee.personalEmail,
+            personalMobileNumber:
+              separationData.dataValues.employee.personalMobileNumber,
+          })
+        );
       }
 
       return respHelper(res, {
         status: 200,
-        msg: constant.SEPARATION_STATUS.replace("<status>", 'Approved')
+        msg: constant.SEPARATION_STATUS.replace("<status>", "Approved"),
       });
-
     } catch (error) {
       console.log(error);
       if (error.isJoi === true) {
         return respHelper(res, {
           status: 422,
-          msg: error.details[0].message
+          msg: error.details[0].message,
         });
       }
       return respHelper(res, {
@@ -1477,45 +1585,46 @@ class UserController {
 
   async revokeSeparation(req, res) {
     try {
-
-      const result = await validator.revokeSeparation.validateAsync(req.body)
+      const result = await validator.revokeSeparation.validateAsync(req.body);
 
       const separationData = await db.separationMaster.findOne({
         where: {
           employeeId: req.userId,
-          finalStatus: 2
-        }
-      })
+          finalStatus: 2,
+        },
+      });
 
       if (!separationData) {
         return respHelper(res, {
           status: 404,
-          msg: constant.DETAILS_NOT_FOUND.replace('<module>', 'Separation')
-        })
+          msg: constant.DETAILS_NOT_FOUND.replace("<module>", "Separation"),
+        });
       }
 
-      await db.separationMaster.update({
-        empRevokeReason: result.reason,
-        empRemark: result.remark,
-        empRevokeDate: moment(),
-        finalStatus: 3
-      }, {
-        where: {
-          resignationAutoId: separationData.dataValues.resignationAutoId
+      await db.separationMaster.update(
+        {
+          empRevokeReason: result.reason,
+          empRemark: result.remark,
+          empRevokeDate: moment(),
+          finalStatus: 3,
+        },
+        {
+          where: {
+            resignationAutoId: separationData.dataValues.resignationAutoId,
+          },
         }
-      })
+      );
 
       return respHelper(res, {
         status: 200,
-        msg: constant.SEPARATION_REVOKED
-      })
-
+        msg: constant.SEPARATION_REVOKED,
+      });
     } catch (error) {
       console.log(error);
       if (error.isJoi === true) {
         return respHelper(res, {
           status: 422,
-          msg: error.details[0].message
+          msg: error.details[0].message,
         });
       }
       return respHelper(res, {
@@ -1526,115 +1635,124 @@ class UserController {
 
   async separationTrails(req, res) {
     try {
-      const user = req.query.user || req.userId
+      const user = req.query.user || req.userId;
 
       const separationData = await db.separationMaster.findOne({
         where: {
           employeeId: user,
           finalStatus: {
-            [Op.notIn]: [3, 6, 7, 10, 11]
-          }
+            [Op.notIn]: [3, 6, 7, 10, 11],
+          },
         },
-        include: [{
-          model: db.employeeMaster,
-          as: 'pending',
-          attributes: ['empCode', 'name']
-        },
-        {
-          model: db.separationStatus,
-          attributes: ['separationStatusDesc']
-        },
-        {
-          model: db.separationType,
-          as: 'l2Separationtype',
-          attributes: ['separationTypeName']
-        },
-        {
-          model: db.separationReason,
-          as: "empReasonofResignation",
-          attributes: ['separationReason']
-        },
-        {
-          model: db.separationReason,
-          as: 'l2ReasonofSeparation',
-          attributes: ['separationReason']
-        },
-        {
-          model: db.separationReason,
-          as: 'l1ReasonofResignation',
-          attributes: ['separationReason']
-        }
-
-        ]
-      })
+        include: [
+          {
+            model: db.employeeMaster,
+            as: "pending",
+            attributes: ["empCode", "name"],
+          },
+          {
+            model: db.separationStatus,
+            attributes: ["separationStatusDesc"],
+          },
+          {
+            model: db.separationType,
+            as: "l2Separationtype",
+            attributes: ["separationTypeName"],
+          },
+          {
+            model: db.separationReason,
+            as: "empReasonofResignation",
+            attributes: ["separationReason"],
+          },
+          {
+            model: db.separationReason,
+            as: "l2ReasonofSeparation",
+            attributes: ["separationReason"],
+          },
+          {
+            model: db.separationReason,
+            as: "l1ReasonofResignation",
+            attributes: ["separationReason"],
+          },
+        ],
+      });
 
       if (separationData) {
         const separationTrails = await db.separationStatus.findAll({
           where: {
-            statusTrail: 1
+            statusTrail: 1,
           },
-          attributes: ['separationStatusAutoId', 'separationStatusCode', 'separationStatusDesc', 'separationLabel'],
-          include: [{
-            model: db.separationTrail,
-            required: true,
-            where: {
-              separationAutoId: separationData.dataValues.resignationAutoId
+          attributes: [
+            "separationStatusAutoId",
+            "separationStatusCode",
+            "separationStatusDesc",
+            "separationLabel",
+          ],
+          include: [
+            {
+              model: db.separationTrail,
+              required: true,
+              where: {
+                separationAutoId: separationData.dataValues.resignationAutoId,
+              },
+              include: [
+                {
+                  model: db.employeeMaster,
+                  attributes: ["empCode", "name"],
+                  as: "pendingat",
+                },
+              ],
             },
-            include: [{
-              model: db.employeeMaster,
-              attributes: ['empCode', 'name'],
-              as: 'pendingat'
-            }]
-          }]
+          ],
         });
-        separationData.dataValues.separationTrails = separationTrails
+        separationData.dataValues.separationTrails = separationTrails;
       }
 
       return respHelper(res, {
         status: 200,
-        data: separationData
+        data: separationData,
       });
     } catch (error) {
-      console.log(error)
+      console.log(error);
       return respHelper(res, {
         status: 500,
       });
     }
   }
 
-  async taskHistoryAttendance(req,res){
+  async taskHistoryAttendance(req, res) {
     try {
-       const {requestType, fromDate, toDate} = req.query;
-       console.log("req.userId",req.userId)
-       //attendance request raise by me
-        const attendanceRequestRaisebyMe = await db.attendanceMaster.findAll({
-          where: {
-            employeeId: req.userId,
-            attendanceDate: {
-              [db.Sequelize.Op.between]: [fromDate,toDate],
-            },
+      const { requestType, fromDate, toDate } = req.query;
+      console.log("req.userId", req.userId);
+      //attendance request raise by me
+      const attendanceRequestRaisebyMe = await db.attendanceMaster.findAll({
+        where: {
+          employeeId: req.userId,
+          attendanceDate: {
+            [db.Sequelize.Op.between]: [fromDate, toDate],
           },
-          include: [
-            {
-              model: db.regularizationMaster,
-              as: "latest_Regularization_Request",
-             // attributes: ["regularizeId"],
-              required:true
-            },
-          ],
-        });
+        },
+        include: [
+          {
+            model: db.regularizationMaster,
+            as: "latest_Regularization_Request",
+            // attributes: ["regularizeId"],
+            required: true,
+          },
+        ],
+      });
 
-        return respHelper(res, {
-          status: 200,
-          msg: constant.DATA_FETCHED,
-          data:attendanceRequestRaisebyMe
-        });
+      return respHelper(res, {
+        status: 200,
+        msg: constant.DATA_FETCHED,
+        data: attendanceRequestRaisebyMe,
+      });
     } catch (error) {
       console.log(error);
       if (error.isJoi === true) {
         return respHelper(res, {
           status: 422,
-          msg: error.details[0].message
+          msg: error.details[0].message,
         });
       }
       return respHelper(res, {
@@ -1643,11 +1761,11 @@ class UserController {
     }
   }
 
-  async taskHistoryLeave(req,res){
+  async taskHistoryLeave(req, res) {
     try {
-       const {requestType, fromDate, toDate} = req.query;
-       //attendance request raise by me
-       if(requestType==1){
+      const { requestType, fromDate, toDate } = req.query;
+      //attendance request raise by me
+      if (requestType == 1) {
         const attendanceRequestRaisebyMe = await db.attendanceMaster.findAll({
           attributes: [
             "employeeId",
@@ -1655,7 +1773,7 @@ class UserController {
             "attendancePresentStatus",
           ],
           where: {
-           // employeeId: 1335,
+            // employeeId: 1335,
             attendanceDate: {
               [db.Sequelize.Op.between]: [
                 fromDate.format("YYYY-MM-DD"),
@@ -1675,19 +1793,18 @@ class UserController {
         return respHelper(res, {
           status: 200,
           msg: constant.DATA_FETCHED,
-          data:attendanceRequestRaisebyMe
+          data: attendanceRequestRaisebyMe,
         });
-       }
-       //leave request raise by me
-       if(requestType==2){
-
-       }
+      }
+      //leave request raise by me
+      if (requestType == 2) {
+      }
     } catch (error) {
       console.log(error);
       if (error.isJoi === true) {
         return respHelper(res, {
           status: 422,
-          msg: error.details[0].message
+          msg: error.details[0].message,
         });
       }
       return respHelper(res, {
@@ -1695,6 +1812,43 @@ class UserController {
       });
     }
   }
+  // manager history
+  async managerHistory(req, res) {
+    try {
+      const listData = await db.managerHistory.findAll({
+        where: {
+          employeeId: req.query.user,
+          needAttendanceCron: 0,
+        },
+        include: [
+          {
+            model: db.employeeMaster,
+            as: "managerHistoryDate",
+            attributes: ["id", "empCode", "name"],
+            required: true,
+          },
+        ],
+      });
+
+      return respHelper(res, {
+        status: 200,
+        msg: constant.DATA_FETCHED,
+        data: listData,
+      });
+    } catch (error) {
+      console.log(error);
+      if (error.isJoi === true) {
+        return respHelper(res, {
+          status: 422,
+          msg: error.details[0].message,
+        });
+      }
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+  // manager history
 }
 
 export default new UserController();

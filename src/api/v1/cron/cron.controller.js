@@ -82,14 +82,14 @@ class CronController {
   }
 
   async EarnedLeaveCreditCron() {
-    console.log("EarnedLeaveCreditCron", moment().format("DD"))
+    console.log("EarnedLeaveCreditCron", moment().format("DD"));
     // creditDayOfMonth: moment().format("DD")
     const earnedLeaveDetails = await db.leaveMaster.findAll({
       raw: true,
       where: {
         iterationDistribution: {
-          [Op.ne]: 0
-        }
+          [Op.ne]: 0,
+        },
       },
     });
     await Promise.all(
@@ -98,24 +98,23 @@ class CronController {
           await db.leaveMapping.increment(
             {
               availableLeave: parseFloat(singleItem.iterationDistribution),
-              accruedThisYear: parseFloat(singleItem.iterationDistribution)
+              accruedThisYear: parseFloat(singleItem.iterationDistribution),
             },
             {
               where: {
-                leaveAutoId: singleItem.leaveId
+                leaveAutoId: singleItem.leaveId,
               },
             }
           );
         }
-
-      }));
-    console.log("earnedLeaveDetails", earnedLeaveDetails)
+      })
+    );
+    console.log("earnedLeaveDetails", earnedLeaveDetails);
 
     // if (earnedLeaveDetails) {
     //   let value = parseFloat(earnedLeaveDetails.iterationDistribution).toFixed(
     //     2
     //   );
-
 
     // } else {
     //   console.log("not found");
@@ -127,10 +126,62 @@ class CronController {
       raw: true,
       where: {
         fromDate: moment().format("YYYY-MM-DD"),
+        needAttendanceCron: 1,
       },
     });
     if (managerData.length != 0) {
       for (const element of managerData) {
+        let lastDayDate = moment(element.fromDate)
+          .subtract(1, "day")
+          .format("YYYY-MM-DD");
+        console.log(
+          "element.managerId",
+          element.managerId,
+          "records",
+          element.id,
+          "lastDayDate",
+          lastDayDate
+        );
+        const currentManagerOfTheEmployee = await db.managerHistory.findOne({
+          raw: true,
+          where: {
+            needAttendanceCron: 0,
+            toDate: {
+              [Op.eq]: null,
+            },
+            employeeId: element.employeeId,
+          },
+        });
+        if (currentManagerOfTheEmployee) {
+          //MARKING LAST MANAGER WITH LAST DATE
+          await db.managerHistory.update(
+            {
+              toDate: lastDayDate,
+              updatedBy: 1,
+            },
+            {
+              where: {
+                id: currentManagerOfTheEmployee.id,
+              },
+            }
+          );
+          //MARKING LAST MANAGER WITH LAST DATE
+        }
+        //DISBALE CURRENT DATE DATA
+        await db.managerHistory.update(
+          {
+            needAttendanceCron: 0,
+            updatedBy: 1,
+          },
+          {
+            where: {
+              id: element.id,
+            },
+          }
+        );
+        //DISBALE CURRENT DATE DATA
+
+        //UPDATE MANGER TO EMP MASTER TABLE
         await db.employeeMaster.update(
           {
             manager: element.managerId,
@@ -141,13 +192,8 @@ class CronController {
             },
           }
         );
+        //UPDATE MANGER TO EMP MASTER TABLE
       }
-    } else {
-      console.log(
-        `No Data Found for ${moment().format(
-          "YYYY-MM-DD"
-        )} (Update Manager Cron)`
-      );
     }
   }
 }

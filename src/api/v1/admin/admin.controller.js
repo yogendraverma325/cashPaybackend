@@ -11,9 +11,7 @@ import moment from "moment";
 import { Op } from "sequelize";
 import client from "../../../config/redisDb.config.js";
 
-
 class AdminController {
-
   async addEmployee(req, res) {
     try {
       const result = await validator.userCreationSchema.validateAsync(req.body);
@@ -21,9 +19,9 @@ class AdminController {
       const existUser = await db.employeeMaster.findOne({
         where: {
           [Op.or]: [
-            { 'personalMobileNumber': result.personalMobileNumber },
-            { 'email': result.email }
-          ]
+            { personalMobileNumber: result.personalMobileNumber },
+            { email: result.email },
+          ],
         },
       });
 
@@ -34,9 +32,11 @@ class AdminController {
         });
       }
 
-      const employeeTypeDetails = await db.employeeTypeMaster.findOne({ where: { 'empTypeId': result.employeeType }, attributes: ['empTypeId', 'empTypeCode', 'startingIndex'] });
+      const employeeTypeDetails = await db.employeeTypeMaster.findOne({
+        where: { empTypeId: result.employeeType },
+        attributes: ["empTypeId", "empTypeCode", "startingIndex"],
+      });
       if (employeeTypeDetails) {
-
         let startingIndex = parseInt(employeeTypeDetails.startingIndex) + 1;
 
         if (employeeTypeDetails.empTypeId != 4) {
@@ -53,7 +53,10 @@ class AdminController {
         result.isTempPassword = 1;
 
         const createdUser = await db.employeeMaster.create(result);
-        await db.employeeTypeMaster.update({ 'startingIndex': parseInt(employeeTypeDetails.startingIndex) + 1 }, { where: { 'empTypeId': result.employeeType } })
+        await db.employeeTypeMaster.update(
+          { startingIndex: parseInt(employeeTypeDetails.startingIndex) + 1 },
+          { where: { empTypeId: result.employeeType } }
+        );
 
         if (result.image) {
           const file = await helper.fileUpload(
@@ -71,16 +74,13 @@ class AdminController {
           status: 200,
           msg: "Account has been created successfully.",
         });
-      }
-      else {
+      } else {
         return respHelper(res, {
           status: 403,
-          msg: constant.INVALID_ID.replace("<module>", "Employee Type")
+          msg: constant.INVALID_ID.replace("<module>", "Employee Type"),
         });
       }
-
-    }
-    catch (error) {
+    } catch (error) {
       console.log(error);
       logger.error(error);
       if (error.isJoi === true) {
@@ -274,39 +274,63 @@ class AdminController {
   // }
   async updateManager(req, res) {
     try {
-      const result = await validator.updateManagerSchema.validateAsync(req.body)
+      const result = await validator.updateManagerSchema.validateAsync(
+        req.body
+      );
 
       for (const iterator of result) {
         if (iterator.user === iterator.manager) {
           return respHelper(res, {
             msg: `Employee can't be their own manager`,
-            status: 400
+            status: 400,
           });
         }
       }
-
+      let error = false;
       for (const iterator of result) {
-        let createHistory = {
-          employeeId: iterator.user,
-          managerId: iterator.manager,
-          fromDate: iterator.date ? iterator.date : moment().add(1, 'day').format("YYYY-MM-DD"),
-          toDate: null,
-          createdBy: req.userId,
-          createdAt: moment().format("YYYY-MM-DD HH:mm:ss"),
-        };
-        await db.managerHistory.create(createHistory);
+        const recordsExistForDate = await db.managerHistory.findOne({
+          raw: true,
+          where: {
+            fromDate: iterator.date,
+            needAttendanceCron: 1,
+            employeeId: iterator.user,
+          },
+        });
+        if (!recordsExistForDate) {
+          let createHistory = {
+            employeeId: iterator.user,
+            managerId: iterator.manager,
+            fromDate: iterator.date
+              ? iterator.date
+              : moment().add(1, "day").format("YYYY-MM-DD"),
+            toDate: null,
+            createdBy: req.userId,
+            createdAt: moment().format("YYYY-MM-DD HH:mm:ss"),
+          };
+          await db.managerHistory.create(createHistory);
+        } else {
+          error = true;
+        }
       }
 
-      return respHelper(res, {
-        status: 200,
-      });
+      if (error) {
+        return respHelper(res, {
+          status: 400,
+          msg: "Record Already Exist for the selected date",
+        });
+      } else {
+        return respHelper(res, {
+          status: 200,
+          msg: "Record Added",
+        });
+      }
     } catch (error) {
       console.log("error", error);
       if (error.isJoi) {
         return respHelper(res, {
           msg: error.details[0].message,
-          status: 422
-        })
+          status: 422,
+        });
       }
       return respHelper(res, {
         status: 500,
@@ -320,14 +344,16 @@ class AdminController {
 
   async onboardEmployee(req, res) {
     try {
-      const result = await validator.onboardEmployeeSchema.validateAsync(req.body);
+      const result = await validator.onboardEmployeeSchema.validateAsync(
+        req.body
+      );
 
       let existUser = await db.employeeMaster.findOne({
         where: {
           [Op.or]: [
-            { 'personalMobileNumber': result.personalMobileNumber },
-            { 'email': result.email }
-          ]
+            { personalMobileNumber: result.personalMobileNumber },
+            { email: result.email },
+          ],
         },
       });
 
@@ -336,14 +362,13 @@ class AdminController {
           status: 400,
           msg: constant.ALREADY_EXISTS.replace("<module>", "User"),
         });
-      }
-      else {
+      } else {
         existUser = await db.employeeStagingMaster.findOne({
           where: {
             [Op.or]: [
-              { 'personalMobileNumber': result.personalMobileNumber },
-              { 'email': result.email }
-            ]
+              { personalMobileNumber: result.personalMobileNumber },
+              { email: result.email },
+            ],
           },
         });
 
@@ -375,9 +400,7 @@ class AdminController {
           msg: "Employee successfully added to the pending list.",
         });
       }
-
-    }
-    catch (error) {
+    } catch (error) {
       logger.error("Error while creating employee", error);
       if (error.isJoi === true) {
         return respHelper(res, {
@@ -399,7 +422,7 @@ class AdminController {
         designation,
         buSearch,
         sbuSearch,
-        areaSearch
+        areaSearch,
       } = req.query;
 
       const isActive = req.query.isActive || 1;
@@ -414,7 +437,7 @@ class AdminController {
       const pageNo = req.query.page * 1 || 1;
       const offset = (pageNo - 1) * limit;
 
-      const activeQuery = { 'isActive': isActive };
+      const activeQuery = { isActive: isActive };
 
       if (
         usersData.role_id != 1 &&
@@ -498,39 +521,39 @@ class AdminController {
         where: Object.assign(
           search
             ? {
-              [Op.or]: [
-                {
-                  name: {
-                    [Op.like]: `%${search}%`,
+                [Op.or]: [
+                  {
+                    name: {
+                      [Op.like]: `%${search}%`,
+                    },
                   },
-                },
-                {
-                  email: {
-                    [Op.like]: `%${search}%`,
+                  {
+                    email: {
+                      [Op.like]: `%${search}%`,
+                    },
                   },
-                },
-              ],
-              [Op.and]: [
-                {
-                  isActive:
-                    usersData.role_id == 1 || usersData.role_id == 2
-                      ? [1, 0]
-                      : [1],
-                },
-              ],
-              [Op.and]: activeQuery
-            }
+                ],
+                [Op.and]: [
+                  {
+                    isActive:
+                      usersData.role_id == 1 || usersData.role_id == 2
+                        ? [1, 0]
+                        : [1],
+                  },
+                ],
+                [Op.and]: activeQuery,
+              }
             : {
-              [Op.and]: [
-                {
-                  isActive:
-                    usersData.role_id == 1 || usersData.role_id == 2
-                      ? [1, 0]
-                      : [1],
-                },
-              ],
-              [Op.and]: activeQuery
-            }
+                [Op.and]: [
+                  {
+                    isActive:
+                      usersData.role_id == 1 || usersData.role_id == 2
+                        ? [1, 0]
+                        : [1],
+                  },
+                ],
+                [Op.and]: activeQuery,
+              }
         ),
         attributes: [
           "id",
@@ -599,8 +622,8 @@ class AdminController {
           },
           {
             model: db.companyLocationMaster,
-            attributes: ["address1", "address2"]
-          }
+            attributes: ["address1", "address2"],
+          },
         ],
       });
 
@@ -609,15 +632,13 @@ class AdminController {
           status: 200,
           data: employeeData,
         });
-      }
-      else {
+      } else {
         return respHelper(res, {
           status: 404,
           msg: constant.DATA_BLANK,
           data: employeeData,
         });
       }
-
     } catch (error) {
       console.log(error);
       return respHelper(res, {
@@ -633,16 +654,21 @@ class AdminController {
 
       // find and create TMC
       for (let i = 0; i < selectedUsers.length; i++) {
-
         // get employee on-boarding details by id
-        const employeeOnboardingDetails = await db.employeeStagingMaster.findOne({ where: { 'id': selectedUsers[i] } });
+        const employeeOnboardingDetails =
+          await db.employeeStagingMaster.findOne({
+            where: { id: selectedUsers[i] },
+          });
         if (employeeOnboardingDetails) {
           const existUser = await db.employeeMaster.findOne({
             where: {
               [Op.or]: [
-                { 'personalMobileNumber': employeeOnboardingDetails.personalMobileNumber },
-                { 'email': employeeOnboardingDetails.email }
-              ]
+                {
+                  personalMobileNumber:
+                    employeeOnboardingDetails.personalMobileNumber,
+                },
+                { email: employeeOnboardingDetails.email },
+              ],
             },
           });
 
@@ -651,13 +677,17 @@ class AdminController {
               status: 400,
               msg: constant.ALREADY_EXISTS.replace("<module>", "User"),
             });
-          }
-
-          else {
-            const employeeTypeDetails = await db.employeeTypeMaster.findOne({ where: { 'empTypeId': employeeOnboardingDetails.employeeType, 'companyId': employeeOnboardingDetails.companyId }, attributes: ['empTypeId', 'empTypeCode', 'startingIndex'] });
+          } else {
+            const employeeTypeDetails = await db.employeeTypeMaster.findOne({
+              where: {
+                empTypeId: employeeOnboardingDetails.employeeType,
+                companyId: employeeOnboardingDetails.companyId,
+              },
+              attributes: ["empTypeId", "empTypeCode", "startingIndex"],
+            });
             if (employeeTypeDetails) {
-
-              let startingIndex = parseInt(employeeTypeDetails.startingIndex) + 1;
+              let startingIndex =
+                parseInt(employeeTypeDetails.startingIndex) + 1;
 
               if (employeeTypeDetails.empTypeId != 4) {
                 startingIndex = `${employeeTypeDetails.empTypeCode}-${startingIndex}`;
@@ -679,8 +709,10 @@ class AdminController {
                 pfNo: employeeOnboardingDetails.pfNo,
                 employeeType: employeeOnboardingDetails.employeeType,
                 image: employeeOnboardingDetails.profileImage,
-                officeMobileNumber: employeeOnboardingDetails.officeMobileNumber,
-                personalMobileNumber: employeeOnboardingDetails.personalMobileNumber,
+                officeMobileNumber:
+                  employeeOnboardingDetails.officeMobileNumber,
+                personalMobileNumber:
+                  employeeOnboardingDetails.personalMobileNumber,
                 dateOfJoining: employeeOnboardingDetails.dateOfJoining,
 
                 manager: employeeOnboardingDetails.manager,
@@ -693,7 +725,8 @@ class AdminController {
                 companyId: employeeOnboardingDetails.companyId,
                 buHRId: employeeOnboardingDetails.buHRId,
                 buHeadId: employeeOnboardingDetails.buHeadId,
-                attendancePolicyId: employeeOnboardingDetails.attendancePolicyId,
+                attendancePolicyId:
+                  employeeOnboardingDetails.attendancePolicyId,
                 companyLocationId: employeeOnboardingDetails.companyLocationId,
                 weekOffId: employeeOnboardingDetails.weekOffId,
 
@@ -703,38 +736,52 @@ class AdminController {
                 password: encryptedPassword,
                 role_id: 3,
                 empCode: empCode,
-                isTempPassword: 1
-              }
+                isTempPassword: 1,
+              };
 
               const createdUser = await db.employeeMaster.create(newEmployee);
-              await db.employeeTypeMaster.update({ 'startingIndex': parseInt(employeeTypeDetails.startingIndex) + 1 }, { where: { 'empTypeId': employeeOnboardingDetails.employeeType } })
+              await db.employeeTypeMaster.update(
+                {
+                  startingIndex:
+                    parseInt(employeeTypeDetails.startingIndex) + 1,
+                },
+                { where: { empTypeId: employeeOnboardingDetails.employeeType } }
+              );
 
               let newEmployeeBioDetails = {
                 userId: createdUser.id,
                 nationality: employeeOnboardingDetails.nationality,
                 maritalStatus: employeeOnboardingDetails.maritalStatus,
-                maritalStatusSince: employeeOnboardingDetails.maritalStatusSince,
+                maritalStatusSince:
+                  employeeOnboardingDetails.maritalStatusSince,
                 gender: employeeOnboardingDetails.gender,
-                dateOfBirth: employeeOnboardingDetails.dateOfBirth
-              }
+                dateOfBirth: employeeOnboardingDetails.dateOfBirth,
+              };
 
-              const createdUserBioDetails = await db.biographicalDetails.create(newEmployeeBioDetails);
+              const createdUserBioDetails = await db.biographicalDetails.create(
+                newEmployeeBioDetails
+              );
 
               // get probation details
-              let getProbationDetails = await db.probationMaster.findOne({ where: { 'probationId': employeeOnboardingDetails.probationId } });
+              let getProbationDetails = await db.probationMaster.findOne({
+                where: { probationId: employeeOnboardingDetails.probationId },
+              });
               if (getProbationDetails) {
                 let probationName = getProbationDetails.probationName;
-                let durationOfProbation = getProbationDetails.durationOfProbation;
+                let durationOfProbation =
+                  getProbationDetails.durationOfProbation;
 
                 let newEmployeeJobDetails = {
                   userId: createdUser.id,
                   dateOfJoining: employeeOnboardingDetails.dateOfJoining,
                   probationPeriod: `${probationName}(${durationOfProbation} day(s))`,
                   probationDays: durationOfProbation,
-                  jobLevelId: employeeOnboardingDetails.jobLevelId
-                }
+                  jobLevelId: employeeOnboardingDetails.jobLevelId,
+                };
 
-                const createdUserJobDetails = await db.jobDetails.create(newEmployeeJobDetails);
+                const createdUserJobDetails = await db.jobDetails.create(
+                  newEmployeeJobDetails
+                );
 
                 eventEmitter.emit(
                   "onboardingEmployeeMail",
@@ -742,41 +789,39 @@ class AdminController {
                     email: employeeOnboardingDetails.email,
                     firstName: employeeOnboardingDetails.firstName,
                     empCode: empCode,
-                    password: password
+                    password: password,
                   })
                 );
 
                 await db.employeeStagingMaster.destroy({
                   where: {
-                    id: selectedUsers[i]
-                  }
+                    id: selectedUsers[i],
+                  },
                 });
               }
-            }
-            else {
+            } else {
               return respHelper(res, {
                 status: 403,
-                msg: constant.INVALID_ID.replace("<module>", "Employee Type")
+                msg: constant.INVALID_ID.replace("<module>", "Employee Type"),
               });
             }
           }
-        }
-        else {
+        } else {
           return respHelper(res, {
             status: 403,
-            msg: constant.INVALID_ID.replace("<module>", "Employee On-boarding")
+            msg: constant.INVALID_ID.replace(
+              "<module>",
+              "Employee On-boarding"
+            ),
           });
         }
-
       }
 
       return respHelper(res, {
         status: 200,
         msg: "TMC has been created successfully.",
       });
-
-    }
-    catch (error) {
+    } catch (error) {
       console.log(error);
       logger.error(error);
       if (error.isJoi === true) {
@@ -794,28 +839,51 @@ class AdminController {
   async changeStatusOnboardEmployee(req, res) {
     try {
       let id = req.params.id;
-      let condition = { 'id': id };
-      let getResult = await db.employeeStagingMaster.findOne({ where: { 'id': id }, attributes: ['id', 'isActive'], raw: true });
+      let condition = { id: id };
+      let getResult = await db.employeeStagingMaster.findOne({
+        where: { id: id },
+        attributes: ["id", "isActive"],
+        raw: true,
+      });
       if (getResult) {
-        let result = await db.employeeStagingMaster.update({ 'isActive': (getResult.isActive == 0) ? 1 : 0 }, { where: condition });
-        return respHelper(res, { 'status': 202, msg: constant.UPDATE_SUCCESS.replace('<module>', 'On-boarding employee status') });
+        let result = await db.employeeStagingMaster.update(
+          { isActive: getResult.isActive == 0 ? 1 : 0 },
+          { where: condition }
+        );
+        return respHelper(res, {
+          status: 202,
+          msg: constant.UPDATE_SUCCESS.replace(
+            "<module>",
+            "On-boarding employee status"
+          ),
+        });
+      } else {
+        return respHelper(res, {
+          status: 401,
+          msg: constant.INVALID_ID.replace(
+            "<module>",
+            "On-boarding employee status"
+          ),
+        });
       }
-      else {
-        return respHelper(res, { 'status': 401, msg: constant.INVALID_ID.replace('<module>', 'On-boarding employee status') });
-      }
-    }
-    catch (error) {
-      logger.error("Error while getting activate/deactivate status of on-boarding employee", error);
-      return respHelper(res, { 'status': 500, msg: error?.parent?.sqlMessage });
+    } catch (error) {
+      logger.error(
+        "Error while getting activate/deactivate status of on-boarding employee",
+        error
+      );
+      return respHelper(res, { status: 500, msg: error?.parent?.sqlMessage });
     }
   }
 
   async updateOnboardEmployee(req, res) {
     try {
       let id = req.params.id;
-      let condition = { 'id': id };
-      const updateMetaData = await validator.onboardEmployeeSchema.validateAsync(req.body);
-      let result = await db.employeeStagingMaster.update(updateMetaData, { where: condition });
+      let condition = { id: id };
+      const updateMetaData =
+        await validator.onboardEmployeeSchema.validateAsync(req.body);
+      let result = await db.employeeStagingMaster.update(updateMetaData, {
+        where: condition,
+      });
 
       // update image
       if (updateMetaData.image) {
@@ -830,19 +898,21 @@ class AdminController {
         );
       }
 
-      return respHelper(res, { 'status': 202, msg: constant.UPDATE_SUCCESS.replace('<module>', 'Employee details') });
-    }
-    catch (error) {
+      return respHelper(res, {
+        status: 202,
+        msg: constant.UPDATE_SUCCESS.replace("<module>", "Employee details"),
+      });
+    } catch (error) {
       logger.error("Error while getting update employee details", error);
       if (error.isJoi === true) {
         return respHelper(res, {
           status: 422,
           msg: error.details[0].message,
         });
-      }
-      else {
+      } else {
         return respHelper(res, {
-          'status': 500, msg: error?.parent?.sqlMessage
+          status: 500,
+          msg: error?.parent?.sqlMessage,
         });
       }
     }
@@ -851,29 +921,81 @@ class AdminController {
   async getOnboardEmployeeDetails(req, res) {
     try {
       let id = req.params.id;
-      let condition = { 'id': id };
-      let attributes = ['name', 'firstName', 'middleName', 'lastName', 'email', 'personalEmail', 'officeMobileNumber', 'personalMobileNumber',
-        'panNo', 'uanNo', 'pfNo', 'employeeType', 'profileImage', 'dateOfJoining', 'manager', 'designation_id', 'functionalAreaId', 'buId', 'sbuId',
-        'shiftId', 'departmentId', 'companyId', 'buHRId', 'buHeadId', 'attendancePolicyId', 'companyLocationId', 'weekOffId', 'gender', 'maritalStatus',
-        'maritalStatusSince', 'nationality', 'probationId', 'dateOfBirth', 'newCustomerNameId', 'iqTestApplicable', 'positionType', 'jobLevelId'];
+      let condition = { id: id };
+      let attributes = [
+        "name",
+        "firstName",
+        "middleName",
+        "lastName",
+        "email",
+        "personalEmail",
+        "officeMobileNumber",
+        "personalMobileNumber",
+        "panNo",
+        "uanNo",
+        "pfNo",
+        "employeeType",
+        "profileImage",
+        "dateOfJoining",
+        "manager",
+        "designation_id",
+        "functionalAreaId",
+        "buId",
+        "sbuId",
+        "shiftId",
+        "departmentId",
+        "companyId",
+        "buHRId",
+        "buHeadId",
+        "attendancePolicyId",
+        "companyLocationId",
+        "weekOffId",
+        "gender",
+        "maritalStatus",
+        "maritalStatusSince",
+        "nationality",
+        "probationId",
+        "dateOfBirth",
+        "newCustomerNameId",
+        "iqTestApplicable",
+        "positionType",
+        "jobLevelId",
+      ];
 
-      let result = await db.employeeStagingMaster.findOne({ where: condition, attributes: attributes, raw: true });
+      let result = await db.employeeStagingMaster.findOne({
+        where: condition,
+        attributes: attributes,
+        raw: true,
+      });
       if (result) {
-        let buMappingDetails = await db.buMapping.findOne({ where: { 'buId': result.buId }, attributes: ['buMappingId'], raw: true });
-        let departmentMappingDetails = await db.departmentMapping.findOne({ where: { 'departmentId': result.departmentId }, attributes: ['departmentMappingId'], raw: true });
+        let buMappingDetails = await db.buMapping.findOne({
+          where: { buId: result.buId },
+          attributes: ["buMappingId"],
+          raw: true,
+        });
+        let departmentMappingDetails = await db.departmentMapping.findOne({
+          where: { departmentId: result.departmentId },
+          attributes: ["departmentMappingId"],
+          raw: true,
+        });
 
-        return respHelper(res, { 'status': 200, 'msg': constant.DATA_FETCHED, 'data': { ...result, ...buMappingDetails, ...departmentMappingDetails } });
+        return respHelper(res, {
+          status: 200,
+          msg: constant.DATA_FETCHED,
+          data: { ...result, ...buMappingDetails, ...departmentMappingDetails },
+        });
+      } else {
+        return respHelper(res, {
+          status: 400,
+          msg: constant.DATA_BLANK,
+          data: {},
+        });
       }
-      else {
-        return respHelper(res, { 'status': 400, 'msg': constant.DATA_BLANK, 'data': {} });
-      }
-    }
-    catch (error) {
+    } catch (error) {
       logger.error("Error while getting on-boarding employee details", error);
-      return respHelper(res, { 'status': 500, msg: error?.parent?.sqlMessage });
+      return respHelper(res, { status: 500, msg: error?.parent?.sqlMessage });
     }
   }
-
 }
 
 export default new AdminController();

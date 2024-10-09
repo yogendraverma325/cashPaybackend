@@ -23,13 +23,15 @@ class MasterController {
       const offset = (pageNo - 1) * limit;
 
       let employeeData = [];
-      if (usersData.role_id == 5) {
+
+      if (usersData.role_id == 4) {
         let permissionAssignTousers = [];
         if (usersData.permissionAndAccess) {
           permissionAssignTousers = usersData.permissionAndAccess
             .split(",")
             .map((el) => parseInt(el));
         }
+        console.log("role", permissionAssignTousers);
         let permissionAndAccess = await db.permissoinandaccess.findAll({
           where: {
             role_id: usersData.role_id,
