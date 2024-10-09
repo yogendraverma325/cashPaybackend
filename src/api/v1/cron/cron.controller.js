@@ -134,14 +134,6 @@ class CronController {
         let lastDayDate = moment(element.fromDate)
           .subtract(1, "day")
           .format("YYYY-MM-DD");
-        console.log(
-          "element.managerId",
-          element.managerId,
-          "records",
-          element.id,
-          "lastDayDate",
-          lastDayDate
-        );
         const currentManagerOfTheEmployee = await db.managerHistory.findOne({
           raw: true,
           where: {
@@ -182,7 +174,7 @@ class CronController {
         //DISBALE CURRENT DATE DATA
 
         //UPDATE MANGER TO EMP MASTER TABLE
-        await db.employeeMaster.update(
+        let updateDone = await db.employeeMaster.update(
           {
             manager: element.managerId,
           },
@@ -192,6 +184,31 @@ class CronController {
             },
           }
         );
+        ///TRANSFER ALL RECORDS TO NEW MANAGER
+        if (updateDone) {
+          await db.regularizationMaster.update(
+            {
+              regularizeManagerId: element.managerId,
+            },
+            {
+              where: {
+                regularizeStatus: "Pending",
+                createdBy: element.employeeId,
+              },
+            }
+          );
+          await db.employeeLeaveTransactions.update(
+            {
+              pendingAt: element.managerId,
+            },
+            {
+              where: {
+                status: "pending",
+                createdBy: element.employeeId,
+              },
+            }
+          );
+        }
         //UPDATE MANGER TO EMP MASTER TABLE
       }
     }
