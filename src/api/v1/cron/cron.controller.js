@@ -208,6 +208,17 @@ class CronController {
               },
             }
           );
+          await db.separationMaster.update(
+            {
+              pendingAt: element.managerId,
+            },
+            {
+              where: {
+                finalStatus: 2,
+                employeeId: element.employeeId,
+              },
+            }
+          );
         }
         //UPDATE MANGER TO EMP MASTER TABLE
       }
