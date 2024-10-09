@@ -1785,7 +1785,7 @@ class UserController {
                     ...(type === "all"
                       ? {
                           [Op.or]: [
-                            { id: req.userId },
+                            //{ id: req.userId },
                             { manager: req.userId },
                           ],
                         }
@@ -1864,14 +1864,20 @@ class UserController {
                   [db.Sequelize.Op.between]: [fromDate, toDate],
                 },
               }),
-            ...(type === "all"
-              ? {
-                  [db.Sequelize.Op.or]: [
-                    { employeeId: req.userId },
-                    { pendingAt: req.userId },
-                  ],
-                }
-              : { employeeId: req.userId }),
+              ...(type === "all" && isSystemGenerated == 0
+                ? {
+                    [Op.or]: [
+                      { pendingAt: req.userId },
+                    ],
+                  }
+                : type === "all" && isSystemGenerated == 1
+                ? {
+                    [Op.or]: [
+                      { employeeId: req.userId },
+                      { pendingAt: req.userId },
+                    ],
+                  }
+                : { employeeId: req.userId }), // Default case for non-"all" types
           },
           include: [
             {
