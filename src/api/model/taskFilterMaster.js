@@ -1,5 +1,5 @@
 export default (sequelize, Sequelize) => {
-    const taskFilterMaster = sequelize.define("taskfilterMaster", {
+    const taskFilterMaster = sequelize.define("taskfiltermaster", {
         taskFilterId: {
             type: Sequelize.INTEGER,
             primaryKey: true,
