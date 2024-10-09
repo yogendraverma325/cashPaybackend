@@ -996,6 +996,64 @@ class AdminController {
       return respHelper(res, { status: 500, msg: error?.parent?.sqlMessage });
     }
   }
+  async updatePolicyOfEMP(req, res) {
+    try {
+      const result = await validator.updatePolicyOfEMP.validateAsync(req.body);
+
+      let error = false;
+      for (const iterator of result) {
+        const recordsExistForDate = await db.PolicyHistory.findOne({
+          raw: true,
+          where: {
+            fromDate: iterator.date,
+            needAttendanceCron: 1,
+            employeeId: iterator.user,
+          },
+        });
+        if (!recordsExistForDate) {
+          let createHistory = {
+            employeeId: iterator.user,
+            shiftPolicy: iterator.shiftPolicy,
+            attendancePolicy: iterator.attendancePolicy,
+            weekOffPolicy: iterator.weekOffPolicy,
+            fromDate: iterator.date
+              ? iterator.date
+              : moment().add(1, "day").format("YYYY-MM-DD"),
+            toDate: null,
+            createdBy: req.userId,
+            createdAt: moment().format("YYYY-MM-DD HH:mm:ss"),
+          };
+          await db.PolicyHistory.create(createHistory);
+        } else {
+          error = true;
+        }
+      }
+
+      if (error) {
+        return respHelper(res, {
+          status: 400,
+          msg: "Record Already Exist for the selected date",
+        });
+      } else {
+        return respHelper(res, {
+          status: 200,
+          data: result,
+          msg: "Record Added",
+        });
+      }
+    } catch (error) {
+      console.log("error", error);
+      if (error.isJoi) {
+        return respHelper(res, {
+          msg: error.details[0].message,
+          status: 422,
+        });
+      }
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
 }
 
 export default new AdminController();

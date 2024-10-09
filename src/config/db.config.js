@@ -84,7 +84,7 @@ import ReportModuleMaster from "../api/model/ReportModuleMaster.js";
 import ReportType from "../api/model/ReportType.js";
 import SeparationTrails from "../api/model/SeparationTrails.js";
 import TaskFilterMaster from "../api/model/taskFilterMaster.js";
-
+import PolicyHistory from "../api/model/PolicyHistory.js";
 import literal from "sequelize";
 import QueryTypes from "sequelize";
 const sequelize = new Sequelize(
@@ -233,6 +233,7 @@ db.reportModuleMaster = ReportModuleMaster(sequelize, Sequelize);
 db.reportType = ReportType(sequelize, Sequelize);
 db.separationTrail = SeparationTrails(sequelize, Sequelize);
 db.taskFilterMaster = TaskFilterMaster(sequelize, Sequelize);
+db.PolicyHistory = PolicyHistory(sequelize, Sequelize);
 db.holidayCompanyLocationConfiguration.hasOne(db.holidayMaster, {
   foreignKey: "holidayId",
   sourceKey: "holidayId",
