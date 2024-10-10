@@ -848,6 +848,8 @@ class MasterController {
           "attendancePunchOutLocation",
           "attendancePunchInTime",
           "attendancePunchOutTime",
+          "punchInSource",
+          "punchOutSource"
         ],
         where: {
           attendanceDate: {
@@ -886,6 +888,10 @@ class MasterController {
                   "departmentName",
                   "departmentCode",
                 ],
+              },
+              {
+                model: db.designationMaster,
+                attributes: ["name"],
               },
               {
                 model: db.jobDetails,
@@ -967,6 +973,12 @@ class MasterController {
               "(" +
               record["employee.departmentmaster.departmentCode"] +
               ")",
+              designationName:
+              record["employee.designationmaster.name"] +
+              " " +
+              "(" +
+              record["employee.departmentmaster.departmentCode"] +
+              ")",
             functionArea:
               record["employee.functionalareamaster.functionalAreaName"] +
               " " +
@@ -988,6 +1000,8 @@ class MasterController {
             attendancePunchOutLocation:
               record.attendancePunchOutLocation || "N/A",
             status: "APPROVED",
+            punchInSource:record.punchInSource || "N/A",
+            punchOutSource:record.punchOutSource || "N/A",
             grade: record["employee.employeejobdetail.grademaster.gradeName"],
             shiftName: record["shiftsmaster.shiftName"],
             shiftStartTime: record["shiftsmaster.shiftStartTime"],
@@ -1010,6 +1024,7 @@ class MasterController {
                 { label: "BU Name", value: "buName" },
                 { label: "SBU Name", value: "sbuName" },
                 { label: "Department Name", value: "departmentName" },
+                { label: "Designation", value: "designationName" },
                 { label: "Functional Area Name", value: "functionArea" },
                 { label: "Manager", value: "manager" },
                 { label: "Attendance Date", value: "attendanceDate" },
@@ -1029,8 +1044,9 @@ class MasterController {
                   value: "attendancePunchOutLocation",
                 },
                 { label: "Status(Pending/Approved/Rejected)", value: "status" },
+                { label: "Punch In Source", value: "punchInSource" },
+                { label: "Punch Out Source", value: "punchOutSource" },
                 { label: "Grade", value: "grade" },
-
                 { label: "Shift Name", value: "shiftName" },
                 { label: "Shift Start Time", value: "shiftStartTime" },
                 { label: "Shift End Time", value: "shiftEndTime" },
@@ -1347,11 +1363,6 @@ class MasterController {
               {
                 model: db.designationMaster,
                 attributes: ["name"],
-                // where: {
-                //   ...(designation && {
-                //     name: { [Op.like]: `%${designation}%` },
-                //   }),
-                // }
               },
               {
                 model: db.departmentMaster,
@@ -1462,7 +1473,7 @@ class MasterController {
               // Set attendance based on the presence status
               if (attendancePresentStatus === "present") {
                 dayRecords[dayKey] = "P"; // Initially set to P
-                attendanceCount.P++;
+                //attendanceCount.P++;
 
                 // Check for regularization
                 if (attendanceRecord.latest_Regularization_Request.length > 0) {
@@ -1486,7 +1497,7 @@ class MasterController {
 
                 if (isDayWorking === "H") {
                   dayRecords[dayKey] = `${dayRecords[dayKey]},H`; // Append R for regularization
-                  // attendanceCount.R++;
+                   attendanceCount.H++;  // uncommenting this line 10-10-2024
                 }
               } else if (attendancePresentStatus === "singlePunchAbsent") {
                 dayRecords[dayKey] = "SA";
@@ -1513,7 +1524,7 @@ class MasterController {
 
                 if (isDayWorking === "H") {
                   dayRecords[dayKey] = `${dayRecords[dayKey]},H`; // Append R for regularization
-                  // attendanceCount.R++;
+                  attendanceCount.H++;  // uncommenting this line 10-10-2024
                 }
               } else if (attendancePresentStatus === "absent") {
                 dayRecords[dayKey] = "A";
@@ -1540,7 +1551,7 @@ class MasterController {
 
                 if (isDayWorking === "H") {
                   dayRecords[dayKey] = `${dayRecords[dayKey]},H`; // Append R for regularization
-                  // attendanceCount.R++;
+                  attendanceCount.H++;  // uncommenting this line 10-10-2024
                 }
               } else if (attendancePresentStatus === "weeklyOff") {
                 dayRecords[dayKey] = "W";
@@ -1567,7 +1578,7 @@ class MasterController {
               // Set attendance based on the presence status
               if (attendancePresentStatus === "present") {
                 dayRecords[dayKey] = "P"; // Initially set to P
-                attendanceCount.P++;
+                //attendanceCount.P++;
 
                 // Check for regularization
                 if (attendanceRecord.latest_Regularization_Request.length > 0) {
@@ -1591,7 +1602,7 @@ class MasterController {
 
                 if (isDayWorking === "W") {
                   dayRecords[dayKey] = `${dayRecords[dayKey]},W`; // Append R for regularization
-                  // attendanceCount.R++;
+                  attendanceCount.W++;  // uncommenting this line 10-10-2024
                 }
               } else if (attendancePresentStatus === "singlePunchAbsent") {
                 dayRecords[dayKey] = "SA";
@@ -1618,7 +1629,7 @@ class MasterController {
 
                 if (isDayWorking === "W") {
                   dayRecords[dayKey] = `${dayRecords[dayKey]},W`; // Append R for regularization
-                  // attendanceCount.R++;
+                  attendanceCount.W++;  // uncommenting this line 10-10-2024
                 }
               } else if (attendancePresentStatus === "absent") {
                 dayRecords[dayKey] = "A";
@@ -1742,6 +1753,9 @@ class MasterController {
               } else if (attendancePresentStatus === "weeklyOff") {
                 dayRecords[dayKey] = "W";
                 attendanceCount.W++;
+              } else if (attendancePresentStatus === "leave") {
+                dayRecords[dayKey] = "L";
+                attendanceCount.L++;
               }
             } else {
               // If there are no attendance records, set to '-'
@@ -1786,7 +1800,7 @@ class MasterController {
           C: 0,
           Payroll: attendanceCount.P,
           PayableDays:
-            attendanceCount.P + attendanceCount.W - attendanceCount.SA,
+            attendanceCount.P + attendanceCount.W + attendanceCount.H + attendanceCount.L ,
         };
 
         finalData.push(orderedEmployeeRecord);
