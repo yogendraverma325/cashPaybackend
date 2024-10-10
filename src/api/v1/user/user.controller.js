@@ -1849,6 +1849,59 @@ class UserController {
     }
   }
   // manager history
+  // userPolicyHistory
+  async userPolicyHistory(req, res) {
+    try {
+      const listData = await db.PolicyHistory.findAll({
+        where: {
+          employeeId: req.query.user,
+          needAttendanceCron: 0,
+        },
+        attributes: ["id", "updatedAt", "fromDate", "toDate"],
+        order: [["id", "DESC"]], // Replace 'createdAt' with your desired column
+        include: [
+          {
+            model: db.shiftMaster,
+            as: "historyshiftMaster",
+            attributes: ["shiftId", "shiftName"],
+          },
+          {
+            model: db.attendancePolicymaster,
+            as: "historyattendanceMaster",
+            attributes: ["attendancePolicyId", "policyName"],
+          },
+          {
+            model: db.weekOffMaster,
+            as: "historyweekOffMaster",
+            attributes: ["weekOffId", "weekOffName"],
+          },
+          {
+            model: db.employeeMaster,
+            as: "PolicyUpdaterDetails",
+            attributes: ["id", "name", "empCode"],
+          },
+        ],
+      });
+
+      return respHelper(res, {
+        status: 200,
+        msg: constant.DATA_FETCHED,
+        data: listData,
+      });
+    } catch (error) {
+      console.log(error);
+      if (error.isJoi === true) {
+        return respHelper(res, {
+          status: 422,
+          msg: error.details[0].message,
+        });
+      }
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+  // userPolicyHistory
 }
 
 export default new UserController();

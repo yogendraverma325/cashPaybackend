@@ -1013,9 +1013,18 @@ class AdminController {
         if (!recordsExistForDate) {
           let createHistory = {
             employeeId: iterator.user,
-            shiftPolicy: iterator.shiftPolicy,
-            attendancePolicy: iterator.attendancePolicy,
-            weekOffPolicy: iterator.weekOffPolicy,
+            shiftPolicy: iterator.shiftPolicy
+              ? iterator.shiftPolicy
+              : iterator.currentshiftPolicy,
+            currentshiftPolicy: iterator.currentshiftPolicy,
+            attendancePolicy: iterator.attendancePolicy
+              ? iterator.attendancePolicy
+              : iterator.currentattendancePolicy,
+            currentattendancePolicy: iterator.currentattendancePolicy,
+            weekOffPolicy: iterator.weekOffPolicy
+              ? iterator.weekOffPolicy
+              : iterator.currentweekOffPolicy,
+            currentweekOffPolicy: iterator.currentweekOffPolicy,
             fromDate: iterator.date
               ? iterator.date
               : moment().add(1, "day").format("YYYY-MM-DD"),

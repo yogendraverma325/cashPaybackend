@@ -137,7 +137,6 @@ class CronController {
         const currentManagerOfTheEmployee = await db.managerHistory.findOne({
           raw: true,
           where: {
-            needAttendanceCron: 0,
             toDate: {
               [Op.eq]: null,
             },
@@ -150,6 +149,7 @@ class CronController {
             {
               toDate: lastDayDate,
               updatedBy: 1,
+              needAttendanceCron: 0,
             },
             {
               where: {
@@ -221,6 +221,74 @@ class CronController {
           );
         }
         //UPDATE MANGER TO EMP MASTER TABLE
+      }
+    }
+  }
+  async updatePolicy() {
+    const listData = await db.PolicyHistory.findAll({
+      raw: true,
+      where: {
+        fromDate: moment().format("YYYY-MM-DD"),
+        needAttendanceCron: 1,
+      },
+    });
+    if (listData.length != 0) {
+      for (const element of listData) {
+        let lastDayDate = moment(element.fromDate)
+          .subtract(1, "day")
+          .format("YYYY-MM-DD");
+        const currentRecord = await db.PolicyHistory.findOne({
+          raw: true,
+          where: {
+            toDate: {
+              [Op.eq]: null,
+            },
+            employeeId: element.employeeId,
+          },
+        });
+        if (currentRecord) {
+          //MARKING LAST REDORDS WITH LAST DATE
+          await db.PolicyHistory.update(
+            {
+              toDate: lastDayDate,
+              updatedBy: 1,
+              needAttendanceCron: 0,
+            },
+            {
+              where: {
+                id: currentRecord.id,
+              },
+            }
+          );
+          //MARKING LAST REDORDS WITH LAST DATE
+        }
+        //DISBALE CURRENT DATE DATA
+        await db.PolicyHistory.update(
+          {
+            needAttendanceCron: 0,
+            updatedBy: 1,
+          },
+          {
+            where: {
+              id: element.id,
+            },
+          }
+        );
+        //DISBALE CURRENT DATE DATA
+
+        //UPDATE POLICY TO EMP MASTER TABLE
+        await db.employeeMaster.update(
+          {
+            shiftId: element.shiftPolicy,
+            attendancePolicyId: element.attendancePolicy,
+            weekOffId: element.weekOffPolicy,
+          },
+          {
+            where: {
+              id: element.employeeId,
+            },
+          }
+        );
       }
     }
   }

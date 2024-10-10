@@ -717,4 +717,25 @@ db.managerHistory.hasOne(db.employeeMaster, {
   sourceKey: "managerId",
   as: "managerHistoryDate",
 });
+
+db.PolicyHistory.hasOne(db.shiftMaster, {
+  foreignKey: "shiftId",
+  sourceKey: "shiftPolicy",
+  as: "historyshiftMaster",
+});
+db.PolicyHistory.hasOne(db.attendancePolicymaster, {
+  foreignKey: "attendancePolicyId",
+  sourceKey: "attendancePolicy",
+  as: "historyattendanceMaster",
+});
+db.PolicyHistory.hasOne(db.weekOffMaster, {
+  foreignKey: "weekOffId",
+  sourceKey: "weekOffPolicy",
+  as: "historyweekOffMaster",
+});
+db.PolicyHistory.hasOne(db.employeeMaster, {
+  foreignKey: "id",
+  sourceKey: "createdBy",
+  as: "PolicyUpdaterDetails",
+});
 export default db;

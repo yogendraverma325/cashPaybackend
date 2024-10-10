@@ -827,8 +827,15 @@ const updatePolicyOfEMP = Joi.array()
     Joi.object({
       user: Joi.number().required().label("User"),
       shiftPolicy: Joi.number().label("shiftPolicy").allow(null),
+      currentshiftPolicy: Joi.number().label("currentshiftPolicy").allow(null),
       attendancePolicy: Joi.number().label("attendancePolicy").allow(null),
+      currentattendancePolicy: Joi.number()
+        .label("currentattendancePolicy")
+        .allow(null),
       weekOffPolicy: Joi.number().label("weekOffPolicy").allow(null),
+      currentweekOffPolicy: Joi.number()
+        .label("currentweekOffPolicy")
+        .allow(null),
       date: Joi.string().label("Date").required(),
     })
   )

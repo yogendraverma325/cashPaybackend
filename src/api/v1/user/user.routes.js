@@ -223,5 +223,12 @@ export default Express.Router()
     "/managerHistory",
     authentication.authenticate,
     userController.managerHistory
+  )
+  // manager history
+  // User's POLICY history
+  .get(
+    "/userPolicyHistory",
+    authentication.authenticate,
+    userController.userPolicyHistory
   );
-// manager history
+// User's POLICY history
