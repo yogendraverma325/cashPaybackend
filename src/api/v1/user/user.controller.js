@@ -1749,7 +1749,6 @@ class UserController {
       return respHelper(res, {
         status: 200,
         msg: constant.SEPARATION_STATUS.replace("<status>", 'Approved'),
-        data: separationOwner
       });
     } catch (error) {
       console.log(error);
@@ -2147,6 +2146,7 @@ class UserController {
       // console.log("reqObj", reqObj)
       return respHelper(res, {
         status: 200,
+        msg: constant.TASK_SUBMITTED
       });
 
     } catch (error) {
@@ -2231,7 +2231,11 @@ class UserController {
         attributes: ['initiatedTaskAutoId', 'status', 'createdDt'],
         include: [{
           model: db.employeeMaster,
-          attributes: ['empCode', 'name']
+          attributes: ['empCode', 'name'],
+          include: [{
+            model: db.designationMaster,
+            attributes: ['name']
+          }]
         }, {
           model: db.separationTaskMaster,
           attributes: ['taskName']

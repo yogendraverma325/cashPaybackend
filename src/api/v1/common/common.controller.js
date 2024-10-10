@@ -63,9 +63,9 @@ class commonController {
         await validator.updateBiographicalDetailsSchema.validateAsync(req.body);
 
       const userId = result.userId == 0 ? req.userId : result.userId;
-      
-      const getUserDetails = await db.employeeMaster.findOne({attributes:['id','firstName'],where:{id:userId}})
-      
+
+      const getUserDetails = await db.employeeMaster.findOne({ attributes: ['id', 'firstName'], where: { id: userId } })
+
       const updateObj = Object.assign(result, {
         userId: userId,
         updatedAt: moment(),
@@ -78,7 +78,7 @@ class commonController {
       if (result.salutationId) {
         await db.employeeMaster.update(
           {
-            name : result.lastName ? `${getUserDetails.firstName} ${result.lastName}` : getUserDetails.firstName,
+            name: result.lastName ? `${getUserDetails.firstName} ${result.lastName}` : getUserDetails.firstName,
             salutationId: result.salutationId,
             middleName: result.middleName,
             lastName: result.lastName,
@@ -131,7 +131,7 @@ class commonController {
           data: {},
         });
       }
-    } catch (error) {}
+    } catch (error) { }
   }
 
   async updatePaymentDetails(req, res) {
@@ -314,7 +314,7 @@ class commonController {
           data: {},
         });
       }
-    } catch (error) {}
+    } catch (error) { }
   }
 
   async getFamilyMember(req, res) {
@@ -439,7 +439,7 @@ class commonController {
       if (existPaymentDetails) {
         let obj = {
           ...result,
-          ...{status:"pending"},
+          ...{ status: "pending" },
           ...(paymentAttachment !== "" && { paymentAttachment }),
           ...{ createdBy: existPaymentDetails.createdBy },
           ...{ createdAt: existPaymentDetails.createdAt },
@@ -797,11 +797,9 @@ class commonController {
       const pageNo = req.query.page * 1 || 1;
       const offset = (pageNo - 1) * limit;
 
-      const cacheKey = `employeeList:${req.userId}:${pageNo}:${limit}:${
-        search || ""
-      }:${department || ""}:${designation || ""}:${buSearch || ""}:${
-        sbuSearch || ""
-      }:${areaSearch || ""}`;
+      const cacheKey = `employeeList:${req.userId}:${pageNo}:${limit}:${search || ""
+        }:${department || ""}:${designation || ""}:${buSearch || ""}:${sbuSearch || ""
+        }:${areaSearch || ""}`;
 
       let employeeData = [];
       await client.get(cacheKey).then(async (data) => {
@@ -834,44 +832,44 @@ class commonController {
             where: Object.assign(
               search
                 ? {
-                    [Op.or]: [
-                      {
-                        empCode: {
-                          [Op.like]: `%${search}%`,
-                        },
+                  [Op.or]: [
+                    {
+                      empCode: {
+                        [Op.like]: `%${search}%`,
                       },
-                      {
-                        name: {
-                          [Op.like]: `%${search}%`,
-                        },
+                    },
+                    {
+                      name: {
+                        [Op.like]: `%${search}%`,
                       },
-                      {
-                        email: {
-                          [Op.like]: `%${search}%`,
-                        },
+                    },
+                    {
+                      email: {
+                        [Op.like]: `%${search}%`,
                       },
-                    ],
-                    [Op.and]: [
-                      {
-                        isActive:
-                          usersData.role_id == 1 || usersData.role_id == 2
-                            ? [1, 0]
-                            : [1],
-                        ...empFilters,
-                      },
-                    ],
-                  }
+                    },
+                  ],
+                  [Op.and]: [
+                    {
+                      isActive:
+                        usersData.role_id == 1 || usersData.role_id == 2
+                          ? [1, 0]
+                          : [1],
+                      ...empFilters,
+                    },
+                  ],
+                }
                 : {
-                    [Op.and]: [
-                      {
-                        isActive:
-                          usersData.role_id == 1 || usersData.role_id == 2
-                            ? [1, 0]
-                            : [1],
-                        ...empFilters,
-                      },
-                    ],
-                  }
+                  [Op.and]: [
+                    {
+                      isActive:
+                        usersData.role_id == 1 || usersData.role_id == 2
+                          ? [1, 0]
+                          : [1],
+                      ...empFilters,
+                    },
+                  ],
+                }
             ),
             attributes: [
               "id",
@@ -1465,6 +1463,58 @@ class commonController {
           msg: error.details[0].message,
         });
       }
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+
+  async getCategory(req, res) {
+    try {
+      const categoryData = await db.categoryMaster.findAll({
+        where: {
+          isActive: 1
+        },
+        attributes: ['categoryAutoId', 'categoryName', 'categoryDesc']
+      })
+
+      return respHelper(res, {
+        status: 200,
+        data: categoryData
+      });
+    } catch (error) {
+      console.log(error)
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+
+  async getSubcategory(req, res) {
+    try {
+      const subCategory = await db.categoryMaster.findOne({
+        where: {
+          categoryAutoId: req.params.id,
+          isActive: 1
+        },
+        attributes: ['categoryAutoId', 'categoryName', 'categoryDesc'],
+        include: [{
+          model: db.subCategoryMaster,
+          where: {
+            isActive: 1
+          },
+          required: true,
+          attributes: ['subCategoryId', 'subCategoryDesc', 'subCategoryName', 'subCategoryValue']
+        }]
+      })
+
+      return respHelper(res, {
+        status: 200,
+        data: subCategory
+      });
+
+    } catch (error) {
+      console.log(error)
       return respHelper(res, {
         status: 500,
       });
