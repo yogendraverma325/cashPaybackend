@@ -1,5 +1,5 @@
 export default (sequelize, Sequelize) => {
-  const managerHistory = sequelize.define("managerhistory", {
+  const policyhistory = sequelize.define("policyhistory", {
     id: {
       type: Sequelize.INTEGER,
       primaryKey: true,
@@ -8,7 +8,13 @@ export default (sequelize, Sequelize) => {
     employeeId: {
       type: Sequelize.INTEGER,
     },
-    managerId: {
+    shiftPolicy: {
+      type: Sequelize.INTEGER,
+    },
+    attendancePolicy: {
+      type: Sequelize.INTEGER,
+    },
+    weekOffPolicy: {
       type: Sequelize.INTEGER,
     },
     fromDate: {
@@ -33,5 +39,5 @@ export default (sequelize, Sequelize) => {
       type: Sequelize.DATE,
     },
   });
-  return managerHistory;
+  return policyhistory;
 };

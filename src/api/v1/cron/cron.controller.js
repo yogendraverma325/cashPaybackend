@@ -82,14 +82,14 @@ class CronController {
   }
 
   async EarnedLeaveCreditCron() {
-    console.log("EarnedLeaveCreditCron", moment().format("DD"))
+    console.log("EarnedLeaveCreditCron", moment().format("DD"));
     // creditDayOfMonth: moment().format("DD")
     const earnedLeaveDetails = await db.leaveMaster.findAll({
       raw: true,
       where: {
         iterationDistribution: {
-          [Op.ne]: 0
-        }
+          [Op.ne]: 0,
+        },
       },
     });
     await Promise.all(
@@ -98,24 +98,23 @@ class CronController {
           await db.leaveMapping.increment(
             {
               availableLeave: parseFloat(singleItem.iterationDistribution),
-              accruedThisYear: parseFloat(singleItem.iterationDistribution)
+              accruedThisYear: parseFloat(singleItem.iterationDistribution),
             },
             {
               where: {
-                leaveAutoId: singleItem.leaveId
+                leaveAutoId: singleItem.leaveId,
               },
             }
           );
         }
-
-      }));
-    console.log("earnedLeaveDetails", earnedLeaveDetails)
+      })
+    );
+    console.log("earnedLeaveDetails", earnedLeaveDetails);
 
     // if (earnedLeaveDetails) {
     //   let value = parseFloat(earnedLeaveDetails.iterationDistribution).toFixed(
     //     2
     //   );
-
 
     // } else {
     //   console.log("not found");
@@ -127,11 +126,55 @@ class CronController {
       raw: true,
       where: {
         fromDate: moment().format("YYYY-MM-DD"),
+        needAttendanceCron: 1,
       },
     });
     if (managerData.length != 0) {
       for (const element of managerData) {
-        await db.employeeMaster.update(
+        let lastDayDate = moment(element.fromDate)
+          .subtract(1, "day")
+          .format("YYYY-MM-DD");
+        const currentManagerOfTheEmployee = await db.managerHistory.findOne({
+          raw: true,
+          where: {
+            toDate: {
+              [Op.eq]: null,
+            },
+            employeeId: element.employeeId,
+          },
+        });
+        if (currentManagerOfTheEmployee) {
+          //MARKING LAST MANAGER WITH LAST DATE
+          await db.managerHistory.update(
+            {
+              toDate: lastDayDate,
+              updatedBy: 1,
+              needAttendanceCron: 0,
+            },
+            {
+              where: {
+                id: currentManagerOfTheEmployee.id,
+              },
+            }
+          );
+          //MARKING LAST MANAGER WITH LAST DATE
+        }
+        //DISBALE CURRENT DATE DATA
+        await db.managerHistory.update(
+          {
+            needAttendanceCron: 0,
+            updatedBy: 1,
+          },
+          {
+            where: {
+              id: element.id,
+            },
+          }
+        );
+        //DISBALE CURRENT DATE DATA
+
+        //UPDATE MANGER TO EMP MASTER TABLE
+        let updateDone = await db.employeeMaster.update(
           {
             manager: element.managerId,
           },
@@ -141,13 +184,112 @@ class CronController {
             },
           }
         );
+        ///TRANSFER ALL RECORDS TO NEW MANAGER
+        if (updateDone) {
+          await db.regularizationMaster.update(
+            {
+              regularizeManagerId: element.managerId,
+            },
+            {
+              where: {
+                regularizeStatus: "Pending",
+                createdBy: element.employeeId,
+              },
+            }
+          );
+          await db.employeeLeaveTransactions.update(
+            {
+              pendingAt: element.managerId,
+            },
+            {
+              where: {
+                status: "pending",
+                createdBy: element.employeeId,
+              },
+            }
+          );
+          await db.separationMaster.update(
+            {
+              pendingAt: element.managerId,
+            },
+            {
+              where: {
+                finalStatus: 2,
+                employeeId: element.employeeId,
+              },
+            }
+          );
+        }
+        //UPDATE MANGER TO EMP MASTER TABLE
       }
-    } else {
-      console.log(
-        `No Data Found for ${moment().format(
-          "YYYY-MM-DD"
-        )} (Update Manager Cron)`
-      );
+    }
+  }
+  async updatePolicy() {
+    const listData = await db.PolicyHistory.findAll({
+      raw: true,
+      where: {
+        fromDate: moment().format("YYYY-MM-DD"),
+        needAttendanceCron: 1,
+      },
+    });
+    if (listData.length != 0) {
+      for (const element of listData) {
+        let lastDayDate = moment(element.fromDate)
+          .subtract(1, "day")
+          .format("YYYY-MM-DD");
+        const currentRecord = await db.PolicyHistory.findOne({
+          raw: true,
+          where: {
+            toDate: {
+              [Op.eq]: null,
+            },
+            employeeId: element.employeeId,
+          },
+        });
+        if (currentRecord) {
+          //MARKING LAST REDORDS WITH LAST DATE
+          await db.PolicyHistory.update(
+            {
+              toDate: lastDayDate,
+              updatedBy: 1,
+              needAttendanceCron: 0,
+            },
+            {
+              where: {
+                id: currentRecord.id,
+              },
+            }
+          );
+          //MARKING LAST REDORDS WITH LAST DATE
+        }
+        //DISBALE CURRENT DATE DATA
+        await db.PolicyHistory.update(
+          {
+            needAttendanceCron: 0,
+            updatedBy: 1,
+          },
+          {
+            where: {
+              id: element.id,
+            },
+          }
+        );
+        //DISBALE CURRENT DATE DATA
+
+        //UPDATE POLICY TO EMP MASTER TABLE
+        await db.employeeMaster.update(
+          {
+            shiftId: element.shiftPolicy,
+            attendancePolicyId: element.attendancePolicy,
+            weekOffId: element.weekOffPolicy,
+          },
+          {
+            where: {
+              id: element.employeeId,
+            },
+          }
+        );
+      }
     }
   }
 }

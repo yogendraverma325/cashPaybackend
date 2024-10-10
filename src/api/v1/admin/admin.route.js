@@ -121,7 +121,23 @@ export default Express.Router()
     authorization("ADMIN", "SUPERADMIN"),
     adminController.createTMC
   )
-  .patch("/onboardEmployee/:id", authorization("ADMIN", "SUPERADMIN"), adminController.changeStatusOnboardEmployee)
-  .put("/onboardEmployee/:id", authorization("ADMIN", "SUPERADMIN"), adminController.updateOnboardEmployee)
-  .get("/onboardEmployee/:id", authorization("ADMIN", "SUPERADMIN"), adminController.getOnboardEmployeeDetails)
-
+  .patch(
+    "/onboardEmployee/:id",
+    authorization("ADMIN", "SUPERADMIN"),
+    adminController.changeStatusOnboardEmployee
+  )
+  .put(
+    "/onboardEmployee/:id",
+    authorization("ADMIN", "SUPERADMIN"),
+    adminController.updateOnboardEmployee
+  )
+  .get(
+    "/onboardEmployee/:id",
+    authorization("ADMIN", "SUPERADMIN"),
+    adminController.getOnboardEmployeeDetails
+  )
+  .put(
+    "/updatePolicyOfEMP",
+    authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"),
+    adminController.updatePolicyOfEMP
+  );
