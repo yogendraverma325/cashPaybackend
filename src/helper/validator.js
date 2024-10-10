@@ -649,29 +649,31 @@ const updateAddress = Joi.object({
 });
 
 const onboardEmployeeSchema = Joi.object({
-  name: Joi.string().trim().required().label("Name"),
+  name: Joi.string().pattern(/^[A-Za-z\s]*$/, 'Name should only contain letters and spaces').trim().required().label("Name"),
   email: Joi.string().trim().email().allow("").label("Email"),
   personalEmail: Joi.string().trim().email().required().label("Personal Email"),
-  firstName: Joi.string().trim().required().label("First Name"),
-  middleName: Joi.string().trim().allow("").label("Middle Name"),
-  lastName: Joi.string().trim().allow("").label("Last Name"),
+  firstName: Joi.string().pattern(/^[A-Za-z\s]*$/, 'First Name should only contain letters and spaces').trim().required().label("First Name"),
+  middleName: Joi.string().pattern(/^[A-Za-z\s]*$/, 'Middle Name should only contain letters and spaces').trim().allow("").label("Middle Name"),
+  lastName: Joi.string().pattern(/^[A-Za-z\s]*$/, 'Last Name should only contain letters and spaces').trim().allow("").label("Last Name"),
 
-  panNo: Joi.string().trim().length(10).allow("").label("PAN Number"),
-  uanNo: Joi.string().trim().length(12).allow("").label("UAN Number"),
-  pfNo: Joi.string().trim().length(22).allow("").label("PF Number"),
+  panNo: Joi.string().pattern(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, 'PAN should be in the format: AAAAA9999A').trim().allow("").label("PAN Number"),
+  uanNo: Joi.string().pattern(/^[0-9]{12}$/, 'UAN should be exactly 12 digits').trim().allow("").label("UAN Number"),
+  pfNo: Joi.string().pattern(/^[0-9]{7,15}$/, 'PF number should be between 7 to 15 digits').trim().allow("").label("PF Number"),
   employeeType: Joi.number().required().label("Employee Type"),
   image: Joi.string().allow(""),
 
   officeMobileNumber: Joi.string()
+    .pattern(/^[0-9]*$/, 'Office Mobile number should only contain numbers')
     .trim()
     .length(10)
     .allow("")
     .label("Office Mobile Number"),
   personalMobileNumber: Joi.string()
+    .pattern(/^[0-9]*$/, 'Personal Mobile number should only contain numbers')
     .trim()
     .length(10)
     .required()
-    .label("Office Mobile Number"),
+    .label("Personal Mobile Number"),
   dateOfJoining: Joi.string().required().label("Date Of Joining"),
   manager: Joi.number().required().label("Manager"),
   designation_id: Joi.number().required().label("Designation"),
@@ -767,26 +769,28 @@ const revokeSeparation = Joi.object({
 const importOnboardEmployeeSchema = Joi.object({
   email: Joi.string().trim().email().allow("").label("Email"),
   personalEmail: Joi.string().trim().email().required().label("Personal Email"),
-  firstName: Joi.string().trim().required().label("First Name"),
-  middleName: Joi.string().trim().allow("").default('NA').label("Middle Name"),
-  lastName: Joi.string().trim().allow("").default('NA').label("Last Name"),
+  firstName: Joi.string().pattern(/^[A-Za-z\s]*$/, 'First Name should only contain letters and spaces').trim().required().label("First Name"),
+  middleName: Joi.string().pattern(/^[A-Za-z\s]*$/, 'Middle Name should only contain letters and spaces').trim().allow("").label("Middle Name"),
+  lastName: Joi.string().pattern(/^[A-Za-z\s]*$/, 'Last Name should only contain letters and spaces').trim().allow("").label("Last Name"),
 
-  panNo: Joi.string().trim().length(10).allow("").default('NA').label("PAN Number"),
-  uanNo: Joi.string().trim().allow("").default('NA').label("UAN Number"),
-  pfNo: Joi.string().trim().allow("").default('NA').label("PF Number"),
+  panNo: Joi.string().pattern(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, 'PAN should be in the format: AAAAA9999A').trim().allow(""),
+  uanNo: Joi.string().pattern(/^[0-9]{12}$/, 'UAN should be exactly 12 digits').trim().allow(""),
+  pfNo: Joi.string().pattern(/^[0-9]{7,15}$/, 'PF number should be between 7 to 15 digits').trim().allow(""),
   employeeType: Joi.string().required().label("Employee Type"),
   image: Joi.string().allow(""),
 
   officeMobileNumber: Joi.string()
+    .pattern(/^[0-9]*$/, 'Offical Mobile number should only contain numbers')
     .trim()
     .length(10)
     .allow("")
     .label("Office Mobile Number"),
   personalMobileNumber: Joi.string()
+    .pattern(/^[0-9]*$/, 'Personal Mobile number should only contain numbers')
     .trim()
     .length(10)
     .required()
-    .label("Office Mobile Number"),
+    .label("Personal Mobile Number"),
   dateOfJoining: Joi.string().required().label("Date Of Joining"),
   manager: Joi.number().required().label("Manager"),
   designation: Joi.string().required().label("Designation"),

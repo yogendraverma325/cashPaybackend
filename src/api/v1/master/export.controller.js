@@ -2480,7 +2480,7 @@ class MasterController {
               else {
                 const masterErrors = {
                   index: employee.Index,
-                  companyEmail: obj.email,
+                  personalEmail: obj.personalEmail,
                   company: isValidCompany.message,
                   employeeType: isValidEmployeeType.message,
                   probation: isValidProbation.message,
