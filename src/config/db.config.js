@@ -91,6 +91,8 @@ import SeparationTaskMapping from "../api/model/SeparationTaskMapping.js";
 import SeparationTaskFields from "../api/model/SeparationTaskFields.js";
 import SeparationFieldsValues from "../api/model/SeparationFieldsValues.js";
 import SeparationInitiatedTask from "../api/model/SeparationInitiatedTask.js";
+import CategoryMaster from "../api/model/CategoryMaster.js";
+import SubCategoryMaster from "../api/model/SubCategoryMaster.js";
 
 import literal from "sequelize";
 import QueryTypes from "sequelize";
@@ -247,6 +249,8 @@ db.separationTaskMapping = SeparationTaskMapping(sequelize, Sequelize)
 db.separationTaskFields = SeparationTaskFields(sequelize, Sequelize)
 db.separationFieldValues = SeparationFieldsValues(sequelize, Sequelize)
 db.separationInitiatedTask = SeparationInitiatedTask(sequelize, Sequelize)
+db.categoryMaster = CategoryMaster(sequelize, Sequelize)
+db.subCategoryMaster = SubCategoryMaster(sequelize, Sequelize)
 
 db.holidayCompanyLocationConfiguration.hasOne(db.holidayMaster, {
   foreignKey: "holidayId",
@@ -722,5 +726,6 @@ db.separationInitiatedTask.hasOne(db.separationTaskMaster, { foreignKey: 'taskAu
 db.separationInitiatedTask.hasOne(db.employeeMaster, { foreignKey: 'id', sourceKey: 'employeeId' })
 db.separationMaster.hasOne(db.employeeMaster, { foreignKey: 'id', sourceKey: 'employeeId' })
 db.employeeMaster.hasOne(db.separationMaster, { foreignKey: 'employeeId', sourceKey: "id" })
+db.categoryMaster.hasMany(db.subCategoryMaster, { foreignKey: 'categoryAutoId', sourceKey: "categoryAutoId" })
 
 export default db;
