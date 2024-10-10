@@ -1066,6 +1066,24 @@ class UserController {
             model: db.noticePeriodMaster,
             attributes: ["nPDaysAfterConfirmation"],
           },
+          {
+            model: db.companyMaster,
+            attributes: ['companyName']
+          },
+          {
+            model: db.employeeMaster,
+            as: "buhrData",
+            attributes: ["name", "email"],
+          },
+          {
+            model: db.buMaster,
+            attributes: ["buName"],
+          },
+          {
+            model: db.employeeMaster,
+            as: "managerData",
+            attributes: ["email", "name"],
+          },
         ],
       });
       const lastWorkingDay = moment(result.resignationDate, "YYYY-MM-DD").add(
@@ -1150,6 +1168,26 @@ class UserController {
         createdBy: req.userId,
         createdDt: moment(),
       });
+
+      eventEmitter.emit(
+        "separationUserAcknowledge",
+        JSON.stringify({
+          email: existUser.dataValues.email,
+          companyName: existUser.dataValues.companymaster.companyName,
+        })
+      );
+
+      eventEmitter.emit(
+        "managerApprovesSeparation",
+        JSON.stringify({
+          email: existUser.dataValues.buhrData.email,
+          recipientName: existUser.dataValues.buhrData.name,
+          empName: existUser.dataValues.name,
+          empCode: existUser.dataValues.empCode,
+          bu: existUser.dataValues.bumaster.buName,
+          managerName: existUser.dataValues.managerData.name,
+        })
+      );
 
       return respHelper(res, {
         status: 200,
