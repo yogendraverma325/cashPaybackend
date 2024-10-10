@@ -1947,11 +1947,11 @@ class UserController {
                     ...(search && { name: { [Op.like]: `%${search}%` } }),
                     ...(type === "all"
                       ? {
-                          [Op.or]: [
-                            //{ id: req.userId },
-                            { manager: req.userId },
-                          ],
-                        }
+                        [Op.or]: [
+                          //{ id: req.userId },
+                          { manager: req.userId },
+                        ],
+                      }
                       : { id: req.userId }),
                   },
                   include: [
@@ -2023,23 +2023,23 @@ class UserController {
             ...(isSystemGenerated == 1 && { source: "system_generated" }),
             ...(fromDate &&
               toDate && {
-                appliedFor: {
-                  [db.Sequelize.Op.between]: [fromDate, toDate],
-                },
-              }),
-              ...(type === "all" && isSystemGenerated == 0
+              appliedFor: {
+                [db.Sequelize.Op.between]: [fromDate, toDate],
+              },
+            }),
+            ...(type === "all" && isSystemGenerated == 0
+              ? {
+                [Op.or]: [
+                  { pendingAt: req.userId },
+                ],
+              }
+              : type === "all" && isSystemGenerated == 1
                 ? {
-                    [Op.or]: [
-                      { pendingAt: req.userId },
-                    ],
-                  }
-                : type === "all" && isSystemGenerated == 1
-                ? {
-                    [Op.or]: [
-                      { employeeId: req.userId },
-                      { pendingAt: req.userId },
-                    ],
-                  }
+                  [Op.or]: [
+                    { employeeId: req.userId },
+                    { pendingAt: req.userId },
+                  ],
+                }
                 : { employeeId: req.userId }), // Default case for non-"all" types
           },
           include: [
@@ -2176,7 +2176,7 @@ class UserController {
           attributes: ['id', 'empCode', 'name'],
           include: [{
             model: db.separationMaster,
-            attributes: ['l2LastWorkingDay']
+            attributes: ['resignationDate', 'l2LastWorkingDay']
           }, {
             model: db.designationMaster,
             attributes: ['name', 'code']
