@@ -488,6 +488,16 @@ class UserController {
           createdBy: userid,
         },
       });
+      let pendingSeperationCount=await db.separationMaster.count(
+        {
+          pendingAt: userid
+        },
+        {
+          where: {
+            finalStatus: [2,5,9]
+          },
+        }
+      );
 
       return respHelper(res, {
         status: 200,
@@ -501,15 +511,21 @@ class UserController {
               raisedByMe: pendingAttCount,
               assignedToMe: assignedAttCount,
             },
+            seperationCount: {
+              raisedByMe: 0,
+              assignedToMe: pendingSeperationCount,
+            },
           },
           mobile: {
             raisedByMe: {
               leaveData: countLeavePending.length,
               attedanceData: pendingAttCount,
+              seperationCount:0,
             },
             assignedToMe: {
               leaveData: countLeaveAssgined.length,
               attedanceData: assignedAttCount,
+              seperationCount:pendingSeperationCount,
             },
           },
         },
