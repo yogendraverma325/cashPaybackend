@@ -1357,6 +1357,9 @@ class UserController {
           },
           {
             model: db.separationTaskMaster,
+            where: {
+              taskDependent: null
+            },
             attributes: ["taskName"],
             include: [
               {
@@ -1730,6 +1733,9 @@ class UserController {
           },
           {
             model: db.separationTaskMaster,
+            where: {
+              taskDependent: null
+            },
             attributes: ["taskName"],
             include: [
               {
