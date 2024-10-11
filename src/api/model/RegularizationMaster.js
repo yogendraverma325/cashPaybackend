@@ -40,7 +40,13 @@ export default (sequelize, Sequelize) => {
     },
     regularizeLocationType:{
       type: Sequelize.STRING,
-    },  
+    },
+    actualPunchIn:{
+      type: Sequelize.TIME,
+    },
+    actualPunchOut:{
+      type: Sequelize.TIME,
+    },
     createdBy: {
       type: Sequelize.INTEGER,
     },

@@ -394,6 +394,17 @@ db.regularizationMaster.hasOne(db.attendanceMaster, {
   foreignKey: "attendanceAutoId",
   sourceKey: "attendanceAutoId",
 });
+db.regularizationMaster.hasOne(db.employeeMaster, {
+  foreignKey: "id",
+  sourceKey: "updatedBy",
+  as:"attendanceUpdatedBy"
+});
+
+db.employeeLeaveTransactions.hasOne(db.employeeMaster, {
+  foreignKey: "id",
+  sourceKey: "updatedBy",
+  as:"leaveUpdatedBy"
+});
 db.attendanceMaster.hasMany(db.regularizationMaster, {
   foreignKey: "attendanceAutoId",
   sourceKey: "attendanceAutoId",

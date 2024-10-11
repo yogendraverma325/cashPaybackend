@@ -1975,6 +1975,12 @@ class UserController {
           },
           include: [
             {
+                model:db.employeeMaster,
+                attributes:['id','name','empCode'],
+                as:"attendanceUpdatedBy",
+                required:false
+            },
+            {
               model: db.attendanceMaster,
               required: true,
               include: [
@@ -2091,6 +2097,12 @@ class UserController {
               attributes: ["leaveId", "leaveName", "leaveCode"],
               as: "leaveMasterDetails",
             },
+            {
+              model:db.employeeMaster,
+              attributes:['id','name','empCode'],
+              as:"leaveUpdatedBy",
+              required:false
+          },
           ],
           limit,
           offset,
