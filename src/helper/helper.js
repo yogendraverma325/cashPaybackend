@@ -226,7 +226,7 @@ const getEmpProfile = async (EMP_ID) => {
   const EMP_DATA = await db.employeeMaster.findOne({
     where: {
       id: EMP_ID,
-      isActive: 1
+      isActive: 1,
     },
     attributes: {
       exclude: ["password", "role_id", "designation_id"],
@@ -234,7 +234,7 @@ const getEmpProfile = async (EMP_ID) => {
     include: [
       {
         model: db.salutationMaster,
-        attributes: ['salutationId', 'salutation']
+        attributes: ["salutationId", "salutation"],
       },
       {
         model: db.functionalAreaMaster,
@@ -321,6 +321,34 @@ const getEmpProfile = async (EMP_ID) => {
             attributes: ["designationId", "name"],
           },
         ],
+      },
+      {
+        model: db.weekOffMaster,
+        required: true,
+        where: {
+          isActive: 1,
+        },
+      },
+      {
+        model: db.attendancePolicymaster,
+        required: false,
+        where: {
+          isActive: 1,
+        },
+      },
+      {
+        model: db.shiftMaster,
+        required: false,
+        attributes: [
+          "shiftId",
+          "shiftName",
+          "shiftStartTime",
+          "shiftEndTime",
+          "isOverNight",
+        ],
+        where: {
+          isActive: 1,
+        },
       },
       // {
       //   model: db.employeeMaster,
@@ -637,12 +665,12 @@ const empMarkLeaveOfGivenDate = async function (userId, inputData, batch) {
     },
     attributes: ["leaveName"],
   });
-  let leaveReason
+  let leaveReason;
   if (inputData.status == "approved") {
-    leaveReason = 'auto-approved'
+    leaveReason = "auto-approved";
   }
   if (inputData.status == "pending") {
-    leaveReason = 'pending at manager'
+    leaveReason = "pending at manager";
   }
 
   eventEmitter.emit(
@@ -753,7 +781,7 @@ const remainingLeaveCount = async function (
 
 const isDayWorking = async function (startDate, weekOffId, companyLocationId) {
   let appliedFor = moment(startDate).add(0, "days").format("YYYY-MM-DD");
-console.log("appliedFor",appliedFor)
+  console.log("appliedFor", appliedFor);
   let lastDayDateAnotherFormat = moment(appliedFor).format("DD-MM-YYYY");
   let parsedDate = moment(lastDayDateAnotherFormat, "DD-MM-YYYY");
   let dayCode = parseInt(moment(appliedFor).format("d")) + 1;
@@ -826,11 +854,15 @@ console.log("appliedFor",appliedFor)
       workingCount += 1;
     }
   }
-  console.log("workingCountworkingCount",workingCount)
+  console.log("workingCountworkingCount", workingCount);
   return workingCount;
 };
 
-const isDayWorkingForReport = async function (startDate, weekOffId, companyLocationId) {
+const isDayWorkingForReport = async function (
+  startDate,
+  weekOffId,
+  companyLocationId
+) {
   let appliedFor = moment(startDate).add(0, "days").format("YYYY-MM-DD");
   console.log("appliedFor", appliedFor);
 
@@ -914,7 +946,6 @@ const isDayWorkingForReport = async function (startDate, weekOffId, companyLocat
   // If it's neither a week off nor a holiday, return 1 to indicate a working day
   return 1; // Working day
 };
-
 
 // const getCombineValue = async function (leaveFirstHalf, leaveSecondHalf) {
 //   let combineValue = "0.00";
@@ -1018,7 +1049,6 @@ const generateOTP = async function (length) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
-
 export default {
   generateJwtToken,
   checkFolder,
@@ -1042,6 +1072,5 @@ export default {
   generateOTP,
   generateJwtOTPEncrypt,
   generateJwtOTPDecrypt,
-  isDayWorkingForReport
+  isDayWorkingForReport,
 };
-

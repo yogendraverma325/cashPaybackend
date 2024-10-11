@@ -74,7 +74,7 @@ const message = {
   SEPARATION_ALREADY_SUBMITTED: "Separation Already Submitted",
   SEPARATION_REQUEST_NOT_AVAILABLE: "Separation Request Not Available",
   SEPARATION_REVOKED: "Separation Request Revoked",
-  TASK_SUBMITTED:"Task Submitted"
+  TASK_SUBMITTED: "Task Submitted"
 };
 
 export default message;

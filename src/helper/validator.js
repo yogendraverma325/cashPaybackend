@@ -346,7 +346,7 @@ const updateManagerSchema = Joi.array()
     Joi.object({
       user: Joi.number().required().label("User"),
       manager: Joi.number().required().label("Manager"),
-      date: Joi.string().label("Date").required()
+      date: Joi.string().label("Date").required(),
     })
   )
   .messages({
@@ -578,13 +578,13 @@ const onBehalfSeperationByManager = Joi.object({
   l1ProposedLastWorkingDay: Joi.string()
     .required()
     .label("Proposed last Working Day"),
-  l1ReasonOfResignation: Joi.number()
-    .required()
-    .label("Reason Of Resignation"),
+  l1ReasonOfResignation: Joi.number().required().label("Reason Of Resignation"),
   l1BillingType: Joi.string(),
   l1CustomerName: Joi.string().trim().allow("").label("Customer Name"),
   replacementRequired: Joi.boolean().label("Replacement Required"),
-  replacementRequiredBy: Joi.string().allow("").label("Replacement Required By"),
+  replacementRequiredBy: Joi.string()
+    .allow("")
+    .label("Replacement Required By"),
   l1Remark: Joi.string().trim().max(100).allow("").label("Remark"),
   l1Attachment: Joi.string().allow(""),
   submitType: Joi.number(),
@@ -698,7 +698,7 @@ const onboardEmployeeSchema = Joi.object({
   iqTestApplicable: Joi.number().required().label("IQ Test Applicable"),
   positionType: Joi.string().required().label("Position Type"),
   profileImage: Joi.string().allow(null),
-  id: Joi.string().allow('')
+  id: Joi.string().allow(""),
 });
 
 const createTMCSchema = Joi.object({
@@ -716,52 +716,53 @@ const onBehalfSeperationByBUHr = Joi.object({
     .valid(1, 2, 3, 4)
     .required()
     .label("Separation Type"),
-  l2ReasonOfSeparation: Joi.number()
-    .required()
-    .label("Reason Of Resignation"),
+  l2ReasonOfSeparation: Joi.number().required().label("Reason Of Resignation"),
   l2NewOrganizationName: Joi.string()
-    .trim().allow("")
+    .trim()
+    .allow("")
     .label("New Organization Name"),
   l2SalaryHike: Joi.string()
     .trim()
-    .when("l2NewOrganizationName", {
-      is: Joi.exist(),
-      then: Joi.required(),
-      otherwise: Joi.forbidden(),
-    })
+    .allow("")
     .label("Salary Hike"),
   doNotReHire: Joi.boolean().valid(0, 1).label("Do Not Rehire"),
   l2BillingType: Joi.string().trim().required().label("Billing Type"),
-  l2CustomerName: Joi.string().trim().required().allow("").label("Customer Name"),
+  l2CustomerName: Joi.string()
+    .trim()
+    .required()
+    .allow("")
+    .label("Customer Name"),
   shortFallPayoutBasis: Joi.string().trim().required().label("Payout Basis"),
   shortFallPayoutDays: Joi.number().required().label("Payout Days"),
   ndaConfirmation: Joi.boolean().valid(0, 1).label("NDA Confirmation"),
   holdFnf: Joi.boolean().valid(0, 1).label("Hold FNF"),
   holdFnfTillDate: Joi.string().trim().allow("").label("FNF Till Date"),
-  holdFnfReason: Joi.string()
-    .trim()
-    .allow("")
-    .label("Hold FNF Reason"),
+  holdFnfReason: Joi.string().trim().allow("").label("Hold FNF Reason"),
   l2Remark: Joi.string().trim().allow("").required().label("Remark"),
   l2Attachment: Joi.string().allow("").optional(),
   submitType: Joi.number(),
 });
 
 const revokeSeparation = Joi.object({
-  reason: Joi.number().required().label('Reason'),
-  remark: Joi.string().trim().allow("").label("Remark")
-})
+  reason: Joi.number().required().label("Reason"),
+  remark: Joi.string().trim().allow("").label("Remark"),
+});
 
 const importOnboardEmployeeSchema = Joi.object({
   email: Joi.string().trim().email().required().label("Email"),
   personalEmail: Joi.string().trim().email().required().label("Personal Email"),
   firstName: Joi.string().trim().required().label("First Name"),
-  middleName: Joi.string().trim().allow("").default('NA').label("Middle Name"),
-  lastName: Joi.string().trim().allow("").default('NA').label("Last Name"),
+  middleName: Joi.string().trim().allow("").default("NA").label("Middle Name"),
+  lastName: Joi.string().trim().allow("").default("NA").label("Last Name"),
 
-  panNo: Joi.string().trim().length(10).allow("").default('NA').label("PAN Number"),
-  uanNo: Joi.string().trim().allow("").default('NA').label("UAN Number"),
-  pfNo: Joi.string().trim().allow("").default('NA').label("PF Number"),
+  panNo: Joi.string()
+    .trim()
+    .length(10)
+    .allow("")
+    .default("NA")
+    .label("PAN Number"),
+  uanNo: Joi.string().trim().allow("").default("NA").label("UAN Number"),
+  pfNo: Joi.string().trim().allow("").default("NA").label("PF Number"),
   employeeType: Joi.string().required().label("Employee Type"),
   image: Joi.string().allow(""),
 
@@ -789,17 +790,54 @@ const importOnboardEmployeeSchema = Joi.object({
   companyLocation: Joi.string().required().label("Company Location"),
   weekOff: Joi.string().allow("").label("Week Off"),
 
-  gender: Joi.string().valid('Male', 'Female', 'Do not want to disclose', 'Transgender', 'Other').required().label("Gender"),
-  maritalStatus: Joi.string().valid('Married', 'Single', 'Divorced', 'Separated', 'Widowed', 'Others').required().label("Marital Status"),
-  maritalStatusSince: Joi.string().allow('').default('NA').label("Marital Status Date"),
-  nationality: Joi.string().valid('Indian').required().label("Nationality"),
+  gender: Joi.string()
+    .valid("Male", "Female", "Do not want to disclose", "Transgender", "Other")
+    .required()
+    .label("Gender"),
+  maritalStatus: Joi.string()
+    .valid("Married", "Single", "Divorced", "Separated", "Widowed", "Others")
+    .required()
+    .label("Marital Status"),
+  maritalStatusSince: Joi.string()
+    .allow("")
+    .default("NA")
+    .label("Marital Status Date"),
+  nationality: Joi.string().valid("Indian").required().label("Nationality"),
   probation: Joi.string().required().label("Probation"),
   jobLevel: Joi.string().required().label("Job Level"),
   dateOfBirth: Joi.string().required().label("Date Of Birth"),
   newCustomerName: Joi.string().allow("").label("Customer Name"),
-  iqTestApplicable: Joi.string().valid('Yes', 'No').required().label("IQ Test Applicable"),
-  positionType: Joi.string().valid('New', 'Replacement').required().label("Position Type")
+  iqTestApplicable: Joi.string()
+    .valid("Yes", "No")
+    .required()
+    .label("IQ Test Applicable"),
+  positionType: Joi.string()
+    .valid("New", "Replacement")
+    .required()
+    .label("Position Type"),
 });
+
+const updatePolicyOfEMP = Joi.array()
+  .required()
+  .items(
+    Joi.object({
+      user: Joi.number().required().label("User"),
+      shiftPolicy: Joi.number().label("shiftPolicy").allow(null),
+      currentshiftPolicy: Joi.number().label("currentshiftPolicy").allow(null),
+      attendancePolicy: Joi.number().label("attendancePolicy").allow(null),
+      currentattendancePolicy: Joi.number()
+        .label("currentattendancePolicy")
+        .allow(null),
+      weekOffPolicy: Joi.number().label("weekOffPolicy").allow(null),
+      currentweekOffPolicy: Joi.number()
+        .label("currentweekOffPolicy")
+        .allow(null),
+      date: Joi.string().label("Date").required(),
+    })
+  )
+  .messages({
+    "array.base": "Please Select Atleaset One User",
+  });
 
 export default {
   loginSchema,
@@ -844,5 +882,6 @@ export default {
   onboardEmployeeSchema,
   createTMCSchema,
   revokeSeparation,
-  importOnboardEmployeeSchema
+  importOnboardEmployeeSchema,
+  updatePolicyOfEMP,
 };

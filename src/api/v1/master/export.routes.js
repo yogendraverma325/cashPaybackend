@@ -16,11 +16,8 @@ export default Express
     .get("/employeeRedis", masterExportController.employeeRedis)
     .get("/employeeImport", upload.single('excelFile'), masterExportController.employeeImport)
     .get("/employeeImportNew", upload.single('excelFile'), masterExportController.employeeImportNew)
-
     .post("/employeeMissedData", masterExportController.employeeMissedData)
     .get("/allAttendancePunchDetails", masterExportController.allAttendancePunchDetails)
     .get("/attendanceSummary", masterExportController.attendanceSummary)
-
-
     .post("/onboardingEmployee", upload.single('excelFile'), masterExportController.onboardingEmployeeImport)
 

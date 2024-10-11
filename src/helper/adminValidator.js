@@ -5,8 +5,8 @@ const companyTypeMasterSchema = Joi.object({
 });
 
 const bandMasterSchema = Joi.object({
-    bandCode: Joi.string().required().label("Band Code"),
-    bandDesc: Joi.string().allow('').label("Band Description")
+  bandCode: Joi.string().required().label("Band Code"),
+  bandDesc: Joi.string().allow('').label("Band Description")
 });
 
 const jobLevelMasterSchema = Joi.object({
@@ -15,7 +15,7 @@ const jobLevelMasterSchema = Joi.object({
 });
 
 export default {
-    companyTypeMasterSchema,
-    bandMasterSchema,
-    jobLevelMasterSchema
+  companyTypeMasterSchema,
+  bandMasterSchema,
+  jobLevelMasterSchema
 };
