@@ -22,7 +22,7 @@ client.on('error', (e) => {
 
 // If the Node process ends, close the Cache connection
 process.on("SIGINT", async () => {
-  await client.disconnect();
+    await client.disconnect();
 });
 
 export default client;

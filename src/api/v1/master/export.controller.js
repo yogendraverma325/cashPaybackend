@@ -51,12 +51,12 @@ class MasterController {
         where: Object.assign(
           search
             ? {
-                [Op.or]: [
-                  { empCode: { [Op.like]: `%${search}%` } },
-                  { name: { [Op.like]: `%${search}%` } },
-                  { email: { [Op.like]: `%${search}%` } },
-                ],
-              }
+              [Op.or]: [
+                { empCode: { [Op.like]: `%${search}%` } },
+                { name: { [Op.like]: `%${search}%` } },
+                { email: { [Op.like]: `%${search}%` } },
+              ],
+            }
             : {}
         ),
         include: [
@@ -702,11 +702,9 @@ class MasterController {
       const limit = parseInt(req.query.limit) || 10;
       const pageNo = parseInt(req.query.page) || 1;
       const offset = (pageNo - 1) * limit;
-      const cacheKey = `employeeList:${pageNo}:${limit}:${search || ""}:${
-        department || ""
-      }:${designation || ""}:${buSearch || ""}:${sbuSearch || ""}:${
-        areaSearch || ""
-      }`;
+      const cacheKey = `employeeList:${pageNo}:${limit}:${search || ""}:${department || ""
+        }:${designation || ""}:${buSearch || ""}:${sbuSearch || ""}:${areaSearch || ""
+        }`;
 
       let employeeData = [];
       await client.get(cacheKey).then(async (data) => {
@@ -863,7 +861,7 @@ class MasterController {
               // attendanceFor,
               ...(attendanceFor == 0 && { isActive: 0 }),
               ...(attendanceFor == 1 && { isActive: 1 }),
-              ...(attendanceFor == 2 && { isActive: [0,1] }),
+              ...(attendanceFor == 2 && { isActive: [0, 1] }),
               ...(search && { id: { [Op.in]: search.split(",") } }),
               ...(employeeType && {
                 employeeType: { [Op.in]: employeeType.split(",") },
@@ -975,9 +973,9 @@ class MasterController {
               ")",
             manager: record["employee.managerData.name"]
               ? record["employee.managerData.name"] +
-                " (" +
-                record["employee.managerData.empCode"] +
-                ")"
+              " (" +
+              record["employee.managerData.empCode"] +
+              ")"
               : "-",
             attendanceDate: moment(record.attendanceDate).format("DD-MM-YYYY"),
             attendanceStatus: record.attendanceStatus,
@@ -1309,10 +1307,10 @@ class MasterController {
               "companyLocationId",
             ],
             where: {
-             // isActive: 1,
+              // isActive: 1,
               ...(attendanceFor == 0 && { isActive: 0 }),
               ...(attendanceFor == 1 && { isActive: 1 }),
-              ...(attendanceFor == 2 && { isActive: [0,1] }),
+              ...(attendanceFor == 2 && { isActive: [0, 1] }),
               ...(search && { id: { [Op.in]: search.split(",") } }),
               ...(employeeType && {
                 employeeType: { [Op.in]: employeeType.split(",") },
@@ -1477,8 +1475,8 @@ class MasterController {
                     leave.leaveCount === "1.0"
                       ? "L"
                       : leave.leaveAutoId == 6
-                      ? "0.5U"
-                      : "0.5L";
+                        ? "0.5U"
+                        : "0.5L";
                   dayRecords[dayKey] = `${dayRecords[dayKey]},${leaveStatus}`; // Append leave status
                   //attendanceCount.L++;
                   attendanceCount.L += parseFloat(leave.leaveCount);
@@ -1504,8 +1502,8 @@ class MasterController {
                     leave.leaveCount === "1.0"
                       ? "L"
                       : leave.leaveAutoId == 6
-                      ? "0.5U"
-                      : "0.5L";
+                        ? "0.5U"
+                        : "0.5L";
                   dayRecords[dayKey] = `${dayRecords[dayKey]},${leaveStatus}`; // Append leave status
                   //attendanceCount.L++;
                   attendanceCount.L += parseFloat(leave.leaveCount);
@@ -1531,8 +1529,8 @@ class MasterController {
                     leave.leaveCount === "1.0"
                       ? "L"
                       : leave.leaveAutoId == 6
-                      ? "0.5U"
-                      : "0.5L";
+                        ? "0.5U"
+                        : "0.5L";
                   dayRecords[dayKey] = `${dayRecords[dayKey]},${leaveStatus}`; // Append leave status
                   // attendanceCount.L++;
                   attendanceCount.L += parseFloat(leave.leaveCount);
@@ -1582,8 +1580,8 @@ class MasterController {
                     leave.leaveCount === "1.0"
                       ? "L"
                       : leave.leaveAutoId == 6
-                      ? "0.5U"
-                      : "0.5L";
+                        ? "0.5U"
+                        : "0.5L";
                   dayRecords[dayKey] = `${dayRecords[dayKey]},${leaveStatus}`; // Append leave status
                   //attendanceCount.L++;
                   attendanceCount.L += parseFloat(leave.leaveCount);
@@ -1609,8 +1607,8 @@ class MasterController {
                     leave.leaveCount === "1.0"
                       ? "L"
                       : leave.leaveAutoId == 6
-                      ? "0.5U"
-                      : "0.5L";
+                        ? "0.5U"
+                        : "0.5L";
                   dayRecords[dayKey] = `${dayRecords[dayKey]},${leaveStatus}`; // Append leave status
                   // attendanceCount.L++;
                   attendanceCount.L += parseFloat(leave.leaveCount);
@@ -1636,8 +1634,8 @@ class MasterController {
                     leave.leaveCount === "1.0"
                       ? "L"
                       : leave.leaveAutoId == 6
-                      ? "0.5U"
-                      : "0.5L";
+                        ? "0.5U"
+                        : "0.5L";
                   dayRecords[dayKey] = `${dayRecords[dayKey]},${leaveStatus}`; // Append leave status
                   //attendanceCount.L++;
                   attendanceCount.L += parseFloat(leave.leaveCount);
@@ -1689,8 +1687,8 @@ class MasterController {
                     leave.leaveCount === "1.0"
                       ? "L"
                       : leave.leaveAutoId == 6
-                      ? "0.5U"
-                      : "0.5L";
+                        ? "0.5U"
+                        : "0.5L";
                   dayRecords[dayKey] = `${dayRecords[dayKey]},${leaveStatus}`; // Append leave status
                   //attendanceCount.L++;
                   attendanceCount.L += parseFloat(leave.leaveCount);
@@ -1711,8 +1709,8 @@ class MasterController {
                     leave.leaveCount === "1.0"
                       ? "L"
                       : leave.leaveAutoId == 6
-                      ? "0.5U"
-                      : "0.5L";
+                        ? "0.5U"
+                        : "0.5L";
                   dayRecords[dayKey] = `${dayRecords[dayKey]},${leaveStatus}`; // Append leave status
                   //attendanceCount.L++;
                   attendanceCount.L += parseFloat(leave.leaveCount);
@@ -1733,8 +1731,8 @@ class MasterController {
                     leave.leaveCount === "1.0"
                       ? "L"
                       : leave.leaveAutoId == 6
-                      ? "0.5U"
-                      : "0.5L";
+                        ? "0.5U"
+                        : "0.5L";
                   dayRecords[dayKey] = `${dayRecords[dayKey]},${leaveStatus}`; // Append leave status
                   //attendanceCount.L++;
                   attendanceCount.L += parseFloat(leave.leaveCount);
@@ -1922,11 +1920,11 @@ const handleErrors = (error) => {
       : null,
     officeMobileNumber: error
       ? error.details.find((d) => d.context.key === "officeMobileNumber")
-          ?.message
+        ?.message
       : null,
     personalMobileNumber: error
       ? error.details.find((d) => d.context.key === "personalMobileNumber")
-          ?.message
+        ?.message
       : null,
     dateOfJoining: error
       ? error.details.find((d) => d.context.key === "dateOfJoining")?.message
@@ -1978,7 +1976,7 @@ const handleErrors = (error) => {
       : null,
     maritalStatusSince: error
       ? error.details.find((d) => d.context.key === "maritalStatusSince")
-          ?.message
+        ?.message
       : null,
     nationality: error
       ? error.details.find((d) => d.context.key === "nationality")?.message
