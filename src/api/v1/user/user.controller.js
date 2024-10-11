@@ -1264,6 +1264,7 @@ class UserController {
           "personalMobileNumber",
           "dateOfJoining",
           "companyId",
+          'buHRId',
           "buId",
           "sbuId",
           "functionalAreaId",
@@ -1434,8 +1435,7 @@ class UserController {
           element.dataValues.separationtaskmaster.separationtaskfields.length >
           0
         ) {
-          for (const element2 of element.dataValues.separationtaskmaster
-            .separationtaskfields) {
+          for (const element2 of element.dataValues.separationtaskmaster.separationtaskfields) {
             await db.separationFieldValues.create({
               taskAutoId: element.dataValues.taskAutoId,
               initiatedTaskAutoId: initiatedTask.dataValues.initiatedTaskAutoId,
@@ -2301,10 +2301,11 @@ class UserController {
     try {
 
       const user = req.query.user || req.userId
+      console.log(parseInt(user))
       const separationTasks = await db.separationInitiatedTask.findAll({
         where: {
           status: 0,
-          employeeId: user
+          employeeId: parseInt(user)
         },
         attributes: ["initiatedTaskAutoId", "status", "createdDt"],
         include: [
@@ -2373,7 +2374,7 @@ class UserController {
 
   async empInitiatedTask(req, res) {
     try {
-      const user = req.userId || req.query.user;
+      const user = req.query.user || req.userId;
 
       const taskData = await db.separationInitiatedTask.findAll({
         where: {
