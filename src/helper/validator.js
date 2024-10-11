@@ -130,6 +130,24 @@ const updateBiographicalDetailsSchema = Joi.object({
     .allow(null)
     .optional(),
   salutationId: Joi.number().required().label("Salutation"),
+  firstName: Joi.string()
+    .trim()
+    .label("First Name")
+    .allow(null)
+    .max(30)
+    .optional(),
+    mobileAdmin: Joi.number().label("Mobile Admin").optional(),
+    dataCardAdmin: Joi.number().label("Data Card").optional(),
+    visitingCardAdmin: Joi.number().label("Visiting Card").optional(),
+    workstationAdmin: Joi.number().label("Work Station").optional(),
+    lastIncrementDate: Joi.string().allow(null).label("Last Increment Date").optional(),
+    iqTestApplicable: Joi.number().label("IQ Test Applicable").optional(),
+    recruiterName: Joi.string()
+    .trim()
+    .label("Recruiter Name")
+    .allow(null)
+    .max(30)
+    .optional()
 });
 
 const addFamilyDetailsSchema = Joi.object({
@@ -338,6 +356,18 @@ const addJobDetailsSchema = Joi.object({
     .min(12)
     .max(12)
     .optional(),
+    epsApplicability: Joi.number().label("EPS Applicability").optional(),
+    esicApplicable: Joi.number().label("ESIC Applicable").optional(),
+    lwfApplicable: Joi.number().label("LWF Applicable").optional(),
+    pfRestricted: Joi.number().label("PF Restricted").optional(),
+    pfApplicability: Joi.number().label("PF Applicability").optional(),
+    epfApplicable: Joi.number().label("EPF Applicable").optional(),
+    pfNumber: Joi.string().label("PF Number").optional(),
+    lwfDesignation: Joi.number().label("LWF Designation").optional(),
+    lwfState: Joi.number().label("LWF State").optional(),
+    restrictCompanyPf: Joi.number().label("Restrict Company PF").optional(),
+    pranNumber: Joi.string().label("PRAN Number").optional(),
+    npsNumber: Joi.string().label("NPS Number").optional()
 });
 
 const updateManagerSchema = Joi.array()

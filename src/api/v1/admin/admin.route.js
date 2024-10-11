@@ -108,20 +108,20 @@ export default Express.Router()
 
   .post(
     "/onboardEmployee",
-    authorization("ADMIN", "BUHR", "HR_OPS"),
+    authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"),
     adminController.onboardEmployee
   )
   .get(
     "/onboardEmployee",
-    authorization("ADMIN", "BUHR", "HR_OPS"),
+    authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"),
     adminController.getOnboardEmployee
   )
   .post(
     "/createTMC",
-    authorization("ADMIN", "BUHR", "HR_OPS"),
+    authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"),
     adminController.createTMC
   )
-  .patch("/onboardEmployee/:id", authorization("ADMIN", "BUHR", "HR_OPS"), adminController.changeStatusOnboardEmployee)
-  .put("/onboardEmployee/:id", authorization("ADMIN", "BUHR", "HR_OPS"), adminController.updateOnboardEmployee)
-  .get("/onboardEmployee/:id", authorization("ADMIN", "BUHR", "HR_OPS"), adminController.getOnboardEmployeeDetails)
+  .patch("/onboardEmployee/:id", authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"), adminController.changeStatusOnboardEmployee)
+  .put("/onboardEmployee/:id", authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"), adminController.updateOnboardEmployee)
+  .get("/onboardEmployee/:id", authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"), adminController.getOnboardEmployeeDetails)
 

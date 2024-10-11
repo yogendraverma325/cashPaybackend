@@ -82,6 +82,14 @@ class commonController {
             salutationId: result.salutationId,
             middleName: result.middleName,
             lastName: result.lastName,
+            firstName: result.firstName,
+            dataCardAdmin: result.dataCardAdmin,
+            visitingCardAdmin: result.visitingCardAdmin,
+            workstationAdmin: result.workstationAdmin,
+            lastIncrementDate: result.lastIncrementDate,
+            iqTestApplicable: result.iqTestApplicable,
+            mobileAdmin: result.mobileAdmin,
+            recruiterName: result.recruiterName
           },
           {
             where: { id: userId },
