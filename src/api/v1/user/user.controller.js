@@ -2231,11 +2231,51 @@ class UserController {
 
   async separationTaskForm(req, res) {
     try {
+      const user = req.query.user || req.userId
+      // const separationFields = await db.separationTaskFields.findAll({
+      //   where: {
+      //     taskAutoId: req.params.id,
+      //   },
+      //   attributes: ['taskFieldsAutoId', [db.Sequelize.literal(`select * from separationtaskvalues where taskAutoId=1 and employeeId=${user} and fieldValues is not null`, 'data222')]]
+      // });
+
+
       const separationFields = await db.separationTaskFields.findAll({
         where: {
           taskAutoId: req.params.id,
         },
       });
+
+      // for (const element of separationFields) {
+      //   const fieldValuesData = await db.separationFieldValues.findAll({
+      //     where: {
+      //       taskAutoId: 1,
+      //       employeeId: user,
+      //       fieldValues: { [Op.ne]: null },
+      //       attributes: ['fieldValues'],
+      //       include: [{
+      //         model: db.separationTaskFields,
+      //         // attributes: ['fieldsCode', 'label']
+      //       }]
+      //     },
+      //   })
+
+      //   element.dataValues.fieldValuesData = fieldValuesData
+      // }
+
+
+
+
+
+      // const fieldValuesData = await db.separationFieldValues.findAll({
+      //   where: {
+      //     taskAutoId: 1,
+      //     employeeId: user,
+      //     fieldValues: { [Op.ne]: null },
+      //   },
+      // })
+
+      // console.log("fhbdj", fieldValuesData)
 
       return respHelper(res, {
         status: 200,
@@ -2320,7 +2360,7 @@ class UserController {
         include: [
           {
             model: db.employeeMaster,
-            attributes: ["id", "empCode", "name"],
+            attributes: ["id", "empCode", "name", 'dateOfJoining', 'dataCardAdmin', 'mobileAdmin'],
             include: [
               {
                 model: db.separationMaster,
@@ -2329,6 +2369,19 @@ class UserController {
               {
                 model: db.designationMaster,
                 attributes: ["name", "code"],
+              },
+              {
+                model: db.buMaster,
+                attributes: ['buName']
+              },
+              {
+                model: db.sbuMaster,
+                attributes: ['sbuName']
+              },
+              {
+                model: db.employeeMaster,
+                as: 'managerData',
+                attributes: ['name', 'email']
               },
               {
                 model: db.companyLocationMaster,

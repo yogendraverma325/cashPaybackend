@@ -398,13 +398,13 @@ db.regularizationMaster.hasOne(db.attendanceMaster, {
 db.regularizationMaster.hasOne(db.employeeMaster, {
   foreignKey: "id",
   sourceKey: "updatedBy",
-  as:"attendanceUpdatedBy"
+  as: "attendanceUpdatedBy"
 });
 
 db.employeeLeaveTransactions.hasOne(db.employeeMaster, {
   foreignKey: "id",
   sourceKey: "updatedBy",
-  as:"leaveUpdatedBy"
+  as: "leaveUpdatedBy"
 });
 db.attendanceMaster.hasMany(db.regularizationMaster, {
   foreignKey: "attendanceAutoId",
@@ -828,4 +828,14 @@ db.PolicyHistory.hasOne(db.employeeMaster, {
   sourceKey: "createdBy",
   as: "PolicyUpdaterDetails",
 });
+
+db.separationTaskFields.hasOne(db.separationFieldValues, {
+  foreignKey: "fields",
+  sourceKey: "taskFieldsAutoId",
+})
+
+db.separationFieldValues.hasOne(db.separationTaskFields, {
+  foreignKey: 'taskFieldsAutoId',
+  sourceKey: 'fields'
+})
 export default db;
