@@ -6,7 +6,7 @@ cron.schedule("30 1 * * *", async () => {
   await attendanceController.attedanceCron();
 });
 
-cron.schedule("30 2 * * *", async () => {
+cron.schedule("* * * * *", async () => {
   await cronController.updateManager();
   await cronController.updatePolicy();
 });

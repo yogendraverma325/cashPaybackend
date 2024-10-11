@@ -131,12 +131,11 @@ class CronController {
     });
     if (managerData.length != 0) {
       for (const element of managerData) {
-        let lastDayDate = moment(element.fromDate)
-          .subtract(1, "day")
-          .format("YYYY-MM-DD");
+        let lastDayDate = moment(element.fromDate).format("YYYY-MM-DD");
         const currentManagerOfTheEmployee = await db.managerHistory.findOne({
           raw: true,
           where: {
+            needAttendanceCron: 0,
             toDate: {
               [Op.eq]: null,
             },
@@ -149,7 +148,6 @@ class CronController {
             {
               toDate: lastDayDate,
               updatedBy: 1,
-              needAttendanceCron: 0,
             },
             {
               where: {
@@ -234,9 +232,7 @@ class CronController {
     });
     if (listData.length != 0) {
       for (const element of listData) {
-        let lastDayDate = moment(element.fromDate)
-          .subtract(1, "day")
-          .format("YYYY-MM-DD");
+        let lastDayDate = moment(element.fromDate).format("YYYY-MM-DD");
         const currentRecord = await db.PolicyHistory.findOne({
           raw: true,
           where: {
@@ -244,6 +240,7 @@ class CronController {
               [Op.eq]: null,
             },
             employeeId: element.employeeId,
+            needAttendanceCron: 0,
           },
         });
         if (currentRecord) {
@@ -252,7 +249,6 @@ class CronController {
             {
               toDate: lastDayDate,
               updatedBy: 1,
-              needAttendanceCron: 0,
             },
             {
               where: {
