@@ -2073,10 +2073,10 @@ class UserController {
           },
           include: [
             {
-                model:db.employeeMaster,
-                attributes:['id','name','empCode'],
-                as:"attendanceUpdatedBy",
-                required:false
+              model: db.employeeMaster,
+              attributes: ['id', 'name', 'empCode'],
+              as: "attendanceUpdatedBy",
+              required: false
             },
             {
               model: db.attendanceMaster,
@@ -2194,11 +2194,11 @@ class UserController {
               as: "leaveMasterDetails",
             },
             {
-              model:db.employeeMaster,
-              attributes:['id','name','empCode'],
-              as:"leaveUpdatedBy",
-              required:false
-          },
+              model: db.employeeMaster,
+              attributes: ['id', 'name', 'empCode'],
+              as: "leaveUpdatedBy",
+              required: false
+            },
           ],
           limit,
           offset,
@@ -2312,12 +2312,9 @@ class UserController {
   async initiatedTaskList(req, res) {
     try {
 
-      const user = req.query.user || req.userId
-      console.log(parseInt(user))
       const separationTasks = await db.separationInitiatedTask.findAll({
         where: {
           status: 0,
-          employeeId: parseInt(user)
         },
         attributes: ["initiatedTaskAutoId", "status", "createdDt"],
         include: [
