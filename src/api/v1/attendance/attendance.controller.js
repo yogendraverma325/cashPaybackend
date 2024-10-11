@@ -355,7 +355,7 @@ class AttendanceController {
         where: {
           attendanceAutoId: result.attendanceAutoId,
         },
-        attributes: ["attendanceRegularizeCount"],
+        attributes: ["attendancePunchInTime","attendancePunchOutTime","attendanceRegularizeCount"],
         include: [
           {
             model: db.regularizationMaster,
@@ -418,6 +418,8 @@ class AttendanceController {
         regularizePunchInTime: result.punchInTime,
         regularizePunchOutTime: result.punchOutTime,
         regularizeLocationType: result.locationType,
+        actualPunchIn:attendanceData.dataValues.attendancePunchInTime,
+        actualPunchOut:attendanceData.dataValues.attendancePunchOutTime,
         regularizeReason: result.reason,
         regularizeStatus: "Pending",
         createdBy: req.userId,
@@ -1455,6 +1457,8 @@ class AttendanceController {
         {
           regularizeManagerRemark: result.remark != "" ? result.remark : null,
           regularizeStatus: result.status ? "Approved" : "Rejected",
+          updatedBy:req.userId,
+          updatedAt:moment().format("YYYY-MM-DD HH:mm:ss")
         },
         {
           where: {

@@ -1,3 +1,9 @@
+//-----------------------------------------------2024-10-11------------------------------------------------//
+
+ALTER TABLE `tara_hrms_live`.`regularization` 
+ADD COLUMN `actualPunchIn` TIME NULL DEFAULT NULL AFTER `regularizeManagerRemark`,
+ADD COLUMN `actualPunchOut` TIME NULL DEFAULT NULL AFTER `actualPunchIn`;
+
 //----------------------------------------------- 2024-10-07-----------------------------------------------//
 
 ALTER TABLE `tara_hrms_live`.`taskfiltermaster` 
