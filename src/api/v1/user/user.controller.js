@@ -2232,13 +2232,6 @@ class UserController {
   async separationTaskForm(req, res) {
     try {
       const user = req.query.user || req.userId
-      // const separationFields = await db.separationTaskFields.findAll({
-      //   where: {
-      //     taskAutoId: req.params.id,
-      //   },
-      //   attributes: ['taskFieldsAutoId', [db.Sequelize.literal(`select * from separationtaskvalues where taskAutoId=1 and employeeId=${user} and fieldValues is not null`, 'data222')]]
-      // });
-
 
       const separationFields = await db.separationTaskFields.findAll({
         where: {
@@ -2247,35 +2240,17 @@ class UserController {
       });
 
       // for (const element of separationFields) {
-      //   const fieldValuesData = await db.separationFieldValues.findAll({
+      //   const fieldValuesData = await db.separationFieldValues.findOne({
       //     where: {
       //       taskAutoId: 1,
+      //       fields: element.dataValues.taskFieldsAutoId,
       //       employeeId: user,
-      //       fieldValues: { [Op.ne]: null },
-      //       attributes: ['fieldValues'],
-      //       include: [{
-      //         model: db.separationTaskFields,
-      //         // attributes: ['fieldsCode', 'label']
-      //       }]
       //     },
+      //     attributes: ['fieldValues'],
       //   })
-
+      //   // console.log('nmbjbdn---->>', fieldValuesData)
       //   element.dataValues.fieldValuesData = fieldValuesData
       // }
-
-
-
-
-
-      // const fieldValuesData = await db.separationFieldValues.findAll({
-      //   where: {
-      //     taskAutoId: 1,
-      //     employeeId: user,
-      //     fieldValues: { [Op.ne]: null },
-      //   },
-      // })
-
-      // console.log("fhbdj", fieldValuesData)
 
       return respHelper(res, {
         status: 200,
@@ -2381,7 +2356,7 @@ class UserController {
               {
                 model: db.employeeMaster,
                 as: 'managerData',
-                attributes: ['name', 'email']
+                attributes: ['empCode', 'name', 'email']
               },
               {
                 model: db.companyLocationMaster,
@@ -2584,7 +2559,7 @@ class UserController {
       });
     }
   }
-  // userPolicyHistory
+  // userPolicyHistory 
 }
 
 export default new UserController();
