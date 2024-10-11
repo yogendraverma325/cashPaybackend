@@ -2299,9 +2299,12 @@ class UserController {
 
   async initiatedTaskList(req, res) {
     try {
+
+      const user = req.query.user || req.userId
       const separationTasks = await db.separationInitiatedTask.findAll({
         where: {
           status: 0,
+          employeeId: user
         },
         attributes: ["initiatedTaskAutoId", "status", "createdDt"],
         include: [
