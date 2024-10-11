@@ -724,11 +724,7 @@ const onBehalfSeperationByBUHr = Joi.object({
     .label("New Organization Name"),
   l2SalaryHike: Joi.string()
     .trim()
-    .when("l2NewOrganizationName", {
-      is: Joi.exist(),
-      then: Joi.required(),
-      otherwise: Joi.forbidden(),
-    })
+    .allow("")
     .label("Salary Hike"),
   doNotReHire: Joi.boolean().valid(0, 1).label("Do Not Rehire"),
   l2BillingType: Joi.string().trim().required().label("Billing Type"),

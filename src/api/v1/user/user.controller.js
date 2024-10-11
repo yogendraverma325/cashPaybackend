@@ -1674,7 +1674,7 @@ class UserController {
         l2SeparationType: result.l2SeparationType,
         l2ReasonOfSeparation: result.l2ReasonOfSeparation,
         l2NewOrganizationName: (result.l2NewOrganizationName) ? result.l2NewOrganizationName : null,
-        l2SalaryHike: (result.l2SalaryHike) ? result.l2SalaryHike : null,
+        l2SalaryHike: (result.l2SalaryHike != "") ? result.l2SalaryHike : null,
         doNotReHire: result.doNotReHire,
         l2BillingType: result.l2BillingType,
         l2CustomerName: (result.l2CustomerName != '') ? result.l2CustomerName : null,
