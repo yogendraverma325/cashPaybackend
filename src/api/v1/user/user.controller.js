@@ -1747,8 +1747,6 @@ class UserController {
         ],
       });
 
-      // console.log("dnccjdbcjb---->>", separationData.dataValues.employee.companyId)
-      // console.log(separationOwner)
 
       await db.separationMaster.update(
         {
@@ -2277,8 +2275,6 @@ class UserController {
         reqObj[element.fieldsCode] = element.value;
       }
 
-      // const result=await validator.
-      // console.log("req body", req.body)
       for (const element of req.body) {
         await db.separationFieldValues.update(
           {
@@ -2305,13 +2301,162 @@ class UserController {
           },
         }
       );
-      // console.log("req.body", req.body)
-      // for (let index = 0; index < array.length; index++) {
-      //   const element = array[index];
 
-      // }
+      const mailArray = [];
+      const separationData = await db.separationMaster.findOne({
+        where: {
+          employeeId: req.body[0].user,
+          finalStatus: 9
+        },
+        attributes: ["initiatedBy", "resignationDate"],
+        include: [
+          {
+            model: db.employeeMaster,
+            attributes: [
+              "id",
+              "empCode",
+              "name",
+              "email",
+              "officeMobileNumber",
+              "personalEmail",
+              "personalMobileNumber",
+              "dateOfJoining",
+              "companyId",
+              "buId",
+              "sbuId",
+              "functionalAreaId",
+            ],
+            include: [
+              {
+                model: db.companyLocationMaster,
+                attributes: ["address1"],
+              },
+              {
+                model: db.departmentMaster,
+                attributes: ["departmentName", "departmentCode"],
+              },
+              {
+                model: db.employeeMaster,
+                as: "managerData",
+                attributes: ["name"],
+              },
+              {
+                model: db.sbuMaster,
+                attributes: ["sbuName"],
+              },
+              {
+                model: db.buMaster,
+                attributes: ["buName"],
+              },
+              {
+                model: db.companyMaster,
+                attributes: ["companyName"],
+              },
+            ],
+          },
+        ],
+      });
 
-      // console.log("reqObj", reqObj)
+      const separationOwner = await db.separationTaskMapping.findAll({
+        where: {
+          companyId: separationData.dataValues.employee.companyId,
+          buId: separationData.dataValues.employee.buId,
+          sbuId: separationData.dataValues.employee.sbuId,
+          functionalAreaId: separationData.dataValues.employee.functionalAreaId,
+        },
+        include: [
+          {
+            model: db.separationTaskOwner,
+            attributes: ["taskOwner"],
+            include: [
+              {
+                model: db.employeeMaster,
+                attributes: ["name", "email"],
+              },
+            ],
+          },
+          {
+            model: db.separationTaskConfig,
+            attributes: ["taskConfigName"],
+          },
+          {
+            model: db.separationTaskMaster,
+            where: {
+              taskDependent: req.body[0].taskAutoId
+            },
+            attributes: ["taskName"],
+            include: [
+              {
+                model: db.separationTaskFields,
+                attributes: ["taskFieldsAutoId"],
+              },
+            ],
+          },
+        ],
+      });
+
+      for (const element of separationOwner) {
+        const initiatedTask = await db.separationInitiatedTask.create({
+          employeeId: separationData.dataValues.employee.id,
+          taskAutoId: element.dataValues.taskAutoId,
+          status: 0,
+          createdDt: moment(),
+          createdBy: 1,
+          isActive: 1,
+        });
+        if (
+          element.dataValues.separationtaskmaster.separationtaskfields.length >
+          0
+        ) {
+          for (const element2 of element.dataValues.separationtaskmaster
+            .separationtaskfields) {
+            await db.separationFieldValues.create({
+              taskAutoId: element.dataValues.taskAutoId,
+              initiatedTaskAutoId: initiatedTask.dataValues.initiatedTaskAutoId,
+              fields: element2.dataValues.taskFieldsAutoId,
+              employeeId: separationData.dataValues.employee.id,
+              createdDt: moment(),
+              createdBy: 1,
+            });
+          }
+        }
+
+        if (element.dataValues.separationtaskowners.length > 0) {
+          for (const ownerList of element.dataValues.separationtaskowners) {
+            mailArray.push({
+              email: ownerList.employee.email,
+              name: ownerList.employee.name,
+            });
+          }
+        }
+      }
+
+      for (const element of mailArray) {
+        eventEmitter.emit(
+          "clearenceInitiated",
+          JSON.stringify({
+            email: element.email,
+            recipientName: element.name,
+            empCode: separationData.dataValues.employee.empCode,
+            empName: separationData.dataValues.employee.name,
+            officeLocation:
+              separationData.dataValues.employee.companylocationmaster.address1,
+            department: `${separationData.dataValues.employee.departmentmaster.departmentName} (${separationData.dataValues.employee.departmentmaster.departmentCode})`,
+            officeMobileNumber:
+              separationData.dataValues.employee.officeMobileNumber,
+            sbuName: separationData.dataValues.employee.sbumaster.sbuName,
+            bu: separationData.dataValues.employee.bumaster.buName,
+            reportingName: separationData.dataValues.employee.managerData.name,
+            dateOfJoining: separationData.dataValues.employee.dateOfJoining,
+            dateOfResignation: separationData.dataValues.resignationDate,
+            lastWorkingDay: separationData.dataValues.l2LastWorkingDay,
+            personalMailID: separationData.dataValues.employee.personalEmail,
+            personalMobileNumber:
+              separationData.dataValues.employee.personalMobileNumber,
+          })
+        );
+      }
+
       return respHelper(res, {
         status: 200,
         msg: constant.TASK_SUBMITTED,

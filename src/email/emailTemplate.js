@@ -2782,7 +2782,7 @@ const clearanceInitiated = async (data) => {
                             <div style="line-height: 1.2">
                               <span
                                 style="font-family: Calibri; font-size: 14px"
-                                >Mobile Number:</span
+                                >Mobile Number: </span
                               ><span
                                 style="font-family: Calibri; font-size: 14px"
                                 >${data.officeMobileNumber}</span
