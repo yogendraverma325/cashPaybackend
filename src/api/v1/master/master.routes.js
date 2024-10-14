@@ -44,3 +44,6 @@ export default Express.Router()
   .get("/buhead", authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"), masterController.buhead)
   .get("/probation", authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"), masterController.probation)
   .get("/newCustomerName", authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"), masterController.newCustomerName)
+
+  .get("/lwfDesignation", authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"), masterController.lwfDesignation)
+  .get("/ptLocation/:stateId", authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"), masterController.ptLocation)

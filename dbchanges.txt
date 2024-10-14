@@ -633,6 +633,15 @@ ADD COLUMN `postfix` VARCHAR(45) NULL DEFAULT NULL AFTER `prefix`;
 ALTER TABLE `tara`.`companytypemaster` 
 CHANGE COLUMN `isActive` `isActive` TINYINT(1) NOT NULL DEFAULT 1 ;
 
+14-10-2024
+
+ALTER TABLE `tara`.`employeebiographicaldetails` 
+ADD COLUMN `nomineeName` VARCHAR(255) NULL DEFAULT NULL AFTER `dateOfBirth`,
+ADD COLUMN `nomineeRelation` VARCHAR(255) NULL DEFAULT NULL AFTER `nomineeName`;
+
+create new table as "ptlocationmaster" for professional tax location master regarding update employee payment details "PT Location"
+
+
 
 
 

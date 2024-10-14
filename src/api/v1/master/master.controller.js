@@ -1313,6 +1313,38 @@ class MasterController {
     }
   }
 
+  async lwfDesignation(req, res) {
+    try {
+      let condition = { 'isActive': 1 };
+      const lwfDesignationData = await db.lwfDesignationMaster.findAll({ where: condition, attributes: ['lwfDesignationId', 'lwfDesignationName'] });
+      return respHelper(res, {
+        status: 200,
+        data: lwfDesignationData,
+      });
+    } catch (error) {
+      console.log(error);
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+
+  async ptLocation(req, res) {
+    try {
+      let condition = { 'isActive': 1, 'stateId': req.params.stateId };
+      const docs = await db.ptLocationMaster.findAll({ where: condition, attributes: ['ptLocationId', 'ptLocationName', 'ptLocationCode'] });
+      return respHelper(res, {
+        status: 200,
+        data: docs,
+      });
+    } catch (error) {
+      console.log(error);
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+
 }
 
 export default new MasterController();

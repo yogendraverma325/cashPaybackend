@@ -199,7 +199,7 @@ const addEducationDetailsSchema = Joi.object({
   educationRemark: Joi.string().allow(null).optional(),
   educationActivities: Joi.string().allow(null).optional(),
   userId: Joi.number().integer().allow(null).required(),
-  isHighestEducation: Joi.number().integer().allow(null).optional(),
+  isHighestEducation: Joi.boolean().allow(null).optional(),
 });
 
 const updateEducationDetailsSchema = Joi.object({
@@ -219,7 +219,7 @@ const updateEducationDetailsSchema = Joi.object({
       "date.greater": "End date must be greater than the start date",
     })
     .required(),
-  isHighestEducation: Joi.string().required().allow(null),
+  isHighestEducation: Joi.boolean().required().allow(null),
   userId: Joi.number().integer().required(),
 });
 
@@ -259,9 +259,9 @@ const addPaymentDetailsSchema = Joi.object({
     .label("Account Holder Name"),
   ptStateId: Joi.number().integer().optional(),
   ptLocationId: Joi.number().integer().optional(),
-  ptApplicability: Joi.number().integer().optional(),
-  tdsApplicability: Joi.number().integer().optional(),
-  itrFiling: Joi.number().integer().optional(),
+  ptApplicability: Joi.boolean().optional(),
+  tdsApplicability: Joi.boolean().optional(),
+  itrFiling: Joi.boolean().optional(),
   paymentAttachment: Joi.string()
     .label("Payment Attachemnt")
     .allow("")
@@ -356,16 +356,16 @@ const addJobDetailsSchema = Joi.object({
     .min(12)
     .max(12)
     .optional(),
-    epsApplicability: Joi.number().label("EPS Applicability").optional(),
-    esicApplicable: Joi.number().label("ESIC Applicable").optional(),
-    lwfApplicable: Joi.number().label("LWF Applicable").optional(),
-    pfRestricted: Joi.number().label("PF Restricted").optional(),
-    pfApplicability: Joi.number().label("PF Applicability").optional(),
-    epfApplicable: Joi.number().label("EPF Applicable").optional(),
+    epsApplicability: Joi.boolean().allow("").label("EPS Applicability"),
+    esicApplicable: Joi.boolean().allow("").label("ESIC Applicable"),
+    lwfApplicable: Joi.boolean().allow("").label("LWF Applicable"),
+    pfRestricted: Joi.boolean().allow("").label("PF Restricted"),
+    pfApplicability: Joi.boolean().allow("").label("PF Applicability"),
+    epfApplicable: Joi.boolean().allow("").label("EPF Applicable"),
     pfNumber: Joi.string().label("PF Number").optional(),
     lwfDesignation: Joi.number().label("LWF Designation").optional(),
     lwfState: Joi.number().label("LWF State").optional(),
-    restrictCompanyPf: Joi.number().label("Restrict Company PF").optional(),
+    restrictCompanyPf: Joi.boolean().allow("").label("Restrict Company PF"),
     pranNumber: Joi.string().label("PRAN Number").optional(),
     npsNumber: Joi.string().label("NPS Number").optional()
 });

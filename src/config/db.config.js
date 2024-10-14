@@ -80,6 +80,7 @@ import EmployeeStaging from "../api/model/EmployeeStaging.js";
 import ProbationMaster from "../api/model/ProbationMaster.js";
 import LwfDesignationMaster from "../api/model/LwfDesignationMaster.js"
 import NewCustomerNameMaster from "../api/model/NewCustomerNameMaster.js";
+import PTLocationMaster from "../api/model/PTLocationMaster.js";
 
 import literal from "sequelize";
 import QueryTypes from "sequelize";
@@ -225,6 +226,7 @@ db.probationMaster = ProbationMaster(sequelize, Sequelize);
 db.separationStatus = SeparationStatus(sequelize, Sequelize);
 db.lwfDesignationMaster = LwfDesignationMaster(sequelize, Sequelize)
 db.newCustomerNameMaster = NewCustomerNameMaster(sequelize, Sequelize);
+db.ptLocationMaster = PTLocationMaster(sequelize, Sequelize);
 
 db.holidayCompanyLocationConfiguration.hasOne(db.holidayMaster, {
   foreignKey: "holidayId",
