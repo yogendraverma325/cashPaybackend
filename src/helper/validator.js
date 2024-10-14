@@ -580,6 +580,7 @@ const onBehalfSeperationByManager = Joi.object({
     .label("Proposed last Working Day"),
   l1ReasonOfResignation: Joi.number().required().label("Reason Of Resignation"),
   l1BillingType: Joi.string(),
+  l1ProposedRecoveryDays: Joi.string().trim().allow("").label("Recovery Days"),
   l1CustomerName: Joi.string().trim().allow("").label("Customer Name"),
   replacementRequired: Joi.boolean().label("Replacement Required"),
   replacementRequiredBy: Joi.string()
@@ -709,6 +710,7 @@ const onBehalfSeperationByBUHr = Joi.object({
   userId: Joi.number(),
   resignationDate: Joi.string().required().label("Resignation Date"),
   l2LastWorkingDay: Joi.string().required().label("Proposed last Working Day"),
+  l2RecoveryDays: Joi.string().trim().allow("").label("Recovery Days"),
   l2RecoveryDaysReason: Joi.string()
     .required()
     .label("Reason for Proposed Recovery Days"),

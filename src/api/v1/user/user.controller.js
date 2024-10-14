@@ -1145,8 +1145,7 @@ class UserController {
         empProposedLastWorkingDay: result.empProposedLastWorkingDay,
         empProposedRecoveryDays: recoveryDays > 0 ? recoveryDays : 0,
         l1ProposedLastWorkingDay: result.l1ProposedLastWorkingDay,
-        l1ProposedRecoveryDays:
-          proposedRecoveryDays > 0 ? proposedRecoveryDays : 0,
+        l1ProposedRecoveryDays: result.l1ProposedRecoveryDays != "" ? result.l1ProposedRecoveryDays : 0,
         l1BillingType: result.l1BillingType,
         l1CustomerName:
           result.l1CustomerName != "" ? result.l1CustomerName : null,
@@ -1344,6 +1343,9 @@ class UserController {
           {
             model: db.separationTaskOwner,
             attributes: ["taskOwner"],
+            where: {
+              isActive: 1
+            },
             include: [
               {
                 model: db.employeeMaster,
@@ -1378,10 +1380,8 @@ class UserController {
         noticePeriodDay:
           existUser.dataValues.noticeperiodmaster.nPDaysAfterConfirmation,
         noticePeriodLastWorkingDay: lastWorkingDay.format("YYYY-MM-DD"),
-        // empProposedLastWorkingDay: result.empProposedLastWorkingDay,
-        // empProposedRecoveryDays: recoveryDays > 0 ? recoveryDays : 0,
         l2LastWorkingDay: result.l2LastWorkingDay,
-        l2RecoveryDays: proposedRecoveryDays > 0 ? proposedRecoveryDays : 0,
+        l2RecoveryDays: result.l2RecoveryDays != "" ? result.l2RecoveryDays : 0,
         l2RecoveryDaysReason: result.l2RecoveryDaysReason,
         l2SeparationType: result.l2SeparationType,
         l2ReasonOfSeparation: result.l2ReasonOfSeparation,
@@ -1720,6 +1720,9 @@ class UserController {
           {
             model: db.separationTaskOwner,
             attributes: ["taskOwner"],
+            where: {
+              isActive: 1
+            },
             include: [
               {
                 model: db.employeeMaster,
@@ -2368,6 +2371,9 @@ class UserController {
           {
             model: db.separationTaskOwner,
             attributes: ["taskOwner"],
+            where: {
+              isActive: 1
+            },
             include: [
               {
                 model: db.employeeMaster,
