@@ -2718,7 +2718,7 @@ const clearanceInitiated = async (data) => {
                               <br /><br />
 
                               <span>
-                              <b>${data.taskName}</b> Form is pending with you to complete separation formalities for <b>${data.empName}, ${data.empCode}, ${data.designation}</b> whose last working day is <b>${moment(data.lastWorkingDay).format("DD-MM-YYYY")}</b>. Please complete the task as early as possible. You can access the task under pending tasks on your dashboard.
+                              <b>${data.taskName}</b> Form is pending with you to complete separation formalities for <b>${data.empName}, ${data.empCode}, ${data.department}</b> whose last working day is <b>${moment(data.lastWorkingDay).format("DD-MM-YYYY")}</b>. Please complete the task as early as possible. You can access the task under pending tasks on your dashboard.
                               </span>
                              
                             </div>
