@@ -2711,22 +2711,16 @@ const clearanceInitiated = async (data) => {
                             <div style="line-height: 1.2">
                               <span
                                 style="font-family: Calibri; font-size: 14px"
-                                >Dear ${data.recipientName},</span
+                                >Dear <b>${data.recipientName}</b>,</span
                               >
                             </div>
                             <div style="line-height: 1.2">
-                              <br /><br /><span
-                                style="font-family: Calibri; font-size: 14px"
-                                >This is to inform you that&nbsp;</span
-                              ><span
-                                style="font-family: Calibri; font-size: 14px"
-                                >${data.empName}&nbsp;</span
-                              ><span
-                                style="font-family: Calibri; font-size: 14px"
-                                >has resigned, please block all the transactions
-                                &amp; application access as per (last working
-                                date) mentioned below:</span
-                              >
+                              <br /><br />
+
+                              <span>
+                              <b>${data.taskName}</b> Form is pending with you to complete separation formalities for <b>${data.empName}, ${data.empCode}, ${data.designation}</b> whose last working day is <b>${moment(data.lastWorkingDay).format("DD-MM-YYYY")}</b>. Please complete the task as early as possible. You can access the task under pending tasks on your dashboard.
+                              </span>
+                             
                             </div>
                             <div style="line-height: 1.2">
                               <br />

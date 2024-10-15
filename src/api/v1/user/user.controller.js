@@ -1298,6 +1298,10 @@ class UserController {
             model: db.noticePeriodMaster,
             attributes: ["nPDaysAfterConfirmation"],
           },
+          {
+            model: db.designationMaster,
+            attributes: ['name']
+          }
         ],
       });
 
@@ -1455,6 +1459,7 @@ class UserController {
             mailArray.push({
               email: ownerList.employee.email,
               name: ownerList.employee.name,
+              taskName: element.dataValues.separationtaskmaster.taskName
             });
           }
         }
@@ -1478,6 +1483,7 @@ class UserController {
           JSON.stringify({
             email: element.email,
             recipientName: element.name,
+            taskName: element.taskName,
             empCode: existUser.dataValues.empCode,
             empName: existUser.dataValues.name,
             officeLocation: existUser.dataValues.companylocationmaster.address1,
@@ -1486,6 +1492,7 @@ class UserController {
             sbuName: existUser.dataValues.sbumaster.sbuName,
             bu: existUser.dataValues.bumaster.buName,
             reportingName: existUser.dataValues.managerData.name,
+            designation: existUser.dataValues.designationmaster.name,
             dateOfJoining: existUser.dataValues.dateOfJoining,
             dateOfResignation: result.resignationDate,
             lastWorkingDay: result.l2LastWorkingDay,
@@ -1702,6 +1709,10 @@ class UserController {
                 model: db.companyMaster,
                 attributes: ["companyName"],
               },
+              {
+                model: db.designationMaster,
+                attributes: ['name']
+              }
             ],
           },
         ],
@@ -1842,6 +1853,7 @@ class UserController {
             mailArray.push({
               email: ownerList.employee.email,
               name: ownerList.employee.name,
+              taskName: element.dataValues.separationtaskmaster.taskName
             });
           }
         }
@@ -1866,6 +1878,7 @@ class UserController {
           JSON.stringify({
             email: element.email,
             recipientName: element.name,
+            taskName: element.taskName,
             empCode: separationData.dataValues.employee.empCode,
             empName: separationData.dataValues.employee.name,
             officeLocation:
@@ -1876,6 +1889,7 @@ class UserController {
             sbuName: separationData.dataValues.employee.sbumaster.sbuName,
             bu: separationData.dataValues.employee.bumaster.buName,
             reportingName: separationData.dataValues.employee.managerData.name,
+            designation: separationData.dataValues.employee.designationmaster.name,
             dateOfJoining: separationData.dataValues.employee.dateOfJoining,
             dateOfResignation: separationData.dataValues.resignationDate,
             lastWorkingDay: result.l2LastWorkingDay,
@@ -2355,6 +2369,10 @@ class UserController {
                 model: db.companyMaster,
                 attributes: ["companyName"],
               },
+              {
+                model: db.designationMaster,
+                attributes: ['name']
+              }
             ],
           },
         ],
@@ -2432,6 +2450,7 @@ class UserController {
             mailArray.push({
               email: ownerList.employee.email,
               name: ownerList.employee.name,
+              taskName: element.dataValues.separationtaskmaster.taskName
             });
           }
         }
@@ -2443,6 +2462,7 @@ class UserController {
           JSON.stringify({
             email: element.email,
             recipientName: element.name,
+            taskName: element.taskName,
             empCode: separationData.dataValues.employee.empCode,
             empName: separationData.dataValues.employee.name,
             officeLocation:
@@ -2455,6 +2475,7 @@ class UserController {
             reportingName: separationData.dataValues.employee.managerData.name,
             dateOfJoining: separationData.dataValues.employee.dateOfJoining,
             dateOfResignation: separationData.dataValues.resignationDate,
+            designation: separationData.dataValues.employee.designationmaster.name,
             lastWorkingDay: separationData.dataValues.l2LastWorkingDay,
             personalMailID: separationData.dataValues.employee.personalEmail,
             personalMobileNumber:
