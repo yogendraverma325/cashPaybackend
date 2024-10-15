@@ -869,6 +869,7 @@ class MasterController {
             where: {
               // isActive: 1,
               // attendanceFor,
+              empCode:"18950",
               ...(attendanceFor == 0 && { isActive: 0 }),
               ...(attendanceFor == 1 && { isActive: 1 }),
               ...(attendanceFor == 2 && { isActive: [0, 1] }),
@@ -1030,8 +1031,14 @@ class MasterController {
             attendancePolicyCode:
               record["attendancePolicymaster.policyCode"] || "N/A",
             weekOffName: record["weekOffMaster.weekOffName"] || "N/A",
-            createdBy: record["punchInCreatedBy.name"] || "N/A",
-            updatedBy: record["punchOutCreatedBy.name"] || "N/A",
+           //createdBy: record["punchInCreatedBy.name"] + record["punchInCreatedBy.empCode"] || "N/A",
+            //updatedBy: record["punchOutCreatedBy.name"] + record["punchOutCreatedBy.empCode"]|| "N/A",
+            createdBy: record["punchInCreatedBy.name"]
+  ? `${record["punchInCreatedBy.name"]} (${record["punchInCreatedBy.empCode"] ?? "N/A"})`
+  : "N/A",
+updatedBy: record["punchOutCreatedBy.name"]
+  ? `${record["punchOutCreatedBy.name"]} (${record["punchOutCreatedBy.empCode"] ?? "N/A"})`
+  : "N/A",
             createdAt: record.createdAt != null ? moment(record.createdAt).format("DD-MM-YYYY HH:mm:ss") : "N/A",
             updatedAt: record.updatedAt != null ? moment(record.updatedAt).format("DD-MM-YYYY HH:mm:ss") : "N/A",
           }))
@@ -1072,10 +1079,10 @@ class MasterController {
                 { label: "Attendance Policy Name", value: "attendancePolicyName"},
                 { label: "Attendance Policy Code", value: "attendancePolicyCode"},
                 { label: "Week Off Name", value: "weekOffName" },
-                { label: "Created Punch In By", value: "createdBy" },
-                { label: "Created Punch In At ", value: "createdAt" },
-                { label: "Updated Punch Out By", value: "updatedBy" },
-                { label: "Updated Punch Out At ", value: "updatedAt" },
+                { label: "Created By Punch In", value: "createdBy" },
+                { label: "Created On Punch In ", value: "createdAt" },
+                { label: "Created By Punch Out", value: "updatedBy" },
+                { label: "Created On Punch Out", value: "updatedAt" },
               ],
               content: simplifiedData,
             },
