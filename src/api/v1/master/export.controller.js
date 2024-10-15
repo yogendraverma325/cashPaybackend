@@ -846,8 +846,16 @@ class MasterController {
           "attendancePunchOutLocation",
           "attendancePunchInTime",
           "attendancePunchOutTime",
+          "attendancePunchInRemark",
+          "attendancePunchOutRemark",
+          "attendancePunchInLocationType",
+          "attendancePunchOutLocationType",
           "punchInSource",
-          "punchOutSource"
+          "punchOutSource",
+          "createdBy",
+          "createdAt",
+          "updatedBy",
+          "updatedAt"
         ],
         where: {
           attendanceDate: {
@@ -944,6 +952,16 @@ class MasterController {
             model: db.weekOffMaster,
             attributes: ["weekOffName"],
           },
+          {
+            model:db.employeeMaster,
+            attributes:['id','name','empCode'],
+            as:"punchInCreatedBy"
+          },
+          {
+            model:db.employeeMaster,
+            attributes:['id','name','empCode'],
+            as:"punchOutCreatedBy"
+          }
         ],
         raw: true,
       });
@@ -994,9 +1012,13 @@ class MasterController {
             attendancePresentStatus: record.attendancePresentStatus,
             attendancePunchInTime: record.attendancePunchInTime || "N/A",
             attendancePunchInLocation: record.attendancePunchInLocation,
+            attendancePunchInLocationType:record.attendancePunchInLocationType || "N/A",
+            attendancePunchInRemark:record.attendancePunchInRemark || "N/A",
             attendancePunchOutTime: record.attendancePunchOutTime || "N/A",
             attendancePunchOutLocation:
               record.attendancePunchOutLocation || "N/A",
+            attendancePunchOutLocationType:record.attendancePunchOutLocationType || "N/A",
+            attendancePunchOutRemark:record.attendancePunchOutRemark || "N/A",
             status: "APPROVED",
             punchInSource:record.punchInSource || "N/A",
             punchOutSource:record.punchOutSource || "N/A",
@@ -1008,6 +1030,10 @@ class MasterController {
             attendancePolicyCode:
               record["attendancePolicymaster.policyCode"] || "N/A",
             weekOffName: record["weekOffMaster.weekOffName"] || "N/A",
+            createdBy: record["punchInCreatedBy.name"] || "N/A",
+            updatedBy: record["punchOutCreatedBy.name"] || "N/A",
+            createdAt: record.createdAt != null ? moment(record.createdAt).format("DD-MM-YYYY HH:mm:ss") : "N/A",
+            updatedAt: record.updatedAt != null ? moment(record.updatedAt).format("DD-MM-YYYY HH:mm:ss") : "N/A",
           }))
         );
 
@@ -1019,6 +1045,7 @@ class MasterController {
               columns: [
                 { label: "Employee Code", value: "employeeCode" },
                 { label: "Employee Name", value: "employeeName" },
+                { label: "Grade", value: "grade" },
                 { label: "BU Name", value: "buName" },
                 { label: "SBU Name", value: "sbuName" },
                 { label: "Department Name", value: "departmentName" },
@@ -1027,36 +1054,28 @@ class MasterController {
                 { label: "Manager", value: "manager" },
                 { label: "Attendance Date", value: "attendanceDate" },
                 { label: "Attendance Status", value: "attendanceStatus" },
-                {
-                  label: "Attendance Present Status",
-                  value: "attendancePresentStatus",
-                },
+                { label: "Attendance Present Status", value: "attendancePresentStatus"},
                 { label: "Punch In Time", value: "attendancePunchInTime" },
-                {
-                  label: "Punch In Location",
-                  value: "attendancePunchInLocation",
-                },
+                { label: "Punch In Location", value: "attendancePunchInLocation"},
+                { label: "Attendance Punch In Location Type", value: "attendancePunchInLocationType" },  
+                { label: "Punch In Source", value: "punchInSource" },  
+                { label: "Punch In Remark", value: "attendancePunchInRemark" },            
                 { label: "Punch Out Time", value: "attendancePunchOutTime" },
-                {
-                  label: "Punch Out Location",
-                  value: "attendancePunchOutLocation",
-                },
-                { label: "Status(Pending/Approved/Rejected)", value: "status" },
-                { label: "Punch In Source", value: "punchInSource" },
+                { label: "Punch Out Location", value: "attendancePunchOutLocation"},
+                { label: "Attendance Punch Out Location Type", value: "attendancePunchOutLocationType" },
                 { label: "Punch Out Source", value: "punchOutSource" },
-                { label: "Grade", value: "grade" },
+                { label: "Punch Out Remark", value: "attendancePunchOutRemark" },
+                { label: "Status(Pending/Approved/Rejected)", value: "status" },
                 { label: "Shift Name", value: "shiftName" },
                 { label: "Shift Start Time", value: "shiftStartTime" },
                 { label: "Shift End Time", value: "shiftEndTime" },
-                {
-                  label: "Attendance Policy Name",
-                  value: "attendancePolicyName",
-                },
-                {
-                  label: "Attendance Policy Code",
-                  value: "attendancePolicyCode",
-                },
+                { label: "Attendance Policy Name", value: "attendancePolicyName"},
+                { label: "Attendance Policy Code", value: "attendancePolicyCode"},
                 { label: "Week Off Name", value: "weekOffName" },
+                { label: "Created Punch In By", value: "createdBy" },
+                { label: "Created Punch In At ", value: "createdAt" },
+                { label: "Updated Punch Out By", value: "updatedBy" },
+                { label: "Updated Punch Out At ", value: "updatedAt" },
               ],
               content: simplifiedData,
             },

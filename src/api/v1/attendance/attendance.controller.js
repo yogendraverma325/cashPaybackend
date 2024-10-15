@@ -269,6 +269,7 @@ class AttendanceController {
               attendancePunchOutLatitude: result.latitude,
               attendancePunchOutLongitude: result.longitude,
               punchOutSource: req.device,
+              updatedBy:req.userId
             },
             {
               where: {
@@ -1489,6 +1490,10 @@ class AttendanceController {
               regularizeData.regularizePunchInTime,
               withGraceTime
             ),
+            createdBy: req.userId,
+            createdAt:moment().format('YYYY-MM-DD HH:mm:ss'),
+            updatedBy: req.userId,
+            updatedAt:moment().format('YYYY-MM-DD HH:mm:ss')
           },
           {
             where: {

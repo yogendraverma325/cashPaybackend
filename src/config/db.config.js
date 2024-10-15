@@ -828,4 +828,14 @@ db.PolicyHistory.hasOne(db.employeeMaster, {
   sourceKey: "createdBy",
   as: "PolicyUpdaterDetails",
 });
+db.attendanceMaster.hasOne(db.employeeMaster, {
+  foreignKey: "id",
+  sourceKey: "createdBy",
+  as: "punchInCreatedBy",
+});
+db.attendanceMaster.hasOne(db.employeeMaster, {
+  foreignKey: "id",
+  sourceKey: "updatedBy",
+  as: "punchOutCreatedBy",
+});
 export default db;
