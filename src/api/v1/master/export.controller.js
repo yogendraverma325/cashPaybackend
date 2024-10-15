@@ -869,7 +869,6 @@ class MasterController {
             where: {
               // isActive: 1,
               // attendanceFor,
-              empCode:"18950",
               ...(attendanceFor == 0 && { isActive: 0 }),
               ...(attendanceFor == 1 && { isActive: 1 }),
               ...(attendanceFor == 2 && { isActive: [0, 1] }),
@@ -1034,11 +1033,11 @@ class MasterController {
            //createdBy: record["punchInCreatedBy.name"] + record["punchInCreatedBy.empCode"] || "N/A",
             //updatedBy: record["punchOutCreatedBy.name"] + record["punchOutCreatedBy.empCode"]|| "N/A",
             createdBy: record["punchInCreatedBy.name"]
-  ? `${record["punchInCreatedBy.name"]} (${record["punchInCreatedBy.empCode"] ?? "N/A"})`
-  : "N/A",
-updatedBy: record["punchOutCreatedBy.name"]
-  ? `${record["punchOutCreatedBy.name"]} (${record["punchOutCreatedBy.empCode"] ?? "N/A"})`
-  : "N/A",
+            ? `${record["punchInCreatedBy.name"]} (${record["punchInCreatedBy.empCode"] ?? "N/A"})`
+            : "N/A",
+          updatedBy: record["punchOutCreatedBy.name"]
+            ? `${record["punchOutCreatedBy.name"]} (${record["punchOutCreatedBy.empCode"] ?? "N/A"})`
+            : "N/A",
             createdAt: record.createdAt != null ? moment(record.createdAt).format("DD-MM-YYYY HH:mm:ss") : "N/A",
             updatedAt: record.updatedAt != null ? moment(record.updatedAt).format("DD-MM-YYYY HH:mm:ss") : "N/A",
           }))
@@ -1889,6 +1888,8 @@ updatedBy: record["punchOutCreatedBy.name"]
       });
     }
   }
+
+
 }
 
 const createObj = (obj) => {
