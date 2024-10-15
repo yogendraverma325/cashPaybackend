@@ -2737,7 +2737,48 @@ class UserController {
       });
     }
   }
-  // userPolicyHistory 
+
+  async taskData(req, res) {
+    try {
+      const user = req.query.user
+      const task = req.query.task
+
+      const taskData = await db.separationTaskMaster.findOne({
+        where: {
+          taskAutoId: task
+        },
+      })
+
+      if (!taskData) {
+        return respHelper(res, {
+          status: 200,
+        });
+      }
+
+      const taskFormValues = await db.separationTaskFields.findAll({
+        where: {
+          taskAutoId: taskData.dataValues.taskDependent,
+        },
+        include: [{
+          model: db.separationFieldValues,
+          attributes: ['fieldValues'],
+          where: {
+            employeeId: user
+          }
+        }]
+      })
+
+      return respHelper(res, {
+        status: 200,
+        data: taskFormValues
+      });
+    } catch (error) {
+      console.log(error)
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
 }
 
 export default new UserController();

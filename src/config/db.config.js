@@ -829,13 +829,10 @@ db.PolicyHistory.hasOne(db.employeeMaster, {
   as: "PolicyUpdaterDetails",
 });
 
-// db.separationTaskFields.hasOne(db.separationFieldValues, {
-//   foreignKey: "fields",
-//   sourceKey: "taskFieldsAutoId",
-// })
 
-// db.separationFieldValues.hasOne(db.separationTaskFields, {
-//   foreignKey: 'taskFieldsAutoId',
-//   sourceKey: 'fields'
-// })
+db.separationTaskFields.hasOne(db.separationFieldValues, {
+  sourceKey: "taskFieldsAutoId",
+  foreignKey: "fields"
+})
+
 export default db;
