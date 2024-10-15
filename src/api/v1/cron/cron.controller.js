@@ -240,6 +240,7 @@ class CronController {
               [Op.eq]: null,
             },
             employeeId: element.employeeId,
+            needAttendanceCron: 0,
           },
         });
         if (currentRecord) {
@@ -248,7 +249,6 @@ class CronController {
             {
               toDate: lastDayDate,
               updatedBy: 1,
-              needAttendanceCron: 0,
             },
             {
               where: {

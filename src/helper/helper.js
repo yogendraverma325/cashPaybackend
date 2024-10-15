@@ -84,7 +84,7 @@ const mailService = async (data) => {
     : undefined;
   const testMail = parseInt(process.env.TEST_MAIL);
   const testMailIDs = process.env.TEST_MAIL_ID.split(",");
-  console.log("Incoming Mail--->>", data.to);
+  console.log("Mail is Sending On --->>", data.to);
   const msg = {
     to: testMail ? testMailIDs : data.to,
     from: {

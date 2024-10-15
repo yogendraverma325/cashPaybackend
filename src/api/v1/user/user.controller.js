@@ -1145,8 +1145,7 @@ class UserController {
         empProposedLastWorkingDay: result.empProposedLastWorkingDay,
         empProposedRecoveryDays: recoveryDays > 0 ? recoveryDays : 0,
         l1ProposedLastWorkingDay: result.l1ProposedLastWorkingDay,
-        l1ProposedRecoveryDays:
-          proposedRecoveryDays > 0 ? proposedRecoveryDays : 0,
+        l1ProposedRecoveryDays: result.l1ProposedRecoveryDays != "" ? result.l1ProposedRecoveryDays : 0,
         l1BillingType: result.l1BillingType,
         l1CustomerName:
           result.l1CustomerName != "" ? result.l1CustomerName : null,
@@ -1264,6 +1263,7 @@ class UserController {
           "personalMobileNumber",
           "dateOfJoining",
           "companyId",
+          'buHRId',
           "buId",
           "sbuId",
           "functionalAreaId",
@@ -1298,6 +1298,10 @@ class UserController {
             model: db.noticePeriodMaster,
             attributes: ["nPDaysAfterConfirmation"],
           },
+          {
+            model: db.designationMaster,
+            attributes: ['name']
+          }
         ],
       });
 
@@ -1343,6 +1347,9 @@ class UserController {
           {
             model: db.separationTaskOwner,
             attributes: ["taskOwner"],
+            where: {
+              isActive: 1
+            },
             include: [
               {
                 model: db.employeeMaster,
@@ -1356,6 +1363,9 @@ class UserController {
           },
           {
             model: db.separationTaskMaster,
+            where: {
+              taskDependent: null
+            },
             attributes: ["taskName"],
             include: [
               {
@@ -1374,10 +1384,8 @@ class UserController {
         noticePeriodDay:
           existUser.dataValues.noticeperiodmaster.nPDaysAfterConfirmation,
         noticePeriodLastWorkingDay: lastWorkingDay.format("YYYY-MM-DD"),
-        // empProposedLastWorkingDay: result.empProposedLastWorkingDay,
-        // empProposedRecoveryDays: recoveryDays > 0 ? recoveryDays : 0,
         l2LastWorkingDay: result.l2LastWorkingDay,
-        l2RecoveryDays: proposedRecoveryDays > 0 ? proposedRecoveryDays : 0,
+        l2RecoveryDays: result.l2RecoveryDays != "" ? result.l2RecoveryDays : 0,
         l2RecoveryDaysReason: result.l2RecoveryDaysReason,
         l2SeparationType: result.l2SeparationType,
         l2ReasonOfSeparation: result.l2ReasonOfSeparation,
@@ -1434,8 +1442,7 @@ class UserController {
           element.dataValues.separationtaskmaster.separationtaskfields.length >
           0
         ) {
-          for (const element2 of element.dataValues.separationtaskmaster
-            .separationtaskfields) {
+          for (const element2 of element.dataValues.separationtaskmaster.separationtaskfields) {
             await db.separationFieldValues.create({
               taskAutoId: element.dataValues.taskAutoId,
               initiatedTaskAutoId: initiatedTask.dataValues.initiatedTaskAutoId,
@@ -1452,6 +1459,7 @@ class UserController {
             mailArray.push({
               email: ownerList.employee.email,
               name: ownerList.employee.name,
+              taskName: element.dataValues.separationtaskmaster.taskName
             });
           }
         }
@@ -1475,6 +1483,7 @@ class UserController {
           JSON.stringify({
             email: element.email,
             recipientName: element.name,
+            taskName: element.taskName,
             empCode: existUser.dataValues.empCode,
             empName: existUser.dataValues.name,
             officeLocation: existUser.dataValues.companylocationmaster.address1,
@@ -1483,6 +1492,7 @@ class UserController {
             sbuName: existUser.dataValues.sbumaster.sbuName,
             bu: existUser.dataValues.bumaster.buName,
             reportingName: existUser.dataValues.managerData.name,
+            designation: existUser.dataValues.designationmaster.name,
             dateOfJoining: existUser.dataValues.dateOfJoining,
             dateOfResignation: result.resignationDate,
             lastWorkingDay: result.l2LastWorkingDay,
@@ -1699,6 +1709,10 @@ class UserController {
                 model: db.companyMaster,
                 attributes: ["companyName"],
               },
+              {
+                model: db.designationMaster,
+                attributes: ['name']
+              }
             ],
           },
         ],
@@ -1717,6 +1731,9 @@ class UserController {
           {
             model: db.separationTaskOwner,
             attributes: ["taskOwner"],
+            where: {
+              isActive: 1
+            },
             include: [
               {
                 model: db.employeeMaster,
@@ -1730,6 +1747,9 @@ class UserController {
           },
           {
             model: db.separationTaskMaster,
+            where: {
+              taskDependent: null
+            },
             attributes: ["taskName"],
             include: [
               {
@@ -1741,8 +1761,6 @@ class UserController {
         ],
       });
 
-      // console.log("dnccjdbcjb---->>", separationData.dataValues.employee.companyId)
-      // console.log(separationOwner)
 
       await db.separationMaster.update(
         {
@@ -1835,6 +1853,7 @@ class UserController {
             mailArray.push({
               email: ownerList.employee.email,
               name: ownerList.employee.name,
+              taskName: element.dataValues.separationtaskmaster.taskName
             });
           }
         }
@@ -1859,6 +1878,7 @@ class UserController {
           JSON.stringify({
             email: element.email,
             recipientName: element.name,
+            taskName: element.taskName,
             empCode: separationData.dataValues.employee.empCode,
             empName: separationData.dataValues.employee.name,
             officeLocation:
@@ -1869,6 +1889,7 @@ class UserController {
             sbuName: separationData.dataValues.employee.sbumaster.sbuName,
             bu: separationData.dataValues.employee.bumaster.buName,
             reportingName: separationData.dataValues.employee.managerData.name,
+            designation: separationData.dataValues.employee.designationmaster.name,
             dateOfJoining: separationData.dataValues.employee.dateOfJoining,
             dateOfResignation: separationData.dataValues.resignationDate,
             lastWorkingDay: result.l2LastWorkingDay,
@@ -2073,10 +2094,10 @@ class UserController {
           },
           include: [
             {
-                model:db.employeeMaster,
-                attributes:['id','name','empCode'],
-                as:"attendanceUpdatedBy",
-                required:false
+              model: db.employeeMaster,
+              attributes: ['id', 'name', 'empCode'],
+              as: "attendanceUpdatedBy",
+              required: false
             },
             {
               model: db.attendanceMaster,
@@ -2194,11 +2215,11 @@ class UserController {
               as: "leaveMasterDetails",
             },
             {
-              model:db.employeeMaster,
-              attributes:['id','name','empCode'],
-              as:"leaveUpdatedBy",
-              required:false
-          },
+              model: db.employeeMaster,
+              attributes: ['id', 'name', 'empCode'],
+              as: "leaveUpdatedBy",
+              required: false
+            },
           ],
           limit,
           offset,
@@ -2231,11 +2252,26 @@ class UserController {
 
   async separationTaskForm(req, res) {
     try {
+      const user = req.query.user || req.userId
+
       const separationFields = await db.separationTaskFields.findAll({
         where: {
           taskAutoId: req.params.id,
         },
       });
+
+      // for (const element of separationFields) {
+      //   const fieldValuesData = await db.separationFieldValues.findOne({
+      //     where: {
+      //       taskAutoId: 1,
+      //       fields: element.dataValues.taskFieldsAutoId,
+      //       employeeId: user,
+      //     },
+      //     attributes: ['fieldValues'],
+      //   })
+      //   // console.log('nmbjbdn---->>', fieldValuesData)
+      //   element.dataValues.fieldValuesData = fieldValuesData
+      // }
 
       return respHelper(res, {
         status: 200,
@@ -2256,8 +2292,6 @@ class UserController {
         reqObj[element.fieldsCode] = element.value;
       }
 
-      // const result=await validator.
-      // console.log("req body", req.body)
       for (const element of req.body) {
         await db.separationFieldValues.update(
           {
@@ -2284,13 +2318,172 @@ class UserController {
           },
         }
       );
-      // console.log("req.body", req.body)
-      // for (let index = 0; index < array.length; index++) {
-      //   const element = array[index];
 
-      // }
+      const mailArray = [];
+      const separationData = await db.separationMaster.findOne({
+        where: {
+          employeeId: req.body[0].user,
+          finalStatus: 9
+        },
+        attributes: ["initiatedBy", "resignationDate"],
+        include: [
+          {
+            model: db.employeeMaster,
+            attributes: [
+              "id",
+              "empCode",
+              "name",
+              "email",
+              "officeMobileNumber",
+              "personalEmail",
+              "personalMobileNumber",
+              "dateOfJoining",
+              "companyId",
+              "buId",
+              "sbuId",
+              "functionalAreaId",
+            ],
+            include: [
+              {
+                model: db.companyLocationMaster,
+                attributes: ["address1"],
+              },
+              {
+                model: db.departmentMaster,
+                attributes: ["departmentName", "departmentCode"],
+              },
+              {
+                model: db.employeeMaster,
+                as: "managerData",
+                attributes: ["name"],
+              },
+              {
+                model: db.sbuMaster,
+                attributes: ["sbuName"],
+              },
+              {
+                model: db.buMaster,
+                attributes: ["buName"],
+              },
+              {
+                model: db.companyMaster,
+                attributes: ["companyName"],
+              },
+              {
+                model: db.designationMaster,
+                attributes: ['name']
+              }
+            ],
+          },
+        ],
+      });
 
-      // console.log("reqObj", reqObj)
+      const separationOwner = await db.separationTaskMapping.findAll({
+        where: {
+          companyId: separationData.dataValues.employee.companyId,
+          buId: separationData.dataValues.employee.buId,
+          sbuId: separationData.dataValues.employee.sbuId,
+          functionalAreaId: separationData.dataValues.employee.functionalAreaId,
+        },
+        include: [
+          {
+            model: db.separationTaskOwner,
+            attributes: ["taskOwner"],
+            where: {
+              isActive: 1
+            },
+            include: [
+              {
+                model: db.employeeMaster,
+                attributes: ["name", "email"],
+              },
+            ],
+          },
+          {
+            model: db.separationTaskConfig,
+            attributes: ["taskConfigName"],
+          },
+          {
+            model: db.separationTaskMaster,
+            where: {
+              taskDependent: req.body[0].taskAutoId
+            },
+            attributes: ["taskName"],
+            include: [
+              {
+                model: db.separationTaskFields,
+                attributes: ["taskFieldsAutoId"],
+              },
+            ],
+          },
+        ],
+      });
+
+      for (const element of separationOwner) {
+        const initiatedTask = await db.separationInitiatedTask.create({
+          employeeId: separationData.dataValues.employee.id,
+          taskAutoId: element.dataValues.taskAutoId,
+          status: 0,
+          createdDt: moment(),
+          createdBy: 1,
+          isActive: 1,
+        });
+        if (
+          element.dataValues.separationtaskmaster.separationtaskfields.length >
+          0
+        ) {
+          for (const element2 of element.dataValues.separationtaskmaster
+            .separationtaskfields) {
+            await db.separationFieldValues.create({
+              taskAutoId: element.dataValues.taskAutoId,
+              initiatedTaskAutoId: initiatedTask.dataValues.initiatedTaskAutoId,
+              fields: element2.dataValues.taskFieldsAutoId,
+              employeeId: separationData.dataValues.employee.id,
+              createdDt: moment(),
+              createdBy: 1,
+            });
+          }
+        }
+
+        if (element.dataValues.separationtaskowners.length > 0) {
+          for (const ownerList of element.dataValues.separationtaskowners) {
+            mailArray.push({
+              email: ownerList.employee.email,
+              name: ownerList.employee.name,
+              taskName: element.dataValues.separationtaskmaster.taskName
+            });
+          }
+        }
+      }
+
+      for (const element of mailArray) {
+        eventEmitter.emit(
+          "clearenceInitiated",
+          JSON.stringify({
+            email: element.email,
+            recipientName: element.name,
+            taskName: element.taskName,
+            empCode: separationData.dataValues.employee.empCode,
+            empName: separationData.dataValues.employee.name,
+            officeLocation:
+              separationData.dataValues.employee.companylocationmaster.address1,
+            department: `${separationData.dataValues.employee.departmentmaster.departmentName} (${separationData.dataValues.employee.departmentmaster.departmentCode})`,
+            officeMobileNumber:
+              separationData.dataValues.employee.officeMobileNumber,
+            sbuName: separationData.dataValues.employee.sbumaster.sbuName,
+            bu: separationData.dataValues.employee.bumaster.buName,
+            reportingName: separationData.dataValues.employee.managerData.name,
+            dateOfJoining: separationData.dataValues.employee.dateOfJoining,
+            dateOfResignation: separationData.dataValues.resignationDate,
+            designation: separationData.dataValues.employee.designationmaster.name,
+            lastWorkingDay: separationData.dataValues.l2LastWorkingDay,
+            personalMailID: separationData.dataValues.employee.personalEmail,
+            personalMobileNumber:
+              separationData.dataValues.employee.personalMobileNumber,
+          })
+        );
+      }
+
       return respHelper(res, {
         status: 200,
         msg: constant.TASK_SUBMITTED,
@@ -2312,17 +2505,15 @@ class UserController {
   async initiatedTaskList(req, res) {
     try {
 
-      const user = req.query.user || req.userId
       const separationTasks = await db.separationInitiatedTask.findAll({
         where: {
           status: 0,
-          employeeId: user
         },
         attributes: ["initiatedTaskAutoId", "status", "createdDt"],
         include: [
           {
             model: db.employeeMaster,
-            attributes: ["id", "empCode", "name"],
+            attributes: ["id", "empCode", "name", 'dateOfJoining', 'dataCardAdmin', 'mobileAdmin'],
             include: [
               {
                 model: db.separationMaster,
@@ -2331,6 +2522,19 @@ class UserController {
               {
                 model: db.designationMaster,
                 attributes: ["name", "code"],
+              },
+              {
+                model: db.buMaster,
+                attributes: ['buName']
+              },
+              {
+                model: db.sbuMaster,
+                attributes: ['sbuName']
+              },
+              {
+                model: db.employeeMaster,
+                as: 'managerData',
+                attributes: ['empCode', 'name', 'email']
               },
               {
                 model: db.companyLocationMaster,
@@ -2385,7 +2589,7 @@ class UserController {
 
   async empInitiatedTask(req, res) {
     try {
-      const user = req.userId || req.query.user;
+      const user = req.query.user || req.userId;
 
       const taskData = await db.separationInitiatedTask.findAll({
         where: {
@@ -2533,7 +2737,48 @@ class UserController {
       });
     }
   }
-  // userPolicyHistory
+
+  async taskData(req, res) {
+    try {
+      const user = req.query.user
+      const task = req.query.task
+
+      const taskData = await db.separationTaskMaster.findOne({
+        where: {
+          taskAutoId: task
+        },
+      })
+
+      if (!taskData) {
+        return respHelper(res, {
+          status: 200,
+        });
+      }
+
+      const taskFormValues = await db.separationTaskFields.findAll({
+        where: {
+          taskAutoId: taskData.dataValues.taskDependent,
+        },
+        include: [{
+          model: db.separationFieldValues,
+          attributes: ['fieldValues'],
+          where: {
+            employeeId: user
+          }
+        }]
+      })
+
+      return respHelper(res, {
+        status: 200,
+        data: taskFormValues
+      });
+    } catch (error) {
+      console.log(error)
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
 }
 
 export default new UserController();
