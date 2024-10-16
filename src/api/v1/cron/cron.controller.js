@@ -222,6 +222,7 @@ class CronController {
       }
     }
   }
+
   async updatePolicy() {
     const listData = await db.PolicyHistory.findAll({
       raw: true,
@@ -285,6 +286,29 @@ class CronController {
             },
           }
         );
+      }
+    }
+  }
+
+  async bloackAccess() {
+
+    const date = moment().subtract(1, 'day').format("YYYY-MM-DD")
+    const userList = await db.separationMaster.findAll({
+      where: {
+        l2LastWorkingDay: date
+      }
+    })
+
+    if (userList.length > 0) {
+      for (const element of userList) {
+        await db.employeeMaster.update({
+          dateOfexit: date,
+          isActive: 0
+        }, {
+          where: {
+            id: element.dataValues.employeeId
+          }
+        })
       }
     }
   }

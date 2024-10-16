@@ -20,4 +20,8 @@ cron.schedule("50 7 * * *", async () => {
   // cronController.EarnedLeaveCreditCron();
 });
 
+cron.schedule("1 0 * * *", async () => {
+  await cronController.bloackAccess()
+})
+
 export default cron;
