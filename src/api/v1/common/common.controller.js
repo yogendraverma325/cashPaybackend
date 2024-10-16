@@ -1497,7 +1497,6 @@ class commonController {
         updatedAt: moment(),
         updatedBy: req.userId,
       });
-      console.log(updateObj)
 
       await db.employeeMaster.update(updateObj, {
         where: { id: userId },
@@ -1516,6 +1515,24 @@ class commonController {
           msg: error.details[0].message,
         });
       }
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+
+  async deleteHRDocument(req, res) {
+    try {
+      const { letterId } = req.params;
+      let response = await db.hrLetters.update({ 'isActive': 0 }, { where: { 'letterId': letterId } });
+
+      return respHelper(res, {
+        status: 200,
+        msg: constant.UPDATE_SUCCESS.replace("<module>", "Details"),
+        data: response,
+      });
+    } catch (error) {
+      console.log(error);
       return respHelper(res, {
         status: 500,
       });

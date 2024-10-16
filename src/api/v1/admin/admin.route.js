@@ -130,4 +130,5 @@ export default Express.Router()
     authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"),
     commonController.updateIQDetails
   )
+  .delete("/hrDocument/:letterId", authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"), commonController.deleteHRDocument)
 

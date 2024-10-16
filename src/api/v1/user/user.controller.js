@@ -365,7 +365,11 @@ class UserController {
           },
           {
             model: db.hrLetters,
-            attributes: ["documentType", "documentImage"],
+            required: false,
+            where: {
+              isActive: { [Op.not]: false },
+            },
+            attributes: ["documentType", "documentImage", "letterId", "userId"],
             include: {
               model: db.hrDocumentMaster,
               attributes: ["documentId", "documentName"],
