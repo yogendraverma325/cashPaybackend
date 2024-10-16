@@ -85,6 +85,7 @@ import ReportType from "../api/model/ReportType.js";
 import SeparationTrails from "../api/model/SeparationTrails.js";
 import TaskFilterMaster from "../api/model/taskFilterMaster.js";
 import PolicyHistory from "../api/model/PolicyHistory.js";
+import EmployeeLeaveHeader from "../api/model/EmployeeLeaveHeader.js";
 import literal from "sequelize";
 import QueryTypes from "sequelize";
 const sequelize = new Sequelize(
@@ -234,6 +235,7 @@ db.reportType = ReportType(sequelize, Sequelize);
 db.separationTrail = SeparationTrails(sequelize, Sequelize);
 db.taskFilterMaster = TaskFilterMaster(sequelize, Sequelize);
 db.PolicyHistory = PolicyHistory(sequelize, Sequelize);
+db.EmployeeLeaveHeader = EmployeeLeaveHeader(sequelize, Sequelize);
 db.holidayCompanyLocationConfiguration.hasOne(db.holidayMaster, {
   foreignKey: "holidayId",
   sourceKey: "holidayId",
@@ -737,5 +739,21 @@ db.PolicyHistory.hasOne(db.employeeMaster, {
   foreignKey: "id",
   sourceKey: "createdBy",
   as: "PolicyUpdaterDetails",
+});
+
+db.EmployeeLeaveHeader.hasMany(db.leaveMaster, {
+  foreignKey: "leaveId",
+  sourceKey: "leaveAutoId",
+  as: "leaveMasterDetails",
+});
+
+db.EmployeeLeaveHeader.hasOne(db.employeeMaster, {
+  foreignKey: "id",
+  sourceKey: "employeeId",
+});
+
+db.employeeMaster.belongsTo(db.EmployeeLeaveHeader, {
+  foreignKey: "id",
+  sourceKey: "employeeId",
 });
 export default db;
