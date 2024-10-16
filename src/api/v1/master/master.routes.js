@@ -47,3 +47,4 @@ export default Express.Router()
 
   .get("/lwfDesignation", authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"), masterController.lwfDesignation)
   .get("/ptLocation/:stateId", authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"), masterController.ptLocation)
+  .get("/unionCode", authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"), masterController.unionCode)

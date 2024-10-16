@@ -369,6 +369,15 @@ class commonController {
         },
       });
 
+      // verify probation id and calculate probation days
+      if((result.probationPeriod) && (result.probationPeriod != existPaymentDetails.probationPeriod)) {
+        let getProbationDetails = await db.probationMaster.findOne({ where: { 'probationName': result.probationPeriod } });
+        if (getProbationDetails) {
+          let durationOfProbation = getProbationDetails.durationOfProbation;
+          result["probationDays"] = durationOfProbation;
+        }
+      }
+
       if (existPaymentDetails) {
         let obj = {
           ...result,
@@ -1478,6 +1487,41 @@ class commonController {
       });
     }
   }
+
+  async updateIQDetails(req, res) {
+    try {
+      const result = await validator.updateIQDetailsSchema.validateAsync(req.body);
+      const userId = result.userId;
+      
+      const updateObj = Object.assign(result, {
+        updatedAt: moment(),
+        updatedBy: req.userId,
+      });
+      console.log(updateObj)
+
+      await db.employeeMaster.update(updateObj, {
+        where: { id: userId },
+      });
+
+      return respHelper(res, {
+        status: 200,
+        msg: constant.UPDATE_SUCCESS.replace("<module>", "Details"),
+        data: updateObj,
+      });
+    } catch (error) {
+      console.log(error);
+      if (error.isJoi === true) {
+        return respHelper(res, {
+          status: 422,
+          msg: error.details[0].message,
+        });
+      }
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+
 }
 
 export default new commonController();

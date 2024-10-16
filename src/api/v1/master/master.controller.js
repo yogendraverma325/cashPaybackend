@@ -1345,6 +1345,21 @@ class MasterController {
     }
   }
 
+  async unionCode(req, res) {
+    try {
+      const docs = await db.unionCodIncrementMaster.findAll({ attributes: ['unionCodeId', 'unionCode'] });
+      return respHelper(res, {
+        status: 200,
+        data: docs,
+      });
+    } catch (error) {
+      console.log(error);
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+
 }
 
 export default new MasterController();

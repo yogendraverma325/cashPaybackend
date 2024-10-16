@@ -147,6 +147,18 @@ const updateBiographicalDetailsSchema = Joi.object({
     .label("Recruiter Name")
     .allow(null)
     .max(30)
+    .optional(),
+    nomineeName: Joi.string()
+    .trim()
+    .label("Nominee Name")
+    .allow(null)
+    .max(30)
+    .optional(),
+    nomineeRelation: Joi.string()
+    .trim()
+    .label("Nominee Relation")
+    .allow(null)
+    .max(30)
     .optional()
 });
 
@@ -367,7 +379,14 @@ const addJobDetailsSchema = Joi.object({
     lwfState: Joi.number().label("LWF State").optional(),
     restrictCompanyPf: Joi.boolean().allow("").label("Restrict Company PF"),
     pranNumber: Joi.string().label("PRAN Number").optional(),
-    npsNumber: Joi.string().label("NPS Number").optional()
+    npsNumber: Joi.string().label("NPS Number").optional(),
+    companyLocationId: Joi.number().label("Company Location").optional(),
+    unionId: Joi.number().label("Union Code").optional(),
+    bandId: Joi.number().label("Band").optional(),
+    gradeId: Joi.number().label("Grade").optional(),
+    jobLevelId: Joi.number().label("Job Level").optional(),
+    residentEng: Joi.boolean().label("Resident Engineer").optional(),
+    customerName: Joi.string().label("Customer Name").optional()
 });
 
 const updateManagerSchema = Joi.array()
@@ -847,6 +866,14 @@ const importOnboardEmployeeSchema = Joi.object({
   positionType: Joi.string().valid('New', 'Replacement').required().label("Position Type")
 });
 
+const updateIQDetailsSchema = Joi.object({
+  userId: Joi.number().label("User ID"),
+  abstractReasoning: Joi.string().optional().label("Abstract Reasoning"),
+  numericalSequences: Joi.string().optional().label("Abstract Reasoning"),
+  numericalCalculation: Joi.string().optional().label("Abstract Reasoning"),
+  mbtiType: Joi.string().optional().label("Abstract Reasoning"),
+});
+
 export default {
   loginSchema,
   userCreationSchema,
@@ -890,5 +917,6 @@ export default {
   onboardEmployeeSchema,
   createTMCSchema,
   revokeSeparation,
-  importOnboardEmployeeSchema
+  importOnboardEmployeeSchema,
+  updateIQDetailsSchema,
 };

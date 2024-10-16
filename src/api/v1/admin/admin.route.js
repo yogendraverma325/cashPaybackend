@@ -125,3 +125,9 @@ export default Express.Router()
   .put("/onboardEmployee/:id", authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"), adminController.updateOnboardEmployee)
   .get("/onboardEmployee/:id", authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"), adminController.getOnboardEmployeeDetails)
 
+  .put(
+    "/updateIQDetails",
+    authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"),
+    commonController.updateIQDetails
+  )
+

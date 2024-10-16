@@ -2474,8 +2474,8 @@ class MasterController {
                 }
 
                 newEmployee.role_id = 3;
-                validEmployees.push({ ...newEmployee, index: employee.Index });
-                const createdEmployees = await db.employeeStagingMaster.create(newEmployee);
+                validEmployees.push({ Index: employee.Index, Personal_Email: obj.email, Remarks: 'Success' });
+                // const createdEmployees = await db.employeeStagingMaster.create(newEmployee);
               }
               else {
                 const masterErrors = {
@@ -2510,7 +2510,7 @@ class MasterController {
           if (validEmployees.length > 0) {
             // const createdEmployees = await db.employeeStagingMaster.bulkCreate(validEmployees);
             // successData.push(...createdEmployees.map(e => e.toJSON()));
-            successData.push(validEmployees);
+            successData.push(...validEmployees);
           }
           failureData.push(...invalidEmployees);
         }

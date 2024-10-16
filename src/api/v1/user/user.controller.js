@@ -139,7 +139,7 @@ class UserController {
                 include: [
                   {
                     model: db.companyLocationMaster,
-                    attributes: ["address1"],
+                    attributes: ["address1", "companyLocationId"],
                     include: [
                       {
                         model: db.stateMaster,
