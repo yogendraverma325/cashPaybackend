@@ -2657,16 +2657,33 @@ class UserController {
         include: [
           {
             model: db.employeeMaster,
-            attributes: ["empCode", "name"],
+            attributes: ["id", "empCode", "name", 'dateOfJoining', 'dataCardAdmin', 'mobileAdmin'],
             include: [
               {
-                model: db.designationMaster,
-                attributes: ["name"],
+                model: db.separationMaster,
+                attributes: ["resignationDate", "l2LastWorkingDay"],
               },
               {
-                model: db.separationMaster,
-                attributes: ['resignationDate', 'l2LastWorkingDay']
-              }
+                model: db.designationMaster,
+                attributes: ["name", "code"],
+              },
+              {
+                model: db.buMaster,
+                attributes: ['buName']
+              },
+              {
+                model: db.sbuMaster,
+                attributes: ['sbuName']
+              },
+              {
+                model: db.employeeMaster,
+                as: 'managerData',
+                attributes: ['empCode', 'name', 'email']
+              },
+              {
+                model: db.companyLocationMaster,
+                attributes: ["address1"],
+              },
             ],
           },
           {
