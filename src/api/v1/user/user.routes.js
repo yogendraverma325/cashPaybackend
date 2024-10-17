@@ -230,5 +230,10 @@ export default Express.Router()
     "/userPolicyHistory",
     authentication.authenticate,
     userController.userPolicyHistory
+  )
+  .get(
+    "/taskHistoryLeave",
+    authentication.authenticate,
+    userController.taskHistoryLeave
   );
 // User's POLICY history

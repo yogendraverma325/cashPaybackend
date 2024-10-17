@@ -1763,42 +1763,91 @@ class UserController {
 
   async taskHistoryLeave(req, res) {
     try {
-      const { requestType, fromDate, toDate } = req.query;
-      //attendance request raise by me
-      if (requestType == 1) {
-        const attendanceRequestRaisebyMe = await db.attendanceMaster.findAll({
-          attributes: [
-            "employeeId",
-            "attendanceDate",
-            "attendancePresentStatus",
-          ],
+      const {
+        search,
+        fromDate,
+        toDate,
+        orderByAppliedFor,
+        orderByOn,
+        type,
+        isSystemGenerated,
+      } = req.query;
+
+      const limit = parseInt(req.query.limit, 10) || 10;
+      const pageNo = parseInt(req.query.page, 10) || 1;
+      const offset = (pageNo - 1) * limit;
+
+      let order = [];
+      if (orderByAppliedFor) {
+        const attendanceDateOrder = orderByAppliedFor === "0" ? "desc" : "asc";
+        order.push(["fromDate", attendanceDateOrder]);
+      }
+
+      if (orderByOn) {
+        const createdAtOrder = orderByOn === "0" ? "desc" : "asc";
+        order.push(["appliedOn", createdAtOrder]);
+      }
+
+      const { count, rows: leaveRequests } =
+        await db.EmployeeLeaveHeader.findAndCountAll({
           where: {
-            // employeeId: 1335,
-            attendanceDate: {
-              [db.Sequelize.Op.between]: [
-                fromDate.format("YYYY-MM-DD"),
-                toDate.format("YYYY-MM-DD"),
-              ],
-            },
+            status: { [Op.ne]: "pending" },
+            ...(isSystemGenerated == 1 && { source: "system_generated" }),
+            ...(fromDate &&
+              toDate && {
+                fromDate: {
+                  [Op.between]: [fromDate, toDate],
+                },
+                toDate: {
+                  [Op.between]: [fromDate, toDate],
+                },
+              }),
+            ...(type === "all" && isSystemGenerated == 0
+              ? {
+                  [Op.or]: [{ pendingAt: req.userId }],
+                }
+              : type === "all" && isSystemGenerated == 1
+              ? {
+                  [Op.or]: [
+                    { employeeId: req.userId },
+                    { pendingAt: req.userId },
+                  ],
+                }
+              : { employeeId: req.userId }), // Default case for non-"all" types
           },
           include: [
             {
-              model: db.regularizationMaster,
-              as: "latest_Regularization_Request",
-              attributes: ["regularizeId"],
+              model: db.employeeMaster,
+              attributes: ["id", "name", "empCode"],
+              where: { ...(search && { name: { [Op.like]: `%${search}%` } }) },
+            },
+            {
+              model: db.leaveMaster,
+              attributes: ["leaveId", "leaveName", "leaveCode"],
+              as: "leaveMasterDetails",
+            },
+            {
+              model: db.employeeMaster,
+              attributes: ["id", "name", "empCode"],
+              as: "leaveUpdatedBy",
+              required: false,
             },
           ],
+          limit,
+          offset,
+          order,
         });
 
-        return respHelper(res, {
-          status: 200,
-          msg: constant.DATA_FETCHED,
-          data: attendanceRequestRaisebyMe,
-        });
-      }
-      //leave request raise by me
-      if (requestType == 2) {
-      }
+      return respHelper(res, {
+        status: 200,
+        msg: constant.DATA_FETCHED,
+        data: {
+          totalRecords: count,
+          totalPages: Math.ceil(count / limit),
+          currentPage: pageNo,
+          leaveRequests,
+        },
+      });
     } catch (error) {
       console.log(error);
       if (error.isJoi === true) {
@@ -1812,6 +1861,7 @@ class UserController {
       });
     }
   }
+
   // manager history
   async managerHistory(req, res) {
     try {

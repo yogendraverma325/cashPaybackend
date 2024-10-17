@@ -1406,19 +1406,19 @@ class LeaveController {
         employeeId: employeeId,
         leaveAutoId: leaveAutoId,
         status: "approved",
-        appliedFor: {
-          [Op.and]: [
-            { [Op.gte]: `${year}-${month}-01` },
-            {
+        [Op.and]: [
+          { fromDate: { [Op.gte]: `${year}-${month}-01` } },
+          {
+            toDate: {
               [Op.lte]: `${year}-${month}-${moment(
                 `${year}-${month}`,
                 "YYYY-MM"
               ).daysInMonth()}`,
             },
-          ],
-        },
+          },
+        ],
       };
-      const attendanceData = await db.employeeLeaveTransactions.findAll({
+      const attendanceData = await db.EmployeeLeaveHeader.findAll({
         attributes: {
           exclude: ["createdBy", "createdAt", "updatedBy", "updatedAt"],
         },
@@ -1430,7 +1430,7 @@ class LeaveController {
             as: "leaveMasterDetails",
           },
         ],
-        order: [["appliedFor", "desc"]],
+        order: [["createdAt", "desc"]],
       });
       return respHelper(res, {
         status: 200,
