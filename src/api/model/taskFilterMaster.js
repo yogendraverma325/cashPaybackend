@@ -1,11 +1,14 @@
 export default (sequelize, Sequelize) => {
-    const taskFilterMaster = sequelize.define("taskfilterMaster", {
+    const taskFilterMaster = sequelize.define("taskfiltermaster", {
         taskFilterId: {
             type: Sequelize.INTEGER,
             primaryKey: true,
             autoIncrement: true
         },
         taskFilterName: {
+            type: Sequelize.STRING
+        },
+        taskFor:{
             type: Sequelize.STRING
         },
         createdAt: {

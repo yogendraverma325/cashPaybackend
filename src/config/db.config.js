@@ -84,6 +84,16 @@ import ReportModuleMaster from "../api/model/ReportModuleMaster.js";
 import ReportType from "../api/model/ReportType.js";
 import SeparationTrails from "../api/model/SeparationTrails.js";
 import TaskFilterMaster from "../api/model/taskFilterMaster.js";
+import SeparationTaskMaster from "../api/model/SeparationTaskMaster.js";
+import SeparationTaskConfig from "../api/model/SeparationTaskConfig.js";
+import SeparationTaskOwner from "../api/model/SeparationTaskOwner.js";
+import SeparationTaskMapping from "../api/model/SeparationTaskMapping.js";
+import SeparationTaskFields from "../api/model/SeparationTaskFields.js";
+import SeparationFieldsValues from "../api/model/SeparationFieldsValues.js";
+import SeparationInitiatedTask from "../api/model/SeparationInitiatedTask.js";
+import CategoryMaster from "../api/model/CategoryMaster.js";
+import SubCategoryMaster from "../api/model/SubCategoryMaster.js";
+
 import PolicyHistory from "../api/model/PolicyHistory.js";
 import EmployeeLeaveHeader from "../api/model/EmployeeLeaveHeader.js";
 import literal from "sequelize";
@@ -234,6 +244,15 @@ db.reportModuleMaster = ReportModuleMaster(sequelize, Sequelize);
 db.reportType = ReportType(sequelize, Sequelize);
 db.separationTrail = SeparationTrails(sequelize, Sequelize);
 db.taskFilterMaster = TaskFilterMaster(sequelize, Sequelize);
+db.separationTaskMaster = SeparationTaskMaster(sequelize, Sequelize);
+db.separationTaskConfig = SeparationTaskConfig(sequelize, Sequelize);
+db.separationTaskOwner = SeparationTaskOwner(sequelize, Sequelize);
+db.separationTaskMapping = SeparationTaskMapping(sequelize, Sequelize);
+db.separationTaskFields = SeparationTaskFields(sequelize, Sequelize);
+db.separationFieldValues = SeparationFieldsValues(sequelize, Sequelize);
+db.separationInitiatedTask = SeparationInitiatedTask(sequelize, Sequelize);
+db.categoryMaster = CategoryMaster(sequelize, Sequelize);
+db.subCategoryMaster = SubCategoryMaster(sequelize, Sequelize);
 db.PolicyHistory = PolicyHistory(sequelize, Sequelize);
 db.EmployeeLeaveHeader = EmployeeLeaveHeader(sequelize, Sequelize);
 db.holidayCompanyLocationConfiguration.hasOne(db.holidayMaster, {
@@ -377,6 +396,17 @@ db.attendanceMaster.hasOne(db.weekOffMaster, {
 db.regularizationMaster.hasOne(db.attendanceMaster, {
   foreignKey: "attendanceAutoId",
   sourceKey: "attendanceAutoId",
+});
+db.regularizationMaster.hasOne(db.employeeMaster, {
+  foreignKey: "id",
+  sourceKey: "updatedBy",
+  as: "attendanceUpdatedBy",
+});
+
+db.employeeLeaveTransactions.hasOne(db.employeeMaster, {
+  foreignKey: "id",
+  sourceKey: "updatedBy",
+  as: "leaveUpdatedBy",
 });
 db.attendanceMaster.hasMany(db.regularizationMaster, {
   foreignKey: "attendanceAutoId",
@@ -713,6 +743,66 @@ db.separationTrail.hasOne(db.employeeMaster, {
   sourceKey: "pendingAt",
   as: "pendingat",
 });
+db.separationTaskMapping.hasOne(db.separationTaskConfig, {
+  foreignKey: "taskConfigAutoId",
+  sourceKey: "taskConfigAutoId",
+});
+db.separationTaskMapping.hasOne(db.separationTaskMaster, {
+  foreignKey: "taskAutoId",
+  sourceKey: "taskAutoId",
+});
+db.separationTaskMapping.hasOne(db.companyMaster, {
+  foreignKey: "companyId",
+  sourceKey: "companyId",
+});
+db.separationTaskMapping.hasOne(db.buMaster, {
+  foreignKey: "buId",
+  sourceKey: "buId",
+});
+db.separationTaskMapping.hasOne(db.sbuMaster, {
+  foreignKey: "sbuId",
+  sourceKey: "sbuId",
+});
+db.separationTaskMapping.hasOne(db.functionalAreaMaster, {
+  foreignKey: "functionalAreaId",
+  sourceKey: "functionalAreaId",
+});
+db.separationTaskOwner.hasOne(db.employeeMaster, {
+  foreignKey: "id",
+  sourceKey: "taskOwner",
+});
+db.separationTaskMapping.hasMany(db.separationTaskOwner, {
+  foreignKey: "taskMappingAutoId",
+  sourceKey: "taskMappingAutoId",
+});
+db.separationTaskMaster.hasMany(db.separationTaskFields, {
+  foreignKey: "taskAutoId",
+  sourceKey: "taskAutoId",
+});
+db.separationInitiatedTask.hasOne(db.separationTaskMapping, {
+  foreignKey: "taskAutoId",
+  sourceKey: "taskAutoId",
+});
+db.separationInitiatedTask.hasOne(db.separationTaskMaster, {
+  foreignKey: "taskAutoId",
+  sourceKey: "taskAutoId",
+});
+db.separationInitiatedTask.hasOne(db.employeeMaster, {
+  foreignKey: "id",
+  sourceKey: "employeeId",
+});
+db.separationMaster.hasOne(db.employeeMaster, {
+  foreignKey: "id",
+  sourceKey: "employeeId",
+});
+db.employeeMaster.hasOne(db.separationMaster, {
+  foreignKey: "employeeId",
+  sourceKey: "id",
+});
+db.categoryMaster.hasMany(db.subCategoryMaster, {
+  foreignKey: "categoryAutoId",
+  sourceKey: "categoryAutoId",
+});
 
 db.managerHistory.hasOne(db.employeeMaster, {
   foreignKey: "id",
@@ -756,4 +846,25 @@ db.employeeMaster.belongsTo(db.EmployeeLeaveHeader, {
   foreignKey: "id",
   sourceKey: "employeeId",
 });
+db.attendanceMaster.hasOne(db.employeeMaster, {
+  foreignKey: "id",
+  sourceKey: "createdBy",
+  as: "punchInCreatedBy",
+});
+db.attendanceMaster.hasOne(db.employeeMaster, {
+  foreignKey: "id",
+  sourceKey: "updatedBy",
+  as: "punchOutCreatedBy",
+});
+
+db.separationTaskFields.hasOne(db.separationFieldValues, {
+  sourceKey: "taskFieldsAutoId",
+  foreignKey: "fields",
+});
+db.EmployeeLeaveHeader.hasOne(db.employeeMaster, {
+  foreignKey: "id",
+  sourceKey: "updatedBy",
+  as: "leaveUpdatedBy",
+});
+
 export default db;

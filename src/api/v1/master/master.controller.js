@@ -1341,6 +1341,24 @@ class MasterController {
     }
   }
 
+  async shiftMaster(req, res) {
+    try {
+      const {} = req.query;
+      let query = { isActive: 1 };
+      const reportModule = await db.shiftMaster.findAll({});
+
+      return respHelper(res, {
+        status: 200,
+        data: reportModule,
+      });
+    } catch (error) {
+      logger.error("Error while getting new customer name list", error);
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+
   async taskFilter(req, res) {
     try {
       let query = { isActive: 1 };
@@ -1356,6 +1374,22 @@ class MasterController {
     } catch (error) {
       console.log("errorerror", error);
       logger.error("Error while getting new customer name list", error);
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+
+  async separationTasks(req, res) {
+    try {
+      const separationTasksData = await db.separationTaskMaster.findAll();
+
+      return respHelper(res, {
+        status: 200,
+        data: separationTasksData,
+      });
+    } catch (error) {
+      console.log("error", error);
       return respHelper(res, {
         status: 500,
       });

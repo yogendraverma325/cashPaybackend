@@ -218,22 +218,42 @@ export default Express.Router()
     authentication.authenticate,
     userController.taskHistoryAttendance
   )
-  // manager history
+  .get(
+    "/taskHistoryLeave",
+    authentication.authenticate,
+    userController.taskHistoryLeave
+  )
+  .get(
+    "/separationTaskForm/:id",
+    authentication.authenticate,
+    userController.separationTaskForm
+  )
+  .post(
+    "/separationTaskValues",
+    authentication.authenticate,
+    userController.separationTaskValues
+  )
+  .get(
+    "/initiatedTask",
+    authentication.authenticate,
+    userController.initiatedTaskList
+  )
+  .get(
+    "/empInitiatedTask",
+    authentication.authenticate,
+    userController.empInitiatedTask
+  )
+
   .get(
     "/managerHistory",
     authentication.authenticate,
     userController.managerHistory
   )
-  // manager history
-  // User's POLICY history
+
   .get(
     "/userPolicyHistory",
     authentication.authenticate,
     userController.userPolicyHistory
   )
-  .get(
-    "/taskHistoryLeave",
-    authentication.authenticate,
-    userController.taskHistoryLeave
-  );
-// User's POLICY history
+
+  .get("/taskData", authentication.authenticate, userController.taskData);
