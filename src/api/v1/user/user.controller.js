@@ -2687,7 +2687,7 @@ class UserController {
           "taskAutoId": myTaskData.separationtaskmapping.taskAutoId,
           "separationtaskowners": [
             {
-              "taskOwnerAutoId": user,
+              "taskOwnerAutoId": req.userId,
               "taskMappingAutoId": myTaskData.separationtaskmapping.taskMappingAutoId,
               "taskOwner": user,
               "isActive": req.userData.isActive == 1 ? true : false,
