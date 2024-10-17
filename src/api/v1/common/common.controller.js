@@ -1539,6 +1539,101 @@ class commonController {
     }
   }
 
+  async uploadHRDocuments(req, res) {
+    try {
+      const userId = req.body.userId;
+      const createdBy = req.userId;
+      const updatedBy = req.userId;
+
+      const existUser = await db.employeeMaster.findOne({
+        where: { id: userId },
+      });
+      const d = Math.floor(Date.now() / 1000);
+
+      // Check each field in the request and upload the file if it exists
+      if (req.body.meritPlanningLetter) {
+        const meritPlanningLetter = await helper.fileUpload(
+          req.body.meritPlanningLetter,
+          `meritPlanningLetter${d}`,
+          `uploads/${existUser.empCode}`
+        );
+        let newDocument = { 'userId': userId, documentType: 1, documentImage: meritPlanningLetter, createdBy: createdBy };
+        await db.hrLetters.create(newDocument);
+      }
+
+      if (req.body.confirmationLetter) {
+        const confirmationLetter = await helper.fileUpload(
+          req.body.confirmationLetter,
+          `confirmationLetter${d}`,
+          `uploads/${existUser.empCode}`
+        );
+        let newDocument = { 'userId': userId, documentType: 2, documentImage: confirmationLetter, createdBy: createdBy };
+        await db.hrLetters.create(newDocument);
+      }
+
+      if (req.body.PIPLetters) {
+        const PIPLetters = await helper.fileUpload(
+          req.body.PIPLetters,
+          `PIPLetters${d}`,
+          `uploads/${existUser.empCode}`
+        );
+        let newDocument = { 'userId': userId, documentType: 3, documentImage: PIPLetters, createdBy: createdBy };
+        await db.hrLetters.create(newDocument);
+      }
+
+      if (req.body.BGVReport) {
+        const BGVReport = await helper.fileUpload(
+          req.body.BGVReport,
+          `BGVReport${d}`,
+          `uploads/${existUser.empCode}`
+        );
+        let newDocument = { 'userId': userId, documentType: 4, documentImage: BGVReport, createdBy: createdBy };
+        await db.hrLetters.create(newDocument);
+      }
+
+      if (req.body.employmentRelated) {
+        const employmentRelated = await helper.fileUpload(
+          req.body.employmentRelated,
+          `employmentRelated${d}`,
+          `uploads/${existUser.empCode}`
+        );
+        let newDocument = { 'userId': userId, documentType: 5, documentImage: employmentRelated, createdBy: createdBy };
+        await db.hrLetters.create(newDocument);
+      }
+
+      if (req.body.insuranceCard) {
+        const insuranceCard = await helper.fileUpload(
+          req.body.insuranceCard,
+          `insuranceCard${d}`,
+          `uploads/${existUser.empCode}`
+        );
+        let updateDocument = { documentImage: insuranceCard, createdBy: createdBy };
+        await db.hrLetters.update(updateDocument, { where: { userId: userId, documentType: 6, updatedBy: updatedBy } });
+      }
+
+      if (req.body.contractLetter) {
+        const contractLetter = await helper.fileUpload(
+          req.body.contractLetter,
+          `contractLetter${d}`,
+          `uploads/${existUser.empCode}`
+        );
+        let newDocument = { 'userId': userId, documentType: 7, documentImage: contractLetter, createdBy: createdBy };
+        await db.hrLetters.create(newDocument);
+      }
+
+      return respHelper(res, {
+        status: 200,
+        msg: constant.UPDATE_SUCCESS.replace("<module>", "Details"),
+      });
+    } catch (error) {
+      console.log("error", error);
+      return respHelper(res, {
+        status: 500,
+        data: error,
+      });
+    }
+  }
+
 }
 
 export default new commonController();

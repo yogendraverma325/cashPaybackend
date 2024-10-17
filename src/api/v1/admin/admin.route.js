@@ -131,4 +131,5 @@ export default Express.Router()
     commonController.updateIQDetails
   )
   .delete("/hrDocument/:letterId", authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"), commonController.deleteHRDocument)
+  .post("/uploadHRDocuments", authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"), commonController.uploadHRDocuments)
 
