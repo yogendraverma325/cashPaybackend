@@ -2647,6 +2647,61 @@ class UserController {
         ],
       });
 
+
+      const myTaskData = await db.separationInitiatedTask.findOne({
+        where: {
+          employeeId: user,
+          pendingAt: user
+        },
+        attributes: ["initiatedTaskAutoId", "status", "createdDt"],
+        include: [
+          {
+            model: db.employeeMaster,
+            attributes: ["empCode", "name"],
+            include: [
+              {
+                model: db.designationMaster,
+                attributes: ["name"],
+              },
+              {
+                model: db.separationMaster,
+                attributes: ['resignationDate', 'l2LastWorkingDay']
+              }
+            ],
+          },
+          {
+            model: db.separationTaskMaster,
+            attributes: ["taskName", 'taskCode'],
+          },
+          {
+            model: db.separationTaskMapping,
+            attributes: ["taskMappingAutoId", "taskConfigAutoId", "taskAutoId"],
+            required: true
+          },
+        ],
+      });
+      if (myTaskData) {
+        let newObj = {
+          "taskMappingAutoId": myTaskData.separationtaskmapping.taskMappingAutoId,
+          "taskConfigAutoId": myTaskData.separationtaskmapping.taskConfigAutoId,
+          "taskAutoId": myTaskData.separationtaskmapping.taskAutoId,
+          "separationtaskowners": [
+            {
+              "taskOwnerAutoId": user,
+              "taskMappingAutoId": myTaskData.separationtaskmapping.taskMappingAutoId,
+              "taskOwner": user,
+              "isActive": req.userData.isActive == 1 ? true : false,
+              "employee": {
+                "name": req.userData.name,
+                "empCode": req.userData.empCode,
+              }
+            }
+          ]
+        }
+        myTaskData.dataValues["separationtaskmapping"] = newObj
+        taskData.push(myTaskData)
+      }
+
       return respHelper(res, {
         status: 200,
         data: separationTasks,
