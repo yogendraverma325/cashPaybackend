@@ -1931,6 +1931,79 @@ class UserController {
         }
       }
 
+      const commonTask = await db.separationTaskMapping.findAll({
+        where: {
+          taskConfigAutoId: 3
+        },
+        include: [
+          // {
+          //   model: db.separationTaskOwner,
+          //   attributes: ["taskOwner"],
+          //   where: {
+          //     isActive: 1
+          //   },
+          //   include: [
+          //     {
+          //       model: db.employeeMaster,
+          //       attributes: ["name", "email"],
+          //     },
+          //   ],
+          // },
+          {
+            model: db.separationTaskConfig,
+            attributes: ["taskConfigName"],
+          },
+          {
+            model: db.separationTaskMaster,
+            where: {
+              taskDependent: null
+            },
+            attributes: ["taskName"],
+            include: [
+              {
+                model: db.separationTaskFields,
+                attributes: ["taskFieldsAutoId"],
+              },
+            ],
+          },
+        ],
+      });
+
+      for (const element of commonTask) {
+        const initiatedTask = await db.separationInitiatedTask.create({
+          employeeId: separationData.dataValues.employee.id,
+          taskAutoId: element.dataValues.taskAutoId,
+          pendingAt: separationData.dataValues.employee.id,
+          status: 0,
+          createdDt: moment(),
+          createdBy: 1,
+          isActive: 1,
+        });
+
+        if (
+          element.dataValues.separationtaskmaster.separationtaskfields.length >
+          0
+        ) {
+          for (const element2 of element.dataValues.separationtaskmaster.separationtaskfields) {
+            await db.separationFieldValues.create({
+              taskAutoId: element.dataValues.taskAutoId,
+              initiatedTaskAutoId: initiatedTask.dataValues.initiatedTaskAutoId,
+              fields: element2.dataValues.taskFieldsAutoId,
+              employeeId: separationData.dataValues.employee.id,
+              createdDt: moment(),
+              createdBy: 1,
+            });
+          }
+        }
+
+        mailArray.push({
+          name: separationData.dataValues.employee.name,
+          email: separationData.dataValues.employee.email,
+          taskName: element.dataValues.separationtaskmaster.taskName
+        })
+      }
+
+
       eventEmitter.emit(
         "separationApproveByBUHR",
         JSON.stringify({
