@@ -2689,7 +2689,7 @@ class UserController {
             {
               "taskOwnerAutoId": req.userId,
               "taskMappingAutoId": myTaskData.separationtaskmapping.taskMappingAutoId,
-              "taskOwner": user,
+              "taskOwner": req.userId,
               "isActive": req.userData.isActive == 1 ? true : false,
               "employee": {
                 "name": req.userData.name,
@@ -2699,7 +2699,7 @@ class UserController {
           ]
         }
         myTaskData.dataValues["separationtaskmapping"] = newObj
-        taskData.push(myTaskData)
+        separationTasks.push(myTaskData)
       }
 
       return respHelper(res, {
