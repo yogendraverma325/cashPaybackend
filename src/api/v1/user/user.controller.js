@@ -2651,7 +2651,8 @@ class UserController {
       const myTaskData = await db.separationInitiatedTask.findOne({
         where: {
           employeeId: req.userId,
-          pendingAt: req.userId
+          pendingAt: req.userId,
+          status: 0
         },
         attributes: ["initiatedTaskAutoId", "status", "createdDt"],
         include: [
