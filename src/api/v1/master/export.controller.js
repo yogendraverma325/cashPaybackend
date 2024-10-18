@@ -2475,7 +2475,7 @@ class MasterController {
 
                 newEmployee.role_id = 3;
                 validEmployees.push({ Index: employee.Index, Personal_Email: obj.email, Remarks: 'Success' });
-                // const createdEmployees = await db.employeeStagingMaster.create(newEmployee);
+                const createdEmployees = await db.employeeStagingMaster.create(newEmployee);
               }
               else {
                 const masterErrors = {
@@ -2502,7 +2502,7 @@ class MasterController {
             }
             else {
               const errors = handleErrors(error);
-              invalidEmployees.push({ ...errors, index: employee.Index, companyEmail: obj.email });
+              invalidEmployees.push({ ...errors, index: employee.Index, personalEmail: obj.email });
             }
           }
 

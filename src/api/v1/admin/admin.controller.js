@@ -363,27 +363,27 @@ class AdminController {
             });
           }
         }
+        else {
+          result.role_id = 3;
 
-        result.role_id = 3;
+          const createdUser = await db.employeeStagingMaster.create(result);
 
-        const createdUser = await db.employeeStagingMaster.create(result);
-
-        if (result.image) {
-          const file = await helper.fileUpload(
-            result.image,
-            "profileImage",
-            `uploads/${createdUser.dataValues.id.toString()}`
-          );
-          await db.employeeStagingMaster.update(
-            { profileImage: file },
-            { where: { id: createdUser.dataValues.id } }
-          );
+          if (result.image) {
+            const file = await helper.fileUpload(
+              result.image,
+              "profileImage",
+              `uploads/${createdUser.dataValues.id.toString()}`
+            );
+            await db.employeeStagingMaster.update(
+              { profileImage: file },
+              { where: { id: createdUser.dataValues.id } }
+            );
+          }
+          return respHelper(res, {
+            status: 200,
+            msg: "Employee added successfully.",
+          });
         }
-
-        return respHelper(res, {
-          status: 200,
-          msg: "Employee added successfully.",
-        });
       }
 
     }
