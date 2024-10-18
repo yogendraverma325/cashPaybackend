@@ -93,6 +93,7 @@ import SeparationFieldsValues from "../api/model/SeparationFieldsValues.js";
 import SeparationInitiatedTask from "../api/model/SeparationInitiatedTask.js";
 import CategoryMaster from "../api/model/CategoryMaster.js";
 import SubCategoryMaster from "../api/model/SubCategoryMaster.js";
+import PTLocationMaster from "../api/model/PTLocationMaster.js";
 
 import PolicyHistory from "../api/model/PolicyHistory.js";
 import literal from "sequelize";
@@ -253,6 +254,8 @@ db.separationInitiatedTask = SeparationInitiatedTask(sequelize, Sequelize);
 db.categoryMaster = CategoryMaster(sequelize, Sequelize);
 db.subCategoryMaster = SubCategoryMaster(sequelize, Sequelize);
 db.PolicyHistory = PolicyHistory(sequelize, Sequelize);
+db.ptLocationMaster = PTLocationMaster(sequelize, Sequelize);
+
 db.holidayCompanyLocationConfiguration.hasOne(db.holidayMaster, {
   foreignKey: "holidayId",
   sourceKey: "holidayId",
@@ -398,13 +401,13 @@ db.regularizationMaster.hasOne(db.attendanceMaster, {
 db.regularizationMaster.hasOne(db.employeeMaster, {
   foreignKey: "id",
   sourceKey: "updatedBy",
-  as: "attendanceUpdatedBy"
+  as: "attendanceUpdatedBy",
 });
 
 db.employeeLeaveTransactions.hasOne(db.employeeMaster, {
   foreignKey: "id",
   sourceKey: "updatedBy",
-  as: "leaveUpdatedBy"
+  as: "leaveUpdatedBy",
 });
 db.attendanceMaster.hasMany(db.regularizationMaster, {
   foreignKey: "attendanceAutoId",
@@ -839,10 +842,9 @@ db.attendanceMaster.hasOne(db.employeeMaster, {
   as: "punchOutCreatedBy",
 });
 
-
 db.separationTaskFields.hasOne(db.separationFieldValues, {
   sourceKey: "taskFieldsAutoId",
-  foreignKey: "fields"
-})
+  foreignKey: "fields",
+});
 
 export default db;

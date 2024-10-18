@@ -51,12 +51,12 @@ class MasterController {
         where: Object.assign(
           search
             ? {
-              [Op.or]: [
-                { empCode: { [Op.like]: `%${search}%` } },
-                { name: { [Op.like]: `%${search}%` } },
-                { email: { [Op.like]: `%${search}%` } },
-              ],
-            }
+                [Op.or]: [
+                  { empCode: { [Op.like]: `%${search}%` } },
+                  { name: { [Op.like]: `%${search}%` } },
+                  { email: { [Op.like]: `%${search}%` } },
+                ],
+              }
             : {}
         ),
         include: [
@@ -702,9 +702,11 @@ class MasterController {
       const limit = parseInt(req.query.limit) || 10;
       const pageNo = parseInt(req.query.page) || 1;
       const offset = (pageNo - 1) * limit;
-      const cacheKey = `employeeList:${pageNo}:${limit}:${search || ""}:${department || ""
-        }:${designation || ""}:${buSearch || ""}:${sbuSearch || ""}:${areaSearch || ""
-        }`;
+      const cacheKey = `employeeList:${pageNo}:${limit}:${search || ""}:${
+        department || ""
+      }:${designation || ""}:${buSearch || ""}:${sbuSearch || ""}:${
+        areaSearch || ""
+      }`;
 
       let employeeData = [];
       await client.get(cacheKey).then(async (data) => {
@@ -855,7 +857,7 @@ class MasterController {
           "createdBy",
           "createdAt",
           "updatedBy",
-          "updatedAt"
+          "updatedAt",
         ],
         where: {
           attendanceDate: {
@@ -953,15 +955,15 @@ class MasterController {
             attributes: ["weekOffName"],
           },
           {
-            model:db.employeeMaster,
-            attributes:['id','name','empCode'],
-            as:"punchInCreatedBy"
+            model: db.employeeMaster,
+            attributes: ["id", "name", "empCode"],
+            as: "punchInCreatedBy",
           },
           {
-            model:db.employeeMaster,
-            attributes:['id','name','empCode'],
-            as:"punchOutCreatedBy"
-          }
+            model: db.employeeMaster,
+            attributes: ["id", "name", "empCode"],
+            as: "punchOutCreatedBy",
+          },
         ],
         raw: true,
       });
@@ -989,7 +991,7 @@ class MasterController {
               "(" +
               record["employee.departmentmaster.departmentCode"] +
               ")",
-              designationName:
+            designationName:
               record["employee.designationmaster.name"] +
               " " +
               "(" +
@@ -1003,25 +1005,27 @@ class MasterController {
               ")",
             manager: record["employee.managerData.name"]
               ? record["employee.managerData.name"] +
-              " (" +
-              record["employee.managerData.empCode"] +
-              ")"
+                " (" +
+                record["employee.managerData.empCode"] +
+                ")"
               : "-",
             attendanceDate: moment(record.attendanceDate).format("DD-MM-YYYY"),
             attendanceStatus: record.attendanceStatus,
             attendancePresentStatus: record.attendancePresentStatus,
             attendancePunchInTime: record.attendancePunchInTime || "N/A",
             attendancePunchInLocation: record.attendancePunchInLocation,
-            attendancePunchInLocationType:record.attendancePunchInLocationType || "N/A",
-            attendancePunchInRemark:record.attendancePunchInRemark || "N/A",
+            attendancePunchInLocationType:
+              record.attendancePunchInLocationType || "N/A",
+            attendancePunchInRemark: record.attendancePunchInRemark || "N/A",
             attendancePunchOutTime: record.attendancePunchOutTime || "N/A",
             attendancePunchOutLocation:
               record.attendancePunchOutLocation || "N/A",
-            attendancePunchOutLocationType:record.attendancePunchOutLocationType || "N/A",
-            attendancePunchOutRemark:record.attendancePunchOutRemark || "N/A",
+            attendancePunchOutLocationType:
+              record.attendancePunchOutLocationType || "N/A",
+            attendancePunchOutRemark: record.attendancePunchOutRemark || "N/A",
             status: "APPROVED",
-            punchInSource:record.punchInSource || "N/A",
-            punchOutSource:record.punchOutSource || "N/A",
+            punchInSource: record.punchInSource || "N/A",
+            punchOutSource: record.punchOutSource || "N/A",
             grade: record["employee.employeejobdetail.grademaster.gradeName"],
             shiftName: record["shiftsmaster.shiftName"],
             shiftStartTime: record["shiftsmaster.shiftStartTime"],
@@ -1030,16 +1034,26 @@ class MasterController {
             attendancePolicyCode:
               record["attendancePolicymaster.policyCode"] || "N/A",
             weekOffName: record["weekOffMaster.weekOffName"] || "N/A",
-           //createdBy: record["punchInCreatedBy.name"] + record["punchInCreatedBy.empCode"] || "N/A",
+            //createdBy: record["punchInCreatedBy.name"] + record["punchInCreatedBy.empCode"] || "N/A",
             //updatedBy: record["punchOutCreatedBy.name"] + record["punchOutCreatedBy.empCode"]|| "N/A",
             createdBy: record["punchInCreatedBy.name"]
-            ? `${record["punchInCreatedBy.name"]} (${record["punchInCreatedBy.empCode"] ?? "N/A"})`
-            : "N/A",
-          updatedBy: record["punchOutCreatedBy.name"]
-            ? `${record["punchOutCreatedBy.name"]} (${record["punchOutCreatedBy.empCode"] ?? "N/A"})`
-            : "N/A",
-            createdAt: record.createdAt != null ? moment(record.createdAt).format("DD-MM-YYYY HH:mm:ss") : "N/A",
-            updatedAt: record.updatedAt != null ? moment(record.updatedAt).format("DD-MM-YYYY HH:mm:ss") : "N/A",
+              ? `${record["punchInCreatedBy.name"]} (${
+                  record["punchInCreatedBy.empCode"] ?? "N/A"
+                })`
+              : "N/A",
+            updatedBy: record["punchOutCreatedBy.name"]
+              ? `${record["punchOutCreatedBy.name"]} (${
+                  record["punchOutCreatedBy.empCode"] ?? "N/A"
+                })`
+              : "N/A",
+            createdAt:
+              record.createdAt != null
+                ? moment(record.createdAt).format("DD-MM-YYYY HH:mm:ss")
+                : "N/A",
+            updatedAt:
+              record.updatedAt != null
+                ? moment(record.updatedAt).format("DD-MM-YYYY HH:mm:ss")
+                : "N/A",
           }))
         );
 
@@ -1060,23 +1074,47 @@ class MasterController {
                 { label: "Manager", value: "manager" },
                 { label: "Attendance Date", value: "attendanceDate" },
                 { label: "Attendance Status", value: "attendanceStatus" },
-                { label: "Attendance Present Status", value: "attendancePresentStatus"},
+                {
+                  label: "Attendance Present Status",
+                  value: "attendancePresentStatus",
+                },
                 { label: "Punch In Time", value: "attendancePunchInTime" },
-                { label: "Punch In Location", value: "attendancePunchInLocation"},
-                { label: "Attendance Punch In Location Type", value: "attendancePunchInLocationType" },  
-                { label: "Punch In Source", value: "punchInSource" },  
-                { label: "Punch In Remark", value: "attendancePunchInRemark" },            
+                {
+                  label: "Punch In Location",
+                  value: "attendancePunchInLocation",
+                },
+                {
+                  label: "Attendance Punch In Location Type",
+                  value: "attendancePunchInLocationType",
+                },
+                { label: "Punch In Source", value: "punchInSource" },
+                { label: "Punch In Remark", value: "attendancePunchInRemark" },
                 { label: "Punch Out Time", value: "attendancePunchOutTime" },
-                { label: "Punch Out Location", value: "attendancePunchOutLocation"},
-                { label: "Attendance Punch Out Location Type", value: "attendancePunchOutLocationType" },
+                {
+                  label: "Punch Out Location",
+                  value: "attendancePunchOutLocation",
+                },
+                {
+                  label: "Attendance Punch Out Location Type",
+                  value: "attendancePunchOutLocationType",
+                },
                 { label: "Punch Out Source", value: "punchOutSource" },
-                { label: "Punch Out Remark", value: "attendancePunchOutRemark" },
+                {
+                  label: "Punch Out Remark",
+                  value: "attendancePunchOutRemark",
+                },
                 { label: "Status(Pending/Approved/Rejected)", value: "status" },
                 { label: "Shift Name", value: "shiftName" },
                 { label: "Shift Start Time", value: "shiftStartTime" },
                 { label: "Shift End Time", value: "shiftEndTime" },
-                { label: "Attendance Policy Name", value: "attendancePolicyName"},
-                { label: "Attendance Policy Code", value: "attendancePolicyCode"},
+                {
+                  label: "Attendance Policy Name",
+                  value: "attendancePolicyName",
+                },
+                {
+                  label: "Attendance Policy Code",
+                  value: "attendancePolicyCode",
+                },
                 { label: "Week Off Name", value: "weekOffName" },
                 { label: "Created By Punch In", value: "createdBy" },
                 { label: "Created On Punch In ", value: "createdAt" },
@@ -1181,7 +1219,9 @@ class MasterController {
               const isValidJobLevel = await validateJobLevel(obj.jobLevel);
               const isValidateEmployee = await validateEmployee(
                 obj.personalMobileNumber,
-                obj.email
+                obj.email,
+                obj.personalEmail,
+                obj.officeMobileNumber
               );
 
               if (
@@ -1244,14 +1284,16 @@ class MasterController {
                 };
 
                 newEmployee.role_id = 3;
-                validEmployees.push({ ...newEmployee, index: employee.Index });
-                const createdEmployees = await db.employeeStagingMaster.create(
-                  newEmployee
-                );
+                validEmployees.push({
+                  Index: employee.Index,
+                  Personal_Email: obj.email,
+                  Remarks: "Success",
+                });
+                // const createdEmployees = await db.employeeStagingMaster.create(newEmployee);
               } else {
                 const masterErrors = {
                   index: employee.Index,
-                  companyEmail: obj.email,
+                  personalEmail: obj.personalEmail,
                   company: isValidCompany.message,
                   employeeType: isValidEmployeeType.message,
                   probation: isValidProbation.message,
@@ -1284,7 +1326,7 @@ class MasterController {
           if (validEmployees.length > 0) {
             // const createdEmployees = await db.employeeStagingMaster.bulkCreate(validEmployees);
             // successData.push(...createdEmployees.map(e => e.toJSON()));
-            successData.push(validEmployees);
+            successData.push(...validEmployees);
           }
           failureData.push(...invalidEmployees);
         }
@@ -1319,7 +1361,7 @@ class MasterController {
         areaSearch,
         grade,
         companyLocation,
-        attendanceFor
+        attendanceFor,
       } = req.query;
       const fromDate = moment(startDate, "YYYY-MM-DD");
       const toDate = moment(endDate, "YYYY-MM-DD");
@@ -1511,8 +1553,8 @@ class MasterController {
                     leave.leaveCount === "1.0"
                       ? "L"
                       : leave.leaveAutoId == 6
-                        ? "0.5U"
-                        : "0.5L";
+                      ? "0.5U"
+                      : "0.5L";
                   dayRecords[dayKey] = `${dayRecords[dayKey]},${leaveStatus}`; // Append leave status
                   //attendanceCount.L++;
                   attendanceCount.L += parseFloat(leave.leaveCount);
@@ -1520,7 +1562,7 @@ class MasterController {
 
                 if (isDayWorking === "H") {
                   dayRecords[dayKey] = `${dayRecords[dayKey]},H`; // Append R for regularization
-                   attendanceCount.H++;  // uncommenting this line 10-10-2024
+                  attendanceCount.H++; // uncommenting this line 10-10-2024
                 }
               } else if (attendancePresentStatus === "singlePunchAbsent") {
                 dayRecords[dayKey] = "SA";
@@ -1538,8 +1580,8 @@ class MasterController {
                     leave.leaveCount === "1.0"
                       ? "L"
                       : leave.leaveAutoId == 6
-                        ? "0.5U"
-                        : "0.5L";
+                      ? "0.5U"
+                      : "0.5L";
                   dayRecords[dayKey] = `${dayRecords[dayKey]},${leaveStatus}`; // Append leave status
                   //attendanceCount.L++;
                   attendanceCount.L += parseFloat(leave.leaveCount);
@@ -1547,7 +1589,7 @@ class MasterController {
 
                 if (isDayWorking === "H") {
                   dayRecords[dayKey] = `${dayRecords[dayKey]},H`; // Append R for regularization
-                  attendanceCount.H++;  // uncommenting this line 10-10-2024
+                  attendanceCount.H++; // uncommenting this line 10-10-2024
                 }
               } else if (attendancePresentStatus === "absent") {
                 dayRecords[dayKey] = "A";
@@ -1565,8 +1607,8 @@ class MasterController {
                     leave.leaveCount === "1.0"
                       ? "L"
                       : leave.leaveAutoId == 6
-                        ? "0.5U"
-                        : "0.5L";
+                      ? "0.5U"
+                      : "0.5L";
                   dayRecords[dayKey] = `${dayRecords[dayKey]},${leaveStatus}`; // Append leave status
                   // attendanceCount.L++;
                   attendanceCount.L += parseFloat(leave.leaveCount);
@@ -1574,7 +1616,7 @@ class MasterController {
 
                 if (isDayWorking === "H") {
                   dayRecords[dayKey] = `${dayRecords[dayKey]},H`; // Append R for regularization
-                  attendanceCount.H++;  // uncommenting this line 10-10-2024
+                  attendanceCount.H++; // uncommenting this line 10-10-2024
                 }
               } else if (attendancePresentStatus === "weeklyOff") {
                 dayRecords[dayKey] = "W";
@@ -1616,8 +1658,8 @@ class MasterController {
                     leave.leaveCount === "1.0"
                       ? "L"
                       : leave.leaveAutoId == 6
-                        ? "0.5U"
-                        : "0.5L";
+                      ? "0.5U"
+                      : "0.5L";
                   dayRecords[dayKey] = `${dayRecords[dayKey]},${leaveStatus}`; // Append leave status
                   //attendanceCount.L++;
                   attendanceCount.L += parseFloat(leave.leaveCount);
@@ -1625,7 +1667,7 @@ class MasterController {
 
                 if (isDayWorking === "W") {
                   dayRecords[dayKey] = `${dayRecords[dayKey]},W`; // Append R for regularization
-                  attendanceCount.W++;  // uncommenting this line 10-10-2024
+                  attendanceCount.W++; // uncommenting this line 10-10-2024
                 }
               } else if (attendancePresentStatus === "singlePunchAbsent") {
                 dayRecords[dayKey] = "SA";
@@ -1643,8 +1685,8 @@ class MasterController {
                     leave.leaveCount === "1.0"
                       ? "L"
                       : leave.leaveAutoId == 6
-                        ? "0.5U"
-                        : "0.5L";
+                      ? "0.5U"
+                      : "0.5L";
                   dayRecords[dayKey] = `${dayRecords[dayKey]},${leaveStatus}`; // Append leave status
                   // attendanceCount.L++;
                   attendanceCount.L += parseFloat(leave.leaveCount);
@@ -1652,7 +1694,7 @@ class MasterController {
 
                 if (isDayWorking === "W") {
                   dayRecords[dayKey] = `${dayRecords[dayKey]},W`; // Append R for regularization
-                  attendanceCount.W++;  // uncommenting this line 10-10-2024
+                  attendanceCount.W++; // uncommenting this line 10-10-2024
                 }
               } else if (attendancePresentStatus === "absent") {
                 dayRecords[dayKey] = "A";
@@ -1670,8 +1712,8 @@ class MasterController {
                     leave.leaveCount === "1.0"
                       ? "L"
                       : leave.leaveAutoId == 6
-                        ? "0.5U"
-                        : "0.5L";
+                      ? "0.5U"
+                      : "0.5L";
                   dayRecords[dayKey] = `${dayRecords[dayKey]},${leaveStatus}`; // Append leave status
                   //attendanceCount.L++;
                   attendanceCount.L += parseFloat(leave.leaveCount);
@@ -1723,8 +1765,8 @@ class MasterController {
                     leave.leaveCount === "1.0"
                       ? "L"
                       : leave.leaveAutoId == 6
-                        ? "0.5U"
-                        : "0.5L";
+                      ? "0.5U"
+                      : "0.5L";
                   dayRecords[dayKey] = `${dayRecords[dayKey]},${leaveStatus}`; // Append leave status
                   //attendanceCount.L++;
                   attendanceCount.L += parseFloat(leave.leaveCount);
@@ -1745,8 +1787,8 @@ class MasterController {
                     leave.leaveCount === "1.0"
                       ? "L"
                       : leave.leaveAutoId == 6
-                        ? "0.5U"
-                        : "0.5L";
+                      ? "0.5U"
+                      : "0.5L";
                   dayRecords[dayKey] = `${dayRecords[dayKey]},${leaveStatus}`; // Append leave status
                   //attendanceCount.L++;
                   attendanceCount.L += parseFloat(leave.leaveCount);
@@ -1767,8 +1809,8 @@ class MasterController {
                     leave.leaveCount === "1.0"
                       ? "L"
                       : leave.leaveAutoId == 6
-                        ? "0.5U"
-                        : "0.5L";
+                      ? "0.5U"
+                      : "0.5L";
                   dayRecords[dayKey] = `${dayRecords[dayKey]},${leaveStatus}`; // Append leave status
                   //attendanceCount.L++;
                   attendanceCount.L += parseFloat(leave.leaveCount);
@@ -1823,7 +1865,10 @@ class MasterController {
           C: 0,
           Payroll: attendanceCount.P,
           PayableDays:
-            attendanceCount.P + attendanceCount.W + attendanceCount.H + attendanceCount.L ,
+            attendanceCount.P +
+            attendanceCount.W +
+            attendanceCount.H +
+            attendanceCount.L,
         };
 
         finalData.push(orderedEmployeeRecord);
@@ -1888,13 +1933,14 @@ class MasterController {
       });
     }
   }
-
-
 }
 
 const createObj = (obj) => {
+  let officeMobileNumber = replaceNAWithNull(obj.Official_Mobile_Number);
+  officeMobileNumber = officeMobileNumber ? officeMobileNumber.toString() : "";
+
   return {
-    email: obj.Email,
+    email: replaceNAWithNull(obj.Email),
     personalEmail: obj.Personal_Email,
     firstName: obj.First_Name,
     middleName: replaceNAWithNull(obj.Middle_Name),
@@ -1903,7 +1949,7 @@ const createObj = (obj) => {
     uanNo: replaceNAWithNull(obj.UAN_No),
     pfNo: replaceNAWithNull(obj.PF_No),
     employeeType: obj.Employee_Type_Name,
-    officeMobileNumber: obj.Official_Mobile_Number?.toString(),
+    officeMobileNumber: officeMobileNumber,
     personalMobileNumber: obj.Personal_Mobile_Number?.toString(),
     gender: obj.Gender,
     dateOfBirth: convertExcelDate(obj.Date_of_Birth),
@@ -1961,11 +2007,11 @@ const handleErrors = (error) => {
       : null,
     officeMobileNumber: error
       ? error.details.find((d) => d.context.key === "officeMobileNumber")
-        ?.message
+          ?.message
       : null,
     personalMobileNumber: error
       ? error.details.find((d) => d.context.key === "personalMobileNumber")
-        ?.message
+          ?.message
       : null,
     dateOfJoining: error
       ? error.details.find((d) => d.context.key === "dateOfJoining")?.message
@@ -2017,7 +2063,7 @@ const handleErrors = (error) => {
       : null,
     maritalStatusSince: error
       ? error.details.find((d) => d.context.key === "maritalStatusSince")
-        ?.message
+          ?.message
       : null,
     nationality: error
       ? error.details.find((d) => d.context.key === "nationality")?.message
@@ -2283,30 +2329,68 @@ const validateJobLevel = async (name) => {
   }
 };
 
-const validateEmployee = async (personalMobileNumber, email) => {
+const validateEmployee = async (
+  personalMobileNumber,
+  companyEmail,
+  personalEmail,
+  officeMobileNumber
+) => {
+  let query = {
+    [Op.or]: [
+      { personalMobileNumber: personalMobileNumber },
+      ...(companyEmail ? [{ email: companyEmail }] : []),
+      ...(officeMobileNumber
+        ? [{ officeMobileNumber: officeMobileNumber }]
+        : []),
+      { personalEmail: personalEmail },
+    ],
+  };
+
   let isVerify = await db.employeeMaster.findOne({
-    where: {
-      [Op.or]: [
-        { personalMobileNumber: personalMobileNumber },
-        { email: email },
-      ],
-    },
-    attributes: ["id"],
+    where: query,
+    attributes: ["id", "email", "officeMobileNumber"],
   });
   if (isVerify) {
-    return { status: false, message: "User already exist", data: {} };
+    if (
+      isVerify.email === companyEmail ||
+      isVerify.officeMobileNumber === officeMobileNumber
+    ) {
+      return {
+        status: false,
+        message:
+          "Employee company email or official mobile no. already exists.",
+        data: {},
+      };
+    } else {
+      return {
+        status: false,
+        message: "Employee personal email/mobile no. already exists.",
+        data: {},
+      };
+    }
   } else {
     isVerify = await db.employeeStagingMaster.findOne({
-      where: {
-        [Op.or]: [
-          { personalMobileNumber: personalMobileNumber },
-          { email: email },
-        ],
-      },
-      attributes: ["id"],
+      where: query,
+      attributes: ["id", "email", "officeMobileNumber"],
     });
     if (isVerify) {
-      return { status: false, message: "User already exist", data: {} };
+      if (
+        isVerify.email === companyEmail ||
+        isVerify.officeMobileNumber === officeMobileNumber
+      ) {
+        return {
+          status: false,
+          message:
+            "Employee company email or official mobile no. already exists.",
+          data: {},
+        };
+      } else {
+        return {
+          status: false,
+          message: "Employee personal email/mobile no. already exists.",
+          data: {},
+        };
+      }
     } else {
       return { status: true, message: "", data: {} };
     }
