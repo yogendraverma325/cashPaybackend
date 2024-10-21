@@ -1289,7 +1289,9 @@ class MasterController {
                   Personal_Email: obj.email,
                   Remarks: "Success",
                 });
-                // const createdEmployees = await db.employeeStagingMaster.create(newEmployee);
+                const createdEmployees = await db.employeeStagingMaster.create(
+                  newEmployee
+                );
               } else {
                 const masterErrors = {
                   index: employee.Index,
@@ -1317,7 +1319,7 @@ class MasterController {
               invalidEmployees.push({
                 ...errors,
                 index: employee.Index,
-                companyEmail: obj.email,
+                personalEmail: obj.email,
               });
             }
           }
