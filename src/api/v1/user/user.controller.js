@@ -2778,13 +2778,13 @@ class UserController {
           "taskAutoId": myTaskData.separationtaskmapping.taskAutoId,
           "separationtaskowners": [
             {
-              "taskOwnerAutoId": req.userId,
+              "taskOwnerAutoId": myTaskData.employee.id,
               "taskMappingAutoId": myTaskData.separationtaskmapping.taskMappingAutoId,
-              "taskOwner": req.userId,
+              "taskOwner": myTaskData.employee.id,
               "isActive": req.userData.isActive == 1 ? true : false,
               "employee": {
-                "name": req.userData.name,
-                "empCode": req.userData.empCode,
+                "name": myTaskData.employee.name,
+                "empCode": myTaskData.employee.empCode,
               }
             }
           ]
@@ -2847,6 +2847,7 @@ class UserController {
                   "isActive",
                 ],
                 required: true,
+                // nest: true,
                 include: [
                   {
                     model: db.employeeMaster,

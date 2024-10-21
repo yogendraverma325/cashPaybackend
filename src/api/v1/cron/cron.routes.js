@@ -6,4 +6,4 @@ export default Express
     .get("/attendanceCron", cronController.updateAttendance)
     .get("/unlockAccount", cronController.updateActiveStatus)
     .get("/updateManager", cronController.updateManager)
-    .get("/blockAccess", cronController.bloackAccess)
+    .get("/blockAccess", cronController.blockAccess)

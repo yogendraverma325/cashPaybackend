@@ -290,12 +290,13 @@ class CronController {
     }
   }
 
-  async bloackAccess() {
+  async blockAccess() {
 
     const date = moment().subtract(1, 'day').format("YYYY-MM-DD")
     const userList = await db.separationMaster.findAll({
       where: {
-        l2LastWorkingDay: date
+        l2LastWorkingDay: date,
+        finalStatus: 9
       }
     })
 
