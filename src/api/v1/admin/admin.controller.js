@@ -718,7 +718,7 @@ class AdminController {
                 uanNo: employeeOnboardingDetails.uanNo,
                 pfNo: employeeOnboardingDetails.pfNo,
                 employeeType: employeeOnboardingDetails.employeeType,
-                image: employeeOnboardingDetails.profileImage,
+                profileImage: employeeOnboardingDetails.profileImage,
                 officeMobileNumber: employeeOnboardingDetails.officeMobileNumber,
                 personalMobileNumber: employeeOnboardingDetails.personalMobileNumber,
                 dateOfJoining: employeeOnboardingDetails.dateOfJoining,

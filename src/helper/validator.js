@@ -136,25 +136,25 @@ const updateBiographicalDetailsSchema = Joi.object({
     .allow(null)
     .max(30)
     .optional(),
-    mobileAdmin: Joi.number().label("Mobile Admin").optional(),
-    dataCardAdmin: Joi.number().label("Data Card").optional(),
-    visitingCardAdmin: Joi.number().label("Visiting Card").optional(),
-    workstationAdmin: Joi.number().label("Work Station").optional(),
-    lastIncrementDate: Joi.string().allow(null).label("Last Increment Date").optional(),
-    iqTestApplicable: Joi.number().label("IQ Test Applicable").optional(),
-    recruiterName: Joi.string()
+  mobileAdmin: Joi.number().label("Mobile Admin").optional(),
+  dataCardAdmin: Joi.number().label("Data Card").optional(),
+  visitingCardAdmin: Joi.number().label("Visiting Card").optional(),
+  workstationAdmin: Joi.number().label("Work Station").optional(),
+  lastIncrementDate: Joi.string().allow(null).label("Last Increment Date").optional(),
+  iqTestApplicable: Joi.number().label("IQ Test Applicable").optional(),
+  recruiterName: Joi.string()
     .trim()
     .label("Recruiter Name")
     .allow(null)
     .max(30)
     .optional(),
-    nomineeName: Joi.string()
+  nomineeName: Joi.string()
     .trim()
     .label("Nominee Name")
     .allow(null)
     .max(30)
     .optional(),
-    nomineeRelation: Joi.string()
+  nomineeRelation: Joi.string()
     .trim()
     .label("Nominee Relation")
     .allow(null)
@@ -368,25 +368,25 @@ const addJobDetailsSchema = Joi.object({
     .min(12)
     .max(12)
     .optional(),
-    epsApplicability: Joi.boolean().allow("").label("EPS Applicability"),
-    esicApplicable: Joi.boolean().allow("").label("ESIC Applicable"),
-    lwfApplicable: Joi.boolean().allow("").label("LWF Applicable"),
-    pfRestricted: Joi.boolean().allow("").label("PF Restricted"),
-    pfApplicability: Joi.boolean().allow("").label("PF Applicability"),
-    epfApplicable: Joi.boolean().allow("").label("EPF Applicable"),
-    pfNumber: Joi.string().label("PF Number").optional(),
-    lwfDesignation: Joi.number().label("LWF Designation").optional(),
-    lwfState: Joi.number().label("LWF State").optional(),
-    restrictCompanyPf: Joi.boolean().allow("").label("Restrict Company PF"),
-    pranNumber: Joi.string().label("PRAN Number").optional(),
-    npsNumber: Joi.string().label("NPS Number").optional(),
-    companyLocationId: Joi.number().label("Company Location").optional(),
-    unionId: Joi.number().label("Union Code").optional(),
-    bandId: Joi.number().label("Band").optional(),
-    gradeId: Joi.number().label("Grade").optional(),
-    jobLevelId: Joi.number().label("Job Level").optional(),
-    residentEng: Joi.boolean().label("Resident Engineer").optional(),
-    customerName: Joi.string().label("Customer Name").optional()
+  epsApplicability: Joi.boolean().allow("").label("EPS Applicability"),
+  esicApplicable: Joi.boolean().allow("").label("ESIC Applicable"),
+  lwfApplicable: Joi.boolean().allow("").label("LWF Applicable"),
+  pfRestricted: Joi.boolean().allow("").label("PF Restricted"),
+  pfApplicability: Joi.boolean().allow("").label("PF Applicability"),
+  epfApplicable: Joi.boolean().allow("").label("EPF Applicable"),
+  pfNumber: Joi.string().label("PF Number").optional(),
+  lwfDesignation: Joi.number().label("LWF Designation").optional(),
+  lwfState: Joi.number().label("LWF State").optional(),
+  restrictCompanyPf: Joi.boolean().allow("").label("Restrict Company PF"),
+  pranNumber: Joi.string().label("PRAN Number").optional(),
+  npsNumber: Joi.string().label("NPS Number").optional(),
+  companyLocationId: Joi.number().label("Company Location").optional(),
+  unionId: Joi.number().label("Union Code").optional(),
+  bandId: Joi.number().label("Band").optional(),
+  gradeId: Joi.number().label("Grade").optional(),
+  jobLevelId: Joi.number().label("Job Level").optional(),
+  residentEng: Joi.boolean().label("Resident Engineer").optional(),
+  customerName: Joi.string().label("Customer Name").optional()
 });
 
 const updateManagerSchema = Joi.array()
@@ -698,16 +698,16 @@ const updateAddress = Joi.object({
 });
 
 const onboardEmployeeSchema = Joi.object({
-  name: Joi.string().pattern(/^[A-Za-z\s]*$/, 'Name should only contain letters and spaces').trim().required().label("Name"),
+  name: Joi.string().pattern(/^[A-Za-z\s.]*$/, 'Name should only contain letters and spaces').trim().required().label("Name"),
   email: Joi.string().trim().email().allow("").label("Email"),
   personalEmail: Joi.string().trim().email().required().label("Personal Email"),
-  firstName: Joi.string().pattern(/^[A-Za-z\s]*$/, 'First Name should only contain letters and spaces').trim().required().label("First Name"),
+  firstName: Joi.string().pattern(/^[A-Za-z\s.]*$/, 'First Name should only contain letters and spaces').trim().required().label("First Name"),
   middleName: Joi.string().pattern(/^[A-Za-z\s]*$/, 'Middle Name should only contain letters and spaces').trim().allow("").label("Middle Name"),
   lastName: Joi.string().pattern(/^[A-Za-z\s]*$/, 'Last Name should only contain letters and spaces').trim().allow("").label("Last Name"),
 
   panNo: Joi.string().pattern(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, 'PAN should be in the format: AAAAA9999A').trim().allow("").label("PAN Number"),
   uanNo: Joi.string().pattern(/^[0-9]{12}$/, 'UAN should be exactly 12 digits').trim().allow("").label("UAN Number"),
-  pfNo: Joi.string().pattern(/^[0-9]{7,15}$/, 'PF number should be between 7 to 15 digits').trim().allow("").label("PF Number"),
+  pfNo: Joi.string().trim().allow("").label("PF Number"),
   employeeType: Joi.number().required().label("Employee Type"),
   image: Joi.string().allow(""),
 
@@ -818,13 +818,13 @@ const revokeSeparation = Joi.object({
 const importOnboardEmployeeSchema = Joi.object({
   email: Joi.string().trim().email().allow("").label("Email"),
   personalEmail: Joi.string().trim().email().required().label("Personal Email"),
-  firstName: Joi.string().pattern(/^[A-Za-z\s]*$/, 'First Name should only contain letters and spaces').trim().required().label("First Name"),
+  firstName: Joi.string().pattern(/^[A-Za-z\s.]*$/, 'First Name should only contain letters and spaces').trim().required().label("First Name"),
   middleName: Joi.string().pattern(/^[A-Za-z\s]*$/, 'Middle Name should only contain letters and spaces').trim().allow("").label("Middle Name"),
   lastName: Joi.string().pattern(/^[A-Za-z\s]*$/, 'Last Name should only contain letters and spaces').trim().allow("").label("Last Name"),
 
   panNo: Joi.string().pattern(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, 'PAN should be in the format: AAAAA9999A').trim().allow(""),
   uanNo: Joi.string().pattern(/^[0-9]{12}$/, 'UAN should be exactly 12 digits').trim().allow(""),
-  pfNo: Joi.string().pattern(/^[0-9]{7,15}$/, 'PF number should be between 7 to 15 digits').trim().allow(""),
+  pfNo: Joi.string().trim().allow(""),
   employeeType: Joi.string().required().label("Employee Type"),
   image: Joi.string().allow(""),
 
@@ -840,7 +840,44 @@ const importOnboardEmployeeSchema = Joi.object({
     .length(10)
     .required()
     .label("Personal Mobile Number"),
-  dateOfJoining: Joi.string().required().label("Date Of Joining"),
+  // dateOfBirth: Joi.string().required().label("Date Of Birth"),
+  dateOfBirth: Joi.string()
+    .trim()
+    .required()
+    .custom((value, helpers) => {
+      const today = moment();
+      const selectedDate = moment(value, 'DD-MM-YYYY'); // Adjust the date format as per your needs
+      const eighteenYearsAgo = today.subtract(18, 'years');
+
+      // Check if the date is before or on the 18 years ago mark
+      if (!selectedDate.isBefore(eighteenYearsAgo) && !selectedDate.isSame(eighteenYearsAgo, 'day')) {
+        return helpers.error('any.invalid'); // Custom error message
+      }
+
+      return value; // Return the value if valid
+    })
+    .messages({
+      'any.invalid': 'You must be at least 18 years old',
+      'string.empty': 'Date of Birth is required',
+    }),
+  // dateOfJoining: Joi.string().required().label("Date Of Joining"),
+  dateOfJoining: Joi.date()
+    .required()
+    .custom((value, helpers) => {
+      const { dateOfBirth } = helpers.state.parent; // Get the dateOfBirth from the parent object
+      const dob = moment(dateOfBirth); // Use moment to parse the dateOfBirth
+      const doj = moment(value); // Use moment to parse the dateOfJoining
+
+      if (!doj.isAfter(dob)) {
+        return helpers.error('any.invalid'); // Error if Date of Joining is before or on the Date of Birth
+      }
+
+      return value; // Return the valid dateOfJoining
+    })
+    .messages({
+      'any.required': 'Date of Joining is required',
+      'any.invalid': 'Date of Joining must be after Date of Birth',
+    }),
   manager: Joi.number().required().label("Manager"),
   designation: Joi.string().required().label("Designation"),
   functionalArea: Joi.string().required().label("Functional Area"),
@@ -860,7 +897,6 @@ const importOnboardEmployeeSchema = Joi.object({
   nationality: Joi.string().valid('Indian').required().label("Nationality"),
   probation: Joi.string().required().label("Probation"),
   jobLevel: Joi.string().required().label("Job Level"),
-  dateOfBirth: Joi.string().required().label("Date Of Birth"),
   newCustomerName: Joi.string().allow("").label("Customer Name"),
   iqTestApplicable: Joi.string().valid('Yes', 'No').required().label("IQ Test Applicable"),
   positionType: Joi.string().valid('New', 'Replacement').required().label("Position Type")
