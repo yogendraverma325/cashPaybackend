@@ -32,6 +32,12 @@ export default (sequelize, Sequelize) => {
         dateOfBirth: {
             type: Sequelize.DATE
         },
+        nomineeName: {
+            type: Sequelize.STRING
+        },
+        nomineeRelation: {
+            type: Sequelize.STRING
+        },
         createdAt: {
             type: Sequelize.DATE
         },

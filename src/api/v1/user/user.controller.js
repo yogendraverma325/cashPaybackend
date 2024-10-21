@@ -139,7 +139,7 @@ class UserController {
                 include: [
                   {
                     model: db.companyLocationMaster,
-                    attributes: ["address1"],
+                    attributes: ["address1", "companyLocationId"],
                     include: [
                       {
                         model: db.stateMaster,
@@ -365,7 +365,11 @@ class UserController {
           },
           {
             model: db.hrLetters,
-            attributes: ["documentType", "documentImage"],
+            required: false,
+            where: {
+              isActive: { [Op.not]: false },
+            },
+            attributes: ["documentType", "documentImage", "letterId", "userId"],
             include: {
               model: db.hrDocumentMaster,
               attributes: ["documentId", "documentName"],
