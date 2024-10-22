@@ -206,7 +206,7 @@ class CronController {
               },
             }
           );
-          await db.separationMaster.update(
+          let dataAudit = await db.separationMaster.update(
             {
               pendingAt: element.managerId,
             },
@@ -217,6 +217,19 @@ class CronController {
               },
             }
           );
+          if (dataAudit) {
+            await db.separationTrail.update(
+              {
+                pendingAt: element.managerId,
+              },
+              {
+                where: {
+                  pending: 1,
+                  separationAutoId: dataAudit.resignationAutoId,
+                },
+              }
+            );
+          }
         }
         //UPDATE MANGER TO EMP MASTER TABLE
       }

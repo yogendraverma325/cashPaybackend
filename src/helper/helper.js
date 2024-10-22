@@ -633,7 +633,6 @@ ${moment(inputData.fromDate).format("DD-MM-YYYY")} to ${moment(
     ).format("DD-MM-YYYY")} (${leaveType}, System Half)`;
   }
   inputData.source = "system_generated";
-  console.log("leaveText", leaveText);
 
   // console.log("workCase", workCase);
   // console.log("empData", empData);
@@ -667,6 +666,7 @@ ${moment(inputData.fromDate).format("DD-MM-YYYY")} to ${moment(
     inputData.leaveAutoId = 6;
   }
   inputData.batch_id = batch;
+  inputData.message = leaveText;
 
   let headerInsert = await db.EmployeeLeaveHeader.create(inputData);
 
