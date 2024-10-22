@@ -2428,11 +2428,12 @@ class MasterController {
               const isValidWeekOff = await validateWeekOff(obj.weekOff);
               const isValidNewCustomerName = await validateNewCustomerName(obj.newCustomerName);
               const isValidJobLevel = await validateJobLevel(obj.jobLevel);
+              const isValidNoticePeriod = await validateNoticePeriod(obj.noticePeriodAutoId);
               const isValidateEmployee = await validateEmployee(obj.personalMobileNumber, obj.email, obj.personalEmail, obj.officeMobileNumber);
 
               if (isValidCompany.status && isValidEmployeeType.status && isValidProbation.status && isValidManager.status && isValidDesignation.status &&
                 isValidFunctionalArea.status && isValidBU.status && isValidSBU.status && isValidCompanyLocation.status && isValidDepartment.status
-                && isValidateEmployee.status && isValidJobLevel.status) {
+                && isValidateEmployee.status && isValidJobLevel.status && isValidNoticePeriod.status) {
                 // prepare employee object
                 let newEmployee = {
                   name: `${obj.firstName} ${obj.middleName} ${obj.lastName}`.replace(/\s+/g, ' ').trim(),
@@ -2470,11 +2471,12 @@ class MasterController {
                   companyLocationId: isValidCompanyLocation.data.companyLocationId,
                   weekOffId: isValidWeekOff.data?.weekOffId,
                   newCustomerNameId: isValidNewCustomerName.data?.newCustomerNameId,
-                  jobLevelId: isValidJobLevel.data?.jobLevelId
+                  jobLevelId: isValidJobLevel.data?.jobLevelId,
+                  noticePeriodAutoId: isValidNoticePeriod.data?.noticePeriodAutoId
                 }
 
                 newEmployee.role_id = 3;
-                validEmployees.push({ Index: employee.Index, Personal_Email: obj.email, Remarks: 'Success' });
+                validEmployees.push({ Index: employee.Index, Personal_Email: obj.personalEmail, Remarks: 'Success' });
                 const createdEmployees = await db.employeeStagingMaster.create(newEmployee);
               }
               else {
@@ -2495,6 +2497,7 @@ class MasterController {
                   weekOff: isValidWeekOff.message,
                   department: isValidDepartment.message,
                   jobLevel: isValidJobLevel.message,
+                  noticePeriod: isValidNoticePeriod.message,
                   alreadyExist: isValidateEmployee.message
                 }
                 invalidEmployees.push(masterErrors);
@@ -2502,7 +2505,7 @@ class MasterController {
             }
             else {
               const errors = handleErrors(error);
-              invalidEmployees.push({ ...errors, index: employee.Index, personalEmail: obj.email });
+              invalidEmployees.push({ ...errors, index: employee.Index, personalEmail: obj.personalEmail });
             }
           }
 
@@ -2575,7 +2578,25 @@ const createObj = (obj) => {
     attendancePolicy: replaceNAWithNull(obj.Attendance_Policy_Name),
     companyLocation: obj.Company_Location_Name,
     weekOff: replaceNAWithNull(obj.Week_Off_Name),
-    jobLevel: obj.Job_Level_Name
+    jobLevel: obj.Job_Level_Name,
+
+    selfService: replaceYesOrNoWithNumber(obj.Self_Service),
+    mobileAccess: (obj.Mobile_Access) ? replaceYesOrNoWithNumber(obj.Mobile_Access) : "",
+    laptopSystem: obj.Laptop_System,    
+    backgroundVerification: replaceYesOrNoWithNumber(obj.Background_Verification),    
+    workstationAdmin: replaceYesOrNoWithNumber(obj.Work_Station_Admin),    
+    mobileAdmin: replaceYesOrNoWithNumber(obj.Mobile_Admin),    
+    dataCardAdmin: replaceYesOrNoWithNumber(obj.DataCard_Admin),    
+    visitingCardAdmin: replaceYesOrNoWithNumber(obj.Visiting_Card_Admin),    
+    recruiterName: obj.Recruiter_Name,    
+    offRoleCTC: (obj.Off_Role_CTC === 'NA' || obj.Off_Role_CTC === '' || obj.Off_Role_CTC === undefined) ? 0 : obj.Off_Role_CTC,
+    highestQualification: obj.Highest_Qualification,
+    ESICPFDeduction: replaceNAWithNull(obj.ESIC_PF_Deduction),
+    fatherName: replaceNAWithNull(obj.Father_Name),
+    paymentAccountNumber: replaceNAWithNull(obj.Bank_Account_Number),
+    paymentBankName: replaceNAWithNull(obj.Bank_Name),
+    paymentBankIfsc: replaceNAWithNull(obj.Bank_IFSC_Number),
+    noticePeriodAutoId: obj.Notice_Period
   }
 }
 
@@ -2613,7 +2634,24 @@ const handleErrors = (error) => {
     dateOfBirth: error ? error.details.find(d => d.context.key === 'dateOfBirth')?.message : null,
     newCustomerName: error ? error.details.find(d => d.context.key === 'newCustomerName')?.message : null,
     iqTestApplicable: error ? error.details.find(d => d.context.key === 'iqTestApplicable')?.message : null,
-    positionType: error ? error.details.find(d => d.context.key === 'positionType')?.message : null
+    positionType: error ? error.details.find(d => d.context.key === 'positionType')?.message : null,
+    
+    selfService: error ? error.details.find(d => d.context.key === 'selfService')?.message : null,
+    mobileAccess: error ? error.details.find(d => d.context.key === 'mobileAccess')?.message : null,
+    laptopSystem: error ? error.details.find(d => d.context.key === 'laptopSystem')?.message : null,
+    backgroundVerification: error ? error.details.find(d => d.context.key === 'backgroundVerification')?.message : null,
+    workstationAdmin: error ? error.details.find(d => d.context.key === 'workstationAdmin')?.message : null,
+    mobileAdmin: error ? error.details.find(d => d.context.key === 'mobileAdmin')?.message : null,
+    dataCardAdmin: error ? error.details.find(d => d.context.key === 'dataCardAdmin')?.message : null,
+    visitingCardAdmin: error ? error.details.find(d => d.context.key === 'visitingCardAdmin')?.message : null,
+    recruiterName: error ? error.details.find(d => d.context.key === 'recruiterName')?.message : null,
+    offRoleCTC: error ? error.details.find(d => d.context.key === 'offRoleCTC')?.message : null,
+    highestQualification: error ? error.details.find(d => d.context.key === 'highestQualification')?.message : null,
+    ESICPFDeduction: error ? error.details.find(d => d.context.key === 'ESICPFDeduction')?.message : null,
+    fatherName: error ? error.details.find(d => d.context.key === 'fatherName')?.message : null,
+    paymentAccountNumber: error ? error.details.find(d => d.context.key === 'paymentAccountNumber')?.message : null,
+    paymentBankName: error ? error.details.find(d => d.context.key === 'paymentBankName')?.message : null,
+    paymentBankIfsc: error ? error.details.find(d => d.context.key === 'paymentBankIfsc')?.message : null
   }
   return errors;
 }
@@ -2821,6 +2859,16 @@ const validateJobLevel = async (name) => {
   }
 }
 
+const validateNoticePeriod = async (name) => {
+  let isVerify = await db.noticePeriodMaster.findOne({ where: { 'noticePeriodName': name }, attributes: ['noticePeriodAutoId'] });
+  if (isVerify) {
+    return { status: true, message: '', data: isVerify }
+  }
+  else {
+    return { status: false, message: 'Invalid Notice Period', data: {} }
+  }
+}
+
 const validateEmployee = async (personalMobileNumber, companyEmail, personalEmail, officeMobileNumber) => {
   let query = {
       [Op.or]: [
@@ -2870,6 +2918,15 @@ const convertExcelDate = (serial) => {
 
 const replaceNAWithNull = (value) => {
   return (value === 'NA' || value === undefined || value === '' || value === null) ? '' : value; // Replace 'NA' with ''
+};
+
+const replaceYesOrNoWithNumber = (value) => {
+  if(value === 'Yes') {
+    return 1;
+  }
+  else {
+    return 0;
+  }
 };
 
 export default new MasterController();

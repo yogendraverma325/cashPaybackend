@@ -141,16 +141,16 @@ export default (sequelize, Sequelize) => {
       type: Sequelize.STRING(255),
     },
     selfService: {
-      type: Sequelize.BOOLEAN
+      type: Sequelize.INTEGER
     },
     mobileAccess: {
-      type: Sequelize.BOOLEAN
+      type: Sequelize.INTEGER
     },
     laptopSystem: {
       type: Sequelize.STRING
     },
     backgroundVerification: {
-      type: Sequelize.BOOLEAN
+      type: Sequelize.INTEGER
     },
     workstationAdmin: {
       type: Sequelize.INTEGER,
@@ -171,13 +171,25 @@ export default (sequelize, Sequelize) => {
       type: Sequelize.INTEGER,
     },
     highestQualification: {
-      type: Sequelize.BOOLEAN
+      type: Sequelize.STRING
     },
     ESICPFDeduction: {
-      type: Sequelize.BOOLEAN
+      type: Sequelize.STRING
     },
     fatherName: {
       type: Sequelize.STRING
+    },
+    paymentAccountNumber: {
+      type: Sequelize.STRING
+    },
+    paymentBankName: {
+      type: Sequelize.STRING
+    },
+    paymentBankIfsc: {
+      type: Sequelize.STRING
+    },
+    noticePeriodAutoId: {
+      type: Sequelize.INTEGER,
     },
     createdBy: {
       type: Sequelize.INTEGER,

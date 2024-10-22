@@ -1456,6 +1456,23 @@ class MasterController {
       });
     }
   }
+
+  async noticePeriod(req, res) {
+    try {
+      const docs = await db.noticePeriodMaster.findAll({
+        attributes: ["noticePeriodAutoId", "noticePeriodName"],
+      });
+      return respHelper(res, {
+        status: 200,
+        data: docs,
+      });
+    } catch (error) {
+      console.log(error);
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
 }
 
 export default new MasterController();
