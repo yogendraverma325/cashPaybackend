@@ -553,10 +553,91 @@ const empLeaveDetails = async function (userId, type) {
   return leaveData;
 };
 
-const empMarkLeaveOfGivenDate = async function (userId, inputData, batch) {
+const minutesNunmberToHoursFormat = (input) => {
+  const inputMinuteNumber = moment.duration(input, "minutes");
+
+  // Format the duration to HH:mm:ss
+  const formatTime = moment
+    .utc(inputMinuteNumber.asMilliseconds())
+    .format("HH:mm:ss");
+  return formatTime;
+};
+const empMarkLeaveOfGivenDate = async function (
+  userId,
+  inputData,
+  batch,
+  lateCase,
+  workCase,
+  empData,
+  attendanceandOtherData
+) {
+  let leaveText = "";
+  let leaveType = "Half Day";
+  if (inputData.leaveCount == 1) {
+    leaveType = "Full Day";
+  }
+  if (lateCase != null && workCase == null) {
+    leaveText = `Auto-requested for Leave deduction based on late duration policy.${
+      empData.name
+    } (${empData.empCode}) has clocked in late in ${
+      attendanceandOtherData.attendancemaster.attendanceLateBy
+    }
+Late by duration to deduct half day is : ${minutesNunmberToHoursFormat(
+      attendanceandOtherData.attendancePolicymaster
+        .leaveDeductPolicyLateDurationHalfDayTime
+    )}
+Late by duration to deduct full day is : ${minutesNunmberToHoursFormat(
+      attendanceandOtherData.attendancePolicymaster
+        .leaveDeductPolicyLateDurationFullDayTime
+    )}
+${moment(inputData.fromDate).format("DD-MM-YYYY")} to ${moment(
+      inputData.toDate
+    ).format("DD-MM-YYYY")} (${leaveType}, System Half)`;
+  } else if (lateCase == null && workCase != null) {
+    leaveText = `Auto-requested for Leave because of Work duration policy.${
+      empData.name
+    } (${empData.empCode}) has worked for ${
+      attendanceandOtherData.attendancemaster.attendanceWorkingTime
+    }
+Working hours required in order to complete Half Day: ${minutesNunmberToHoursFormat(
+      attendanceandOtherData.attendancePolicymaster
+        .leaveDeductPolicyWorkDurationHalfDayTime
+    )}
+Working hours required in order to complete Full Day: ${minutesNunmberToHoursFormat(
+      attendanceandOtherData.attendancePolicymaster
+        .leaveDeductPolicyWorkDurationFullDayTime
+    )}`;
+  } else {
+    leaveText = `Auto-requested for Leave because of Work and Late duration policy. 
+${empData.name} (${empData.empCode}) has worked for ${
+      attendanceandOtherData.attendancemaster.attendanceWorkingTime
+    } and Late By ${attendanceandOtherData.attendancemaster.attendanceLateBy}
+Working hours required in order to complete Half Day: ${minutesNunmberToHoursFormat(
+      attendanceandOtherData.attendancePolicymaster
+        .leaveDeductPolicyWorkDurationHalfDayTime
+    )}
+Working hours required in order to complete Full Day: ${minutesNunmberToHoursFormat(
+      attendanceandOtherData.attendancePolicymaster
+        .leaveDeductPolicyWorkDurationFullDayTime
+    )}
+Late by duration to deduct half day is : ${minutesNunmberToHoursFormat(
+      attendanceandOtherData.attendancePolicymaster
+        .leaveDeductPolicyLateDurationHalfDayTime
+    )}
+Late by duration to deduct full day is : ${minutesNunmberToHoursFormat(
+      attendanceandOtherData.attendancePolicymaster
+        .leaveDeductPolicyLateDurationFullDayTime
+    )}
+${moment(inputData.fromDate).format("DD-MM-YYYY")} to ${moment(
+      inputData.toDate
+    ).format("DD-MM-YYYY")} (${leaveType}, System Half)`;
+  }
   inputData.source = "system_generated";
-  // console.log("inputData", inputData)
-  // console.log("inputData", inputData.leaveAutoId)
+  console.log("leaveText", leaveText);
+
+  // console.log("workCase", workCase);
+  // console.log("empData", empData);
+  // console.log("attendanceData", attendanceData);
   if (inputData.leaveAutoId != 6) {
     let empLeave = await empLeaveDetails(userId, inputData.leaveAutoId);
     if (empLeave) {
