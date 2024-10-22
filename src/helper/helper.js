@@ -586,6 +586,10 @@ const empMarkLeaveOfGivenDate = async function (userId, inputData, batch) {
     inputData.leaveAutoId = 6;
   }
   inputData.batch_id = batch;
+
+  let headerInsert = await db.EmployeeLeaveHeader.create(inputData);
+
+  inputData.employeeleaveheaderID = headerInsert.employeeleaveheaderID;
   await db.employeeLeaveTransactions.create(inputData); // Push data to leave transaction table for that employee
 
   //start code :leave deducation code if auto approve only
