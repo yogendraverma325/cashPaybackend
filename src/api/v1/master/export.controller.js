@@ -2544,6 +2544,12 @@ class MasterController {
 const createObj = (obj) => {
   let officeMobileNumber = replaceNAWithNull(obj.Official_Mobile_Number);
   officeMobileNumber = (officeMobileNumber) ? officeMobileNumber.toString() : '';
+  let personalMobileNumber = obj.Personal_Mobile_Number?.toString();
+  let uanNo = replaceNAWithNull(obj.UAN_No);
+
+  if(personalMobileNumber) {
+    personalMobileNumber = personalMobileNumber.replace(/^91/, '');
+  }
   
   return {
     email: replaceNAWithNull(obj.Email),
@@ -2552,11 +2558,11 @@ const createObj = (obj) => {
     middleName: replaceNAWithNull(obj.Middle_Name),
     lastName: replaceNAWithNull(obj.Last_Name),
     panNo: replaceNAWithNull(obj.Pan_No),
-    uanNo: replaceNAWithNull(obj.UAN_No),
+    uanNo: uanNo?.toString(),
     pfNo: replaceNAWithNull(obj.PF_No),
     employeeType: obj.Employee_Type_Name,
     officeMobileNumber: officeMobileNumber,
-    personalMobileNumber: obj.Personal_Mobile_Number?.toString(),
+    personalMobileNumber: personalMobileNumber,
     gender: obj.Gender,
     dateOfBirth: convertExcelDate(obj.Date_of_Birth),
     dateOfJoining: convertExcelDate(obj.Date_of_Joining),
@@ -2873,35 +2879,51 @@ const validateEmployee = async (personalMobileNumber, companyEmail, personalEmai
   let query = {
       [Op.or]: [
         { 'personalMobileNumber': personalMobileNumber },
-        ...(companyEmail ? [{ 'email': companyEmail }] : []),
-        ...(officeMobileNumber ? [{ 'officeMobileNumber': officeMobileNumber }] : []),
         { 'personalEmail': personalEmail }
       ]
   };
 
+  // Initialize an array for additional conditions
+  const additionalConditions = [];
+
+  // Add companyEmail condition if it's provided
+  if (companyEmail && companyEmail.trim() !== '') {
+      additionalConditions.push({ 'email': companyEmail });
+  }
+
+  // Add officeMobileNumber condition if it's provided
+  if (officeMobileNumber && officeMobileNumber.trim() !== '') {
+      additionalConditions.push({ 'officeMobileNumber': officeMobileNumber });
+  }
+
+  // If there are additional conditions, add them to the main query
+  if (additionalConditions.length > 0) {
+      query[Op.or] = [...query[Op.or], ...additionalConditions];
+  }
+
   let isVerify = await db.employeeMaster.findOne({
     where: query,
-    attributes: ['id', 'email', 'officeMobileNumber']
+    attributes: ['id', 'personalEmail', 'personalMobileNumber']
   });
   if (isVerify) {
-    if(isVerify.email === companyEmail || isVerify.officeMobileNumber === officeMobileNumber) {
-      return { status: false, message: 'Employee company email or official mobile no. already exists.', data: {} }
+    if(isVerify.personalEmail === personalEmail || isVerify.personalMobileNumber === personalMobileNumber) {
+      return { status: false, message: 'Employee personal email/mobile no. already exists.', data: {} }
     }
     else {
-      return { status: false, message: 'Employee personal email/mobile no. already exists.', data: {} }
+      return { status: false, message: 'Employee company email or official mobile no. already exists.', data: {} }
     }
   }
   else {
     isVerify = await db.employeeStagingMaster.findOne({
       where: query,
-      attributes: ['id', 'email', 'officeMobileNumber']
+      attributes: ['id', 'personalEmail', 'personalMobileNumber']
     });
     if (isVerify) {
-      if(isVerify.email === companyEmail || isVerify.officeMobileNumber === officeMobileNumber) {
-        return { status: false, message: 'Employee company email or official mobile no. already exists.', data: {} }
+      if(isVerify.personalEmail === personalEmail || isVerify.personalMobileNumber === personalMobileNumber) {
+        return { status: false, message: 'Employee personal email/mobile no. already exists.', data: {} }
       }
       else {
-        return { status: false, message: 'Employee personal email/mobile no. already exists.', data: {} }
+        return { status: false, message: 'Employee company email or official mobile no. already exists.', data: {} }
       }
     }
     else {

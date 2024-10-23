@@ -324,25 +324,41 @@ class AdminController {
       let query = {
           [Op.or]: [
             { 'personalMobileNumber': result.personalMobileNumber },
-            ...(result.email ? [{ 'email': result.email }] : []),
-            ...(result.officeMobileNumber ? [{ 'officeMobileNumber': result.officeMobileNumber }] : []),
             { 'personalEmail': result.personalEmail }
           ]
       };
 
+      // Initialize an array for additional conditions
+      const additionalConditions = [];
+
+      // Add companyEmail condition if it's provided
+      if (result.email && result.email.trim() !== '') {
+          additionalConditions.push({ 'email': result.email });
+      }
+
+      // Add officeMobileNumber condition if it's provided
+      if (result.officeMobileNumber && result.officeMobileNumber.trim() !== '') {
+          additionalConditions.push({ 'officeMobileNumber': result.officeMobileNumber });
+      }
+
+      // If there are additional conditions, add them to the main query
+      if (additionalConditions.length > 0) {
+          query[Op.or] = [...query[Op.or], ...additionalConditions];
+      }
+
       let existUser = await db.employeeMaster.findOne({ where: query });
 
       if (existUser) {
-        if(existUser.email === result.email || existUser.officeMobileNumber === result.officeMobileNumber) {
+        if(existUser.personalEmail === result.personalEmail || existUser.personalMobileNumber === result.personalMobileNumber) {
           return respHelper(res, {
             status: 400,
-            msg: "Employee company email or official mobile no. already exists.",
+            msg: "Employee personal email/mobile no. already exists.",
           });
         }
         else {
           return respHelper(res, {
             status: 400,
-            msg: "Employee personal email/mobile no. already exists.",
+            msg: "Employee company email or official mobile no. already exists.",
           });
         }
       }
@@ -350,16 +366,16 @@ class AdminController {
         existUser = await db.employeeStagingMaster.findOne({ where: query });
 
         if (existUser) {
-          if(existUser.email === result.email || existUser.officeMobileNumber === result.officeMobileNumber) {
+          if(existUser.personalEmail === result.personalEmail || existUser.personalMobileNumber === result.personalMobileNumber) {
             return respHelper(res, {
               status: 400,
-              msg: "Employee company email or official mobile no. already exists.",
+              msg: "Employee personal email/mobile no. already exists.",
             });
           }
           else {
             return respHelper(res, {
               status: 400,
-              msg: "Employee personal email/mobile no. already exists.",
+              msg: "Employee company email or official mobile no. already exists.",
             });
           }
         }
@@ -670,25 +686,41 @@ class AdminController {
           let query = {
             [Op.or]: [
               { 'personalMobileNumber': employeeOnboardingDetails.personalMobileNumber },
-              ...(employeeOnboardingDetails.email ? [{ 'email': employeeOnboardingDetails.email }] : []),
-              ...(employeeOnboardingDetails.officeMobileNumber ? [{ 'officeMobileNumber': employeeOnboardingDetails.officeMobileNumber }] : []),
               { 'personalEmail': employeeOnboardingDetails.personalEmail }
             ]
           };
 
+          // Initialize an array for additional conditions
+          const additionalConditions = [];
+
+          // Add companyEmail condition if it's provided
+          if (employeeOnboardingDetails.email && employeeOnboardingDetails.email.trim() !== '') {
+              additionalConditions.push({ 'email': employeeOnboardingDetails.email });
+          }
+
+          // Add officeMobileNumber condition if it's provided
+          if (employeeOnboardingDetails.officeMobileNumber && employeeOnboardingDetails.officeMobileNumber.trim() !== '') {
+              additionalConditions.push({ 'officeMobileNumber': employeeOnboardingDetails.officeMobileNumber });
+          }
+
+          // If there are additional conditions, add them to the main query
+          if (additionalConditions.length > 0) {
+              query[Op.or] = [...query[Op.or], ...additionalConditions];
+          }
+
           const existUser = await db.employeeMaster.findOne({ where: query });
 
           if (existUser) {
-            if(existUser.email === employeeOnboardingDetails.email || existUser.officeMobileNumber === employeeOnboardingDetails.officeMobileNumber) {
+            if(existUser.personalEmail === employeeOnboardingDetails.personalEmail || existUser.personalMobileNumber === employeeOnboardingDetails.personalMobileNumber) {
               return respHelper(res, {
                 status: 400,
-                msg: "Employee company email or official mobile no. already exists.",
+                msg: "Employee personal email/mobile no. already exists.",
               });
             }
             else {
               return respHelper(res, {
                 status: 400,
-                msg: "Employee personal email/mobile no. already exists.",
+                msg: "Employee company email or official mobile no. already exists.",
               });
             }
           }
@@ -794,14 +826,17 @@ class AdminController {
   
                   const createdUserJobDetails = await db.jobDetails.create(newEmployeeJobDetails);
   
-                  let newEmployeePaymentDetails = {
-                    userId: createdUser.id,
-                    paymentAccountNumber: employeeOnboardingDetails.paymentAccountNumber,
-                    paymentBankName: employeeOnboardingDetails.paymentBankName,
-                    paymentBankIfsc: employeeOnboardingDetails.paymentBankIfsc
+                  if(employeeOnboardingDetails.employeeType == 3) {
+                    let newEmployeePaymentDetails = {
+                      userId: createdUser.id,
+                      paymentAccountNumber: employeeOnboardingDetails.paymentAccountNumber,
+                      paymentBankName: employeeOnboardingDetails.paymentBankName,
+                      paymentBankIfsc: employeeOnboardingDetails.paymentBankIfsc,
+                      status: 'approved'
+                    }
+      
+                    const createdUserPaymentDetails = await db.paymentDetails.create(newEmployeePaymentDetails);
                   }
-    
-                  const createdUserPaymentDetails = await db.paymentDetails.create(newEmployeePaymentDetails);
   
                   eventEmitter.emit(
                     "onboardingEmployeeMail",
