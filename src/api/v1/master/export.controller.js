@@ -2299,12 +2299,15 @@ class MasterController {
           {
             model: db.buMaster,
             attributes: ["buName"],
-            required: !!buSearch,
+            required:false
+
+            //required: !!buSearch,
           },
           {
             model: db.sbuMaster,
             attributes: ["sbuname"],
-            required: !!sbuSearch,
+            required:false
+            //required: !!sbuSearch,
           },
           {
             model: db.companyLocationMaster,
@@ -2331,7 +2334,11 @@ class MasterController {
         ],
       });
 
-  
+      // return respHelper(res, {
+      //   status: 200,
+      //   msg: "File Uploaded Successfully",
+      //   data: employeeData,
+      // });
       const arr = await Promise.all(
         employeeData.map(async (ele) => {
           return {
@@ -2353,7 +2360,7 @@ class MasterController {
               ele.dataValues.functionalareamaster?.functionalAreaCode || "",
             department_name: ele.dataValues.departmentmaster?.departmentName || "",
             bu_name: ele.dataValues.bumaster?.buName || "",
-            sub_bu_name: ele.dataValues.sbumaster?.sbuname || "",
+            sub_bu_name: ele.dataValues.sbumaster.dataValues?.sbuname || "",
             grade: ele.employeejobdetail?.grademaster?.gradeName || "",
             band: ele.employeejobdetail?.bandmaster?.bandDesc || "",
             jobLevel: ele.employeejobdetail?.joblevelmaster?.jobLevelName || "",
@@ -2385,7 +2392,7 @@ class MasterController {
             
         })
       );
-  
+   
       if (arr.length > 0) {
         const timestamp = Date.now();
 
@@ -2395,8 +2402,9 @@ class MasterController {
             columns: [
               { label: "Employee_Code", value: "empCode" },
               { label: "Email", value: "email" },
-              { label: "First_Name", value: "firstName" },
-              { label: "Last_Name", value: "lastName" },
+              { label: "Full Name", value: "name" },
+              // { label: "First_Name", value: "firstName" },
+              // { label: "Last_Name", value: "lastName" },
               { label: "Office_Mobile_Number", value: "officeMobileNumber" },
               {
                 label: "Personal_Mobile_Number",
@@ -2428,7 +2436,10 @@ class MasterController {
               { label: "Employee Type", value: "employeeType" },
               { label: "Last Increment Date", value: "lastIncrementDate" },
               { label: "Iq Test Applicable", value: "iqTestApplicable" },
-              { label: "RE", value: "residentEng" },             
+              { label: "RE", value: "residentEng" },    
+              { label: "Driving Licence", value: "drivingLicence" },    
+
+              
             ],
             content: arr,
           }

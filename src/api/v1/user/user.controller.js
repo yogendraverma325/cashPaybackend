@@ -3128,6 +3128,11 @@ class UserController {
          },
          {
           model: db.separationReason,
+          as: "empReasonofResignation",
+          attributes: ["separationReason"],
+         },
+         {
+          model: db.separationReason,
           as: "l1ReasonofResignation",
           attributes: ["separationReason"],
          },
