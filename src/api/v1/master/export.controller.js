@@ -2472,6 +2472,22 @@ class MasterController {
                   weekOffId: isValidWeekOff.data?.weekOffId,
                   newCustomerNameId: isValidNewCustomerName.data?.newCustomerNameId,
                   jobLevelId: isValidJobLevel.data?.jobLevelId,
+                  selfService: obj.selfService,
+                  mobileAccess: obj.mobileAccess,
+                  laptopSystem: obj.laptopSystem,    
+                  backgroundVerification: obj.backgroundVerification,
+                  workstationAdmin: obj.workstationAdmin,
+                  mobileAdmin: obj.mobileAdmin,
+                  dataCardAdmin: obj.dataCardAdmin,  
+                  visitingCardAdmin: obj.visitingCardAdmin, 
+                  recruiterName: obj.recruiterName,   
+                  offRoleCTC: obj.offRoleCTC,
+                  highestQualification: obj.highestQualification,
+                  ESICPFDeduction: obj.ESICPFDeduction,
+                  fatherName: obj.fatherName,
+                  paymentAccountNumber: obj.paymentAccountNumber,
+                  paymentBankName: obj.paymentBankName,
+                  paymentBankIfsc: obj.paymentBankIfsc,
                   noticePeriodAutoId: isValidNoticePeriod.data?.noticePeriodAutoId
                 }
 
