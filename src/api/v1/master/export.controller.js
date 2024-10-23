@@ -1219,7 +1219,9 @@ class MasterController {
               const isValidJobLevel = await validateJobLevel(obj.jobLevel);
               const isValidateEmployee = await validateEmployee(
                 obj.personalMobileNumber,
-                obj.email
+                obj.email,
+                obj.personalEmail,
+                obj.officeMobileNumber
               );
 
               if (
@@ -1282,14 +1284,18 @@ class MasterController {
                 };
 
                 newEmployee.role_id = 3;
-                validEmployees.push({ ...newEmployee, index: employee.Index });
+                validEmployees.push({
+                  Index: employee.Index,
+                  Personal_Email: obj.email,
+                  Remarks: "Success",
+                });
                 const createdEmployees = await db.employeeStagingMaster.create(
                   newEmployee
                 );
               } else {
                 const masterErrors = {
                   index: employee.Index,
-                  companyEmail: obj.email,
+                  personalEmail: obj.personalEmail,
                   company: isValidCompany.message,
                   employeeType: isValidEmployeeType.message,
                   probation: isValidProbation.message,
@@ -1313,7 +1319,7 @@ class MasterController {
               invalidEmployees.push({
                 ...errors,
                 index: employee.Index,
-                companyEmail: obj.email,
+                personalEmail: obj.email,
               });
             }
           }
@@ -1322,7 +1328,7 @@ class MasterController {
           if (validEmployees.length > 0) {
             // const createdEmployees = await db.employeeStagingMaster.bulkCreate(validEmployees);
             // successData.push(...createdEmployees.map(e => e.toJSON()));
-            successData.push(validEmployees);
+            successData.push(...validEmployees);
           }
           failureData.push(...invalidEmployees);
         }
@@ -2455,8 +2461,11 @@ class MasterController {
 }
 
 const createObj = (obj) => {
+  let officeMobileNumber = replaceNAWithNull(obj.Official_Mobile_Number);
+  officeMobileNumber = officeMobileNumber ? officeMobileNumber.toString() : "";
+
   return {
-    email: obj.Email,
+    email: replaceNAWithNull(obj.Email),
     personalEmail: obj.Personal_Email,
     firstName: obj.First_Name,
     middleName: replaceNAWithNull(obj.Middle_Name),
@@ -2465,7 +2474,7 @@ const createObj = (obj) => {
     uanNo: replaceNAWithNull(obj.UAN_No),
     pfNo: replaceNAWithNull(obj.PF_No),
     employeeType: obj.Employee_Type_Name,
-    officeMobileNumber: obj.Official_Mobile_Number?.toString(),
+    officeMobileNumber: officeMobileNumber,
     personalMobileNumber: obj.Personal_Mobile_Number?.toString(),
     gender: obj.Gender,
     dateOfBirth: convertExcelDate(obj.Date_of_Birth),
@@ -2845,30 +2854,68 @@ const validateJobLevel = async (name) => {
   }
 };
 
-const validateEmployee = async (personalMobileNumber, email) => {
+const validateEmployee = async (
+  personalMobileNumber,
+  companyEmail,
+  personalEmail,
+  officeMobileNumber
+) => {
+  let query = {
+    [Op.or]: [
+      { personalMobileNumber: personalMobileNumber },
+      ...(companyEmail ? [{ email: companyEmail }] : []),
+      ...(officeMobileNumber
+        ? [{ officeMobileNumber: officeMobileNumber }]
+        : []),
+      { personalEmail: personalEmail },
+    ],
+  };
+
   let isVerify = await db.employeeMaster.findOne({
-    where: {
-      [Op.or]: [
-        { personalMobileNumber: personalMobileNumber },
-        { email: email },
-      ],
-    },
-    attributes: ["id"],
+    where: query,
+    attributes: ["id", "email", "officeMobileNumber"],
   });
   if (isVerify) {
-    return { status: false, message: "User already exist", data: {} };
+    if (
+      isVerify.email === companyEmail ||
+      isVerify.officeMobileNumber === officeMobileNumber
+    ) {
+      return {
+        status: false,
+        message:
+          "Employee company email or official mobile no. already exists.",
+        data: {},
+      };
+    } else {
+      return {
+        status: false,
+        message: "Employee personal email/mobile no. already exists.",
+        data: {},
+      };
+    }
   } else {
     isVerify = await db.employeeStagingMaster.findOne({
-      where: {
-        [Op.or]: [
-          { personalMobileNumber: personalMobileNumber },
-          { email: email },
-        ],
-      },
-      attributes: ["id"],
+      where: query,
+      attributes: ["id", "email", "officeMobileNumber"],
     });
     if (isVerify) {
-      return { status: false, message: "User already exist", data: {} };
+      if (
+        isVerify.email === companyEmail ||
+        isVerify.officeMobileNumber === officeMobileNumber
+      ) {
+        return {
+          status: false,
+          message:
+            "Employee company email or official mobile no. already exists.",
+          data: {},
+        };
+      } else {
+        return {
+          status: false,
+          message: "Employee personal email/mobile no. already exists.",
+          data: {},
+        };
+      }
     } else {
       return { status: true, message: "", data: {} };
     }

@@ -9,7 +9,7 @@ import validator from "../../../helper/validator.js";
 class MasterController {
   async employee(req, res) {
     try {
-      const { filterValue, filterType } = req.query;
+      const { filterValue, filterType, searchId } = req.query;
 
       let buFIlter = {};
       let sbbuFIlter = {};
@@ -31,7 +31,6 @@ class MasterController {
             .split(",")
             .map((el) => parseInt(el));
         }
-        console.log("role", permissionAssignTousers);
         let permissionAndAccess = await db.permissoinandaccess.findAll({
           where: {
             role_id: usersData.role_id,
@@ -123,48 +122,56 @@ class MasterController {
           break;
       }
 
+      let searchCondition = {
+        [Op.and]: [
+          {
+            isActive:
+              usersData.role_id == 1 || usersData.role_id == 2
+                ? [1, 0]
+                : [1],
+          },
+        ],
+      };
+
+      if(searchId) {
+          searchCondition = { 'id': searchId };
+      }
+
+      if(search) {
+        searchCondition = {
+          [Op.or]: [
+            {
+              empCode: {
+                [Op.like]: `%${search}%`,
+              },
+            },
+            {
+              name: {
+                [Op.like]: `%${search}%`,
+              },
+            },
+            {
+              email: {
+                [Op.like]: `%${search}%`,
+              },
+            },
+          ],
+          [Op.and]: [
+            {
+              isActive:
+                usersData.role_id == 1 || usersData.role_id == 2
+                  ? [1, 0]
+                  : [1],
+            },
+          ],
+        }
+      };
+
       employeeData = await db.employeeMaster.findAndCountAll({
         order: [["id", "desc"]],
         limit,
         offset,
-        where: search
-          ? {
-              [Op.or]: [
-                {
-                  empCode: {
-                    [Op.like]: `%${search}%`,
-                  },
-                },
-                {
-                  name: {
-                    [Op.like]: `%${search}%`,
-                  },
-                },
-                {
-                  email: {
-                    [Op.like]: `%${search}%`,
-                  },
-                },
-              ],
-              [Op.and]: [
-                {
-                  isActive:
-                    usersData.role_id == 1 || usersData.role_id == 2
-                      ? [1, 0]
-                      : [1],
-                },
-              ],
-            }
-          : {
-              [Op.and]: [
-                {
-                  isActive:
-                    usersData.role_id == 1 || usersData.role_id == 2
-                      ? [1, 0]
-                      : [1],
-                },
-              ],
-            },
+        where: searchCondition,
         attributes: [
           "id",
           "empCode",
@@ -1390,6 +1397,60 @@ class MasterController {
       });
     } catch (error) {
       console.log("error", error);
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+  async lwfDesignation(req, res) {
+    try {
+      let condition = { isActive: 1 };
+      const lwfDesignationData = await db.lwfDesignationMaster.findAll({
+        where: condition,
+        attributes: ["lwfDesignationId", "lwfDesignationName"],
+      });
+      return respHelper(res, {
+        status: 200,
+        data: lwfDesignationData,
+      });
+    } catch (error) {
+      console.log(error);
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+
+  async ptLocation(req, res) {
+    try {
+      let condition = { isActive: 1, stateId: req.params.stateId };
+      const docs = await db.ptLocationMaster.findAll({
+        where: condition,
+        attributes: ["ptLocationId", "ptLocationName", "ptLocationCode"],
+      });
+      return respHelper(res, {
+        status: 200,
+        data: docs,
+      });
+    } catch (error) {
+      console.log(error);
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+
+  async unionCode(req, res) {
+    try {
+      const docs = await db.unionCodIncrementMaster.findAll({
+        attributes: ["unionCodeId", "unionCode"],
+      });
+      return respHelper(res, {
+        status: 200,
+        data: docs,
+      });
+    } catch (error) {
+      console.log(error);
       return respHelper(res, {
         status: 500,
       });

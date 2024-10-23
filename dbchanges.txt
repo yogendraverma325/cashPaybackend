@@ -691,6 +691,27 @@ ADD COLUMN `companyId` INT NOT NULL DEFAULT 1 AFTER `startingIndex`,
 ADD COLUMN `prefix` VARCHAR(45) NULL DEFAULT NULL AFTER `companyId`,
 ADD COLUMN `postfix` VARCHAR(45) NULL DEFAULT NULL AFTER `prefix`;
 
+01-10-2024
+
+ALTER TABLE `tara`.`companytypemaster` 
+CHANGE COLUMN `isActive` `isActive` TINYINT(1) NOT NULL DEFAULT 1 ;
+
+14-10-2024
+
+ALTER TABLE `tara`.`employeebiographicaldetails` 
+ADD COLUMN `nomineeName` VARCHAR(255) NULL DEFAULT NULL AFTER `dateOfBirth`,
+ADD COLUMN `nomineeRelation` VARCHAR(255) NULL DEFAULT NULL AFTER `nomineeName`;
+
+create new table as "ptlocationmaster" for professional tax location master regarding update employee payment details "PT Location"
+
+INSERT INTO `tara`.`hrdocumentmaster` (`documentId`, `documentName`, `typeUpdate`, `isActive`) VALUES ('7', 'Contract Letter', '0', '1');
+ALTER TABLE `tara`.`hrletters` 
+CHANGE COLUMN `isActive` `isActive` INT NULL DEFAULT 1 ;
+
+
+
+
+
 
 
 

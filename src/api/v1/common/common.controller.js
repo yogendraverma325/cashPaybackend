@@ -64,7 +64,10 @@ class commonController {
 
       const userId = result.userId == 0 ? req.userId : result.userId;
 
-      const getUserDetails = await db.employeeMaster.findOne({ attributes: ['id', 'firstName'], where: { id: userId } })
+      const getUserDetails = await db.employeeMaster.findOne({
+        attributes: ["id", "firstName"],
+        where: { id: userId },
+      });
 
       const updateObj = Object.assign(result, {
         userId: userId,
@@ -78,10 +81,20 @@ class commonController {
       if (result.salutationId) {
         await db.employeeMaster.update(
           {
-            name: result.lastName ? `${getUserDetails.firstName} ${result.lastName}` : getUserDetails.firstName,
+            name: result.lastName
+              ? `${getUserDetails.firstName} ${result.lastName}`
+              : getUserDetails.firstName,
             salutationId: result.salutationId,
             middleName: result.middleName,
             lastName: result.lastName,
+            firstName: result.firstName,
+            dataCardAdmin: result.dataCardAdmin,
+            visitingCardAdmin: result.visitingCardAdmin,
+            workstationAdmin: result.workstationAdmin,
+            lastIncrementDate: result.lastIncrementDate,
+            iqTestApplicable: result.iqTestApplicable,
+            mobileAdmin: result.mobileAdmin,
+            recruiterName: result.recruiterName,
           },
           {
             where: { id: userId },
@@ -131,7 +144,7 @@ class commonController {
           data: {},
         });
       }
-    } catch (error) { }
+    } catch (error) {}
   }
 
   async updatePaymentDetails(req, res) {
@@ -314,7 +327,7 @@ class commonController {
           data: {},
         });
       }
-    } catch (error) { }
+    } catch (error) {}
   }
 
   async getFamilyMember(req, res) {
@@ -360,6 +373,20 @@ class commonController {
           userId: userId,
         },
       });
+
+      // verify probation id and calculate probation days
+      if (
+        result.probationPeriod &&
+        result.probationPeriod != existPaymentDetails.probationPeriod
+      ) {
+        let getProbationDetails = await db.probationMaster.findOne({
+          where: { probationName: result.probationPeriod },
+        });
+        if (getProbationDetails) {
+          let durationOfProbation = getProbationDetails.durationOfProbation;
+          result["probationDays"] = durationOfProbation;
+        }
+      }
 
       if (existPaymentDetails) {
         let obj = {
@@ -797,9 +824,11 @@ class commonController {
       const pageNo = req.query.page * 1 || 1;
       const offset = (pageNo - 1) * limit;
 
-      const cacheKey = `employeeList:${req.userId}:${pageNo}:${limit}:${search || ""
-        }:${department || ""}:${designation || ""}:${buSearch || ""}:${sbuSearch || ""
-        }:${areaSearch || ""}`;
+      const cacheKey = `employeeList:${req.userId}:${pageNo}:${limit}:${
+        search || ""
+      }:${department || ""}:${designation || ""}:${buSearch || ""}:${
+        sbuSearch || ""
+      }:${areaSearch || ""}`;
 
       let employeeData = [];
       await client.get(cacheKey).then(async (data) => {
@@ -832,44 +861,44 @@ class commonController {
             where: Object.assign(
               search
                 ? {
-                  [Op.or]: [
-                    {
-                      empCode: {
-                        [Op.like]: `%${search}%`,
+                    [Op.or]: [
+                      {
+                        empCode: {
+                          [Op.like]: `%${search}%`,
+                        },
                       },
-                    },
-                    {
-                      name: {
-                        [Op.like]: `%${search}%`,
+                      {
+                        name: {
+                          [Op.like]: `%${search}%`,
+                        },
                       },
-                    },
-                    {
-                      email: {
-                        [Op.like]: `%${search}%`,
+                      {
+                        email: {
+                          [Op.like]: `%${search}%`,
+                        },
                       },
-                    },
-                  ],
-                  [Op.and]: [
-                    {
-                      isActive:
-                        usersData.role_id == 1 || usersData.role_id == 2
-                          ? [1, 0]
-                          : [1],
-                      ...empFilters,
-                    },
-                  ],
-                }
+                    ],
+                    [Op.and]: [
+                      {
+                        isActive:
+                          usersData.role_id == 1 || usersData.role_id == 2
+                            ? [1, 0]
+                            : [1],
+                        ...empFilters,
+                      },
+                    ],
+                  }
                 : {
-                  [Op.and]: [
-                    {
-                      isActive:
-                        usersData.role_id == 1 || usersData.role_id == 2
-                          ? [1, 0]
-                          : [1],
-                      ...empFilters,
-                    },
-                  ],
-                }
+                    [Op.and]: [
+                      {
+                        isActive:
+                          usersData.role_id == 1 || usersData.role_id == 2
+                            ? [1, 0]
+                            : [1],
+                        ...empFilters,
+                      },
+                    ],
+                  }
             ),
             attributes: [
               "id",
@@ -1473,17 +1502,17 @@ class commonController {
     try {
       const categoryData = await db.categoryMaster.findAll({
         where: {
-          isActive: 1
+          isActive: 1,
         },
-        attributes: ['categoryAutoId', 'categoryName', 'categoryDesc']
-      })
+        attributes: ["categoryAutoId", "categoryName", "categoryDesc"],
+      });
 
       return respHelper(res, {
         status: 200,
-        data: categoryData
+        data: categoryData,
       });
     } catch (error) {
-      console.log(error)
+      console.log(error);
       return respHelper(res, {
         status: 500,
       });
@@ -1495,28 +1524,219 @@ class commonController {
       const subCategory = await db.categoryMaster.findOne({
         where: {
           categoryAutoId: req.params.id,
-          isActive: 1
+          isActive: 1,
         },
-        attributes: ['categoryAutoId', 'categoryName', 'categoryDesc'],
-        include: [{
-          model: db.subCategoryMaster,
-          where: {
-            isActive: 1
+        attributes: ["categoryAutoId", "categoryName", "categoryDesc"],
+        include: [
+          {
+            model: db.subCategoryMaster,
+            where: {
+              isActive: 1,
+            },
+            required: true,
+            attributes: [
+              "subCategoryId",
+              "subCategoryDesc",
+              "subCategoryName",
+              "subCategoryValue",
+            ],
           },
-          required: true,
-          attributes: ['subCategoryId', 'subCategoryDesc', 'subCategoryName', 'subCategoryValue']
-        }]
-      })
+        ],
+      });
 
       return respHelper(res, {
         status: 200,
-        data: subCategory
+        data: subCategory,
       });
-
     } catch (error) {
-      console.log(error)
+      console.log(error);
       return respHelper(res, {
         status: 500,
+      });
+    }
+  }
+  async updateIQDetails(req, res) {
+    try {
+      const result = await validator.updateIQDetailsSchema.validateAsync(
+        req.body
+      );
+      const userId = result.userId;
+
+      const updateObj = Object.assign(result, {
+        updatedAt: moment(),
+        updatedBy: req.userId,
+      });
+
+      await db.employeeMaster.update(updateObj, {
+        where: { id: userId },
+      });
+
+      return respHelper(res, {
+        status: 200,
+        msg: constant.UPDATE_SUCCESS.replace("<module>", "Details"),
+        data: updateObj,
+      });
+    } catch (error) {
+      console.log(error);
+      if (error.isJoi === true) {
+        return respHelper(res, {
+          status: 422,
+          msg: error.details[0].message,
+        });
+      }
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+
+  async deleteHRDocument(req, res) {
+    try {
+      const { letterId } = req.params;
+      let response = await db.hrLetters.update(
+        { isActive: 0 },
+        { where: { letterId: letterId } }
+      );
+
+      return respHelper(res, {
+        status: 200,
+        msg: constant.UPDATE_SUCCESS.replace("<module>", "Details"),
+        data: response,
+      });
+    } catch (error) {
+      console.log(error);
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+
+  async uploadHRDocuments(req, res) {
+    try {
+      const userId = req.body.userId;
+      const createdBy = req.userId;
+      const updatedBy = req.userId;
+
+      const existUser = await db.employeeMaster.findOne({
+        where: { id: userId },
+      });
+      const d = Math.floor(Date.now() / 1000);
+
+      // Check each field in the request and upload the file if it exists
+      if (req.body.meritPlanningLetter) {
+        const meritPlanningLetter = await helper.fileUpload(
+          req.body.meritPlanningLetter,
+          `meritPlanningLetter${d}`,
+          `uploads/${existUser.empCode}`
+        );
+        let newDocument = {
+          userId: userId,
+          documentType: 1,
+          documentImage: meritPlanningLetter,
+          createdBy: createdBy,
+        };
+        await db.hrLetters.create(newDocument);
+      }
+
+      if (req.body.confirmationLetter) {
+        const confirmationLetter = await helper.fileUpload(
+          req.body.confirmationLetter,
+          `confirmationLetter${d}`,
+          `uploads/${existUser.empCode}`
+        );
+        let newDocument = {
+          userId: userId,
+          documentType: 2,
+          documentImage: confirmationLetter,
+          createdBy: createdBy,
+        };
+        await db.hrLetters.create(newDocument);
+      }
+
+      if (req.body.PIPLetters) {
+        const PIPLetters = await helper.fileUpload(
+          req.body.PIPLetters,
+          `PIPLetters${d}`,
+          `uploads/${existUser.empCode}`
+        );
+        let newDocument = {
+          userId: userId,
+          documentType: 3,
+          documentImage: PIPLetters,
+          createdBy: createdBy,
+        };
+        await db.hrLetters.create(newDocument);
+      }
+
+      if (req.body.BGVReport) {
+        const BGVReport = await helper.fileUpload(
+          req.body.BGVReport,
+          `BGVReport${d}`,
+          `uploads/${existUser.empCode}`
+        );
+        let newDocument = {
+          userId: userId,
+          documentType: 4,
+          documentImage: BGVReport,
+          createdBy: createdBy,
+        };
+        await db.hrLetters.create(newDocument);
+      }
+
+      if (req.body.employmentRelated) {
+        const employmentRelated = await helper.fileUpload(
+          req.body.employmentRelated,
+          `employmentRelated${d}`,
+          `uploads/${existUser.empCode}`
+        );
+        let newDocument = {
+          userId: userId,
+          documentType: 5,
+          documentImage: employmentRelated,
+          createdBy: createdBy,
+        };
+        await db.hrLetters.create(newDocument);
+      }
+
+      if (req.body.insuranceCard) {
+        const insuranceCard = await helper.fileUpload(
+          req.body.insuranceCard,
+          `insuranceCard${d}`,
+          `uploads/${existUser.empCode}`
+        );
+        let updateDocument = {
+          documentImage: insuranceCard,
+          createdBy: createdBy,
+        };
+        await db.hrLetters.update(updateDocument, {
+          where: { userId: userId, documentType: 6, updatedBy: updatedBy },
+        });
+      }
+
+      if (req.body.contractLetter) {
+        const contractLetter = await helper.fileUpload(
+          req.body.contractLetter,
+          `contractLetter${d}`,
+          `uploads/${existUser.empCode}`
+        );
+        let newDocument = {
+          userId: userId,
+          documentType: 7,
+          documentImage: contractLetter,
+          createdBy: createdBy,
+        };
+        await db.hrLetters.create(newDocument);
+      }
+
+      return respHelper(res, {
+        status: 200,
+        msg: constant.UPDATE_SUCCESS.replace("<module>", "Details"),
+      });
+    } catch (error) {
+      console.log("error", error);
+      return respHelper(res, {
+        status: 500,
+        data: error,
       });
     }
   }

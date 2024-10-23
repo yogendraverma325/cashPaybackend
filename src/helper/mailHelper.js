@@ -259,8 +259,12 @@ async function separationApprovalAcknowledgementToUser(input) {
             subject: `Manager accepted the resignation of Employee`,
             html: await emailTemplate.separationApprovalAcknowledgementToUser(userData)
         })
+<<<<<<< HEAD
     }
     catch(error) {
+=======
+    } catch (error) {
+>>>>>>> dev_manish13
         console.log(error)
         logger.error(error)
     }

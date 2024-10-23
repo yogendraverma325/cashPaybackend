@@ -153,6 +153,45 @@ class AuthController {
       });
     }
   }
+
+  async testapi(req, res) {
+    try {
+      const regularizeData = await db.regularizationMaster.findAndCountAll({
+        attributes: ['regularizeId', 'regularizePunchInDate', 'createdBy']
+      })
+      // console.log(regularizeData.dataValues.createdBy)
+      for (const element of regularizeData.rows) {
+        // console.log(`${element.dataValues.regularizePunchInDate} - ${element.dataValues.createdBy}`)
+        // console.log(element.dataValues.regularizePunchInDate)
+        const attendanceData = await db.attendanceMaster.findOne({
+          where: {
+            employeeId: element.dataValues.createdBy,
+            attendanceDate: element.dataValues.regularizePunchInDate
+          },
+          attribute: ['attendanceAutoId']
+        })
+
+        console.log(attendanceData.dataValues.attendanceAutoId)
+
+        await db.regularizationMaster.update({
+          attendanceAutoId: attendanceData.dataValues.attendanceAutoId
+        }, {
+          where: {
+            regularizeId: element.dataValues.regularizeId
+          }
+        })
+      }
+
+      return respHelper(res, {
+        status: 200,
+        data: regularizeData
+      });
+    } catch (error) {
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
 }
 
 const validateUser = async (req, existUser) => {

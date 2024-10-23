@@ -34,16 +34,71 @@ export default Express.Router()
   .get("/separationReason", masterController.separationReason)
   .get("/separationType", masterController.separationType)
   .get("/hrDocument", masterController.hrDocumentMaster)
-  .get("/roles", authorization("ADMIN", "SUPERADMIN"), masterController.roles)
-  .get("/shift", authorization("ADMIN", "SUPERADMIN"), masterController.shift)
-  .get("/attendance-policy", authorization("ADMIN", "SUPERADMIN"), masterController.attendancePlicy)
-  .get("/weekoff", authorization("ADMIN", "SUPERADMIN"), masterController.weekoff)
-  .get("/sbu", authorization("ADMIN", "SUPERADMIN"), masterController.sbu)
-  .get("/buhr", authorization("ADMIN", "SUPERADMIN"), masterController.buhr)
-  .get("/buhead", authorization("ADMIN", "SUPERADMIN"), masterController.buhead)
-  .get("/probation", authorization("ADMIN", "SUPERADMIN"), masterController.probation)
-  .get("/newCustomerName", authorization("ADMIN", "SUPERADMIN"), masterController.newCustomerName)
+  .get(
+    "/roles",
+    authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"),
+    masterController.roles
+  )
+  .get(
+    "/shift",
+    authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"),
+    masterController.shift
+  )
+  .get(
+    "/attendance-policy",
+    authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"),
+    masterController.attendancePlicy
+  )
+  .get(
+    "/weekoff",
+    authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"),
+    masterController.weekoff
+  )
+  .get(
+    "/sbu",
+    authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"),
+    masterController.sbu
+  )
+  .get(
+    "/buhr",
+    authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"),
+    masterController.buhr
+  )
+  .get(
+    "/buhead",
+    authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"),
+    masterController.buhead
+  )
+  .get(
+    "/probation",
+    authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"),
+    masterController.probation
+  )
+  .get(
+    "/newCustomerName",
+    authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"),
+    masterController.newCustomerName
+  )
   .get("/reportModule", masterController.reportModule)
   .get("/taskFilter", masterController.taskFilter)
   .get("/shift", masterController.shift)
-  .get("/separationTasks", authorization("ADMIN", "SUPERADMIN"), masterController.separationTasks)
+  .get(
+    "/separationTasks",
+    authorization("ADMIN", "SUPERADMIN"),
+    masterController.separationTasks
+  )
+  .get(
+    "/lwfDesignation",
+    authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"),
+    masterController.lwfDesignation
+  )
+  .get(
+    "/ptLocation/:stateId",
+    authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"),
+    masterController.ptLocation
+  )
+  .get(
+    "/unionCode",
+    authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"),
+    masterController.unionCode
+  );

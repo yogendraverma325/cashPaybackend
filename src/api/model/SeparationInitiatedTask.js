@@ -17,6 +17,9 @@ export default (sequelize, Sequelize) => {
             type: Sequelize.BOOLEAN,
             allowNull: true,
         },
+        pendingAt: {
+            type: Sequelize.INTEGER,
+        },
         createdDt: {
             type: Sequelize.DATE,
             allowNull: true,
