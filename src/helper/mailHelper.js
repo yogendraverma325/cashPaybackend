@@ -260,7 +260,7 @@ async function separationApprovalAcknowledgementToUser(input) {
             html: await emailTemplate.separationApprovalAcknowledgementToUser(userData)
         })
     }
-    catch {
+    catch(error) {
         console.log(error)
         logger.error(error)
     }

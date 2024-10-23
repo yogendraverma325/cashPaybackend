@@ -51,12 +51,12 @@ class MasterController {
         where: Object.assign(
           search
             ? {
-              [Op.or]: [
-                { empCode: { [Op.like]: `%${search}%` } },
-                { name: { [Op.like]: `%${search}%` } },
-                { email: { [Op.like]: `%${search}%` } },
-              ],
-            }
+                [Op.or]: [
+                  { empCode: { [Op.like]: `%${search}%` } },
+                  { name: { [Op.like]: `%${search}%` } },
+                  { email: { [Op.like]: `%${search}%` } },
+                ],
+              }
             : {}
         ),
         include: [
@@ -702,9 +702,11 @@ class MasterController {
       const limit = parseInt(req.query.limit) || 10;
       const pageNo = parseInt(req.query.page) || 1;
       const offset = (pageNo - 1) * limit;
-      const cacheKey = `employeeList:${pageNo}:${limit}:${search || ""}:${department || ""
-        }:${designation || ""}:${buSearch || ""}:${sbuSearch || ""}:${areaSearch || ""
-        }`;
+      const cacheKey = `employeeList:${pageNo}:${limit}:${search || ""}:${
+        department || ""
+      }:${designation || ""}:${buSearch || ""}:${sbuSearch || ""}:${
+        areaSearch || ""
+      }`;
 
       let employeeData = [];
       await client.get(cacheKey).then(async (data) => {
@@ -855,7 +857,7 @@ class MasterController {
           "createdBy",
           "createdAt",
           "updatedBy",
-          "updatedAt"
+          "updatedAt",
         ],
         where: {
           attendanceDate: {
@@ -953,15 +955,15 @@ class MasterController {
             attributes: ["weekOffName"],
           },
           {
-            model:db.employeeMaster,
-            attributes:['id','name','empCode'],
-            as:"punchInCreatedBy"
+            model: db.employeeMaster,
+            attributes: ["id", "name", "empCode"],
+            as: "punchInCreatedBy",
           },
           {
-            model:db.employeeMaster,
-            attributes:['id','name','empCode'],
-            as:"punchOutCreatedBy"
-          }
+            model: db.employeeMaster,
+            attributes: ["id", "name", "empCode"],
+            as: "punchOutCreatedBy",
+          },
         ],
         raw: true,
       });
@@ -989,7 +991,7 @@ class MasterController {
               "(" +
               record["employee.departmentmaster.departmentCode"] +
               ")",
-              designationName:
+            designationName:
               record["employee.designationmaster.name"] +
               " " +
               "(" +
@@ -1003,25 +1005,27 @@ class MasterController {
               ")",
             manager: record["employee.managerData.name"]
               ? record["employee.managerData.name"] +
-              " (" +
-              record["employee.managerData.empCode"] +
-              ")"
+                " (" +
+                record["employee.managerData.empCode"] +
+                ")"
               : "-",
             attendanceDate: moment(record.attendanceDate).format("DD-MM-YYYY"),
             attendanceStatus: record.attendanceStatus,
             attendancePresentStatus: record.attendancePresentStatus,
             attendancePunchInTime: record.attendancePunchInTime || "N/A",
             attendancePunchInLocation: record.attendancePunchInLocation,
-            attendancePunchInLocationType:record.attendancePunchInLocationType || "N/A",
-            attendancePunchInRemark:record.attendancePunchInRemark || "N/A",
+            attendancePunchInLocationType:
+              record.attendancePunchInLocationType || "N/A",
+            attendancePunchInRemark: record.attendancePunchInRemark || "N/A",
             attendancePunchOutTime: record.attendancePunchOutTime || "N/A",
             attendancePunchOutLocation:
               record.attendancePunchOutLocation || "N/A",
-            attendancePunchOutLocationType:record.attendancePunchOutLocationType || "N/A",
-            attendancePunchOutRemark:record.attendancePunchOutRemark || "N/A",
+            attendancePunchOutLocationType:
+              record.attendancePunchOutLocationType || "N/A",
+            attendancePunchOutRemark: record.attendancePunchOutRemark || "N/A",
             status: "APPROVED",
-            punchInSource:record.punchInSource || "N/A",
-            punchOutSource:record.punchOutSource || "N/A",
+            punchInSource: record.punchInSource || "N/A",
+            punchOutSource: record.punchOutSource || "N/A",
             grade: record["employee.employeejobdetail.grademaster.gradeName"],
             shiftName: record["shiftsmaster.shiftName"],
             shiftStartTime: record["shiftsmaster.shiftStartTime"],
@@ -1030,16 +1034,26 @@ class MasterController {
             attendancePolicyCode:
               record["attendancePolicymaster.policyCode"] || "N/A",
             weekOffName: record["weekOffMaster.weekOffName"] || "N/A",
-           //createdBy: record["punchInCreatedBy.name"] + record["punchInCreatedBy.empCode"] || "N/A",
+            //createdBy: record["punchInCreatedBy.name"] + record["punchInCreatedBy.empCode"] || "N/A",
             //updatedBy: record["punchOutCreatedBy.name"] + record["punchOutCreatedBy.empCode"]|| "N/A",
             createdBy: record["punchInCreatedBy.name"]
-            ? `${record["punchInCreatedBy.name"]} (${record["punchInCreatedBy.empCode"] ?? "N/A"})`
-            : "N/A",
-          updatedBy: record["punchOutCreatedBy.name"]
-            ? `${record["punchOutCreatedBy.name"]} (${record["punchOutCreatedBy.empCode"] ?? "N/A"})`
-            : "N/A",
-            createdAt: record.createdAt != null ? moment(record.createdAt).format("DD-MM-YYYY HH:mm:ss") : "N/A",
-            updatedAt: record.updatedAt != null ? moment(record.updatedAt).format("DD-MM-YYYY HH:mm:ss") : "N/A",
+              ? `${record["punchInCreatedBy.name"]} (${
+                  record["punchInCreatedBy.empCode"] ?? "N/A"
+                })`
+              : "N/A",
+            updatedBy: record["punchOutCreatedBy.name"]
+              ? `${record["punchOutCreatedBy.name"]} (${
+                  record["punchOutCreatedBy.empCode"] ?? "N/A"
+                })`
+              : "N/A",
+            createdAt:
+              record.createdAt != null
+                ? moment(record.createdAt).format("DD-MM-YYYY HH:mm:ss")
+                : "N/A",
+            updatedAt:
+              record.updatedAt != null
+                ? moment(record.updatedAt).format("DD-MM-YYYY HH:mm:ss")
+                : "N/A",
           }))
         );
 
@@ -1060,23 +1074,47 @@ class MasterController {
                 { label: "Manager", value: "manager" },
                 { label: "Attendance Date", value: "attendanceDate" },
                 { label: "Attendance Status", value: "attendanceStatus" },
-                { label: "Attendance Present Status", value: "attendancePresentStatus"},
+                {
+                  label: "Attendance Present Status",
+                  value: "attendancePresentStatus",
+                },
                 { label: "Punch In Time", value: "attendancePunchInTime" },
-                { label: "Punch In Location", value: "attendancePunchInLocation"},
-                { label: "Attendance Punch In Location Type", value: "attendancePunchInLocationType" },  
-                { label: "Punch In Source", value: "punchInSource" },  
-                { label: "Punch In Remark", value: "attendancePunchInRemark" },            
+                {
+                  label: "Punch In Location",
+                  value: "attendancePunchInLocation",
+                },
+                {
+                  label: "Attendance Punch In Location Type",
+                  value: "attendancePunchInLocationType",
+                },
+                { label: "Punch In Source", value: "punchInSource" },
+                { label: "Punch In Remark", value: "attendancePunchInRemark" },
                 { label: "Punch Out Time", value: "attendancePunchOutTime" },
-                { label: "Punch Out Location", value: "attendancePunchOutLocation"},
-                { label: "Attendance Punch Out Location Type", value: "attendancePunchOutLocationType" },
+                {
+                  label: "Punch Out Location",
+                  value: "attendancePunchOutLocation",
+                },
+                {
+                  label: "Attendance Punch Out Location Type",
+                  value: "attendancePunchOutLocationType",
+                },
                 { label: "Punch Out Source", value: "punchOutSource" },
-                { label: "Punch Out Remark", value: "attendancePunchOutRemark" },
+                {
+                  label: "Punch Out Remark",
+                  value: "attendancePunchOutRemark",
+                },
                 { label: "Status(Pending/Approved/Rejected)", value: "status" },
                 { label: "Shift Name", value: "shiftName" },
                 { label: "Shift Start Time", value: "shiftStartTime" },
                 { label: "Shift End Time", value: "shiftEndTime" },
-                { label: "Attendance Policy Name", value: "attendancePolicyName"},
-                { label: "Attendance Policy Code", value: "attendancePolicyCode"},
+                {
+                  label: "Attendance Policy Name",
+                  value: "attendancePolicyName",
+                },
+                {
+                  label: "Attendance Policy Code",
+                  value: "attendancePolicyCode",
+                },
                 { label: "Week Off Name", value: "weekOffName" },
                 { label: "Created By Punch In", value: "createdBy" },
                 { label: "Created On Punch In ", value: "createdAt" },
@@ -1319,7 +1357,7 @@ class MasterController {
         areaSearch,
         grade,
         companyLocation,
-        attendanceFor
+        attendanceFor,
       } = req.query;
       const fromDate = moment(startDate, "YYYY-MM-DD");
       const toDate = moment(endDate, "YYYY-MM-DD");
@@ -1511,8 +1549,8 @@ class MasterController {
                     leave.leaveCount === "1.0"
                       ? "L"
                       : leave.leaveAutoId == 6
-                        ? "0.5U"
-                        : "0.5L";
+                      ? "0.5U"
+                      : "0.5L";
                   dayRecords[dayKey] = `${dayRecords[dayKey]},${leaveStatus}`; // Append leave status
                   //attendanceCount.L++;
                   attendanceCount.L += parseFloat(leave.leaveCount);
@@ -1520,7 +1558,7 @@ class MasterController {
 
                 if (isDayWorking === "H") {
                   dayRecords[dayKey] = `${dayRecords[dayKey]},H`; // Append R for regularization
-                   attendanceCount.H++;  // uncommenting this line 10-10-2024
+                  attendanceCount.H++; // uncommenting this line 10-10-2024
                 }
               } else if (attendancePresentStatus === "singlePunchAbsent") {
                 dayRecords[dayKey] = "SA";
@@ -1538,8 +1576,8 @@ class MasterController {
                     leave.leaveCount === "1.0"
                       ? "L"
                       : leave.leaveAutoId == 6
-                        ? "0.5U"
-                        : "0.5L";
+                      ? "0.5U"
+                      : "0.5L";
                   dayRecords[dayKey] = `${dayRecords[dayKey]},${leaveStatus}`; // Append leave status
                   //attendanceCount.L++;
                   attendanceCount.L += parseFloat(leave.leaveCount);
@@ -1547,7 +1585,7 @@ class MasterController {
 
                 if (isDayWorking === "H") {
                   dayRecords[dayKey] = `${dayRecords[dayKey]},H`; // Append R for regularization
-                  attendanceCount.H++;  // uncommenting this line 10-10-2024
+                  attendanceCount.H++; // uncommenting this line 10-10-2024
                 }
               } else if (attendancePresentStatus === "absent") {
                 dayRecords[dayKey] = "A";
@@ -1565,8 +1603,8 @@ class MasterController {
                     leave.leaveCount === "1.0"
                       ? "L"
                       : leave.leaveAutoId == 6
-                        ? "0.5U"
-                        : "0.5L";
+                      ? "0.5U"
+                      : "0.5L";
                   dayRecords[dayKey] = `${dayRecords[dayKey]},${leaveStatus}`; // Append leave status
                   // attendanceCount.L++;
                   attendanceCount.L += parseFloat(leave.leaveCount);
@@ -1574,7 +1612,7 @@ class MasterController {
 
                 if (isDayWorking === "H") {
                   dayRecords[dayKey] = `${dayRecords[dayKey]},H`; // Append R for regularization
-                  attendanceCount.H++;  // uncommenting this line 10-10-2024
+                  attendanceCount.H++; // uncommenting this line 10-10-2024
                 }
               } else if (attendancePresentStatus === "weeklyOff") {
                 dayRecords[dayKey] = "W";
@@ -1616,8 +1654,8 @@ class MasterController {
                     leave.leaveCount === "1.0"
                       ? "L"
                       : leave.leaveAutoId == 6
-                        ? "0.5U"
-                        : "0.5L";
+                      ? "0.5U"
+                      : "0.5L";
                   dayRecords[dayKey] = `${dayRecords[dayKey]},${leaveStatus}`; // Append leave status
                   //attendanceCount.L++;
                   attendanceCount.L += parseFloat(leave.leaveCount);
@@ -1625,7 +1663,7 @@ class MasterController {
 
                 if (isDayWorking === "W") {
                   dayRecords[dayKey] = `${dayRecords[dayKey]},W`; // Append R for regularization
-                  attendanceCount.W++;  // uncommenting this line 10-10-2024
+                  attendanceCount.W++; // uncommenting this line 10-10-2024
                 }
               } else if (attendancePresentStatus === "singlePunchAbsent") {
                 dayRecords[dayKey] = "SA";
@@ -1643,8 +1681,8 @@ class MasterController {
                     leave.leaveCount === "1.0"
                       ? "L"
                       : leave.leaveAutoId == 6
-                        ? "0.5U"
-                        : "0.5L";
+                      ? "0.5U"
+                      : "0.5L";
                   dayRecords[dayKey] = `${dayRecords[dayKey]},${leaveStatus}`; // Append leave status
                   // attendanceCount.L++;
                   attendanceCount.L += parseFloat(leave.leaveCount);
@@ -1652,7 +1690,7 @@ class MasterController {
 
                 if (isDayWorking === "W") {
                   dayRecords[dayKey] = `${dayRecords[dayKey]},W`; // Append R for regularization
-                  attendanceCount.W++;  // uncommenting this line 10-10-2024
+                  attendanceCount.W++; // uncommenting this line 10-10-2024
                 }
               } else if (attendancePresentStatus === "absent") {
                 dayRecords[dayKey] = "A";
@@ -1670,8 +1708,8 @@ class MasterController {
                     leave.leaveCount === "1.0"
                       ? "L"
                       : leave.leaveAutoId == 6
-                        ? "0.5U"
-                        : "0.5L";
+                      ? "0.5U"
+                      : "0.5L";
                   dayRecords[dayKey] = `${dayRecords[dayKey]},${leaveStatus}`; // Append leave status
                   //attendanceCount.L++;
                   attendanceCount.L += parseFloat(leave.leaveCount);
@@ -1723,8 +1761,8 @@ class MasterController {
                     leave.leaveCount === "1.0"
                       ? "L"
                       : leave.leaveAutoId == 6
-                        ? "0.5U"
-                        : "0.5L";
+                      ? "0.5U"
+                      : "0.5L";
                   dayRecords[dayKey] = `${dayRecords[dayKey]},${leaveStatus}`; // Append leave status
                   //attendanceCount.L++;
                   attendanceCount.L += parseFloat(leave.leaveCount);
@@ -1745,8 +1783,8 @@ class MasterController {
                     leave.leaveCount === "1.0"
                       ? "L"
                       : leave.leaveAutoId == 6
-                        ? "0.5U"
-                        : "0.5L";
+                      ? "0.5U"
+                      : "0.5L";
                   dayRecords[dayKey] = `${dayRecords[dayKey]},${leaveStatus}`; // Append leave status
                   //attendanceCount.L++;
                   attendanceCount.L += parseFloat(leave.leaveCount);
@@ -1767,8 +1805,8 @@ class MasterController {
                     leave.leaveCount === "1.0"
                       ? "L"
                       : leave.leaveAutoId == 6
-                        ? "0.5U"
-                        : "0.5L";
+                      ? "0.5U"
+                      : "0.5L";
                   dayRecords[dayKey] = `${dayRecords[dayKey]},${leaveStatus}`; // Append leave status
                   //attendanceCount.L++;
                   attendanceCount.L += parseFloat(leave.leaveCount);
@@ -1823,7 +1861,10 @@ class MasterController {
           C: 0,
           Payroll: attendanceCount.P,
           PayableDays:
-            attendanceCount.P + attendanceCount.W + attendanceCount.H + attendanceCount.L ,
+            attendanceCount.P +
+            attendanceCount.W +
+            attendanceCount.H +
+            attendanceCount.L,
         };
 
         finalData.push(orderedEmployeeRecord);
@@ -1889,7 +1930,528 @@ class MasterController {
     }
   }
 
+  // async employeeMasterExport(req, res) {
+  //   try {
+  //     const {
+  //       search,
+  //       department,
+  //       designation,
+  //       buSearch,
+  //       sbuSearch,
+  //       areaSearch,
+  //       grade,
+  //       attendanceFor,
+  //       employeeType,
+  //       businessUnit,
+  //       companyLocation,
+  //     } = req.query;
 
+  //     const employeeData = await db.employeeMaster.findAll({
+  //       attributes: [
+  //         "id",
+  //         "empCode",
+  //         "name",
+  //         "email",
+  //         "firstName",
+  //         "lastName",
+  //         "officeMobileNumber",
+  //         "buId",
+  //         "personalMobileNumber",
+  //       ],
+  //       where: {
+  //         ...(attendanceFor == 0 && { isActive: 0 }),
+  //         ...(attendanceFor == 1 && { isActive: 1 }),
+  //         ...(attendanceFor == 2 && { isActive: [0, 1] }),
+  //         ...(search && { id: { [Op.in]: search.split(",") } }),
+  //         ...(employeeType && {
+  //           employeeType: { [Op.in]: employeeType.split(",") },
+  //         }),
+  //         ...(businessUnit && {
+  //           buId: { [Op.in]: businessUnit.split(",") },
+  //         }),
+  //         ...(department && {
+  //           departmentId: { [Op.in]: department.split(",") },
+  //         }),
+  //         ...(companyLocation && {
+  //           companyLocationId: { [Op.in]: companyLocation.split(",") },
+  //         }),
+  //       },
+  //       include: [
+  //         {
+  //           model: db.designationMaster,
+  //           attributes: ["name"],
+  //           required: !!designation,
+  //         },
+  //         {
+  //           model: db.functionalAreaMaster,
+  //           attributes: ["functionalAreaName"],
+  //           required: !!areaSearch,
+  //         },
+  //         {
+  //           model: db.departmentMaster,
+  //           attributes: ["departmentName"],
+  //           required: !!department,
+  //         },
+  //         {
+  //           model: db.jobDetails,
+  //           attributes: ["jobId"],
+  //           where: {
+  //             ...(grade && { gradeId: { [Op.in]: grade.split(",") } }),
+  //           },
+  //           include: [
+  //             {
+  //               model: db.gradeMaster,
+  //               attributes: ["gradeName"],
+  //             },
+  //           ],
+  //         },
+  //         {
+  //           model: db.educationDetails,
+  //           attributes: [
+  //             "educationDegree",
+  //             "educationSpecialisation",
+  //             "educationInstitute",
+  //             "educationRemark",
+  //             "educationStartDate",
+  //             "educationCompletionDate",
+  //           ],
+  //           where: { isHighestEducation: 1 },
+  //           required: false,
+  //         },
+  //         {
+  //           model: db.familyDetails,
+  //           attributes: [
+  //             "name",
+  //             "dob",
+  //             "gender",
+  //             "mobileNo",
+  //             "relationWithEmp",
+  //           ],
+  //           where:{relationWithEmp:["Father","Mother"]},
+  //           reqired:false,
+  //           as: "employeefamilydetails",
+  //         },
+  //         {
+  //           model: db.employeeMaster,
+  //           required: false,
+  //           attributes: ["id", "name"],
+  //           as: "managerData",
+  //         },
+  //         {
+  //           model: db.buMaster,
+  //           attributes: ["buName"],
+  //           required: !!buSearch,
+  //         },
+  //         {
+  //           model: db.sbuMaster,
+  //           attributes: ["sbuname"],
+  //           required: !!sbuSearch,
+  //         },
+  //       ],
+  //     });
+
+  //     console.log("employeeData", employeeData);
+      
+  //     const arr = await Promise.all(
+  //       employeeData.map(async (ele) => {
+  //         return {
+  //           id: ele.dataValues.id || "",
+  //           empCode: ele.dataValues.empCode || "",
+  //           name: ele.dataValues.name || "",
+  //           email: ele.dataValues.email || "",
+  //           firstName: ele.dataValues.firstName || "",
+  //           lastName: ele.dataValues.lastName || "",
+  //           officeMobileNumber: ele.dataValues.officeMobileNumber || "",
+  //           personalMobileNumber: ele.dataValues.personalMobileNumber || "",
+  //           manager_id: ele.dataValues.managerData
+  //             ? ele.dataValues.managerData.id
+  //             : "",
+  //           manager_name: ele.dataValues.managerData
+  //             ? ele.dataValues.managerData.name
+  //             : "",
+  //           buId: ele.dataValues.buId || "",
+  //           designation_name: ele.dataValues.designationmaster?.name || "",
+  //           functional_area_name:
+  //             ele.dataValues.functionalareamaster?.functionalAreaName || "",
+  //           department_name:
+  //             ele.dataValues.departmentmaster?.departmentName || "",
+  //           bu_name: ele.dataValues.bumaster?.buName || "",
+  //           sub_bu_name: ele.dataValues.sbumaster?.sbuname || "",
+  //           grade:ele.employeejobdetail?.grademaster.gradeName || "",
+  //           "father's Name":ele.employeefamilydetails.length > 0 ? ele.employeefamilydetails[0].relationWithEmp : "",
+  //           "mother's Name":ele.employeefamilydetails.length > 0 ? ele.employeefamilydetails[1].relationWithEmp : "",
+  //         };
+  //       })
+  //     );
+
+  //     if (arr.length > 0) {
+  //       const timestamp = Date.now();
+  //       // const data = [
+  //       //   {
+  //       //     sheet: "Employee",
+  //       //     columns: [
+  //       //       { label: "Employee_Code", value: "empCode" },
+  //       //       { label: "Email", value: "email" },
+  //       //       { label: "First_Name", value: "firstName" },
+  //       //       { label: "Last_Name", value: "lastName" },
+  //       //       { label: "Office_Mobile_Number", value: "officeMobileNumber" },
+  //       //       {
+  //       //         label: "Personal_Mobile_Number",
+  //       //         value: "personalMobileNumber",
+  //       //       },
+  //       //       { label: "Manager_Id", value: "manager_id" },
+  //       //       { label: "Manager_Name", value: "manager_name" },
+  //       //       { label: "Designation_Name", value: "designation_name" },
+  //       //       { label: "Department_Name", value: "department_name" },
+  //       //       { label: "Functional_Area_Name", value: "functional_area_name" },
+  //       //       { label: "Bu_Name", value: "bu_name" },
+  //       //       { label: "Sub_Bu_Name", value: "sub_bu_name" },
+  //       //     ],
+  //       //     content: arr,
+  //       //   },
+  //       //   {
+  //       //     sheet: "Education",
+  //       //     columns: [
+  //       //       { label: "Employee_Code", value: "empCode" },
+  //       //       { label: "Name", value: "name" },
+  //       //       {
+  //       //         label: "Education_Specialisation",
+  //       //         value: "educationSpecialisation",
+  //       //       },
+  //       //       { label: "Education_Institute", value: "educationInstitute" },
+  //       //     ],
+  //       //     content: educationDetails,
+  //       //   },
+  //       //   {
+  //       //     sheet: "Family Details",
+  //       //     columns: [
+  //       //       { label: "Employee_Code", value: "empCode" },
+  //       //       { label: "Name", value: "name" },
+  //       //       { label: "Family_Member_Name", value: "familyName" },
+  //       //       { label: "Date_Of_Birth", value: "dob" },
+  //       //       { label: "Gender", value: "gender" },
+  //       //       { label: "Mobile_Number", value: "mobileNo" },
+  //       //       { label: "Relation_With_Employee", value: "relationWithEmp" },
+  //       //     ],
+  //       //     content: familyDetails,
+  //       //   },
+  //       // ];
+
+  //       // let settings = {
+  //       //   writeOptions: {
+  //       //     type: "buffer",
+  //       //     bookType: "xlsx",
+  //       //   },
+  //       // };
+  //       // const buffer = xlsx(data, settings);
+  //       // res.writeHead(200, {
+  //       //   "Content-Type": "application/octet-stream",
+  //       //   "Content-disposition": `attachment; filename=attendance_${timestamp}.xlsx`,
+  //       // });
+  //       // res.end(buffer);
+  //       return respHelper(res, {
+  //         status: 200,
+  //         msg: "File Uploaded Successfully",
+  //         data: arr,
+  //       });
+  //     }
+  //   } catch (error) {
+  //     console.error(error);
+  //     return res.status(500).json({
+  //       status: false,
+  //       message: "Internal Server Error",
+  //     });
+  //   }
+  // }
+  async employeeMasterExport(req, res) {
+    try {
+      const {
+        search,
+        department,
+        designation,
+        buSearch,
+        sbuSearch,
+        areaSearch,
+        grade,
+        attendanceFor,
+        employeeType,
+        businessUnit,
+        companyLocation,
+      } = req.query;
+  
+      const employeeData = await db.employeeMaster.findAll({
+        attributes: [
+          "id",
+          "empCode",
+          "name",
+          "email",
+          "firstName",
+          "lastName",
+          "officeMobileNumber",
+          "buId",
+          "personalMobileNumber",
+          "drivingLicence",
+          "lastIncrementDate",
+          "iqTestApplicable"
+        ],
+        where: {
+          ...(attendanceFor == 0 && { isActive: 0 }),
+          ...(attendanceFor == 1 && { isActive: 1 }),
+          ...(attendanceFor == 2 && { isActive: [0, 1] }),
+          ...(search && { id: { [Op.in]: search.split(",") } }),
+          ...(employeeType && {
+            employeeType: { [Op.in]: employeeType.split(",") },
+          }),
+          ...(businessUnit && {
+            buId: { [Op.in]: businessUnit.split(",") },
+          }),
+          ...(department && {
+            departmentId: { [Op.in]: department.split(",") },
+          }),
+          ...(companyLocation && {
+            companyLocationId: { [Op.in]: companyLocation.split(",") },
+          }),
+        },
+        include: [
+          {
+            model: db.employeeTypeMaster,
+            attributes:['emptypename','emptypename'],
+            requried:false           
+          },
+          {
+            model: db.biographicalDetails,
+            required:false           
+          },
+          {
+            model: db.costCenterMaster,
+            attributes:['costCenterId','costCenterName','costCenterCode'],
+            required:false     
+          },
+          {
+            model: db.designationMaster,
+            attributes: ["name"],
+            required: !!designation,
+          },
+          {
+            model: db.functionalAreaMaster,
+            attributes: ["functionalAreaName","functionalAreaCode"],
+            required: !!areaSearch,
+          },
+          {
+            model: db.departmentMaster,
+            attributes: ["departmentName"],
+            required: !!department,
+          },
+          {
+            model: db.jobDetails,
+            attributes: ["jobId","dateOfJoining","residentEng"],
+            where: {
+              ...(grade && { gradeId: { [Op.in]: grade.split(",") } }),
+            },
+            include: [
+              {
+                model: db.gradeMaster,
+                attributes: ["gradeName"],
+              },
+              {
+                model: db.bandMaster,
+                attributes: ['bandDesc'],
+              },
+              {
+                model:db.jobLevelMaster,
+                attributes:['jobLevelName','jobLevelCode'],
+              }
+             
+            ],
+          },
+          {
+            model: db.educationDetails,
+            attributes: [
+              "educationDegree",
+              "educationSpecialisation",
+              "educationInstitute",
+              "educationRemark",
+              "educationStartDate",
+              "educationCompletionDate",
+            ],
+            where: { isHighestEducation: 1 },
+            required: false,
+          },
+          {
+            model: db.familyDetails,
+            attributes: ["name", "dob", "gender", "mobileNo", "relationWithEmp"],
+            where: { relationWithEmp: ["Father", "Mother"] },
+            required: false,
+            as: "employeefamilydetails",
+          },
+          {
+            model: db.employeeMaster,
+            required: false,
+            attributes: ["id", "name",'empCode','email'],
+            as: "managerData",
+          },
+          {
+            model: db.buMaster,
+            attributes: ["buName"],
+            required: !!buSearch,
+          },
+          {
+            model: db.sbuMaster,
+            attributes: ["sbuname"],
+            required: !!sbuSearch,
+          },
+          {
+            model: db.companyLocationMaster,
+            attributes: ["address1"],
+            include: [
+              {
+                model: db.countryMaster,
+                attributes: ["countryId", "countryName"],
+              },
+              {
+                model: db.stateMaster,
+                attributes: ["stateId", "stateName"],
+              },
+              {
+                model: db.cityMaster,
+                attributes: ["cityId", "cityName"],
+              },
+            ],
+          },
+          {
+            model: db.companyMaster,
+            attributes: ["companyName","companyCode"],
+          },
+        ],
+      });
+
+  
+      const arr = await Promise.all(
+        employeeData.map(async (ele) => {
+          return {
+            id: ele.dataValues.id || "",
+            empCode: ele.dataValues.empCode || "",
+            name: ele.dataValues.name || "",
+            email: ele.dataValues.email || "",
+            firstName: ele.dataValues.firstName || "",
+            lastName: ele.dataValues.lastName || "",
+            officeMobileNumber: ele.dataValues.officeMobileNumber || "",
+            personalMobileNumber: ele.dataValues.personalMobileNumber || "",
+            manager_code: ele.dataValues.managerData?.empCode || "",
+            manager_name: ele.dataValues.managerData?.name || "",
+            manager_email_id: ele.dataValues.managerData?.email || "",
+            designation_name: ele.dataValues.designationmaster?.name || "",
+            functional_area_name:
+              ele.dataValues.functionalareamaster?.functionalAreaName || "",
+              functional_area_code:
+              ele.dataValues.functionalareamaster?.functionalAreaCode || "",
+            department_name: ele.dataValues.departmentmaster?.departmentName || "",
+            bu_name: ele.dataValues.bumaster?.buName || "",
+            sub_bu_name: ele.dataValues.sbumaster?.sbuname || "",
+            grade: ele.employeejobdetail?.grademaster?.gradeName || "",
+            band: ele.employeejobdetail?.bandmaster?.bandDesc || "",
+            jobLevel: ele.employeejobdetail?.joblevelmaster?.jobLevelName || "",
+            jobLevelCode: ele.employeejobdetail?.joblevelmaster?.jobLevelCode || "",
+            costCenter: ele.costcentermaster?.costCenterName +" "+ ele.costcentermaster?.costCenterCode|| "",
+            dateOfJoining: ele.employeejobdetail?.dateOfJoining ? moment(ele.employeejobdetail.dateOfJoining).format("DD-MM-YYYY") : "",
+            residentEng: ele.employeejobdetail?.residentEng || "",
+            fathersName: ele.employeefamilydetails.find(f => f.relationWithEmp === "Father")?.name || "",
+            motherName: ele.employeefamilydetails.find(m => m.relationWithEmp === "Mother")?.name || "",
+            nationality: ele.employeebiographicaldetail?.nationality || "",
+            maritalStatus: ele.employeebiographicaldetail?.maritalStatus
+            ? Object.keys(maritalStatusOptions).find(
+                (key) => maritalStatusOptions[key] === ele.employeebiographicaldetail.maritalStatus
+              ) || ""
+            : "",
+            maritalStatusSince: ele.employeebiographicaldetail.maritalStatusSince || "",
+            gender: ele.employeebiographicaldetail?.gender,
+            dateOfBirth: ele.employeebiographicaldetail?.dateOfBirth ? moment(ele.employeebiographicaldetail.dateOfBirth).format("DD-MM-YYYY"): "",
+            office_country:ele.companylocationmaster?.countrymaster?.countryName,
+            office_state:ele.companylocationmaster?.statemaster?.stateName,
+            office_city:ele.companylocationmaster?.citymaster?.cityName,
+            employeeType:ele.employeetypemaster?.emptypename || "",
+            groupCompany:ele.companymaster?.companyName || "",
+            groupCode:ele.companymaster?.companyCode || "",
+            drivingLicence:ele.dataValues.drivingLicence || "",
+            lastIncrementDate:ele.dataValues.lastIncrementDate || "",
+            iqTestApplicable:ele.dataValues.iqTestApplicable
+          }
+            
+        })
+      );
+  
+      if (arr.length > 0) {
+        const timestamp = Date.now();
+
+        const data = [
+          {
+            sheet: "Employee",
+            columns: [
+              { label: "Employee_Code", value: "empCode" },
+              { label: "Email", value: "email" },
+              { label: "First_Name", value: "firstName" },
+              { label: "Last_Name", value: "lastName" },
+              { label: "Office_Mobile_Number", value: "officeMobileNumber" },
+              {
+                label: "Personal_Mobile_Number",
+                value: "personalMobileNumber",
+              },
+              { label: "Direct Manager Code", value: "manager_code" },
+              { label: "Direct Manager Name", value: "manager_name" },
+              { label: "Direct Manager Email Id", value: "manager_email_id" },
+              { label: "Designation_Name", value: "designation_name" },
+              { label: "Department_Name", value: "department_name" },
+              { label: "Functional_Area_Name", value: "functional_area_name" },
+              { label: "Functional_Area_Code", value: "functional_area_code" },
+              { label: "Bu_Name", value: "bu_name" },
+              { label: "Sub_Bu_Name", value: "sub_bu_name" },
+              { label: "Grade", value: "grade" },
+              { label: "Band", value: "band" },
+              { label: "Job Level", value: "jobLevel" },
+              { label: "Job Level Code", value: "jobLevelCode" },
+              { label: "date Of Joining",value: "dateOfJoining"},
+              { label: "FathersName", value: "fathersName" },
+              { label: "MotherName", value: "motherName" },
+              { label: "Nationality", value: "nationality" },
+              { label: "MaritalStatus", value: "maritalStatus" },
+              { label: "MaritalStatusSince", value: "maritalStatusSince" },
+              { label: "Gender", value: "gender" },
+              { label: "Office Country", value: "office_country" },
+              { label: "Office State", value: "office_state"},
+              { label: "Office City", value: "office_city" },
+              { label: "Employee Type", value: "employeeType" },
+              { label: "Last Increment Date", value: "lastIncrementDate" },
+              { label: "Iq Test Applicable", value: "iqTestApplicable" },
+              { label: "RE", value: "residentEng" },             
+            ],
+            content: arr,
+          }
+        ];
+        const buffer = xlsx(data, {
+          writeOptions: { type: "buffer", bookType: "xlsx", RTL: true },
+        });
+
+        res.writeHead(200, {
+          "Content-Type": "application/octet-stream",
+          "Content-disposition": `attachment; filename=attendance_1_${timestamp}.xlsx`,
+        });
+        return res.end(buffer);
+        // return respHelper(res, {
+        //   status: 200,
+        //   msg: "File Uploaded Successfully",
+        //   data: arr,
+        // });
+      }
+    } catch (error) {
+      console.error("Error in employeeMasterExport:", error);
+      return res.status(500).json({
+        status: false,
+        message: "Internal Server Error",
+        error: error.message, // Adding error message for better debugging
+      });
+    }
+  }
+  
 }
 
 const createObj = (obj) => {
@@ -1961,11 +2523,11 @@ const handleErrors = (error) => {
       : null,
     officeMobileNumber: error
       ? error.details.find((d) => d.context.key === "officeMobileNumber")
-        ?.message
+          ?.message
       : null,
     personalMobileNumber: error
       ? error.details.find((d) => d.context.key === "personalMobileNumber")
-        ?.message
+          ?.message
       : null,
     dateOfJoining: error
       ? error.details.find((d) => d.context.key === "dateOfJoining")?.message
@@ -2017,7 +2579,7 @@ const handleErrors = (error) => {
       : null,
     maritalStatusSince: error
       ? error.details.find((d) => d.context.key === "maritalStatusSince")
-        ?.message
+          ?.message
       : null,
     nationality: error
       ? error.details.find((d) => d.context.key === "nationality")?.message

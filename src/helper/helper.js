@@ -324,9 +324,9 @@ const getEmpProfile = async (EMP_ID) => {
       },
       {
         model: db.weekOffMaster,
-        required: true,
+        required: false,
         where: {
-          isActive: 1,
+          isActive: 1
         },
       },
       {
