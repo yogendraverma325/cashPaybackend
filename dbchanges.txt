@@ -709,6 +709,43 @@ ALTER TABLE `tara`.`hrletters`
 CHANGE COLUMN `isActive` `isActive` INT NULL DEFAULT 1 ;
 
 
+ALTER TABLE `tara`.`employeestaging` 
+ADD COLUMN `selfService` TINYINT(1) NULL DEFAULT '0' AFTER `isDeleted`,
+ADD COLUMN `mobileAccess` TINYINT(1) NULL DEFAULT '0' AFTER `selfService`,
+ADD COLUMN `laptopSystem` TINYINT(1) NULL DEFAULT '0' AFTER `mobileAccess`,
+ADD COLUMN `backgroundVerification` TINYINT(1) NULL DEFAULT '0' AFTER `laptopSystem`,
+ADD COLUMN `workstationAdmin` TINYINT(1) NULL DEFAULT '0' AFTER `backgroundVerification`,
+ADD COLUMN `mobileAdmin` TINYINT(1) NULL DEFAULT '0' AFTER `workstationAdmin`,
+ADD COLUMN `dataCardAdmin` TINYINT(1) NULL DEFAULT '0' AFTER `mobileAdmin`,
+ADD COLUMN `visitingCardAdmin` TINYINT(1) NULL DEFAULT '0' AFTER `dataCardAdmin`,
+ADD COLUMN `recruiterName` VARCHAR(255) NULL DEFAULT NULL AFTER `visitingCardAdmin`,
+ADD COLUMN `offRoleCTC` INT NULL DEFAULT NULL AFTER `recruiterName`,
+ADD COLUMN `highestQualification` VARCHAR(255) NULL DEFAULT NULL AFTER `offRoleCTC`,
+ADD COLUMN `ESICPFDeduction` VARCHAR(255) NULL DEFAULT NULL AFTER `highestQualification`,
+ADD COLUMN `fatherName` VARCHAR(255) NULL DEFAULT NULL AFTER `ESICPFDeduction`,
+ADD COLUMN `paymentAccountNumber` VARCHAR(255) NULL DEFAULT NULL AFTER `fatherName`,
+ADD COLUMN `paymentBankName` VARCHAR(255) NULL DEFAULT NULL AFTER `paymentAccountNumber`,
+ADD COLUMN `paymentBankIfsc` VARCHAR(255) NULL DEFAULT NULL AFTER `paymentBankName`;
+
+ALTER TABLE `tara`.`employeestaging` 
+CHANGE COLUMN `laptopSystem` `laptopSystem` VARCHAR(255) NULL DEFAULT NULL ;
+
+
+ALTER TABLE `tara`.`employee` 
+ADD COLUMN `selfService` TINYINT(1) NULL DEFAULT '0' AFTER `newCustomerName`,
+ADD COLUMN `offRoleCTC` INT NULL DEFAULT NULL AFTER `selfService`,
+ADD COLUMN `highestQualification` VARCHAR(255) NULL DEFAULT NULL AFTER `offRoleCTC`,
+ADD COLUMN `ESICPFDeduction` VARCHAR(255) NULL DEFAULT NULL AFTER `highestQualification`,
+ADD COLUMN `fatherName` VARCHAR(255) NULL DEFAULT NULL AFTER `ESICPFDeduction`;
+
+ALTER TABLE `tara`.`employee` 
+CHANGE COLUMN `email` `email` VARCHAR(255) CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_unicode_ci' NULL DEFAULT NULL ,
+DROP INDEX `email` ;
+;
+
+
+
+
 
 
 

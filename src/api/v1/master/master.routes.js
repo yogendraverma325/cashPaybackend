@@ -36,47 +36,47 @@ export default Express.Router()
   .get("/hrDocument", masterController.hrDocumentMaster)
   .get(
     "/roles",
-    authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"),
+
     masterController.roles
   )
   .get(
     "/shift",
-    authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"),
+
     masterController.shift
   )
   .get(
     "/attendance-policy",
-    authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"),
+
     masterController.attendancePlicy
   )
   .get(
     "/weekoff",
-    authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"),
+
     masterController.weekoff
   )
   .get(
     "/sbu",
-    authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"),
+
     masterController.sbu
   )
   .get(
     "/buhr",
-    authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"),
+
     masterController.buhr
   )
   .get(
     "/buhead",
-    authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"),
+
     masterController.buhead
   )
   .get(
     "/probation",
-    authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"),
+
     masterController.probation
   )
   .get(
     "/newCustomerName",
-    authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"),
+
     masterController.newCustomerName
   )
   .get("/reportModule", masterController.reportModule)
@@ -87,18 +87,7 @@ export default Express.Router()
     authorization("ADMIN", "SUPERADMIN"),
     masterController.separationTasks
   )
-  .get(
-    "/lwfDesignation",
-    authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"),
-    masterController.lwfDesignation
-  )
-  .get(
-    "/ptLocation/:stateId",
-    authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"),
-    masterController.ptLocation
-  )
-  .get(
-    "/unionCode",
-    authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"),
-    masterController.unionCode
-  );
+  .get("/lwfDesignation", masterController.lwfDesignation)
+  .get("/ptLocation/:stateId", masterController.ptLocation)
+  .get("/unionCode", masterController.unionCode)
+  .get("/noticePeriod", masterController.noticePeriod);

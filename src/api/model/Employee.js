@@ -186,6 +186,21 @@ export default (sequelize, Sequelize) => {
     newCustomerName: {
       type: Sequelize.STRING(45),
     },
+    selfService: {
+      type: Sequelize.INTEGER
+    },
+    offRoleCTC: {
+      type: Sequelize.INTEGER,
+    },
+    highestQualification: {
+      type: Sequelize.STRING
+    },
+    ESICPFDeduction: {
+      type: Sequelize.STRING
+    },
+    fatherName: {
+      type: Sequelize.STRING
+    },
     createdBy: {
       type: Sequelize.INTEGER,
     },

@@ -1,4 +1,5 @@
 import Joi from "joi";
+import moment from "moment";
 
 const passwordRegex =
   /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*()_+={}\[\]:;,<.>?/~\\-]).{8,}$/;
@@ -703,7 +704,7 @@ const updateAddress = Joi.object({
 
 const onboardEmployeeSchema = Joi.object({
   name: Joi.string()
-    .pattern(/^[A-Za-z\s]*$/, "Name should only contain letters and spaces")
+    .pattern(/^[A-Za-z\s.]*$/, "Name should only contain letters and spaces")
     .trim()
     .required()
     .label("Name"),
@@ -711,7 +712,7 @@ const onboardEmployeeSchema = Joi.object({
   personalEmail: Joi.string().trim().email().required().label("Personal Email"),
   firstName: Joi.string()
     .pattern(
-      /^[A-Za-z\s]*$/,
+      /^[A-Za-z\s.]*$/,
       "First Name should only contain letters and spaces"
     )
     .trim()
@@ -747,11 +748,7 @@ const onboardEmployeeSchema = Joi.object({
     .trim()
     .allow("")
     .label("UAN Number"),
-  pfNo: Joi.string()
-    .pattern(/^[0-9]{7,15}$/, "PF number should be between 7 to 15 digits")
-    .trim()
-    .allow("")
-    .label("PF Number"),
+  pfNo: Joi.string().trim().allow("").label("PF Number"),
   employeeType: Joi.number().required().label("Employee Type"),
   image: Joi.string().allow(""),
 
@@ -795,6 +792,35 @@ const onboardEmployeeSchema = Joi.object({
   positionType: Joi.string().required().label("Position Type"),
   profileImage: Joi.string().allow(null),
   id: Joi.string().allow(""),
+
+  selfService: Joi.number().required().label("Self Service"),
+  mobileAccess: Joi.number().required().label("Mobile Access"),
+  laptopSystem: Joi.string().required().label("Laptop Access"),
+  backgroundVerification: Joi.number()
+    .required()
+    .label("Background Verification"),
+  mobileAdmin: Joi.number().required().label("Mobile Admin"),
+  dataCardAdmin: Joi.number().required().label("Data Card"),
+  visitingCardAdmin: Joi.number().required().label("Visiting Card"),
+  workstationAdmin: Joi.number().required().label("Work Station"),
+  recruiterName: Joi.string().required().label("Recruiter Name"),
+  offRoleCTC: Joi.number().required().label("Off Role CTC"),
+  highestQualification: Joi.string().required().label("Highest Qualification"),
+  ESICPFDeduction: Joi.string().allow("").label("ESIC/PF Deduction"),
+  fatherName: Joi.string().trim().allow("").label("Father Name"),
+  paymentAccountNumber: Joi.string()
+    .trim()
+    .max(20)
+    .allow("")
+    .label("Account Number"),
+  paymentBankName: Joi.string().trim().allow("").label("Bank Name"),
+  paymentBankIfsc: Joi.string()
+    .trim()
+    .allow("")
+    .min(11)
+    .max(11)
+    .label("Bank Ifsc Code"),
+  noticePeriodAutoId: Joi.number().required().label("Notice Period"),
 });
 
 const createTMCSchema = Joi.object({
@@ -847,7 +873,7 @@ const importOnboardEmployeeSchema = Joi.object({
   personalEmail: Joi.string().trim().email().required().label("Personal Email"),
   firstName: Joi.string()
     .pattern(
-      /^[A-Za-z\s]*$/,
+      /^[A-Za-z\s.]*$/,
       "First Name should only contain letters and spaces"
     )
     .trim()
@@ -881,10 +907,7 @@ const importOnboardEmployeeSchema = Joi.object({
     .pattern(/^[0-9]{12}$/, "UAN should be exactly 12 digits")
     .trim()
     .allow(""),
-  pfNo: Joi.string()
-    .pattern(/^[0-9]{7,15}$/, "PF number should be between 7 to 15 digits")
-    .trim()
-    .allow(""),
+  pfNo: Joi.string().trim().allow(""),
   employeeType: Joi.string().required().label("Employee Type"),
   image: Joi.string().allow(""),
 
@@ -900,6 +923,7 @@ const importOnboardEmployeeSchema = Joi.object({
     .length(10)
     .required()
     .label("Personal Mobile Number"),
+  dateOfBirth: Joi.string().required().label("Date Of Birth"),
   dateOfJoining: Joi.string().required().label("Date Of Joining"),
   manager: Joi.number().required().label("Manager"),
   designation: Joi.string().required().label("Designation"),
@@ -929,7 +953,6 @@ const importOnboardEmployeeSchema = Joi.object({
   nationality: Joi.string().valid("Indian").required().label("Nationality"),
   probation: Joi.string().required().label("Probation"),
   jobLevel: Joi.string().required().label("Job Level"),
-  dateOfBirth: Joi.string().required().label("Date Of Birth"),
   newCustomerName: Joi.string().allow("").label("Customer Name"),
   iqTestApplicable: Joi.string()
     .valid("Yes", "No")
@@ -939,6 +962,50 @@ const importOnboardEmployeeSchema = Joi.object({
     .valid("New", "Replacement")
     .required()
     .label("Position Type"),
+
+  selfService: Joi.number().required().label("Self Service"),
+  mobileAccess: Joi.number().optional().label("Mobile Access"),
+  laptopSystem: Joi.string()
+    .valid("Mac", "Linux", "Windows")
+    .required()
+    .label("Laptop Access"),
+  backgroundVerification: Joi.number()
+    .required()
+    .label("Background Verification"),
+  mobileAdmin: Joi.number().required().label("Mobile Admin"),
+  dataCardAdmin: Joi.number().required().label("Data Card"),
+  visitingCardAdmin: Joi.number().required().label("Visiting Card"),
+  workstationAdmin: Joi.number().required().label("Work Station"),
+  recruiterName: Joi.string().required().label("Recruiter Name"),
+  offRoleCTC: Joi.number().allow("").default("NA").label("Off Role CTC"),
+  highestQualification: Joi.string()
+    .valid("Education", "Degree Master")
+    .required()
+    .label("Highest Qualification"),
+  ESICPFDeduction: Joi.string()
+    .valid("Yes", "No", "Only PF", "Only ESIC")
+    .optional()
+    .label("ESIC/PF Deduction"),
+  fatherName: Joi.string().allow("").label("Father Name"),
+  paymentAccountNumber: Joi.string()
+    .allow("")
+    .default("NA")
+    .trim()
+    .max(20)
+    .label("Account Number"),
+  paymentBankName: Joi.string()
+    .allow("")
+    .default("NA")
+    .trim()
+    .label("Bank Name"),
+  paymentBankIfsc: Joi.string()
+    .allow("")
+    .default("NA")
+    .trim()
+    .min(11)
+    .max(11)
+    .label("Bank Ifsc Code"),
+  noticePeriodAutoId: Joi.string().required().label("Notice Period"),
 });
 
 const updatePolicyOfEMP = Joi.array()

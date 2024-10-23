@@ -1217,6 +1217,9 @@ class MasterController {
                 obj.newCustomerName
               );
               const isValidJobLevel = await validateJobLevel(obj.jobLevel);
+              const isValidNoticePeriod = await validateNoticePeriod(
+                obj.noticePeriodAutoId
+              );
               const isValidateEmployee = await validateEmployee(
                 obj.personalMobileNumber,
                 obj.email,
@@ -1236,7 +1239,8 @@ class MasterController {
                 isValidCompanyLocation.status &&
                 isValidDepartment.status &&
                 isValidateEmployee.status &&
-                isValidJobLevel.status
+                isValidJobLevel.status &&
+                isValidNoticePeriod.status
               ) {
                 // prepare employee object
                 let newEmployee = {
@@ -1281,12 +1285,30 @@ class MasterController {
                   newCustomerNameId:
                     isValidNewCustomerName.data?.newCustomerNameId,
                   jobLevelId: isValidJobLevel.data?.jobLevelId,
+                  selfService: obj.selfService,
+                  mobileAccess: obj.mobileAccess,
+                  laptopSystem: obj.laptopSystem,
+                  backgroundVerification: obj.backgroundVerification,
+                  workstationAdmin: obj.workstationAdmin,
+                  mobileAdmin: obj.mobileAdmin,
+                  dataCardAdmin: obj.dataCardAdmin,
+                  visitingCardAdmin: obj.visitingCardAdmin,
+                  recruiterName: obj.recruiterName,
+                  offRoleCTC: obj.offRoleCTC,
+                  highestQualification: obj.highestQualification,
+                  ESICPFDeduction: obj.ESICPFDeduction,
+                  fatherName: obj.fatherName,
+                  paymentAccountNumber: obj.paymentAccountNumber,
+                  paymentBankName: obj.paymentBankName,
+                  paymentBankIfsc: obj.paymentBankIfsc,
+                  noticePeriodAutoId:
+                    isValidNoticePeriod.data?.noticePeriodAutoId,
                 };
 
                 newEmployee.role_id = 3;
                 validEmployees.push({
                   Index: employee.Index,
-                  Personal_Email: obj.email,
+                  Personal_Email: obj.personalEmail,
                   Remarks: "Success",
                 });
                 const createdEmployees = await db.employeeStagingMaster.create(
@@ -1310,6 +1332,7 @@ class MasterController {
                   weekOff: isValidWeekOff.message,
                   department: isValidDepartment.message,
                   jobLevel: isValidJobLevel.message,
+                  noticePeriod: isValidNoticePeriod.message,
                   alreadyExist: isValidateEmployee.message,
                 };
                 invalidEmployees.push(masterErrors);
@@ -1319,7 +1342,7 @@ class MasterController {
               invalidEmployees.push({
                 ...errors,
                 index: employee.Index,
-                personalEmail: obj.email,
+                personalEmail: obj.personalEmail,
               });
             }
           }
@@ -2057,7 +2080,7 @@ class MasterController {
   //     });
 
   //     console.log("employeeData", employeeData);
-      
+
   //     const arr = await Promise.all(
   //       employeeData.map(async (ele) => {
   //         return {
@@ -2184,7 +2207,7 @@ class MasterController {
         businessUnit,
         companyLocation,
       } = req.query;
-  
+
       const employeeData = await db.employeeMaster.findAll({
         attributes: [
           "id",
@@ -2198,7 +2221,7 @@ class MasterController {
           "personalMobileNumber",
           "drivingLicence",
           "lastIncrementDate",
-          "iqTestApplicable"
+          "iqTestApplicable",
         ],
         where: {
           ...(attendanceFor == 0 && { isActive: 0 }),
@@ -2221,17 +2244,17 @@ class MasterController {
         include: [
           {
             model: db.employeeTypeMaster,
-            attributes:['emptypename','emptypename'],
-            requried:false           
+            attributes: ["emptypename", "emptypename"],
+            requried: false,
           },
           {
             model: db.biographicalDetails,
-            required:false           
+            required: false,
           },
           {
             model: db.costCenterMaster,
-            attributes:['costCenterId','costCenterName','costCenterCode'],
-            required:false     
+            attributes: ["costCenterId", "costCenterName", "costCenterCode"],
+            required: false,
           },
           {
             model: db.designationMaster,
@@ -2240,7 +2263,7 @@ class MasterController {
           },
           {
             model: db.functionalAreaMaster,
-            attributes: ["functionalAreaName","functionalAreaCode"],
+            attributes: ["functionalAreaName", "functionalAreaCode"],
             required: !!areaSearch,
           },
           {
@@ -2250,7 +2273,7 @@ class MasterController {
           },
           {
             model: db.jobDetails,
-            attributes: ["jobId","dateOfJoining","residentEng"],
+            attributes: ["jobId", "dateOfJoining", "residentEng"],
             where: {
               ...(grade && { gradeId: { [Op.in]: grade.split(",") } }),
             },
@@ -2261,13 +2284,12 @@ class MasterController {
               },
               {
                 model: db.bandMaster,
-                attributes: ['bandDesc'],
+                attributes: ["bandDesc"],
               },
               {
-                model:db.jobLevelMaster,
-                attributes:['jobLevelName','jobLevelCode'],
-              }
-             
+                model: db.jobLevelMaster,
+                attributes: ["jobLevelName", "jobLevelCode"],
+              },
             ],
           },
           {
@@ -2285,7 +2307,13 @@ class MasterController {
           },
           {
             model: db.familyDetails,
-            attributes: ["name", "dob", "gender", "mobileNo", "relationWithEmp"],
+            attributes: [
+              "name",
+              "dob",
+              "gender",
+              "mobileNo",
+              "relationWithEmp",
+            ],
             where: { relationWithEmp: ["Father", "Mother"] },
             required: false,
             as: "employeefamilydetails",
@@ -2293,20 +2321,20 @@ class MasterController {
           {
             model: db.employeeMaster,
             required: false,
-            attributes: ["id", "name",'empCode','email'],
+            attributes: ["id", "name", "empCode", "email"],
             as: "managerData",
           },
           {
             model: db.buMaster,
             attributes: ["buName"],
-            required:false
+            required: false,
 
             //required: !!buSearch,
           },
           {
             model: db.sbuMaster,
             attributes: ["sbuname"],
-            required:false
+            required: false,
             //required: !!sbuSearch,
           },
           {
@@ -2329,7 +2357,7 @@ class MasterController {
           },
           {
             model: db.companyMaster,
-            attributes: ["companyName","companyCode"],
+            attributes: ["companyName", "companyCode"],
           },
         ],
       });
@@ -2356,43 +2384,63 @@ class MasterController {
             designation_name: ele.dataValues.designationmaster?.name || "",
             functional_area_name:
               ele.dataValues.functionalareamaster?.functionalAreaName || "",
-              functional_area_code:
+            functional_area_code:
               ele.dataValues.functionalareamaster?.functionalAreaCode || "",
-            department_name: ele.dataValues.departmentmaster?.departmentName || "",
+            department_name:
+              ele.dataValues.departmentmaster?.departmentName || "",
             bu_name: ele.dataValues.bumaster?.buName || "",
             sub_bu_name: ele.dataValues.sbumaster.dataValues?.sbuname || "",
             grade: ele.employeejobdetail?.grademaster?.gradeName || "",
             band: ele.employeejobdetail?.bandmaster?.bandDesc || "",
             jobLevel: ele.employeejobdetail?.joblevelmaster?.jobLevelName || "",
-            jobLevelCode: ele.employeejobdetail?.joblevelmaster?.jobLevelCode || "",
-            costCenter: ele.costcentermaster?.costCenterName +" "+ ele.costcentermaster?.costCenterCode|| "",
-            dateOfJoining: ele.employeejobdetail?.dateOfJoining ? moment(ele.employeejobdetail.dateOfJoining).format("DD-MM-YYYY") : "",
+            jobLevelCode:
+              ele.employeejobdetail?.joblevelmaster?.jobLevelCode || "",
+            costCenter:
+              ele.costcentermaster?.costCenterName +
+                " " +
+                ele.costcentermaster?.costCenterCode || "",
+            dateOfJoining: ele.employeejobdetail?.dateOfJoining
+              ? moment(ele.employeejobdetail.dateOfJoining).format("DD-MM-YYYY")
+              : "",
             residentEng: ele.employeejobdetail?.residentEng || "",
-            fathersName: ele.employeefamilydetails.find(f => f.relationWithEmp === "Father")?.name || "",
-            motherName: ele.employeefamilydetails.find(m => m.relationWithEmp === "Mother")?.name || "",
+            fathersName:
+              ele.employeefamilydetails.find(
+                (f) => f.relationWithEmp === "Father"
+              )?.name || "",
+            motherName:
+              ele.employeefamilydetails.find(
+                (m) => m.relationWithEmp === "Mother"
+              )?.name || "",
             nationality: ele.employeebiographicaldetail?.nationality || "",
             maritalStatus: ele.employeebiographicaldetail?.maritalStatus
-            ? Object.keys(maritalStatusOptions).find(
-                (key) => maritalStatusOptions[key] === ele.employeebiographicaldetail.maritalStatus
-              ) || ""
-            : "",
-            maritalStatusSince: ele.employeebiographicaldetail.maritalStatusSince || "",
+              ? Object.keys(maritalStatusOptions).find(
+                  (key) =>
+                    maritalStatusOptions[key] ===
+                    ele.employeebiographicaldetail.maritalStatus
+                ) || ""
+              : "",
+            maritalStatusSince:
+              ele.employeebiographicaldetail.maritalStatusSince || "",
             gender: ele.employeebiographicaldetail?.gender,
-            dateOfBirth: ele.employeebiographicaldetail?.dateOfBirth ? moment(ele.employeebiographicaldetail.dateOfBirth).format("DD-MM-YYYY"): "",
-            office_country:ele.companylocationmaster?.countrymaster?.countryName,
-            office_state:ele.companylocationmaster?.statemaster?.stateName,
-            office_city:ele.companylocationmaster?.citymaster?.cityName,
-            employeeType:ele.employeetypemaster?.emptypename || "",
-            groupCompany:ele.companymaster?.companyName || "",
-            groupCode:ele.companymaster?.companyCode || "",
-            drivingLicence:ele.dataValues.drivingLicence || "",
-            lastIncrementDate:ele.dataValues.lastIncrementDate || "",
-            iqTestApplicable:ele.dataValues.iqTestApplicable
-          }
-            
+            dateOfBirth: ele.employeebiographicaldetail?.dateOfBirth
+              ? moment(ele.employeebiographicaldetail.dateOfBirth).format(
+                  "DD-MM-YYYY"
+                )
+              : "",
+            office_country:
+              ele.companylocationmaster?.countrymaster?.countryName,
+            office_state: ele.companylocationmaster?.statemaster?.stateName,
+            office_city: ele.companylocationmaster?.citymaster?.cityName,
+            employeeType: ele.employeetypemaster?.emptypename || "",
+            groupCompany: ele.companymaster?.companyName || "",
+            groupCode: ele.companymaster?.companyCode || "",
+            drivingLicence: ele.dataValues.drivingLicence || "",
+            lastIncrementDate: ele.dataValues.lastIncrementDate || "",
+            iqTestApplicable: ele.dataValues.iqTestApplicable,
+          };
         })
       );
-   
+
       if (arr.length > 0) {
         const timestamp = Date.now();
 
@@ -2423,7 +2471,7 @@ class MasterController {
               { label: "Band", value: "band" },
               { label: "Job Level", value: "jobLevel" },
               { label: "Job Level Code", value: "jobLevelCode" },
-              { label: "date Of Joining",value: "dateOfJoining"},
+              { label: "date Of Joining", value: "dateOfJoining" },
               { label: "FathersName", value: "fathersName" },
               { label: "MotherName", value: "motherName" },
               { label: "Nationality", value: "nationality" },
@@ -2431,18 +2479,16 @@ class MasterController {
               { label: "MaritalStatusSince", value: "maritalStatusSince" },
               { label: "Gender", value: "gender" },
               { label: "Office Country", value: "office_country" },
-              { label: "Office State", value: "office_state"},
+              { label: "Office State", value: "office_state" },
               { label: "Office City", value: "office_city" },
               { label: "Employee Type", value: "employeeType" },
               { label: "Last Increment Date", value: "lastIncrementDate" },
               { label: "Iq Test Applicable", value: "iqTestApplicable" },
-              { label: "RE", value: "residentEng" },    
-              { label: "Driving Licence", value: "drivingLicence" },    
-
-              
+              { label: "RE", value: "residentEng" },
+              { label: "Driving Licence", value: "drivingLicence" },
             ],
             content: arr,
-          }
+          },
         ];
         const buffer = xlsx(data, {
           writeOptions: { type: "buffer", bookType: "xlsx", RTL: true },
@@ -2468,12 +2514,17 @@ class MasterController {
       });
     }
   }
-  
 }
 
 const createObj = (obj) => {
   let officeMobileNumber = replaceNAWithNull(obj.Official_Mobile_Number);
   officeMobileNumber = officeMobileNumber ? officeMobileNumber.toString() : "";
+  let personalMobileNumber = obj.Personal_Mobile_Number?.toString();
+  let uanNo = replaceNAWithNull(obj.UAN_No);
+
+  if (personalMobileNumber) {
+    personalMobileNumber = personalMobileNumber.replace(/^91/, "");
+  }
 
   return {
     email: replaceNAWithNull(obj.Email),
@@ -2482,11 +2533,11 @@ const createObj = (obj) => {
     middleName: replaceNAWithNull(obj.Middle_Name),
     lastName: replaceNAWithNull(obj.Last_Name),
     panNo: replaceNAWithNull(obj.Pan_No),
-    uanNo: replaceNAWithNull(obj.UAN_No),
+    uanNo: uanNo?.toString(),
     pfNo: replaceNAWithNull(obj.PF_No),
     employeeType: obj.Employee_Type_Name,
     officeMobileNumber: officeMobileNumber,
-    personalMobileNumber: obj.Personal_Mobile_Number?.toString(),
+    personalMobileNumber: personalMobileNumber,
     gender: obj.Gender,
     dateOfBirth: convertExcelDate(obj.Date_of_Birth),
     dateOfJoining: convertExcelDate(obj.Date_of_Joining),
@@ -2512,6 +2563,33 @@ const createObj = (obj) => {
     companyLocation: obj.Company_Location_Name,
     weekOff: replaceNAWithNull(obj.Week_Off_Name),
     jobLevel: obj.Job_Level_Name,
+
+    selfService: replaceYesOrNoWithNumber(obj.Self_Service),
+    mobileAccess: obj.Mobile_Access
+      ? replaceYesOrNoWithNumber(obj.Mobile_Access)
+      : "",
+    laptopSystem: obj.Laptop_System,
+    backgroundVerification: replaceYesOrNoWithNumber(
+      obj.Background_Verification
+    ),
+    workstationAdmin: replaceYesOrNoWithNumber(obj.Work_Station_Admin),
+    mobileAdmin: replaceYesOrNoWithNumber(obj.Mobile_Admin),
+    dataCardAdmin: replaceYesOrNoWithNumber(obj.DataCard_Admin),
+    visitingCardAdmin: replaceYesOrNoWithNumber(obj.Visiting_Card_Admin),
+    recruiterName: obj.Recruiter_Name,
+    offRoleCTC:
+      obj.Off_Role_CTC === "NA" ||
+      obj.Off_Role_CTC === "" ||
+      obj.Off_Role_CTC === undefined
+        ? 0
+        : obj.Off_Role_CTC,
+    highestQualification: obj.Highest_Qualification,
+    ESICPFDeduction: replaceNAWithNull(obj.ESIC_PF_Deduction),
+    fatherName: replaceNAWithNull(obj.Father_Name),
+    paymentAccountNumber: replaceNAWithNull(obj.Bank_Account_Number),
+    paymentBankName: replaceNAWithNull(obj.Bank_Name),
+    paymentBankIfsc: replaceNAWithNull(obj.Bank_IFSC_Number),
+    noticePeriodAutoId: obj.Notice_Period,
   };
 };
 
@@ -2618,6 +2696,59 @@ const handleErrors = (error) => {
       : null,
     positionType: error
       ? error.details.find((d) => d.context.key === "positionType")?.message
+      : null,
+
+    selfService: error
+      ? error.details.find((d) => d.context.key === "selfService")?.message
+      : null,
+    mobileAccess: error
+      ? error.details.find((d) => d.context.key === "mobileAccess")?.message
+      : null,
+    laptopSystem: error
+      ? error.details.find((d) => d.context.key === "laptopSystem")?.message
+      : null,
+    backgroundVerification: error
+      ? error.details.find((d) => d.context.key === "backgroundVerification")
+          ?.message
+      : null,
+    workstationAdmin: error
+      ? error.details.find((d) => d.context.key === "workstationAdmin")?.message
+      : null,
+    mobileAdmin: error
+      ? error.details.find((d) => d.context.key === "mobileAdmin")?.message
+      : null,
+    dataCardAdmin: error
+      ? error.details.find((d) => d.context.key === "dataCardAdmin")?.message
+      : null,
+    visitingCardAdmin: error
+      ? error.details.find((d) => d.context.key === "visitingCardAdmin")
+          ?.message
+      : null,
+    recruiterName: error
+      ? error.details.find((d) => d.context.key === "recruiterName")?.message
+      : null,
+    offRoleCTC: error
+      ? error.details.find((d) => d.context.key === "offRoleCTC")?.message
+      : null,
+    highestQualification: error
+      ? error.details.find((d) => d.context.key === "highestQualification")
+          ?.message
+      : null,
+    ESICPFDeduction: error
+      ? error.details.find((d) => d.context.key === "ESICPFDeduction")?.message
+      : null,
+    fatherName: error
+      ? error.details.find((d) => d.context.key === "fatherName")?.message
+      : null,
+    paymentAccountNumber: error
+      ? error.details.find((d) => d.context.key === "paymentAccountNumber")
+          ?.message
+      : null,
+    paymentBankName: error
+      ? error.details.find((d) => d.context.key === "paymentBankName")?.message
+      : null,
+    paymentBankIfsc: error
+      ? error.details.find((d) => d.context.key === "paymentBankIfsc")?.message
       : null,
   };
   return errors;
@@ -2865,6 +2996,18 @@ const validateJobLevel = async (name) => {
   }
 };
 
+const validateNoticePeriod = async (name) => {
+  let isVerify = await db.noticePeriodMaster.findOne({
+    where: { noticePeriodName: name },
+    attributes: ["noticePeriodAutoId"],
+  });
+  if (isVerify) {
+    return { status: true, message: "", data: isVerify };
+  } else {
+    return { status: false, message: "Invalid Notice Period", data: {} };
+  }
+};
+
 const validateEmployee = async (
   personalMobileNumber,
   companyEmail,
@@ -2874,56 +3017,70 @@ const validateEmployee = async (
   let query = {
     [Op.or]: [
       { personalMobileNumber: personalMobileNumber },
-      ...(companyEmail ? [{ email: companyEmail }] : []),
-      ...(officeMobileNumber
-        ? [{ officeMobileNumber: officeMobileNumber }]
-        : []),
       { personalEmail: personalEmail },
     ],
   };
 
+  // Initialize an array for additional conditions
+  const additionalConditions = [];
+
+  // Add companyEmail condition if it's provided
+  if (companyEmail && companyEmail.trim() !== "") {
+    additionalConditions.push({ email: companyEmail });
+  }
+
+  // Add officeMobileNumber condition if it's provided
+  if (officeMobileNumber && officeMobileNumber.trim() !== "") {
+    additionalConditions.push({ officeMobileNumber: officeMobileNumber });
+  }
+
+  // If there are additional conditions, add them to the main query
+  if (additionalConditions.length > 0) {
+    query[Op.or] = [...query[Op.or], ...additionalConditions];
+  }
+
   let isVerify = await db.employeeMaster.findOne({
     where: query,
-    attributes: ["id", "email", "officeMobileNumber"],
+    attributes: ["id", "personalEmail", "personalMobileNumber"],
   });
   if (isVerify) {
     if (
-      isVerify.email === companyEmail ||
-      isVerify.officeMobileNumber === officeMobileNumber
+      isVerify.personalEmail === personalEmail ||
+      isVerify.personalMobileNumber === personalMobileNumber
     ) {
+      return {
+        status: false,
+        message: "Employee personal email/mobile no. already exists.",
+        data: {},
+      };
+    } else {
       return {
         status: false,
         message:
           "Employee company email or official mobile no. already exists.",
         data: {},
       };
-    } else {
-      return {
-        status: false,
-        message: "Employee personal email/mobile no. already exists.",
-        data: {},
-      };
     }
   } else {
     isVerify = await db.employeeStagingMaster.findOne({
       where: query,
-      attributes: ["id", "email", "officeMobileNumber"],
+      attributes: ["id", "personalEmail", "personalMobileNumber"],
     });
     if (isVerify) {
       if (
-        isVerify.email === companyEmail ||
-        isVerify.officeMobileNumber === officeMobileNumber
+        isVerify.personalEmail === personalEmail ||
+        isVerify.personalMobileNumber === personalMobileNumber
       ) {
         return {
           status: false,
-          message:
-            "Employee company email or official mobile no. already exists.",
+          message: "Employee personal email/mobile no. already exists.",
           data: {},
         };
       } else {
         return {
           status: false,
-          message: "Employee personal email/mobile no. already exists.",
+          message:
+            "Employee company email or official mobile no. already exists.",
           data: {},
         };
       }
@@ -2943,6 +3100,14 @@ const replaceNAWithNull = (value) => {
   return value === "NA" || value === undefined || value === "" || value === null
     ? ""
     : value; // Replace 'NA' with ''
+};
+
+const replaceYesOrNoWithNumber = (value) => {
+  if (value === "Yes") {
+    return 1;
+  } else {
+    return 0;
+  }
 };
 
 export default new MasterController();
