@@ -126,18 +126,16 @@ class MasterController {
         [Op.and]: [
           {
             isActive:
-              usersData.role_id == 1 || usersData.role_id == 2
-                ? [1, 0]
-                : [1],
+              usersData.role_id == 1 || usersData.role_id == 2 ? [1, 0] : [1],
           },
         ],
       };
 
-      if(searchId) {
-          searchCondition = { 'id': searchId };
+      if (searchId) {
+        searchCondition = { id: searchId };
       }
 
-      if(search) {
+      if (search) {
         searchCondition = {
           [Op.or]: [
             {
@@ -159,13 +157,11 @@ class MasterController {
           [Op.and]: [
             {
               isActive:
-                usersData.role_id == 1 || usersData.role_id == 2
-                  ? [1, 0]
-                  : [1],
+                usersData.role_id == 1 || usersData.role_id == 2 ? [1, 0] : [1],
             },
           ],
-        }
-      };
+        };
+      }
 
       employeeData = await db.employeeMaster.findAndCountAll({
         order: [["id", "desc"]],
@@ -1444,6 +1440,23 @@ class MasterController {
     try {
       const docs = await db.unionCodIncrementMaster.findAll({
         attributes: ["unionCodeId", "unionCode"],
+      });
+      return respHelper(res, {
+        status: 200,
+        data: docs,
+      });
+    } catch (error) {
+      console.log(error);
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+
+  async noticePeriod(req, res) {
+    try {
+      const docs = await db.noticePeriodMaster.findAll({
+        attributes: ["noticePeriodAutoId", "noticePeriodName"],
       });
       return respHelper(res, {
         status: 200,
