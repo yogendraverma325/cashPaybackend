@@ -63,9 +63,12 @@ class commonController {
         await validator.updateBiographicalDetailsSchema.validateAsync(req.body);
 
       const userId = result.userId == 0 ? req.userId : result.userId;
-      
-      const getUserDetails = await db.employeeMaster.findOne({attributes:['id','firstName'],where:{id:userId}})
-      
+
+      const getUserDetails = await db.employeeMaster.findOne({
+        attributes: ["id", "firstName"],
+        where: { id: userId },
+      });
+
       const updateObj = Object.assign(result, {
         userId: userId,
         updatedAt: moment(),
@@ -78,7 +81,9 @@ class commonController {
       if (result.salutationId) {
         await db.employeeMaster.update(
           {
-            name : result.lastName ? `${getUserDetails.firstName} ${result.lastName}` : getUserDetails.firstName,
+            name: result.lastName
+              ? `${getUserDetails.firstName} ${result.lastName}`
+              : getUserDetails.firstName,
             salutationId: result.salutationId,
             middleName: result.middleName,
             lastName: result.lastName,
@@ -89,7 +94,7 @@ class commonController {
             lastIncrementDate: result.lastIncrementDate,
             iqTestApplicable: result.iqTestApplicable,
             mobileAdmin: result.mobileAdmin,
-            recruiterName: result.recruiterName
+            recruiterName: result.recruiterName,
           },
           {
             where: { id: userId },
@@ -370,8 +375,13 @@ class commonController {
       });
 
       // verify probation id and calculate probation days
-      if((result.probationPeriod) && (result.probationPeriod != existPaymentDetails.probationPeriod)) {
-        let getProbationDetails = await db.probationMaster.findOne({ where: { 'probationName': result.probationPeriod } });
+      if (
+        result.probationPeriod &&
+        result.probationPeriod != existPaymentDetails.probationPeriod
+      ) {
+        let getProbationDetails = await db.probationMaster.findOne({
+          where: { probationName: result.probationPeriod },
+        });
         if (getProbationDetails) {
           let durationOfProbation = getProbationDetails.durationOfProbation;
           result["probationDays"] = durationOfProbation;
@@ -456,7 +466,7 @@ class commonController {
       if (existPaymentDetails) {
         let obj = {
           ...result,
-          ...{status:"pending"},
+          ...{ status: "pending" },
           ...(paymentAttachment !== "" && { paymentAttachment }),
           ...{ createdBy: existPaymentDetails.createdBy },
           ...{ createdAt: existPaymentDetails.createdAt },
@@ -1488,11 +1498,70 @@ class commonController {
     }
   }
 
+  async getCategory(req, res) {
+    try {
+      const categoryData = await db.categoryMaster.findAll({
+        where: {
+          isActive: 1,
+        },
+        attributes: ["categoryAutoId", "categoryName", "categoryDesc"],
+      });
+
+      return respHelper(res, {
+        status: 200,
+        data: categoryData,
+      });
+    } catch (error) {
+      console.log(error);
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+
+  async getSubcategory(req, res) {
+    try {
+      const subCategory = await db.categoryMaster.findOne({
+        where: {
+          categoryAutoId: req.params.id,
+          isActive: 1,
+        },
+        attributes: ["categoryAutoId", "categoryName", "categoryDesc"],
+        include: [
+          {
+            model: db.subCategoryMaster,
+            where: {
+              isActive: 1,
+            },
+            required: true,
+            attributes: [
+              "subCategoryId",
+              "subCategoryDesc",
+              "subCategoryName",
+              "subCategoryValue",
+            ],
+          },
+        ],
+      });
+
+      return respHelper(res, {
+        status: 200,
+        data: subCategory,
+      });
+    } catch (error) {
+      console.log(error);
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
   async updateIQDetails(req, res) {
     try {
-      const result = await validator.updateIQDetailsSchema.validateAsync(req.body);
+      const result = await validator.updateIQDetailsSchema.validateAsync(
+        req.body
+      );
       const userId = result.userId;
-      
+
       const updateObj = Object.assign(result, {
         updatedAt: moment(),
         updatedBy: req.userId,
@@ -1524,7 +1593,10 @@ class commonController {
   async deleteHRDocument(req, res) {
     try {
       const { letterId } = req.params;
-      let response = await db.hrLetters.update({ 'isActive': 0 }, { where: { 'letterId': letterId } });
+      let response = await db.hrLetters.update(
+        { isActive: 0 },
+        { where: { letterId: letterId } }
+      );
 
       return respHelper(res, {
         status: 200,
@@ -1557,7 +1629,12 @@ class commonController {
           `meritPlanningLetter${d}`,
           `uploads/${existUser.empCode}`
         );
-        let newDocument = { 'userId': userId, documentType: 1, documentImage: meritPlanningLetter, createdBy: createdBy };
+        let newDocument = {
+          userId: userId,
+          documentType: 1,
+          documentImage: meritPlanningLetter,
+          createdBy: createdBy,
+        };
         await db.hrLetters.create(newDocument);
       }
 
@@ -1567,7 +1644,12 @@ class commonController {
           `confirmationLetter${d}`,
           `uploads/${existUser.empCode}`
         );
-        let newDocument = { 'userId': userId, documentType: 2, documentImage: confirmationLetter, createdBy: createdBy };
+        let newDocument = {
+          userId: userId,
+          documentType: 2,
+          documentImage: confirmationLetter,
+          createdBy: createdBy,
+        };
         await db.hrLetters.create(newDocument);
       }
 
@@ -1577,7 +1659,12 @@ class commonController {
           `PIPLetters${d}`,
           `uploads/${existUser.empCode}`
         );
-        let newDocument = { 'userId': userId, documentType: 3, documentImage: PIPLetters, createdBy: createdBy };
+        let newDocument = {
+          userId: userId,
+          documentType: 3,
+          documentImage: PIPLetters,
+          createdBy: createdBy,
+        };
         await db.hrLetters.create(newDocument);
       }
 
@@ -1587,7 +1674,12 @@ class commonController {
           `BGVReport${d}`,
           `uploads/${existUser.empCode}`
         );
-        let newDocument = { 'userId': userId, documentType: 4, documentImage: BGVReport, createdBy: createdBy };
+        let newDocument = {
+          userId: userId,
+          documentType: 4,
+          documentImage: BGVReport,
+          createdBy: createdBy,
+        };
         await db.hrLetters.create(newDocument);
       }
 
@@ -1597,7 +1689,12 @@ class commonController {
           `employmentRelated${d}`,
           `uploads/${existUser.empCode}`
         );
-        let newDocument = { 'userId': userId, documentType: 5, documentImage: employmentRelated, createdBy: createdBy };
+        let newDocument = {
+          userId: userId,
+          documentType: 5,
+          documentImage: employmentRelated,
+          createdBy: createdBy,
+        };
         await db.hrLetters.create(newDocument);
       }
 
@@ -1607,8 +1704,13 @@ class commonController {
           `insuranceCard${d}`,
           `uploads/${existUser.empCode}`
         );
-        let updateDocument = { documentImage: insuranceCard, createdBy: createdBy };
-        await db.hrLetters.update(updateDocument, { where: { userId: userId, documentType: 6, updatedBy: updatedBy } });
+        let updateDocument = {
+          documentImage: insuranceCard,
+          createdBy: createdBy,
+        };
+        await db.hrLetters.update(updateDocument, {
+          where: { userId: userId, documentType: 6, updatedBy: updatedBy },
+        });
       }
 
       if (req.body.contractLetter) {
@@ -1617,7 +1719,12 @@ class commonController {
           `contractLetter${d}`,
           `uploads/${existUser.empCode}`
         );
-        let newDocument = { 'userId': userId, documentType: 7, documentImage: contractLetter, createdBy: createdBy };
+        let newDocument = {
+          userId: userId,
+          documentType: 7,
+          documentImage: contractLetter,
+          createdBy: createdBy,
+        };
         await db.hrLetters.create(newDocument);
       }
 
@@ -1633,7 +1740,6 @@ class commonController {
       });
     }
   }
-
 }
 
 export default new commonController();

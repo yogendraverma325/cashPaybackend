@@ -19,12 +19,7 @@ const router = express.Router();
 router.use("/export", masterExportRoutes);
 router.use("/admin", authentication.authenticate, adminRoutes);
 router.use("/auth", authRoutes);
-router.use(
-  "/master",
-  authentication.authenticate,
-  rateLimit.limiter,
-  masterRoutes
-);
+router.use("/master", authentication.authenticate, rateLimit.limiter, masterRoutes);
 router.use("/mapping", mappingRoutes);
 router.use("/user", userRoutes);
 router.use("/payment", paymentRoutes);
@@ -32,7 +27,6 @@ router.use("/attendance", authentication.authenticate, attendanceRoutes);
 router.use("/comman", authentication.authenticate, commanRoutes);
 router.use("/leave", authentication.authenticate, leave);
 router.use("/admin/master", authentication.authenticate, adminMasterRoutes);
-
 router.use("/cron", cronRoutes)
 router.use("/import", masterExportRoutes);
 

@@ -11,6 +11,12 @@ export default (sequelize, Sequelize) => {
         separationStatusDesc: {
             type: Sequelize.STRING(255)
         },
+        statusTrail: {
+            type: Sequelize.TINYINT(1)
+        },
+        separationLabel: {
+            type: Sequelize.STRING
+        },
         createdDt: {
             type: Sequelize.DATE
         },

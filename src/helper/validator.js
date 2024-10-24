@@ -141,7 +141,10 @@ const updateBiographicalDetailsSchema = Joi.object({
   dataCardAdmin: Joi.number().label("Data Card").optional(),
   visitingCardAdmin: Joi.number().label("Visiting Card").optional(),
   workstationAdmin: Joi.number().label("Work Station").optional(),
-  lastIncrementDate: Joi.string().allow(null).label("Last Increment Date").optional(),
+  lastIncrementDate: Joi.string()
+    .allow(null)
+    .label("Last Increment Date")
+    .optional(),
   iqTestApplicable: Joi.number().label("IQ Test Applicable").optional(),
   recruiterName: Joi.string()
     .trim()
@@ -160,7 +163,7 @@ const updateBiographicalDetailsSchema = Joi.object({
     .label("Nominee Relation")
     .allow(null)
     .max(30)
-    .optional()
+    .optional(),
 });
 
 const addFamilyDetailsSchema = Joi.object({
@@ -387,7 +390,7 @@ const addJobDetailsSchema = Joi.object({
   gradeId: Joi.number().label("Grade").optional(),
   jobLevelId: Joi.number().label("Job Level").optional(),
   residentEng: Joi.boolean().label("Resident Engineer").optional(),
-  customerName: Joi.string().label("Customer Name").optional()
+  customerName: Joi.string().label("Customer Name").optional(),
 });
 
 const updateManagerSchema = Joi.array()
@@ -396,7 +399,7 @@ const updateManagerSchema = Joi.array()
     Joi.object({
       user: Joi.number().required().label("User"),
       manager: Joi.number().required().label("Manager"),
-      date: Joi.string().label("Date").required()
+      date: Joi.string().label("Date").required(),
     })
   )
   .messages({
@@ -628,13 +631,14 @@ const onBehalfSeperationByManager = Joi.object({
   l1ProposedLastWorkingDay: Joi.string()
     .required()
     .label("Proposed last Working Day"),
-  l1ReasonOfResignation: Joi.number()
-    .required()
-    .label("Reason Of Resignation"),
+  l1ReasonOfResignation: Joi.number().required().label("Reason Of Resignation"),
   l1BillingType: Joi.string(),
-  l1CustomerName: Joi.string().trim().label("Customer Name"),
+  l1ProposedRecoveryDays: Joi.number().label("Recovery Days"),
+  l1CustomerName: Joi.string().trim().allow("").label("Customer Name"),
   replacementRequired: Joi.boolean().label("Replacement Required"),
-  replacementRequiredBy: Joi.string().label("Replacement Required By"),
+  replacementRequiredBy: Joi.string()
+    .allow("")
+    .label("Replacement Required By"),
   l1Remark: Joi.string().trim().max(100).allow("").label("Remark"),
   l1Attachment: Joi.string().allow(""),
   submitType: Joi.number(),
@@ -699,27 +703,63 @@ const updateAddress = Joi.object({
 });
 
 const onboardEmployeeSchema = Joi.object({
-  name: Joi.string().pattern(/^[A-Za-z\s.]*$/, 'Name should only contain letters and spaces').trim().required().label("Name"),
+  name: Joi.string()
+    .pattern(/^[A-Za-z\s.]*$/, "Name should only contain letters and spaces")
+    .trim()
+    .required()
+    .label("Name"),
   email: Joi.string().trim().email().allow("").label("Email"),
   personalEmail: Joi.string().trim().email().required().label("Personal Email"),
-  firstName: Joi.string().pattern(/^[A-Za-z\s.]*$/, 'First Name should only contain letters and spaces').trim().required().label("First Name"),
-  middleName: Joi.string().pattern(/^[A-Za-z\s]*$/, 'Middle Name should only contain letters and spaces').trim().allow("").label("Middle Name"),
-  lastName: Joi.string().pattern(/^[A-Za-z\s]*$/, 'Last Name should only contain letters and spaces').trim().allow("").label("Last Name"),
+  firstName: Joi.string()
+    .pattern(
+      /^[A-Za-z\s.]*$/,
+      "First Name should only contain letters and spaces"
+    )
+    .trim()
+    .required()
+    .label("First Name"),
+  middleName: Joi.string()
+    .pattern(
+      /^[A-Za-z\s]*$/,
+      "Middle Name should only contain letters and spaces"
+    )
+    .trim()
+    .allow("")
+    .label("Middle Name"),
+  lastName: Joi.string()
+    .pattern(
+      /^[A-Za-z\s]*$/,
+      "Last Name should only contain letters and spaces"
+    )
+    .trim()
+    .allow("")
+    .label("Last Name"),
 
-  panNo: Joi.string().pattern(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, 'PAN should be in the format: AAAAA9999A').trim().allow("").label("PAN Number"),
-  uanNo: Joi.string().pattern(/^[0-9]{12}$/, 'UAN should be exactly 12 digits').trim().allow("").label("UAN Number"),
+  panNo: Joi.string()
+    .pattern(
+      /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/,
+      "PAN should be in the format: AAAAA9999A"
+    )
+    .trim()
+    .allow("")
+    .label("PAN Number"),
+  uanNo: Joi.string()
+    .pattern(/^[0-9]{12}$/, "UAN should be exactly 12 digits")
+    .trim()
+    .allow("")
+    .label("UAN Number"),
   pfNo: Joi.string().trim().allow("").label("PF Number"),
   employeeType: Joi.number().required().label("Employee Type"),
   image: Joi.string().allow(""),
 
   officeMobileNumber: Joi.string()
-    .pattern(/^[0-9]*$/, 'Office Mobile number should only contain numbers')
+    .pattern(/^[0-9]*$/, "Office Mobile number should only contain numbers")
     .trim()
     .length(10)
     .allow("")
     .label("Office Mobile Number"),
   personalMobileNumber: Joi.string()
-    .pattern(/^[0-9]*$/, 'Personal Mobile number should only contain numbers')
+    .pattern(/^[0-9]*$/, "Personal Mobile number should only contain numbers")
     .trim()
     .length(10)
     .required()
@@ -751,12 +791,17 @@ const onboardEmployeeSchema = Joi.object({
   iqTestApplicable: Joi.number().required().label("IQ Test Applicable"),
   positionType: Joi.string().required().label("Position Type"),
   profileImage: Joi.string().allow(null),
-  id: Joi.string().allow(''),
+  id: Joi.string().allow(""),
 
-  selfService: Joi.number().required().label('Self Service'),
+  selfService: Joi.number().required().label("Self Service"),
   mobileAccess: Joi.number().required().label("Mobile Access"),
-  laptopSystem: Joi.string().required().label("Laptop Access"),
-  backgroundVerification: Joi.number().required().label("Background Verification"),  
+  laptopSystem: Joi.string()
+    .valid("Mac", "Linux", "Windows")
+    .required()
+    .label("Laptop Access"),
+  backgroundVerification: Joi.number()
+    .required()
+    .label("Background Verification"),
   mobileAdmin: Joi.number().required().label("Mobile Admin"),
   dataCardAdmin: Joi.number().required().label("Data Card"),
   visitingCardAdmin: Joi.number().required().label("Visiting Card"),
@@ -771,10 +816,19 @@ const onboardEmployeeSchema = Joi.object({
   highestQualification: Joi.string().required().label("Highest Qualification"),
   ESICPFDeduction: Joi.string().allow("").label("ESIC/PF Deduction"),
   fatherName: Joi.string().trim().allow("").label("Father Name"),
-  paymentAccountNumber: Joi.string().trim().max(20).allow("").label("Account Number"),
+  paymentAccountNumber: Joi.string()
+    .trim()
+    .max(20)
+    .allow("")
+    .label("Account Number"),
   paymentBankName: Joi.string().trim().allow("").label("Bank Name"),
-  paymentBankIfsc: Joi.string().trim().allow("").min(11).max(11).label("Bank Ifsc Code"),
-  noticePeriodAutoId: Joi.number().required().label('Notice Period')
+  paymentBankIfsc: Joi.string()
+    .trim()
+    .allow("")
+    .min(11)
+    .max(11)
+    .label("Bank Ifsc Code"),
+  noticePeriodAutoId: Joi.number().required().label("Notice Period"),
 });
 
 const createTMCSchema = Joi.object({
@@ -785,81 +839,94 @@ const onBehalfSeperationByBUHr = Joi.object({
   userId: Joi.number(),
   resignationDate: Joi.string().required().label("Resignation Date"),
   l2LastWorkingDay: Joi.string().required().label("Proposed last Working Day"),
-  // l2RecoveryDays: Joi.number().required().label("Proposed Recovery Days"),
+  l2RecoveryDays: Joi.number().label("Recovery Days"),
   l2RecoveryDaysReason: Joi.string()
     .required()
     .label("Reason for Proposed Recovery Days"),
   l2SeparationType: Joi.string()
-    .valid("Voluntary", "InVoluntary", "Death", "Retired")
+    .valid(1, 2, 3, 4)
     .required()
     .label("Separation Type"),
-  l2ReasonOfSeparation: Joi.string()
-    .trim()
-    .required()
-    .label("Reason Of Resignation"),
+  l2ReasonOfSeparation: Joi.number().required().label("Reason Of Resignation"),
   l2NewOrganizationName: Joi.string()
     .trim()
-    .when("l2SeparationType", {
-      is: "Voluntary",
-      then: Joi.required(),
-      otherwise: Joi.forbidden(),
-    })
+    .allow("")
     .label("New Organization Name"),
-  l2SalaryHike: Joi.string()
-    .trim()
-    .when("l2NewOrganizationName", {
-      is: Joi.exist(),
-      then: Joi.required(),
-      otherwise: Joi.forbidden(),
-    })
-    .label("Salary Hike"),
+  l2SalaryHike: Joi.string().trim().allow("").label("Salary Hike"),
   doNotReHire: Joi.boolean().valid(0, 1).label("Do Not Rehire"),
   l2BillingType: Joi.string().trim().required().label("Billing Type"),
-  l2CustomerName: Joi.string().trim().required().label("Customer Name"),
+  l2CustomerName: Joi.string()
+    .trim()
+    .required()
+    .allow("")
+    .label("Customer Name"),
   shortFallPayoutBasis: Joi.string().trim().required().label("Payout Basis"),
   shortFallPayoutDays: Joi.number().required().label("Payout Days"),
   ndaConfirmation: Joi.boolean().valid(0, 1).label("NDA Confirmation"),
   holdFnf: Joi.boolean().valid(0, 1).label("Hold FNF"),
   holdFnfTillDate: Joi.string().trim().allow("").label("FNF Till Date"),
-  holdFnfReason: Joi.string()
-    .trim()
-    .when("holdFnf", {
-      is: 1,
-      then: Joi.required(),
-      otherwise: Joi.forbidden(),
-    })
-    .label("Hold FNF Reason"),
-  l2Remark: Joi.string().trim().required().label("Remark"),
+  holdFnfReason: Joi.string().trim().allow("").label("Hold FNF Reason"),
+  l2Remark: Joi.string().trim().allow("").required().label("Remark"),
   l2Attachment: Joi.string().allow("").optional(),
   submitType: Joi.number(),
 });
 
 const revokeSeparation = Joi.object({
-  reason: Joi.number().required().label('Reason'),
-  remark: Joi.string().trim().allow("").label("Remark")
-})
+  reason: Joi.number().required().label("Reason"),
+  remark: Joi.string().trim().allow("").label("Remark"),
+});
 
 const importOnboardEmployeeSchema = Joi.object({
   email: Joi.string().trim().email().allow("").label("Email"),
   personalEmail: Joi.string().trim().email().required().label("Personal Email"),
-  firstName: Joi.string().pattern(/^[A-Za-z\s.]*$/, 'First Name should only contain letters and spaces').trim().required().label("First Name"),
-  middleName: Joi.string().pattern(/^[A-Za-z\s]*$/, 'Middle Name should only contain letters and spaces').trim().allow("").label("Middle Name"),
-  lastName: Joi.string().pattern(/^[A-Za-z\s]*$/, 'Last Name should only contain letters and spaces').trim().allow("").label("Last Name"),
+  firstName: Joi.string()
+    .pattern(
+      /^[A-Za-z\s.]*$/,
+      "First Name should only contain letters and spaces"
+    )
+    .trim()
+    .required()
+    .label("First Name"),
+  middleName: Joi.string()
+    .pattern(
+      /^[A-Za-z\s]*$/,
+      "Middle Name should only contain letters and spaces"
+    )
+    .trim()
+    .allow("")
+    .label("Middle Name"),
+  lastName: Joi.string()
+    .pattern(
+      /^[A-Za-z\s]*$/,
+      "Last Name should only contain letters and spaces"
+    )
+    .trim()
+    .allow("")
+    .label("Last Name"),
 
-  panNo: Joi.string().pattern(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, 'PAN should be in the format: AAAAA9999A').trim().allow(""),
-  uanNo: Joi.string().pattern(/^[0-9]{12}$/, 'UAN should be exactly 12 digits').trim().allow(""),
+  panNo: Joi.string()
+    .pattern(
+      /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/,
+      "PAN should be in the format: AAAAA9999A"
+    )
+    .trim()
+    .allow(""),
+  uanNo: Joi.string()
+    .pattern(/^[0-9]{12}$/, "UAN should be exactly 12 digits")
+    .trim()
+    .allow(""),
   pfNo: Joi.string().trim().allow(""),
   employeeType: Joi.string().required().label("Employee Type"),
   image: Joi.string().allow(""),
 
   officeMobileNumber: Joi.string()
-    .pattern(/^[0-9]*$/, 'Offical Mobile number should only contain numbers')
+    .pattern(/^[0-9]*$/, "Offical Mobile number should only contain numbers")
     .trim()
     .length(10)
     .allow("")
     .label("Office Mobile Number"),
   personalMobileNumber: Joi.string()
-    .pattern(/^[0-9]*$/, 'Personal Mobile number should only contain numbers')
+    .pattern(/^[0-9]*$/, "Personal Mobile number should only contain numbers")
     .trim()
     .length(10)
     .required()
@@ -907,20 +974,40 @@ const importOnboardEmployeeSchema = Joi.object({
   companyLocation: Joi.string().required().label("Company Location"),
   weekOff: Joi.string().allow("").label("Week Off"),
 
-  gender: Joi.string().valid('Male', 'Female', 'Do not want to disclose', 'Transgender', 'Other').required().label("Gender"),
-  maritalStatus: Joi.string().valid('Married', 'Single', 'Divorced', 'Separated', 'Widowed', 'Others').required().label("Marital Status"),
-  maritalStatusSince: Joi.string().allow('').default('NA').label("Marital Status Date"),
-  nationality: Joi.string().valid('Indian').required().label("Nationality"),
+  gender: Joi.string()
+    .valid("Male", "Female", "Do not want to disclose", "Transgender", "Other")
+    .required()
+    .label("Gender"),
+  maritalStatus: Joi.string()
+    .valid("Married", "Single", "Divorced", "Separated", "Widowed", "Others")
+    .required()
+    .label("Marital Status"),
+  maritalStatusSince: Joi.string()
+    .allow("")
+    .default("NA")
+    .label("Marital Status Date"),
+  nationality: Joi.string().valid("Indian").required().label("Nationality"),
   probation: Joi.string().required().label("Probation"),
   jobLevel: Joi.string().required().label("Job Level"),
   newCustomerName: Joi.string().allow("").label("Customer Name"),
-  iqTestApplicable: Joi.string().valid('Yes', 'No').required().label("IQ Test Applicable"),
-  positionType: Joi.string().valid('New', 'Replacement').required().label("Position Type"),
+  iqTestApplicable: Joi.string()
+    .valid("Yes", "No")
+    .required()
+    .label("IQ Test Applicable"),
+  positionType: Joi.string()
+    .valid("New", "Replacement")
+    .required()
+    .label("Position Type"),
 
-  selfService: Joi.number().required().label('Self Service'),
+  selfService: Joi.number().required().label("Self Service"),
   mobileAccess: Joi.number().optional().label("Mobile Access"),
-  laptopSystem: Joi.string().valid('Mac', 'Linux', 'Windows').required().label("Laptop Access"),
-  backgroundVerification: Joi.number().required().label("Background Verification"),  
+  laptopSystem: Joi.string()
+    .valid("Mac", "Linux", "Windows")
+    .required()
+    .label("Laptop Access"),
+  backgroundVerification: Joi.number()
+    .required()
+    .label("Background Verification"),
   mobileAdmin: Joi.number().required().label("Mobile Admin"),
   dataCardAdmin: Joi.number().required().label("Data Card"),
   visitingCardAdmin: Joi.number().required().label("Visiting Card"),
@@ -984,6 +1071,27 @@ const importOnboardEmployeeSchema = Joi.object({
   //     }),
 });
 
+const updatePolicyOfEMP = Joi.array()
+  .required()
+  .items(
+    Joi.object({
+      user: Joi.number().required().label("User"),
+      shiftPolicy: Joi.number().label("shiftPolicy").allow(null),
+      currentshiftPolicy: Joi.number().label("currentshiftPolicy").allow(null),
+      attendancePolicy: Joi.number().label("attendancePolicy").allow(null),
+      currentattendancePolicy: Joi.number()
+        .label("currentattendancePolicy")
+        .allow(null),
+      weekOffPolicy: Joi.number().label("weekOffPolicy").allow(null),
+      currentweekOffPolicy: Joi.number()
+        .label("currentweekOffPolicy")
+        .allow(null),
+      date: Joi.string().label("Date").required(),
+    })
+  )
+  .messages({
+    "array.base": "Please Select Atleaset One User",
+  });
 const updateIQDetailsSchema = Joi.object({
   userId: Joi.number().label("User ID"),
   abstractReasoning: Joi.string().optional().label("Abstract Reasoning"),
@@ -1036,5 +1144,6 @@ export default {
   createTMCSchema,
   revokeSeparation,
   importOnboardEmployeeSchema,
+  updatePolicyOfEMP,
   updateIQDetailsSchema,
 };

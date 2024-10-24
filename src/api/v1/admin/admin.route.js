@@ -121,15 +121,38 @@ export default Express.Router()
     authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"),
     adminController.createTMC
   )
-  .patch("/onboardEmployee/:id", authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"), adminController.changeStatusOnboardEmployee)
-  .put("/onboardEmployee/:id", authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"), adminController.updateOnboardEmployee)
-  .get("/onboardEmployee/:id", authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"), adminController.getOnboardEmployeeDetails)
-
+  .patch(
+    "/onboardEmployee/:id",
+    authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"),
+    adminController.changeStatusOnboardEmployee
+  )
+  .put(
+    "/onboardEmployee/:id",
+    authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"),
+    adminController.updateOnboardEmployee
+  )
+  .get(
+    "/onboardEmployee/:id",
+    authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"),
+    adminController.getOnboardEmployeeDetails
+  )
+  .put(
+    "/updatePolicyOfEMP",
+    authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"),
+    adminController.updatePolicyOfEMP
+  )
   .put(
     "/updateIQDetails",
     authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"),
     commonController.updateIQDetails
   )
-  .delete("/hrDocument/:letterId", authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"), commonController.deleteHRDocument)
-  .post("/uploadHRDocuments", authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"), commonController.uploadHRDocuments)
-
+  .delete(
+    "/hrDocument/:letterId",
+    authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"),
+    commonController.deleteHRDocument
+  )
+  .post(
+    "/uploadHRDocuments",
+    authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"),
+    commonController.uploadHRDocuments
+  );

@@ -1,3 +1,66 @@
+//-----------------------------------------------2024-10-21------------------------------------------------//
+
+ALTER TABLE `tara`.`separationmaster` 
+CHANGE COLUMN `initiatedBy` `initiatedBy` ENUM('Self', 'Manager', 'BuHr', 'Other') NOT NULL ;
+
+//-----------------------------------------------2024-10-11------------------------------------------------//
+
+ALTER TABLE `tara_hrms_live`.`regularization` 
+ADD COLUMN `actualPunchIn` TIME NULL DEFAULT NULL AFTER `regularizeManagerRemark`,
+ADD COLUMN `actualPunchOut` TIME NULL DEFAULT NULL AFTER `actualPunchIn`;
+
+//----------------------------------------------- 2024-10-07-----------------------------------------------//
+
+ALTER TABLE `tara_hrms_live`.`taskfiltermaster` 
+ADD COLUMN `  ` VARCHAR(45) NULL DEFAULT NULL AFTER `taskFilterName`;
+
+//------------------------------------------------2024-10-03-----------------------------------------------//
+
+ALTER TABLE `tara_hrms_live`.`taskhistorymaster` 
+CHANGE COLUMN `createdAt` `createdAt` DATETIME NULL DEFAULT CURRENT_TIMESTAMP ,
+CHANGE COLUMN `updatedAt` `updatedAt` DATETIME NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP ;
+
+
+//------------------------------------------------2024-10-03-------------------------------------------------//
+
+CREATE TABLE `tara_hrms_live`.`taskhistorymaster` (
+  `taskHistoryId` INT NOT NULL AUTO_INCREMENT,
+  `taskHistoryName` VARCHAR(255) NULL DEFAULT NULL,
+  `createdAt` INT NULL DEFAULT NULL,
+  `createdBy` VARCHAR(255) NULL,
+  `updatedAt` INT NULL DEFAULT NULL,
+  `isActive` TINYINT(1) NULL DEFAULT 1,
+  PRIMARY KEY (`taskHistoryId`));
+
+//-------------------------------------------------2024-09-30-------------------------------------------------//
+
+ALTER TABLE `tara_hrms_live`.`reporttype` 
+ADD COLUMN `reportModuleId` INT NULL DEFAULT NULL AFTER `reportTypeId`;
+
+
+CREATE TABLE `reporttype` (
+  `reportTypeId` INT NOT NULL,
+  `reportTypeName` VARCHAR(255) NULL DEFAULT NULL,
+  `createdAt` DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
+  `createdBy` INT NULL DEFAULT NULL,
+  `updatedBy` INT NULL DEFAULT NULL,
+  `updatedAt` DATETIME NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `isActive` TINYINT(1) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`reportTypeId`));
+
+
+CREATE TABLE `reportmodulemaster` (
+  `reportModuleId` INT NOT NULL,
+  `reportModuleName` VARCHAR(255) NULL DEFAULT NULL,
+  `createdAt` DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
+  `createdBy` INT NULL DEFAULT NULL,
+  `updatedBy` INT NULL DEFAULT NULL,
+  `updatedAt` DATETIME NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `isActive` TINYINT(1) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`reportModuleId`));
+
+//-------------------------------------------------------------------------------------------------------------//
+
 INSERT INTO `tara`.`pincodemaster` (`pincode`, `cityId`, `areaName`, `isHead`, `createdAt`) VALUES ('110044', '568', 'NA', '0', '2024-02-29 15:55:22.833');
 
 //--------------------------------2024-09-19----------------------------------------//
@@ -679,6 +742,12 @@ ALTER TABLE `tara`.`employee`
 CHANGE COLUMN `email` `email` VARCHAR(255) CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_unicode_ci' NULL DEFAULT NULL ,
 DROP INDEX `email` ;
 ;
+
+24-10-2024
+
+ALTER TABLE `tara`.`companytypemaster` 
+CHANGE COLUMN `isActive` `isActive` TINYINT(1) NOT NULL DEFAULT 1 ;
+
 
 
 

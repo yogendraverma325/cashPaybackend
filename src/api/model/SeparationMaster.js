@@ -9,7 +9,7 @@ export default (sequelize, Sequelize) => {
             type: Sequelize.INTEGER
         },
         initiatedBy: {
-            type: Sequelize.ENUM('Self', 'Other')
+            type: Sequelize.ENUM('Self', 'Manager','BuHr','Other')
         },
         pendingAt: {
             type: Sequelize.INTEGER

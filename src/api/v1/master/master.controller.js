@@ -126,18 +126,16 @@ class MasterController {
         [Op.and]: [
           {
             isActive:
-              usersData.role_id == 1 || usersData.role_id == 2
-                ? [1, 0]
-                : [1],
+              usersData.role_id == 1 || usersData.role_id == 2 ? [1, 0] : [1],
           },
         ],
       };
 
-      if(searchId) {
-          searchCondition = { 'id': searchId };
+      if (searchId) {
+        searchCondition = { id: searchId };
       }
 
-      if(search) {
+      if (search) {
         searchCondition = {
           [Op.or]: [
             {
@@ -159,13 +157,11 @@ class MasterController {
           [Op.and]: [
             {
               isActive:
-                usersData.role_id == 1 || usersData.role_id == 2
-                  ? [1, 0]
-                  : [1],
+                usersData.role_id == 1 || usersData.role_id == 2 ? [1, 0] : [1],
             },
           ],
-        }
-      };
+        };
+      }
 
       employeeData = await db.employeeMaster.findAndCountAll({
         order: [["id", "desc"]],
@@ -1459,7 +1455,9 @@ class MasterController {
 
   async noticePeriod(req, res) {
     try {
+      let query = { 'isActive': 1 };
       const docs = await db.noticePeriodMaster.findAll({
+        where: query,
         attributes: ["noticePeriodAutoId", "noticePeriodName"],
       });
       return respHelper(res, {

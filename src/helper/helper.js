@@ -84,7 +84,7 @@ const mailService = async (data) => {
     : undefined;
   const testMail = parseInt(process.env.TEST_MAIL);
   const testMailIDs = process.env.TEST_MAIL_ID.split(",");
-  console.log("Incoming Mail--->>", data.to);
+  console.log("Mail is Sending On --->>", data.to);
   const msg = {
     to: testMail ? testMailIDs : data.to,
     from: {
@@ -226,7 +226,7 @@ const getEmpProfile = async (EMP_ID) => {
   const EMP_DATA = await db.employeeMaster.findOne({
     where: {
       id: EMP_ID,
-      isActive: 1
+      isActive: 1,
     },
     attributes: {
       exclude: ["password", "role_id", "designation_id"],
@@ -234,7 +234,7 @@ const getEmpProfile = async (EMP_ID) => {
     include: [
       {
         model: db.salutationMaster,
-        attributes: ['salutationId', 'salutation']
+        attributes: ["salutationId", "salutation"],
       },
       {
         model: db.functionalAreaMaster,
@@ -321,6 +321,34 @@ const getEmpProfile = async (EMP_ID) => {
             attributes: ["designationId", "name"],
           },
         ],
+      },
+      {
+        model: db.weekOffMaster,
+        required: false,
+        where: {
+          isActive: 1
+        },
+      },
+      {
+        model: db.attendancePolicymaster,
+        required: false,
+        where: {
+          isActive: 1,
+        },
+      },
+      {
+        model: db.shiftMaster,
+        required: false,
+        attributes: [
+          "shiftId",
+          "shiftName",
+          "shiftStartTime",
+          "shiftEndTime",
+          "isOverNight",
+        ],
+        where: {
+          isActive: 1,
+        },
       },
       // {
       //   model: db.employeeMaster,
@@ -637,12 +665,12 @@ const empMarkLeaveOfGivenDate = async function (userId, inputData, batch) {
     },
     attributes: ["leaveName"],
   });
-  let leaveReason
+  let leaveReason;
   if (inputData.status == "approved") {
-    leaveReason = 'auto-approved'
+    leaveReason = "auto-approved";
   }
   if (inputData.status == "pending") {
-    leaveReason = 'pending at manager'
+    leaveReason = "pending at manager";
   }
 
   eventEmitter.emit(
@@ -753,7 +781,7 @@ const remainingLeaveCount = async function (
 
 const isDayWorking = async function (startDate, weekOffId, companyLocationId) {
   let appliedFor = moment(startDate).add(0, "days").format("YYYY-MM-DD");
-
+  console.log("appliedFor", appliedFor);
   let lastDayDateAnotherFormat = moment(appliedFor).format("DD-MM-YYYY");
   let parsedDate = moment(lastDayDateAnotherFormat, "DD-MM-YYYY");
   let dayCode = parseInt(moment(appliedFor).format("d")) + 1;
@@ -826,7 +854,97 @@ const isDayWorking = async function (startDate, weekOffId, companyLocationId) {
       workingCount += 1;
     }
   }
+  console.log("workingCountworkingCount", workingCount);
   return workingCount;
+};
+
+const isDayWorkingForReport = async function (
+  startDate,
+  weekOffId,
+  companyLocationId
+) {
+  let appliedFor = moment(startDate).add(0, "days").format("YYYY-MM-DD");
+  console.log("appliedFor", appliedFor);
+
+  let lastDayDateAnotherFormat = moment(appliedFor).format("DD-MM-YYYY");
+  let parsedDate = moment(lastDayDateAnotherFormat, "DD-MM-YYYY");
+  let dayCode = parseInt(moment(appliedFor).format("d")) + 1; // Day of the week (1-7)
+
+  let dayOfMonth = parsedDate.date();
+  let occurrence = Math.ceil(dayOfMonth / 7); // Calculate occurrence of the day in the month
+
+  // Output the result
+  let occurrenceDayCondition = {};
+  switch (occurrence) {
+    case 1:
+      occurrenceDayCondition = {
+        dayId: dayCode,
+        isfirstDayOff: 1,
+      };
+      break;
+    case 2:
+      occurrenceDayCondition = {
+        dayId: dayCode,
+        isSecondDayOff: 1,
+      };
+      break;
+    case 3:
+      occurrenceDayCondition = {
+        dayId: dayCode,
+        isThirdyDayOff: 1,
+      };
+      break;
+    case 4:
+      occurrenceDayCondition = {
+        dayId: dayCode,
+        isFourthDayOff: 1,
+      };
+      break;
+    case 5:
+      occurrenceDayCondition = {
+        dayId: dayCode,
+        isFivethDayOff: 1,
+      };
+      break;
+    default:
+      occurrenceDayCondition = {};
+  }
+
+  // Check if the day is a week off
+  const weekOffDay = await db.weekOffMaster.findOne({
+    where: { weekOffId: weekOffId },
+    include: [
+      {
+        model: db.weekOffDayMappingMaster,
+        required: false,
+        where: occurrenceDayCondition,
+      },
+    ],
+  });
+
+  // If the day is a week off, return "W"
+  if (weekOffDay && weekOffDay.weekOffDayMappingMasters.length > 0) {
+    return "W"; // Week off
+  }
+
+  // Check if the day is a holiday
+  const employeeHoliday = await db.holidayCompanyLocationConfiguration.findOne({
+    where: { companyLocationId: companyLocationId },
+    include: {
+      model: db.holidayMaster,
+      where: { holidayDate: appliedFor },
+      as: "holidayDetails",
+      required: true,
+    },
+  });
+
+  // If the day is a holiday, return "H"
+  if (employeeHoliday) {
+    return "H"; // Holiday
+  }
+
+  // If it's neither a week off nor a holiday, return 1 to indicate a working day
+  return 1; // Working day
 };
 
 // const getCombineValue = async function (leaveFirstHalf, leaveSecondHalf) {
@@ -931,7 +1049,6 @@ const generateOTP = async function (length) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
-
 export default {
   generateJwtToken,
   checkFolder,
@@ -954,6 +1071,6 @@ export default {
   ip,
   generateOTP,
   generateJwtOTPEncrypt,
-  generateJwtOTPDecrypt
+  generateJwtOTPDecrypt,
+  isDayWorkingForReport,
 };
-
