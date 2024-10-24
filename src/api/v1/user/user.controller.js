@@ -1147,7 +1147,7 @@ class UserController {
           existUser.dataValues.noticeperiodmaster.nPDaysAfterConfirmation,
         noticePeriodLastWorkingDay: lastWorkingDay.format("YYYY-MM-DD"),
         empProposedLastWorkingDay: result.empProposedLastWorkingDay,
-        empProposedRecoveryDays: recoveryDays > 0 ? recoveryDays : 0,
+        empProposedRecoveryDays: recoveryDays > 0 ? recoveryDays - 1 : 0,
         l1ProposedLastWorkingDay: result.l1ProposedLastWorkingDay,
         l1ProposedRecoveryDays: result.l1ProposedRecoveryDays != "" ? result.l1ProposedRecoveryDays : 0,
         l1BillingType: result.l1BillingType,
@@ -1413,8 +1413,7 @@ class UserController {
         l2SubmissionDate: moment(),
         createdBy: req.userId,
         createdDt: moment(),
-        l1RequestStatus: "L1_Approved",
-        l2RequestStatus: "L2_Approved",
+        l2RequestStatus: "Approved",
         finalStatus: 9,
         submitType: result.submitType,
         l2Attachment: separationEmpAttachment,
@@ -1427,7 +1426,7 @@ class UserController {
         separationStatus: 9,
         actionDate: moment(),
         pending: 0,
-        pendingAt: existUser.dataValues.buHRId,
+        pendingAt: req.userId,
         createdBy: req.userId,
         createdDt: moment(),
       });
@@ -1474,19 +1473,6 @@ class UserController {
           taskConfigAutoId: 3
         },
         include: [
-          // {
-          //   model: db.separationTaskOwner,
-          //   attributes: ["taskOwner"],
-          //   where: {
-          //     isActive: 1
-          //   },
-          //   include: [
-          //     {
-          //       model: db.employeeMaster,
-          //       attributes: ["name", "email"],
-          //     },
-          //   ],
-          // },
           {
             model: db.separationTaskConfig,
             attributes: ["taskConfigName"],
@@ -1756,6 +1742,7 @@ class UserController {
               "dateOfJoining",
               "companyId",
               "buId",
+              'departmentId',
               "sbuId",
               "functionalAreaId",
             ],
@@ -1771,7 +1758,7 @@ class UserController {
               {
                 model: db.employeeMaster,
                 as: "managerData",
-                attributes: ["name"],
+                attributes: ['id', "name"],
               },
               {
                 model: db.sbuMaster,
@@ -1788,6 +1775,10 @@ class UserController {
               {
                 model: db.designationMaster,
                 attributes: ['name']
+              },
+              {
+                model: db.jobDetails,
+                attributes: ['jobLevelId']
               }
             ],
           },
@@ -1796,27 +1787,38 @@ class UserController {
 
       const d = Math.floor(Date.now() / 1000);
 
+      const separationConfig = await db.separationTaskConfig.findOne({
+        where: {
+          [Op.and]: [
+            {
+              functionalAreaId: {
+                [Op.or]: [
+                  { [Op.like]: `${separationData.dataValues.employee.functionalAreaId},%` },
+                  { [Op.like]: `%,${separationData.dataValues.employee.functionalAreaId},%` },
+                  { [Op.like]: `%,${separationData.dataValues.employee.functionalAreaId}` },
+                  { [Op.eq]: `${separationData.dataValues.employee.functionalAreaId}` }
+                ]
+              }
+            },
+            {
+              jobLevelId: {
+                [Op.or]: [
+                  { [Op.like]: `${separationData.dataValues.employee.employeejobdetail.jobLevelId},%` },
+                  { [Op.like]: `%,${separationData.dataValues.employee.employeejobdetail.jobLevelId},%` },
+                  { [Op.like]: `%,${separationData.dataValues.employee.employeejobdetail.jobLevelId}` },
+                  { [Op.eq]: `${separationData.dataValues.employee.employeejobdetail.jobLevelId}` }
+                ]
+              }
+            }
+          ]
+        }
+      });
+
       const separationOwner = await db.separationTaskMapping.findAll({
         where: {
-          companyId: separationData.dataValues.employee.companyId,
-          buId: separationData.dataValues.employee.buId,
-          sbuId: separationData.dataValues.employee.sbuId,
-          functionalAreaId: separationData.dataValues.employee.functionalAreaId,
+          taskConfigAutoId: separationConfig.dataValues.taskConfigAutoId
         },
         include: [
-          {
-            model: db.separationTaskOwner,
-            attributes: ["taskOwner"],
-            where: {
-              isActive: 1
-            },
-            include: [
-              {
-                model: db.employeeMaster,
-                attributes: ["name", "email"],
-              },
-            ],
-          },
           {
             model: db.separationTaskConfig,
             attributes: ["taskConfigName"],
@@ -1826,7 +1828,7 @@ class UserController {
             where: {
               taskDependent: null
             },
-            attributes: ["taskName"],
+            attributes: ["taskName", 'mappingOn', 'mappingData'],
             include: [
               {
                 model: db.separationTaskFields,
@@ -1836,7 +1838,6 @@ class UserController {
           },
         ],
       });
-
 
       await db.separationMaster.update(
         {
@@ -1896,8 +1897,6 @@ class UserController {
       );
 
       for (const element of separationOwner) {
-        // console.log('jbjhjbcdhjb', element.dataValues.taskAutoId)
-        // console.log('nvjurhcrdf', element.dataValues.separationtaskmaster.separationtaskfields)
         const initiatedTask = await db.separationInitiatedTask.create({
           employeeId: separationData.dataValues.employee.id,
           taskAutoId: element.dataValues.taskAutoId,
@@ -1906,6 +1905,149 @@ class UserController {
           createdBy: 1,
           isActive: 1,
         });
+
+        if (element.dataValues.separationtaskmaster.mappingOn === 'FIX') {
+          const ownerArray = (element.dataValues.separationtaskmaster.mappingData).split(",")
+          for (const element11 of ownerArray) {
+            db.separationTaskOwner.create({
+              taskMappingAutoId: initiatedTask.dataValues.initiatedTaskAutoId,
+              taskOwner: element11,
+              isActive: 1,
+              createdDt: moment()
+            })
+
+            const employeeData = await db.employeeMaster.findOne({
+              where: {
+                id: element11,
+
+              },
+              attributes: ['id', 'name', 'email']
+            })
+
+            mailArray.push({
+              email: employeeData.dataValues.email,
+              name: employeeData.dataValues.name,
+              taskName: element.dataValues.separationtaskmaster.taskName
+            });
+          }
+        }
+        else if (element.dataValues.separationtaskmaster.mappingOn === 'SELF') {
+
+          db.separationTaskOwner.create({
+            taskMappingAutoId: initiatedTask.dataValues.initiatedTaskAutoId,
+            taskOwner: separationData.dataValues.employee.id,
+            isActive: 1,
+            createdDt: moment()
+          })
+
+          const employeeData = await db.employeeMaster.findOne({
+            where: {
+              id: separationData.dataValues.employee.id,
+            },
+            attributes: ['id', 'name', 'email']
+          })
+
+          mailArray.push({
+            email: employeeData.dataValues.email,
+            name: employeeData.dataValues.name,
+            taskName: element.dataValues.separationtaskmaster.taskName
+          });
+        } else if (element.dataValues.separationtaskmaster.mappingOn === 'MANAGER') {
+
+          db.separationTaskOwner.create({
+            taskMappingAutoId: initiatedTask.dataValues.initiatedTaskAutoId,
+            taskOwner: separationData.dataValues.employee.managerData.id,
+            isActive: 1,
+            createdDt: moment()
+          })
+
+          const employeeData = await db.employeeMaster.findOne({
+            where: {
+              id: separationData.dataValues.employee.managerData.id,
+            },
+            attributes: ['id', 'name', 'email']
+          })
+
+          mailArray.push({
+            email: employeeData.dataValues.email,
+            name: employeeData.dataValues.name,
+            taskName: element.dataValues.separationtaskmaster.taskName
+          });
+        } else if (element.dataValues.separationtaskmaster.mappingOn === 'OTHER') {
+          console.log('separationData.dataValues.employee.buId', separationData.dataValues.employee.buId)
+          console.log('separationData.dataValues.employee.departmentId', separationData.dataValues.employee.departmentId)
+          console.log('separationData.dataValues.employee.companyId', separationData.dataValues.employee.companyId)
+          console.log('element.dataValues.taskAutoId', element.dataValues.taskAutoId)
+
+
+          const buMappingData = await db.taskBuMapping.findOne({
+            where: {
+              [Op.and]: [
+                {
+                  bu: {
+                    [Op.or]: [
+                      { [Op.like]: `${separationData.dataValues.employee.buId},%` },
+                      { [Op.like]: `%,${separationData.dataValues.employee.buId},%` },
+                      { [Op.like]: `%,${separationData.dataValues.employee.buId}` },
+                      { [Op.eq]: `${separationData.dataValues.employee.buId}` }
+                    ]
+                  }
+                },
+                {
+                  departmentId: {
+                    [Op.or]: [
+                      { [Op.like]: `${separationData.dataValues.employee.departmentId},%` },
+                      { [Op.like]: `%,${separationData.dataValues.employee.departmentId},%` },
+                      { [Op.like]: `%,${separationData.dataValues.employee.departmentId}` },
+                      { [Op.eq]: `${separationData.dataValues.employee.departmentId}` }
+                    ]
+                  }
+                },
+                {
+                  companyId: {
+                    [Op.or]: [
+                      { [Op.like]: `${separationData.dataValues.employee.companyId},%` },
+                      { [Op.like]: `%,${separationData.dataValues.employee.companyId},%` },
+                      { [Op.like]: `%,${separationData.dataValues.employee.companyId}` },
+                      { [Op.eq]: `${separationData.dataValues.employee.companyId}` }
+                    ]
+                  }
+                },
+                {
+                  taskAutoId: element.dataValues.taskAutoId
+                }
+              ]
+            }
+          })
+
+          console.log(buMappingData)
+
+          if (buMappingData) {
+            for (const element12 of buMappingData.dataValues.ownerId.split(",")) {
+              console.log(element12)
+              db.separationTaskOwner.create({
+                taskMappingAutoId: initiatedTask.dataValues.initiatedTaskAutoId,
+                taskOwner: element12,
+                isActive: 1,
+                createdDt: moment()
+              })
+
+              const employeeData = await db.employeeMaster.findOne({
+                where: {
+                  id: element12,
+                },
+                attributes: ['id', 'name', 'email']
+              })
+
+              mailArray.push({
+                email: employeeData.dataValues.email,
+                name: employeeData.dataValues.name,
+                taskName: element.dataValues.separationtaskmaster.taskName
+              });
+            }
+          }
+        }
+
         if (
           element.dataValues.separationtaskmaster.separationtaskfields.length >
           0
@@ -1924,15 +2066,15 @@ class UserController {
           }
         }
 
-        if (element.dataValues.separationtaskowners.length > 0) {
-          for (const ownerList of element.dataValues.separationtaskowners) {
-            mailArray.push({
-              email: ownerList.employee.email,
-              name: ownerList.employee.name,
-              taskName: element.dataValues.separationtaskmaster.taskName
-            });
-          }
-        }
+        // if (element.dataValues.separationtaskowners.length > 0) {
+        //   for (const ownerList of element.dataValues.separationtaskowners) {
+        //     mailArray.push({
+        //       email: ownerList.employee.email,
+        //       name: ownerList.employee.name,
+        //       taskName: element.dataValues.separationtaskmaster.taskName
+        //     });
+        //   }
+        // }
       }
 
       const commonTask = await db.separationTaskMapping.findAll({
@@ -2490,6 +2632,7 @@ class UserController {
               "companyId",
               "buId",
               "sbuId",
+              'departmentId',
               "functionalAreaId",
             ],
             include: [
@@ -2521,116 +2664,274 @@ class UserController {
               {
                 model: db.designationMaster,
                 attributes: ['name']
+              },
+              {
+                model: db.jobDetails,
+                required: true,
+                attributes: ['jobLevelId']
               }
             ],
           },
         ],
       });
 
-      const separationOwner = await db.separationTaskMapping.findAll({
-        where: {
-          companyId: separationData.dataValues.employee.companyId,
-          buId: separationData.dataValues.employee.buId,
-          sbuId: separationData.dataValues.employee.sbuId,
-          functionalAreaId: separationData.dataValues.employee.functionalAreaId,
-        },
-        include: [
-          {
-            model: db.separationTaskOwner,
-            attributes: ["taskOwner"],
-            where: {
-              isActive: 1
-            },
-            include: [
-              {
-                model: db.employeeMaster,
-                attributes: ["name", "email"],
-              },
-            ],
-          },
-          {
-            model: db.separationTaskConfig,
-            attributes: ["taskConfigName"],
-          },
-          {
-            model: db.separationTaskMaster,
-            where: {
-              taskDependent: req.body[0].taskAutoId
-            },
-            attributes: ["taskName"],
-            include: [
-              {
-                model: db.separationTaskFields,
-                attributes: ["taskFieldsAutoId"],
-              },
-            ],
-          },
-        ],
-      });
+      // console.log('separationData', separationData)
+      if (separationData) {
 
-      for (const element of separationOwner) {
-        const initiatedTask = await db.separationInitiatedTask.create({
-          employeeId: separationData.dataValues.employee.id,
-          taskAutoId: element.dataValues.taskAutoId,
-          status: 0,
-          createdDt: moment(),
-          createdBy: 1,
-          isActive: 1,
-        });
-        if (
-          element.dataValues.separationtaskmaster.separationtaskfields.length >
-          0
-        ) {
-          for (const element2 of element.dataValues.separationtaskmaster
-            .separationtaskfields) {
-            await db.separationFieldValues.create({
-              taskAutoId: element.dataValues.taskAutoId,
-              initiatedTaskAutoId: initiatedTask.dataValues.initiatedTaskAutoId,
-              fields: element2.dataValues.taskFieldsAutoId,
-              employeeId: separationData.dataValues.employee.id,
-              createdDt: moment(),
-              createdBy: 1,
-            });
+        const separationConfig = await db.separationTaskConfig.findOne({
+          where: {
+            [Op.and]: [
+              {
+                functionalAreaId: {
+                  [Op.or]: [
+                    { [Op.like]: `${separationData.dataValues.employee.functionalAreaId},%` },
+                    { [Op.like]: `%,${separationData.dataValues.employee.functionalAreaId},%` },
+                    { [Op.like]: `%,${separationData.dataValues.employee.functionalAreaId}` },
+                    { [Op.eq]: `${separationData.dataValues.employee.functionalAreaId}` }
+                  ]
+                }
+              },
+              {
+                jobLevelId: {
+                  [Op.or]: [
+                    { [Op.like]: `${separationData.dataValues.employee.employeejobdetail.jobLevelId},%` },
+                    { [Op.like]: `%,${separationData.dataValues.employee.employeejobdetail.jobLevelId},%` },
+                    { [Op.like]: `%,${separationData.dataValues.employee.employeejobdetail.jobLevelId}` },
+                    { [Op.eq]: `${separationData.dataValues.employee.employeejobdetail.jobLevelId}` }
+                  ]
+                }
+              }
+            ]
           }
-        }
+        });
 
-        if (element.dataValues.separationtaskowners.length > 0) {
-          for (const ownerList of element.dataValues.separationtaskowners) {
+        const separationOwner = await db.separationTaskMapping.findAll({
+          where: {
+            taskConfigAutoId: separationConfig.dataValues.taskConfigAutoId
+          },
+          include: [
+            {
+              model: db.separationTaskConfig,
+              attributes: ["taskConfigName"],
+            },
+            {
+              model: db.separationTaskMaster,
+              where: {
+                taskDependent: req.body[0].taskAutoId
+              },
+              attributes: ["taskName", 'mappingOn', 'mappingData'],
+              include: [
+                {
+                  model: db.separationTaskFields,
+                  attributes: ["taskFieldsAutoId"],
+                },
+              ],
+            },
+          ],
+        });
+
+        for (const element of separationOwner) {
+
+          console.log("dependent task--->>", element)
+          const initiatedTask = await db.separationInitiatedTask.create({
+            employeeId: separationData.dataValues.employee.id,
+            taskAutoId: element.dataValues.taskAutoId,
+            status: 0,
+            createdDt: moment(),
+            createdBy: 1,
+            isActive: 1,
+          });
+
+          if (element.dataValues.separationtaskmaster.mappingOn === 'FIX') {
+            console.log("fix block")
+            const ownerArray = (element.dataValues.separationtaskmaster.mappingData).split(",")
+            for (const element11 of ownerArray) {
+              db.separationTaskOwner.create({
+                taskMappingAutoId: initiatedTask.dataValues.initiatedTaskAutoId,
+                taskOwner: element11,
+                isActive: 1,
+                createdDt: moment()
+              })
+
+              const employeeData = await db.employeeMaster.findOne({
+                where: {
+                  id: element11,
+
+                },
+                attributes: ['id', 'name', 'email']
+              })
+
+              mailArray.push({
+                email: employeeData.dataValues.email,
+                name: employeeData.dataValues.name,
+                taskName: element.dataValues.separationtaskmaster.taskName
+              });
+            }
+          }
+          else if (element.dataValues.separationtaskmaster.mappingOn === 'SELF') {
+            console.log("self block")
+            db.separationTaskOwner.create({
+              taskMappingAutoId: initiatedTask.dataValues.initiatedTaskAutoId,
+              taskOwner: separationData.dataValues.employee.id,
+              isActive: 1,
+              createdDt: moment()
+            })
+
+            const employeeData = await db.employeeMaster.findOne({
+              where: {
+                id: separationData.dataValues.employee.id,
+              },
+              attributes: ['id', 'name', 'email']
+            })
+
             mailArray.push({
-              email: ownerList.employee.email,
-              name: ownerList.employee.name,
+              email: employeeData.dataValues.email,
+              name: employeeData.dataValues.name,
               taskName: element.dataValues.separationtaskmaster.taskName
             });
+          } else if (element.dataValues.separationtaskmaster.mappingOn === 'MANAGER') {
+            console.log("manager block")
+            db.separationTaskOwner.create({
+              taskMappingAutoId: initiatedTask.dataValues.initiatedTaskAutoId,
+              taskOwner: separationData.dataValues.employee.managerData.id,
+              isActive: 1,
+              createdDt: moment()
+            })
+
+            const employeeData = await db.employeeMaster.findOne({
+              where: {
+                id: separationData.dataValues.employee.managerData.id,
+              },
+              attributes: ['id', 'name', 'email']
+            })
+
+            mailArray.push({
+              email: employeeData.dataValues.email,
+              name: employeeData.dataValues.name,
+              taskName: element.dataValues.separationtaskmaster.taskName
+            });
+          } else if (element.dataValues.separationtaskmaster.mappingOn === 'OTHER') {
+
+            console.log("other block")
+            console.log('separationData.dataValues.employee.buId', separationData.dataValues.employee.buId)
+            console.log('separationData.dataValues.employee.departmentId', separationData.dataValues.employee.departmentId)
+            console.log('separationData.dataValues.employee.companyId', separationData.dataValues.employee.companyId)
+            console.log('element.dataValues.taskAutoId', element.dataValues.taskAutoId)
+
+
+            const buMappingData = await db.taskBuMapping.findOne({
+              where: {
+                [Op.and]: [
+                  {
+                    bu: {
+                      [Op.or]: [
+                        { [Op.like]: `${separationData.dataValues.employee.buId},%` },
+                        { [Op.like]: `%,${separationData.dataValues.employee.buId},%` },
+                        { [Op.like]: `%,${separationData.dataValues.employee.buId}` },
+                        { [Op.eq]: `${separationData.dataValues.employee.buId}` }
+                      ]
+                    }
+                  },
+                  {
+                    departmentId: {
+                      [Op.or]: [
+                        { [Op.like]: `${separationData.dataValues.employee.departmentId},%` },
+                        { [Op.like]: `%,${separationData.dataValues.employee.departmentId},%` },
+                        { [Op.like]: `%,${separationData.dataValues.employee.departmentId}` },
+                        { [Op.eq]: `${separationData.dataValues.employee.departmentId}` }
+                      ]
+                    }
+                  },
+                  {
+                    companyId: {
+                      [Op.or]: [
+                        { [Op.like]: `${separationData.dataValues.employee.companyId},%` },
+                        { [Op.like]: `%,${separationData.dataValues.employee.companyId},%` },
+                        { [Op.like]: `%,${separationData.dataValues.employee.companyId}` },
+                        { [Op.eq]: `${separationData.dataValues.employee.companyId}` }
+                      ]
+                    }
+                  },
+                  {
+                    taskAutoId: element.dataValues.taskAutoId
+                  }
+                ]
+              }
+            })
+
+            console.log(buMappingData)
+
+            if (buMappingData) {
+              for (const element12 of buMappingData.dataValues.ownerId.split(",")) {
+                console.log(element12)
+                db.separationTaskOwner.create({
+                  taskMappingAutoId: initiatedTask.dataValues.initiatedTaskAutoId,
+                  taskOwner: element12,
+                  isActive: 1,
+                  createdDt: moment()
+                })
+
+                const employeeData = await db.employeeMaster.findOne({
+                  where: {
+                    id: element12,
+                  },
+                  attributes: ['id', 'name', 'email']
+                })
+
+                mailArray.push({
+                  email: employeeData.dataValues.email,
+                  name: employeeData.dataValues.name,
+                  taskName: element.dataValues.separationtaskmaster.taskName
+                });
+              }
+            }
+          }
+
+          if (
+            element.dataValues.separationtaskmaster.separationtaskfields.length >
+            0
+          ) {
+            for (const element2 of element.dataValues.separationtaskmaster
+              .separationtaskfields) {
+              await db.separationFieldValues.create({
+                taskAutoId: element.dataValues.taskAutoId,
+                initiatedTaskAutoId: initiatedTask.dataValues.initiatedTaskAutoId,
+                fields: element2.dataValues.taskFieldsAutoId,
+                employeeId: separationData.dataValues.employee.id,
+                createdDt: moment(),
+                createdBy: 1,
+              });
+            }
           }
         }
-      }
 
-      for (const element of mailArray) {
-        eventEmitter.emit(
-          "clearenceInitiated",
-          JSON.stringify({
-            email: element.email,
-            recipientName: element.name,
-            taskName: element.taskName,
-            empCode: separationData.dataValues.employee.empCode,
-            empName: separationData.dataValues.employee.name,
-            officeLocation:
-              separationData.dataValues.employee.companylocationmaster.address1,
-            department: `${separationData.dataValues.employee.departmentmaster.departmentName} (${separationData.dataValues.employee.departmentmaster.departmentCode})`,
-            officeMobileNumber:
-              separationData.dataValues.employee.officeMobileNumber,
-            sbuName: separationData.dataValues.employee.sbumaster.sbuName,
-            bu: separationData.dataValues.employee.bumaster.buName,
-            reportingName: separationData.dataValues.employee.managerData.name,
-            dateOfJoining: separationData.dataValues.employee.dateOfJoining,
-            dateOfResignation: separationData.dataValues.resignationDate,
-            designation: separationData.dataValues.employee.designationmaster.name,
-            lastWorkingDay: separationData.dataValues.l2LastWorkingDay,
-            personalMailID: separationData.dataValues.employee.personalEmail,
-            personalMobileNumber:
-              separationData.dataValues.employee.personalMobileNumber,
-          })
-        );
+        for (const element of mailArray) {
+          eventEmitter.emit(
+            "clearenceInitiated",
+            JSON.stringify({
+              email: element.email,
+              recipientName: element.name,
+              taskName: element.taskName,
+              empCode: separationData.dataValues.employee.empCode,
+              empName: separationData.dataValues.employee.name,
+              officeLocation:
+                separationData.dataValues.employee.companylocationmaster.address1,
+              department: `${separationData.dataValues.employee.departmentmaster.departmentName} (${separationData.dataValues.employee.departmentmaster.departmentCode})`,
+              officeMobileNumber:
+                separationData.dataValues.employee.officeMobileNumber,
+              sbuName: separationData.dataValues.employee.sbumaster.sbuName,
+              bu: separationData.dataValues.employee.bumaster.buName,
+              reportingName: separationData.dataValues.employee.managerData.name,
+              dateOfJoining: separationData.dataValues.employee.dateOfJoining,
+              dateOfResignation: separationData.dataValues.resignationDate,
+              designation: separationData.dataValues.employee.designationmaster.name,
+              lastWorkingDay: separationData.dataValues.l2LastWorkingDay,
+              personalMailID: separationData.dataValues.employee.personalEmail,
+              personalMobileNumber:
+                separationData.dataValues.employee.personalMobileNumber,
+            })
+          );
+        }
       }
 
       return respHelper(res, {
@@ -2693,109 +2994,102 @@ class UserController {
           },
           {
             model: db.separationTaskMaster,
-            attributes: ["taskName", "taskCode"],
+            attributes: ['taskAutoId', "taskName", 'taskCode'],
           },
           {
-            model: db.separationTaskMapping,
-            attributes: ["taskMappingAutoId", "taskConfigAutoId", "taskAutoId"],
-            required: true,
-            include: [
-              {
-                model: db.separationTaskOwner,
-                attributes: [
-                  "taskOwnerAutoId",
-                  "taskMappingAutoId",
-                  "taskOwner",
-                  "isActive",
-                ],
-                required: true,
-                where: {
-                  taskOwner: req.userId,
-                },
-                include: [
-                  {
-                    model: db.employeeMaster,
-                    attributes: ["name", "empCode"],
-                  },
-                ],
-              },
+            model: db.separationTaskOwner,
+            attributes: [
+              "taskOwnerAutoId",
+              "taskMappingAutoId",
+              "taskOwner",
+              "isActive",
             ],
-          },
-        ],
-      });
-
-
-      const myTaskData = await db.separationInitiatedTask.findOne({
-        where: {
-          employeeId: req.userId,
-          pendingAt: req.userId,
-          status: 0
-        },
-        attributes: ["initiatedTaskAutoId", "status", "createdDt"],
-        include: [
-          {
-            model: db.employeeMaster,
-            attributes: ["id", "empCode", "name", 'dateOfJoining', 'dataCardAdmin', 'mobileAdmin'],
+            required: true,
+            where: {
+              taskOwner: req.userId,
+            },
             include: [
-              {
-                model: db.separationMaster,
-                attributes: ["resignationDate", "l2LastWorkingDay"],
-              },
-              {
-                model: db.designationMaster,
-                attributes: ["name", "code"],
-              },
-              {
-                model: db.buMaster,
-                attributes: ['buName']
-              },
-              {
-                model: db.sbuMaster,
-                attributes: ['sbuName']
-              },
               {
                 model: db.employeeMaster,
-                as: 'managerData',
-                attributes: ['empCode', 'name', 'email']
-              },
-              {
-                model: db.companyLocationMaster,
-                attributes: ["address1"],
+                attributes: ["name", "empCode"],
               },
             ],
           },
-          {
-            model: db.separationTaskMaster,
-            attributes: ["taskName", 'taskCode'],
-          },
-          {
-            model: db.separationTaskMapping,
-            attributes: ["taskMappingAutoId", "taskConfigAutoId", "taskAutoId"],
-            required: true
-          },
         ],
       });
-      if (myTaskData) {
-        let newObj = {
-          "taskMappingAutoId": myTaskData.separationtaskmapping.taskMappingAutoId,
-          "taskConfigAutoId": myTaskData.separationtaskmapping.taskConfigAutoId,
-          "taskAutoId": myTaskData.separationtaskmapping.taskAutoId,
-          "separationtaskowners": [
-            {
-              "taskOwnerAutoId": myTaskData.employee.id,
-              "taskMappingAutoId": myTaskData.separationtaskmapping.taskMappingAutoId,
-              "taskOwner": myTaskData.employee.id,
-              "isActive": req.userData.isActive == 1 ? true : false,
-              "employee": {
-                "name": myTaskData.employee.name,
-                "empCode": myTaskData.employee.empCode,
-              }
-            }
-          ]
-        }
-        myTaskData.dataValues["separationtaskmapping"] = newObj
-        separationTasks.push(myTaskData)
-      }
+
+
+      // const myTaskData = await db.separationInitiatedTask.findOne({
+      //   where: {
+      //     employeeId: req.userId,
+      //     pendingAt: req.userId,
+      //     status: 0
+      //   },
+      //   attributes: ["initiatedTaskAutoId", "status", "createdDt"],
+      //   include: [
+      //     {
+      //       model: db.employeeMaster,
+      //       attributes: ["id", "empCode", "name", 'dateOfJoining', 'dataCardAdmin', 'mobileAdmin'],
+      //       include: [
+      //         {
+      //           model: db.separationMaster,
+      //           attributes: ["resignationDate", "l2LastWorkingDay"],
+      //         },
+      //         {
+      //           model: db.designationMaster,
+      //           attributes: ["name", "code"],
+      //         },
+      //         {
+      //           model: db.buMaster,
+      //           attributes: ['buName']
+      //         },
+      //         {
+      //           model: db.sbuMaster,
+      //           attributes: ['sbuName']
+      //         },
+      //         {
+      //           model: db.employeeMaster,
+      //           as: 'managerData',
+      //           attributes: ['empCode', 'name', 'email']
+      //         },
+      //         {
+      //           model: db.companyLocationMaster,
+      //           attributes: ["address1"],
+      //         },
+      //       ],
+      //     },
+      //     {
+      //       model: db.separationTaskMaster,
+      //       attributes: ["taskName", 'taskCode'],
+      //     },
+      //     {
+      //       model: db.separationTaskMapping,
+      //       attributes: ["taskMappingAutoId", "taskConfigAutoId", "taskAutoId"],
+      //       required: true
+      //     },
+      //   ],
+      // });
+      // if (myTaskData) {
+      //   let newObj = {
+      //     "taskMappingAutoId": myTaskData.separationtaskmapping.taskMappingAutoId,
+      //     "taskConfigAutoId": myTaskData.separationtaskmapping.taskConfigAutoId,
+      //     "taskAutoId": myTaskData.separationtaskmapping.taskAutoId,
+      //     "separationtaskowners": [
+      //       {
+      //         "taskOwnerAutoId": myTaskData.employee.id,
+      //         "taskMappingAutoId": myTaskData.separationtaskmapping.taskMappingAutoId,
+      //         "taskOwner": myTaskData.employee.id,
+      //         "isActive": req.userData.isActive == 1 ? true : false,
+      //         "employee": {
+      //           "name": myTaskData.employee.name,
+      //           "empCode": myTaskData.employee.empCode,
+      //         }
+      //       }
+      //     ]
+      //   }
+      //   myTaskData.dataValues["separationtaskmapping"] = newObj
+      //   separationTasks.push(myTaskData)
+      // }
 
       return respHelper(res, {
         status: 200,
@@ -2835,29 +3129,30 @@ class UserController {
           },
           {
             model: db.separationTaskMaster,
-            attributes: ["taskName", 'taskCode'],
+            attributes: ['taskAutoId', "taskName", 'taskCode'],
           },
+          // {
+          //   model: db.separationTaskMapping,
+          //   attributes: ["taskMappingAutoId", "taskConfigAutoId", "taskAutoId"],
+          //   required: true,
+          //   include: [
+
+          //   ],
+          // },
           {
-            model: db.separationTaskMapping,
-            attributes: ["taskMappingAutoId", "taskConfigAutoId", "taskAutoId"],
+            model: db.separationTaskOwner,
+            attributes: [
+              "taskOwnerAutoId",
+              "taskMappingAutoId",
+              "taskOwner",
+              "isActive",
+            ],
             required: true,
+            // nest: true,
             include: [
               {
-                model: db.separationTaskOwner,
-                attributes: [
-                  "taskOwnerAutoId",
-                  "taskMappingAutoId",
-                  "taskOwner",
-                  "isActive",
-                ],
-                required: true,
-                // nest: true,
-                include: [
-                  {
-                    model: db.employeeMaster,
-                    attributes: ["name", "empCode"],
-                  },
-                ],
+                model: db.employeeMaster,
+                attributes: ["name", "empCode"],
               },
             ],
           },
@@ -2865,59 +3160,59 @@ class UserController {
       });
 
 
-      const myTaskData = await db.separationInitiatedTask.findOne({
-        where: {
-          employeeId: user,
-          pendingAt: user
-        },
-        attributes: ["initiatedTaskAutoId", "status", "createdDt"],
-        include: [
-          {
-            model: db.employeeMaster,
-            attributes: ["empCode", "name"],
-            include: [
-              {
-                model: db.designationMaster,
-                attributes: ["name"],
-              },
-              {
-                model: db.separationMaster,
-                attributes: ['resignationDate', 'l2LastWorkingDay']
-              }
-            ],
-          },
-          {
-            model: db.separationTaskMaster,
-            attributes: ["taskName", 'taskCode'],
-          },
-          {
-            model: db.separationTaskMapping,
-            attributes: ["taskMappingAutoId", "taskConfigAutoId", "taskAutoId"],
-            required: true
-          },
-        ],
-      });
-      if (myTaskData) {
-        let newObj = {
-          "taskMappingAutoId": myTaskData.separationtaskmapping.taskMappingAutoId,
-          "taskConfigAutoId": myTaskData.separationtaskmapping.taskConfigAutoId,
-          "taskAutoId": myTaskData.separationtaskmapping.taskAutoId,
-          "separationtaskowners": [
-            {
-              "taskOwnerAutoId": user,
-              "taskMappingAutoId": myTaskData.separationtaskmapping.taskMappingAutoId,
-              "taskOwner": user,
-              "isActive": req.userData.isActive == 1 ? true : false,
-              "employee": {
-                "name": req.userData.name,
-                "empCode": req.userData.empCode,
-              }
-            }
-          ]
-        }
-        myTaskData.dataValues["separationtaskmapping"] = newObj
-        taskData.push(myTaskData)
-      }
+      // const myTaskData = await db.separationInitiatedTask.findOne({
+      //   where: {
+      //     employeeId: user,
+      //     pendingAt: user
+      //   },
+      //   attributes: ["initiatedTaskAutoId", "status", "createdDt"],
+      //   include: [
+      //     {
+      //       model: db.employeeMaster,
+      //       attributes: ["empCode", "name"],
+      //       include: [
+      //         {
+      //           model: db.designationMaster,
+      //           attributes: ["name"],
+      //         },
+      //         {
+      //           model: db.separationMaster,
+      //           attributes: ['resignationDate', 'l2LastWorkingDay']
+      //         }
+      //       ],
+      //     },
+      //     {
+      //       model: db.separationTaskMaster,
+      //       attributes: ["taskName", 'taskCode'],
+      //     },
+      //     {
+      //       model: db.separationTaskMapping,
+      //       attributes: ["taskMappingAutoId", "taskConfigAutoId", "taskAutoId"],
+      //       required: true
+      //     },
+      //   ],
+      // });
+      // if (myTaskData) {
+      //   let newObj = {
+      //     "taskMappingAutoId": myTaskData.separationtaskmapping.taskMappingAutoId,
+      //     "taskConfigAutoId": myTaskData.separationtaskmapping.taskConfigAutoId,
+      //     "taskAutoId": myTaskData.separationtaskmapping.taskAutoId,
+      //     "separationtaskowners": [
+      //       {
+      //         "taskOwnerAutoId": user,
+      //         "taskMappingAutoId": myTaskData.separationtaskmapping.taskMappingAutoId,
+      //         "taskOwner": user,
+      //         "isActive": req.userData.isActive == 1 ? true : false,
+      //         "employee": {
+      //           "name": req.userData.name,
+      //           "empCode": req.userData.empCode,
+      //         }
+      //       }
+      //     ]
+      //   }
+      //   myTaskData.dataValues["separationtaskmapping"] = newObj
+      //   taskData.push(myTaskData)
+      // }
 
       return respHelper(res, {
         status: 200,

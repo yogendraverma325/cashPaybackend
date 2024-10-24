@@ -29,6 +29,12 @@ export default (sequelize, Sequelize) => {
         updatedDt: {
             type: Sequelize.DATE
         },
+        mappingOn: {
+            type: Sequelize.STRING
+        },
+        mappingData: {
+            type: Sequelize.STRING
+        }
     })
     return separationTaskMaster
 }

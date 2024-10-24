@@ -94,6 +94,7 @@ import SeparationInitiatedTask from "../api/model/SeparationInitiatedTask.js";
 import CategoryMaster from "../api/model/CategoryMaster.js";
 import SubCategoryMaster from "../api/model/SubCategoryMaster.js";
 import PTLocationMaster from "../api/model/PTLocationMaster.js";
+import TaskBuMapping from "../api/model/TaskBuMapping.js";
 
 import PolicyHistory from "../api/model/PolicyHistory.js";
 import literal from "sequelize";
@@ -255,6 +256,7 @@ db.categoryMaster = CategoryMaster(sequelize, Sequelize);
 db.subCategoryMaster = SubCategoryMaster(sequelize, Sequelize);
 db.PolicyHistory = PolicyHistory(sequelize, Sequelize);
 db.ptLocationMaster = PTLocationMaster(sequelize, Sequelize);
+db.taskBuMapping = TaskBuMapping(sequelize, Sequelize)
 
 db.holidayCompanyLocationConfiguration.hasOne(db.holidayMaster, {
   foreignKey: "holidayId",
@@ -752,29 +754,14 @@ db.separationTaskMapping.hasOne(db.separationTaskMaster, {
   foreignKey: "taskAutoId",
   sourceKey: "taskAutoId",
 });
-db.separationTaskMapping.hasOne(db.companyMaster, {
-  foreignKey: "companyId",
-  sourceKey: "companyId",
-});
-db.separationTaskMapping.hasOne(db.buMaster, {
-  foreignKey: "buId",
-  sourceKey: "buId",
-});
-db.separationTaskMapping.hasOne(db.sbuMaster, {
-  foreignKey: "sbuId",
-  sourceKey: "sbuId",
-});
-db.separationTaskMapping.hasOne(db.functionalAreaMaster, {
-  foreignKey: "functionalAreaId",
-  sourceKey: "functionalAreaId",
-});
+
 db.separationTaskOwner.hasOne(db.employeeMaster, {
   foreignKey: "id",
   sourceKey: "taskOwner",
 });
-db.separationTaskMapping.hasMany(db.separationTaskOwner, {
+db.separationInitiatedTask.hasMany(db.separationTaskOwner, {
   foreignKey: "taskMappingAutoId",
-  sourceKey: "taskMappingAutoId",
+  sourceKey: "initiatedTaskAutoId",
 });
 db.separationTaskMaster.hasMany(db.separationTaskFields, {
   foreignKey: "taskAutoId",
