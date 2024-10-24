@@ -783,7 +783,7 @@ class UserController {
             ? result.empProposedRecoveryDays
             : 0,
         empReasonOfResignation: result.empReasonOfResignation,
-        empNewOrganizationName:result.empNewOrganizationName!=''?result.empNewOrganizationName:null,
+        empNewOrganizationName: result.empNewOrganizationName != '' ? result.empNewOrganizationName : null,
         empSalaryHike: result.empSalaryHike,
         empPersonalEmailId: result.empPersonalEmailId,
         empPersonalMobileNumber: result.empPersonalMobileNumber,
@@ -1151,7 +1151,7 @@ class UserController {
           existUser.dataValues.noticeperiodmaster.nPDaysAfterConfirmation,
         noticePeriodLastWorkingDay: lastWorkingDay.format("YYYY-MM-DD"),
         empProposedLastWorkingDay: result.empProposedLastWorkingDay,
-        empProposedRecoveryDays: recoveryDays > 0 ? recoveryDays : 0,
+        empProposedRecoveryDays: recoveryDays > 0 ? recoveryDays - 1 : 0,
         l1ProposedLastWorkingDay: result.l1ProposedLastWorkingDay,
         l1ProposedRecoveryDays: result.l1ProposedRecoveryDays != "" ? result.l1ProposedRecoveryDays : 0,
         l1BillingType: result.l1BillingType,
@@ -1432,7 +1432,7 @@ class UserController {
         separationStatus: 9,
         actionDate: moment(),
         pending: 0,
-        pendingAt: existUser.dataValues.buHRId,
+        pendingAt: req.userId,
         createdBy: req.userId,
         createdDt: moment(),
       });
@@ -1670,24 +1670,24 @@ class UserController {
           },
         ];
 
-//================================update in   separation trail===============================================// 
-          await db.separationTrail.update(
-            {
-              pending: 0,
-              separationStatus: 6,
-              actionDate: moment(),
-              updatedBy: req.userId,
-              updatedDt: moment(),
+        //================================update in   separation trail===============================================// 
+        await db.separationTrail.update(
+          {
+            pending: 0,
+            separationStatus: 6,
+            actionDate: moment(),
+            updatedBy: req.userId,
+            updatedDt: moment(),
+          },
+          {
+            where: {
+              separationAutoId: result.resignationAutoId,
+              pendingAt: req.userId,
+              //separationStatus: 6,
             },
-            {
-              where: {
-                separationAutoId: result.resignationAutoId,
-                pendingAt:req.userId,
-                //separationStatus: 6,
-              },
-            }
-          );
-//============================================================================================================//
+          }
+        );
+        //============================================================================================================//
         for (const element of mailArray) {
           eventEmitter.emit(
             "managerRejectsSeparation",
@@ -1738,7 +1738,7 @@ class UserController {
           {
             where: {
               separationAutoId: result.resignationAutoId,
-              pendingAt:req.userId,
+              pendingAt: req.userId,
               //separationStatus: 6,
             },
           }
@@ -3107,44 +3107,44 @@ class UserController {
   async taskHistorySeparation(req, res) {
     try {
       const { search } = req.query;
-      const limit = parseInt(req.query.limit, 10) || 10; 
-      const pageNo = parseInt(req.query.page, 10) || 1;   
+      const limit = parseInt(req.query.limit, 10) || 10;
+      const pageNo = parseInt(req.query.page, 10) || 1;
       const offset = (pageNo - 1) * limit;
       const { count, rows: separationData } = await db.separationMaster.findAndCountAll({
         where: {
           employeeId: { [Op.ne]: req.userId }
-        },        
+        },
         include: [
           {
             model: db.employeeMaster,
             attributes: ["empCode", "name"],
-            where:{
+            where: {
               ...(search && { name: { [Op.like]: `%${search}%` } }),
-          }
-         },
-         {
+            }
+          },
+          {
             model: db.separationStatus,
             attributes: ["separationStatusCode", "separationStatusDesc"],
-         },
-         {
-          model: db.separationReason,
-          as: "empReasonofResignation",
-          attributes: ["separationReason"],
-         },
-         {
-          model: db.separationReason,
-          as: "l1ReasonofResignation",
-          attributes: ["separationReason"],
-         },
-         {
-          model: db.separationReason,
-          attributes: ["separationReason"],
-          as: "l2ReasonofSeparation",
+          },
+          {
+            model: db.separationReason,
+            as: "empReasonofResignation",
+            attributes: ["separationReason"],
+          },
+          {
+            model: db.separationReason,
+            as: "l1ReasonofResignation",
+            attributes: ["separationReason"],
+          },
+          {
+            model: db.separationReason,
+            attributes: ["separationReason"],
+            as: "l2ReasonofSeparation",
 
-       },
-       {
+          },
+          {
             model: db.separationTrail,
-            where:{ pendingAt :req.userId, pending: [0], },
+            where: { pendingAt: req.userId, pending: [0], },
             required: true,
             include: [
               {
@@ -3159,11 +3159,11 @@ class UserController {
             ],
           },
         ],
-        limit,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
+        limit,
         offset,
         distinct: true
       });
-  
+
       return respHelper(res, {
         status: 200,
         data: {
@@ -3173,7 +3173,7 @@ class UserController {
           separationData
         },
       });
-  
+
     } catch (error) {
       console.error(error);
       return respHelper(res, {
@@ -3182,7 +3182,7 @@ class UserController {
       });
     }
   }
-  
+
 }
 
 export default new UserController();
