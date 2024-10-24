@@ -21,5 +21,6 @@ export default Express
     .get("/attendanceSummary", masterExportController.attendanceSummary)
     .post("/onboardingEmployee", upload.single('excelFile'), masterExportController.onboardingEmployeeImport)
     .get("/employeeMasterExport", masterExportController.employeeMasterExport)
+    .get("/sperationPending", masterExportController.sperationPending)
 
 
