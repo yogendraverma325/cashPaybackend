@@ -804,7 +804,14 @@ const onboardEmployeeSchema = Joi.object({
   visitingCardAdmin: Joi.number().required().label("Visiting Card"),
   workstationAdmin: Joi.number().required().label("Work Station"),
   recruiterName: Joi.string().required().label("Recruiter Name"),
-  offRoleCTC: Joi.number().required().label("Off Role CTC"),
+  offRoleCTC: Joi.number()
+    .allow("")
+    .default("NA")
+    .when("employeeType", {
+      is: "Off-Roll",
+      then: Joi.required().label("off Role CTC"),
+      otherwise: Joi.optional(),
+    }),
   highestQualification: Joi.string().required().label("Highest Qualification"),
   ESICPFDeduction: Joi.string().allow("").label("ESIC/PF Deduction"),
   fatherName: Joi.string().trim().allow("").label("Father Name"),

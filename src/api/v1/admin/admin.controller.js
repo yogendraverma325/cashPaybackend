@@ -414,6 +414,7 @@ class AdminController {
           }
         } else {
           result.role_id = 3;
+          result.offRoleCTC = result.offRoleCTC ? result.offRoleCTC : 0;
 
           const createdUser = await db.employeeStagingMaster.create(result);
 
