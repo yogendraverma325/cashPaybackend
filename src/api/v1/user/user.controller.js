@@ -783,6 +783,7 @@ class UserController {
             ? result.empProposedRecoveryDays
             : 0,
         empReasonOfResignation: result.empReasonOfResignation,
+        empNewOrganizationName: result.empNewOrganizationName != '' ? result.empNewOrganizationName : null,
         empSalaryHike: result.empSalaryHike,
         empPersonalEmailId: result.empPersonalEmailId,
         empPersonalMobileNumber: result.empPersonalMobileNumber,
@@ -797,6 +798,8 @@ class UserController {
           )
           : null,
         empSubmissionDate: moment(),
+        createdDt: moment(),
+        createdAt: req.userId
       });
 
       await db.separationTrail.create({
@@ -1142,7 +1145,8 @@ class UserController {
       let onBehalfObject = {
         employeeId: existUser.dataValues.id,
         resignationDate: result.resignationDate,
-        initiatedBy: "Other",
+        //initiatedBy: "Other",
+        initiatedBy: "Manager",
         noticePeriodDay:
           existUser.dataValues.noticeperiodmaster.nPDaysAfterConfirmation,
         noticePeriodLastWorkingDay: lastWorkingDay.format("YYYY-MM-DD"),
@@ -1400,7 +1404,8 @@ class UserController {
       let onBehalfObject = {
         employeeId: existUser.dataValues.id,
         resignationDate: result.resignationDate,
-        initiatedBy: "Other",
+        //initiatedBy: "Other",
+        initiatedBy: "BuHr",
         noticePeriodDay:
           existUser.dataValues.noticeperiodmaster.nPDaysAfterConfirmation,
         noticePeriodLastWorkingDay: lastWorkingDay.format("YYYY-MM-DD"),
@@ -1429,6 +1434,7 @@ class UserController {
         l2SubmissionDate: moment(),
         createdBy: req.userId,
         createdDt: moment(),
+        l1RequestStatus: "Approved",
         l2RequestStatus: "Approved",
         finalStatus: 9,
         submitType: result.submitType,
@@ -1731,6 +1737,24 @@ class UserController {
           },
         ];
 
+        //================================update in   separation trail===============================================// 
+        await db.separationTrail.update(
+          {
+            pending: 0,
+            separationStatus: 6,
+            actionDate: moment(),
+            updatedBy: req.userId,
+            updatedDt: moment(),
+          },
+          {
+            where: {
+              separationAutoId: result.resignationAutoId,
+              pendingAt: req.userId,
+              //separationStatus: 6,
+            },
+          }
+        );
+        //============================================================================================================//
         for (const element of mailArray) {
           eventEmitter.emit(
             "managerRejectsSeparation",
@@ -1760,7 +1784,7 @@ class UserController {
           l2Remark: result.remark != "" ? result.remark : null,
           l2RejectionReason: result.reason,
           l2RequestStatus: "Rejected",
-          finalStatus: 6,
+          finalStatus: 10,
         };
 
         await db.separationMaster.update(rejectObject, {
@@ -1769,6 +1793,25 @@ class UserController {
           },
         });
 
+        // ===============================update in separation trail
+        await db.separationTrail.update(
+          {
+            pending: 0,
+            separationStatus: 10,
+            actionDate: moment(),
+            updatedBy: req.userId,
+            updatedDt: moment(),
+          },
+          {
+            where: {
+              separationAutoId: result.resignationAutoId,
+              pendingAt: req.userId,
+              //separationStatus: 6,
+            },
+          }
+        );
+
+        //=====================================
         eventEmitter.emit(
           "separationRejectByBUHR",
           JSON.stringify({
@@ -3347,6 +3390,86 @@ class UserController {
       });
     }
   }
+
+  async taskHistorySeparation(req, res) {
+    try {
+      const { search } = req.query;
+      const limit = parseInt(req.query.limit, 10) || 10;
+      const pageNo = parseInt(req.query.page, 10) || 1;
+      const offset = (pageNo - 1) * limit;
+      const { count, rows: separationData } = await db.separationMaster.findAndCountAll({
+        where: {
+          employeeId: { [Op.ne]: req.userId }
+        },
+        include: [
+          {
+            model: db.employeeMaster,
+            attributes: ["empCode", "name"],
+            where: {
+              ...(search && { name: { [Op.like]: `%${search}%` } }),
+            }
+          },
+          {
+            model: db.separationStatus,
+            attributes: ["separationStatusCode", "separationStatusDesc"],
+          },
+          {
+            model: db.separationReason,
+            as: "empReasonofResignation",
+            attributes: ["separationReason"],
+          },
+          {
+            model: db.separationReason,
+            as: "l1ReasonofResignation",
+            attributes: ["separationReason"],
+          },
+          {
+            model: db.separationReason,
+            attributes: ["separationReason"],
+            as: "l2ReasonofSeparation",
+
+          },
+          {
+            model: db.separationTrail,
+            where: { pendingAt: req.userId, pending: [0], },
+            required: true,
+            include: [
+              {
+                model: db.separationStatus,
+                attributes: ["separationStatusCode", "separationStatusDesc"],
+              },
+              {
+                model: db.employeeMaster,
+                attributes: ["empCode", "name"],
+                as: "pendingat",
+              }
+            ],
+          },
+        ],
+        limit,
+        offset,
+        distinct: true
+      });
+
+      return respHelper(res, {
+        status: 200,
+        data: {
+          totalRecords: count,
+          totalPages: Math.ceil(count / limit),
+          currentPage: pageNo,
+          separationData
+        },
+      });
+
+    } catch (error) {
+      console.error(error);
+      return respHelper(res, {
+        status: 500,
+        message: "Internal Server Error",
+      });
+    }
+  }
+
 }
 
 export default new UserController();

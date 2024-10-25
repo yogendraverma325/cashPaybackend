@@ -282,6 +282,10 @@ db.employeeMaster.hasOne(db.designationMaster, {
   foreignKey: "designationId",
   sourceKey: "designation_id",
 });
+db.employeeMaster.hasOne(db.employeeTypeMaster, {
+  foreignKey: "empTypeId",
+  sourceKey: "employeeType",
+});
 db.buMapping.hasOne(db.buMaster, { foreignKey: "buId", sourceKey: "buId" });
 db.employeeMaster.hasOne(db.functionalAreaMaster, {
   foreignKey: "functionalAreaId",
@@ -486,7 +490,10 @@ db.employeeMaster.hasOne(db.companyLocationMaster, {
   foreignKey: "companyLocationId",
   sourceKey: "companyLocationId",
 });
-
+db.employeeMaster.hasOne(db.costCenterMaster,{
+  foreignKey: "costCenterId",
+  sourceKey: "costId",
+})
 db.employeeMaster.hasMany(db.loginDetails, {
   foreignKey: "employeeId",
   sourceKey: "id",
@@ -537,6 +544,10 @@ db.companyLocationMaster.hasOne(db.cityMaster, {
 db.companyLocationMaster.hasOne(db.stateMaster, {
   foreignKey: "stateId",
   sourceKey: "stateId",
+});
+db.companyLocationMaster.hasOne(db.countryMaster, {
+  foreignKey: "countryId",
+  sourceKey: "countryId",
 });
 db.employeeMaster.hasOne(db.employeeAddress, {
   foreignKey: "employeeId",
@@ -728,10 +739,16 @@ db.separationStatus.hasOne(db.separationTrail, {
   sourceKey: "separationStatusAutoId",
 });
 
+db.separationTrail.belongsTo(db.separationStatus, {
+  foreignKey: "separationStatus",        // The foreign key in separationTrail
+  targetKey: "separationStatusAutoId",   // The primary key in separationStatus
+});
+
 db.separationTrail.hasOne(db.separationMaster, {
   foreignKey: "resignationAutoId",
   sourceKey: "separationAutoId",
 });
+
 db.separationMaster.hasMany(db.separationTrail, {
   foreignKey: "separationAutoId",
   sourceKey: "resignationAutoId",

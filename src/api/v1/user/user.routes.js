@@ -257,3 +257,8 @@ export default Express.Router()
         authentication.authenticate,
         userController.taskData
     )
+
+    .get("/taskHistorySeparation",
+        authentication.authenticate,
+        userController.taskHistorySeparation
+    )

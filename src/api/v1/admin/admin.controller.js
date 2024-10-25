@@ -350,29 +350,48 @@ class AdminController {
       let query = {
         [Op.or]: [
           { personalMobileNumber: result.personalMobileNumber },
-          ...(result.email ? [{ email: result.email }] : []),
-          ...(result.officeMobileNumber
-            ? [{ officeMobileNumber: result.officeMobileNumber }]
-            : []),
           { personalEmail: result.personalEmail },
         ],
       };
+
+      // Initialize an array for additional conditions
+      const additionalConditions = [];
+
+      // Add companyEmail condition if it's provided
+      if (result.email && result.email.trim() !== "") {
+        additionalConditions.push({ email: result.email });
+      }
+
+      // Add officeMobileNumber condition if it's provided
+      if (
+        result.officeMobileNumber &&
+        result.officeMobileNumber.trim() !== ""
+      ) {
+        additionalConditions.push({
+          officeMobileNumber: result.officeMobileNumber,
+        });
+      }
+
+      // If there are additional conditions, add them to the main query
+      if (additionalConditions.length > 0) {
+        query[Op.or] = [...query[Op.or], ...additionalConditions];
+      }
 
       let existUser = await db.employeeMaster.findOne({ where: query });
 
       if (existUser) {
         if (
-          existUser.email === result.email ||
-          existUser.officeMobileNumber === result.officeMobileNumber
+          existUser.personalEmail === result.personalEmail ||
+          existUser.personalMobileNumber === result.personalMobileNumber
         ) {
           return respHelper(res, {
             status: 400,
-            msg: "Employee company email or official mobile no. already exists.",
+            msg: "Employee personal email/mobile no. already exists.",
           });
         } else {
           return respHelper(res, {
             status: 400,
-            msg: "Employee personal email/mobile no. already exists.",
+            msg: "Employee company email or official mobile no. already exists.",
           });
         }
       } else {
@@ -380,22 +399,22 @@ class AdminController {
 
         if (existUser) {
           if (
-            existUser.email === result.email ||
-            existUser.officeMobileNumber === result.officeMobileNumber
+            existUser.personalEmail === result.personalEmail ||
+            existUser.personalMobileNumber === result.personalMobileNumber
           ) {
-            return respHelper(res, {
-              status: 400,
-              msg: "Employee company email or official mobile no. already exists.",
-            });
-          } else {
             return respHelper(res, {
               status: 400,
               msg: "Employee personal email/mobile no. already exists.",
             });
+          } else {
+            return respHelper(res, {
+              status: 400,
+              msg: "Employee company email or official mobile no. already exists.",
+            });
           }
-        }
-        else {
+        } else {
           result.role_id = 3;
+          result.offRoleCTC = result.offRoleCTC ? result.offRoleCTC : 0;
 
           const createdUser = await db.employeeStagingMaster.create(result);
 
@@ -694,165 +713,235 @@ class AdminController {
                 personalMobileNumber:
                   employeeOnboardingDetails.personalMobileNumber,
               },
-              ...(employeeOnboardingDetails.email
-                ? [{ email: employeeOnboardingDetails.email }]
-                : []),
-              ...(employeeOnboardingDetails.officeMobileNumber
-                ? [
-                    {
-                      officeMobileNumber:
-                        employeeOnboardingDetails.officeMobileNumber,
-                    },
-                  ]
-                : []),
               { personalEmail: employeeOnboardingDetails.personalEmail },
             ],
           };
+
+          // Initialize an array for additional conditions
+          const additionalConditions = [];
+
+          // Add companyEmail condition if it's provided
+          if (
+            employeeOnboardingDetails.email &&
+            employeeOnboardingDetails.email.trim() !== ""
+          ) {
+            additionalConditions.push({
+              email: employeeOnboardingDetails.email,
+            });
+          }
+
+          // Add officeMobileNumber condition if it's provided
+          if (
+            employeeOnboardingDetails.officeMobileNumber &&
+            employeeOnboardingDetails.officeMobileNumber.trim() !== ""
+          ) {
+            additionalConditions.push({
+              officeMobileNumber: employeeOnboardingDetails.officeMobileNumber,
+            });
+          }
+
+          // If there are additional conditions, add them to the main query
+          if (additionalConditions.length > 0) {
+            query[Op.or] = [...query[Op.or], ...additionalConditions];
+          }
 
           const existUser = await db.employeeMaster.findOne({ where: query });
 
           if (existUser) {
             if (
-              existUser.email === employeeOnboardingDetails.email ||
-              existUser.officeMobileNumber ===
-                employeeOnboardingDetails.officeMobileNumber
+              existUser.personalEmail ===
+                employeeOnboardingDetails.personalEmail ||
+              existUser.personalMobileNumber ===
+                employeeOnboardingDetails.personalMobileNumber
             ) {
-              return respHelper(res, {
-                status: 400,
-                msg: "Employee company email or official mobile no. already exists.",
-              });
-            } else {
               return respHelper(res, {
                 status: 400,
                 msg: "Employee personal email/mobile no. already exists.",
               });
+            } else {
+              return respHelper(res, {
+                status: 400,
+                msg: "Employee company email or official mobile no. already exists.",
+              });
             }
           } else {
-            const employeeTypeDetails = await db.employeeTypeMaster.findOne({
-              where: {
-                empTypeId: employeeOnboardingDetails.employeeType,
-                companyId: employeeOnboardingDetails.companyId,
-              },
-              attributes: ["empTypeId", "prefix", "startingIndex"],
-            });
-            if (employeeTypeDetails) {
-              let startingIndex =
-                parseInt(employeeTypeDetails.startingIndex) + 1;
-
-              if (employeeTypeDetails.prefix) {
-                startingIndex = `${employeeTypeDetails.prefix}-${startingIndex}`;
-              }
-
-              const empCode = startingIndex;
-              const password = await helper.generateRandomPassword();
-              const encryptedPassword = await helper.encryptPassword(password);
-
-              let newEmployee = {
-                name: employeeOnboardingDetails.name,
-                email: employeeOnboardingDetails.email,
-                personalEmail: employeeOnboardingDetails.personalEmail,
-                firstName: employeeOnboardingDetails.firstName,
-                middleName: employeeOnboardingDetails.middleName,
-                lastName: employeeOnboardingDetails.lastName,
-                panNo: employeeOnboardingDetails.panNo,
-                uanNo: employeeOnboardingDetails.uanNo,
-                pfNo: employeeOnboardingDetails.pfNo,
-                employeeType: employeeOnboardingDetails.employeeType,
-                image: employeeOnboardingDetails.profileImage,
-                officeMobileNumber:
-                  employeeOnboardingDetails.officeMobileNumber,
-                personalMobileNumber:
-                  employeeOnboardingDetails.personalMobileNumber,
-                dateOfJoining: employeeOnboardingDetails.dateOfJoining,
-
-                manager: employeeOnboardingDetails.manager,
-                designation_id: employeeOnboardingDetails.designation_id,
-                functionalAreaId: employeeOnboardingDetails.functionalAreaId,
-                buId: employeeOnboardingDetails.buId,
-                sbuId: employeeOnboardingDetails.sbuId,
-                shiftId: employeeOnboardingDetails.shiftId,
-                departmentId: employeeOnboardingDetails.departmentId,
-                companyId: employeeOnboardingDetails.companyId,
-                buHRId: employeeOnboardingDetails.buHRId,
-                buHeadId: employeeOnboardingDetails.buHeadId,
-                attendancePolicyId:
-                  employeeOnboardingDetails.attendancePolicyId,
-                companyLocationId: employeeOnboardingDetails.companyLocationId,
-                weekOffId: employeeOnboardingDetails.weekOffId,
-
-                newCustomerName: employeeOnboardingDetails.newCustomerName,
-                iqTestApplicable: employeeOnboardingDetails.iqTestApplicable,
-                positionType: employeeOnboardingDetails.positionType,
-                password: encryptedPassword,
-                role_id: 3,
-                empCode: empCode,
-                isTempPassword: 1,
-              };
-
-              const createdUser = await db.employeeMaster.create(newEmployee);
-              await db.employeeTypeMaster.update(
-                {
-                  startingIndex:
-                    parseInt(employeeTypeDetails.startingIndex) + 1,
+            let currentDate = new Date();
+            let dateOfJoining = new Date(
+              employeeOnboardingDetails.dateOfJoining
+            );
+            if (dateOfJoining <= currentDate) {
+              const employeeTypeDetails = await db.employeeTypeMaster.findOne({
+                where: {
+                  empTypeId: employeeOnboardingDetails.employeeType,
+                  companyId: employeeOnboardingDetails.companyId,
                 },
-                { where: { empTypeId: employeeOnboardingDetails.employeeType } }
-              );
-
-              let newEmployeeBioDetails = {
-                userId: createdUser.id,
-                nationality: employeeOnboardingDetails.nationality,
-                maritalStatus: employeeOnboardingDetails.maritalStatus,
-                maritalStatusSince:
-                  employeeOnboardingDetails.maritalStatusSince,
-                gender: employeeOnboardingDetails.gender,
-                dateOfBirth: employeeOnboardingDetails.dateOfBirth,
-              };
-
-              const createdUserBioDetails = await db.biographicalDetails.create(
-                newEmployeeBioDetails
-              );
-
-              // get probation details
-              let getProbationDetails = await db.probationMaster.findOne({
-                where: { probationId: employeeOnboardingDetails.probationId },
+                attributes: ["empTypeId", "prefix", "startingIndex"],
               });
-              if (getProbationDetails) {
-                let probationName = getProbationDetails.probationName;
-                let durationOfProbation =
-                  getProbationDetails.durationOfProbation;
+              if (employeeTypeDetails) {
+                let startingIndex =
+                  parseInt(employeeTypeDetails.startingIndex) + 1;
 
-                let newEmployeeJobDetails = {
-                  userId: createdUser.id,
+                if (employeeTypeDetails.prefix) {
+                  startingIndex = `${employeeTypeDetails.prefix}-${startingIndex}`;
+                }
+
+                const empCode = startingIndex;
+                const password = await helper.generateRandomPassword();
+                const encryptedPassword = await helper.encryptPassword(
+                  password
+                );
+
+                let newEmployee = {
+                  name: employeeOnboardingDetails.name,
+                  email: employeeOnboardingDetails.email,
+                  personalEmail: employeeOnboardingDetails.personalEmail,
+                  firstName: employeeOnboardingDetails.firstName,
+                  middleName: employeeOnboardingDetails.middleName,
+                  lastName: employeeOnboardingDetails.lastName,
+                  panNo: employeeOnboardingDetails.panNo,
+                  uanNo: employeeOnboardingDetails.uanNo,
+                  pfNo: employeeOnboardingDetails.pfNo,
+                  employeeType: employeeOnboardingDetails.employeeType,
+                  profileImage: employeeOnboardingDetails.profileImage,
+                  officeMobileNumber:
+                    employeeOnboardingDetails.officeMobileNumber,
+                  personalMobileNumber:
+                    employeeOnboardingDetails.personalMobileNumber,
                   dateOfJoining: employeeOnboardingDetails.dateOfJoining,
-                  probationPeriod: `${probationName}(${durationOfProbation} day(s))`,
-                  probationDays: durationOfProbation,
-                  jobLevelId: employeeOnboardingDetails.jobLevelId,
+
+                  manager: employeeOnboardingDetails.manager,
+                  designation_id: employeeOnboardingDetails.designation_id,
+                  functionalAreaId: employeeOnboardingDetails.functionalAreaId,
+                  buId: employeeOnboardingDetails.buId,
+                  sbuId: employeeOnboardingDetails.sbuId,
+                  shiftId: employeeOnboardingDetails.shiftId,
+                  departmentId: employeeOnboardingDetails.departmentId,
+                  companyId: employeeOnboardingDetails.companyId,
+                  buHRId: employeeOnboardingDetails.buHRId,
+                  buHeadId: employeeOnboardingDetails.buHeadId,
+                  attendancePolicyId:
+                    employeeOnboardingDetails.attendancePolicyId,
+                  companyLocationId:
+                    employeeOnboardingDetails.companyLocationId,
+                  weekOffId: employeeOnboardingDetails.weekOffId,
+
+                  newCustomerName: employeeOnboardingDetails.newCustomerName,
+                  iqTestApplicable: employeeOnboardingDetails.iqTestApplicable,
+                  positionType: employeeOnboardingDetails.positionType,
+                  password: encryptedPassword,
+                  role_id: 3,
+                  empCode: empCode,
+                  isTempPassword: 1,
+
+                  selfService: employeeOnboardingDetails.selfService,
+                  offRoleCTC: employeeOnboardingDetails.offRoleCTC,
+                  highestQualification:
+                    employeeOnboardingDetails.highestQualification,
+                  ESICPFDeduction: employeeOnboardingDetails.ESICPFDeduction,
+                  fatherName: employeeOnboardingDetails.fatherName,
+                  workstationAdmin: employeeOnboardingDetails.workstationAdmin,
+                  mobileAdmin: employeeOnboardingDetails.mobileAdmin,
+                  dataCardAdmin: employeeOnboardingDetails.dataCardAdmin,
+                  visitingCardAdmin:
+                    employeeOnboardingDetails.visitingCardAdmin,
+                  recruiterName: employeeOnboardingDetails.recruiterName,
+                  noticePeriodAutoId:
+                    employeeOnboardingDetails.noticePeriodAutoId,
                 };
 
-                const createdUserJobDetails = await db.jobDetails.create(
-                  newEmployeeJobDetails
-                );
-
-                eventEmitter.emit(
-                  "onboardingEmployeeMail",
-                  JSON.stringify({
-                    email: employeeOnboardingDetails.email,
-                    firstName: employeeOnboardingDetails.firstName,
-                    empCode: empCode,
-                    password: password,
-                  })
-                );
-
-                await db.employeeStagingMaster.destroy({
-                  where: {
-                    id: selectedUsers[i],
+                const createdUser = await db.employeeMaster.create(newEmployee);
+                await db.employeeTypeMaster.update(
+                  {
+                    startingIndex:
+                      parseInt(employeeTypeDetails.startingIndex) + 1,
                   },
+                  {
+                    where: {
+                      empTypeId: employeeOnboardingDetails.employeeType,
+                    },
+                  }
+                );
+
+                let newEmployeeBioDetails = {
+                  userId: createdUser.id,
+                  nationality: employeeOnboardingDetails.nationality,
+                  maritalStatus: employeeOnboardingDetails.maritalStatus,
+                  maritalStatusSince:
+                    employeeOnboardingDetails.maritalStatusSince,
+                  gender: employeeOnboardingDetails.gender,
+                  dateOfBirth: employeeOnboardingDetails.dateOfBirth,
+                  mobileAccess: employeeOnboardingDetails.mobileAccess,
+                  laptopSystem: employeeOnboardingDetails.laptopSystem,
+                  backgroundVerification:
+                    employeeOnboardingDetails.backgroundVerification,
+                };
+
+                const createdUserBioDetails =
+                  await db.biographicalDetails.create(newEmployeeBioDetails);
+
+                // get probation details
+                let getProbationDetails = await db.probationMaster.findOne({
+                  where: { probationId: employeeOnboardingDetails.probationId },
+                });
+                if (getProbationDetails) {
+                  let probationName = getProbationDetails.probationName;
+                  let durationOfProbation =
+                    getProbationDetails.durationOfProbation;
+
+                  let newEmployeeJobDetails = {
+                    userId: createdUser.id,
+                    dateOfJoining: employeeOnboardingDetails.dateOfJoining,
+                    probationPeriod: `${probationName}(${durationOfProbation} day(s))`,
+                    probationDays: durationOfProbation,
+                    jobLevelId: employeeOnboardingDetails.jobLevelId,
+                  };
+
+                  const createdUserJobDetails = await db.jobDetails.create(
+                    newEmployeeJobDetails
+                  );
+
+                  if (employeeOnboardingDetails.employeeType == 3) {
+                    let newEmployeePaymentDetails = {
+                      userId: createdUser.id,
+                      paymentAccountNumber:
+                        employeeOnboardingDetails.paymentAccountNumber,
+                      paymentBankName:
+                        employeeOnboardingDetails.paymentBankName,
+                      paymentBankIfsc:
+                        employeeOnboardingDetails.paymentBankIfsc,
+                      status: "approved",
+                    };
+
+                    const createdUserPaymentDetails =
+                      await db.paymentDetails.create(newEmployeePaymentDetails);
+                  }
+
+                  eventEmitter.emit(
+                    "onboardingEmployeeMail",
+                    JSON.stringify({
+                      email: employeeOnboardingDetails.email,
+                      firstName: employeeOnboardingDetails.firstName,
+                      empCode: empCode,
+                      password: password,
+                    })
+                  );
+
+                  await db.employeeStagingMaster.destroy({
+                    where: {
+                      id: selectedUsers[i],
+                    },
+                  });
+                }
+              } else {
+                return respHelper(res, {
+                  status: 403,
+                  msg: constant.INVALID_ID.replace("<module>", "Employee Type"),
                 });
               }
             } else {
               return respHelper(res, {
-                status: 403,
-                msg: constant.INVALID_ID.replace("<module>", "Employee Type"),
+                status: 400,
+                msg: "Employee having DOJ in future dates, their TMC is not created in the current date.",
               });
             }
           }
@@ -1042,6 +1131,23 @@ class AdminController {
         "iqTestApplicable",
         "positionType",
         "jobLevelId",
+        "selfService",
+        "mobileAccess",
+        "laptopSystem",
+        "backgroundVerification",
+        "workstationAdmin",
+        "mobileAdmin",
+        "dataCardAdmin",
+        "visitingCardAdmin",
+        "recruiterName",
+        "offRoleCTC",
+        "highestQualification",
+        "ESICPFDeduction",
+        "fatherName",
+        "paymentAccountNumber",
+        "paymentBankName",
+        "paymentBankIfsc",
+        "noticePeriodAutoId",
       ];
 
       let result = await db.employeeStagingMaster.findOne({
