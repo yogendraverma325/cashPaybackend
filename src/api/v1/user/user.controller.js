@@ -2584,19 +2584,6 @@ class UserController {
         },
       });
 
-      // for (const element of separationFields) {
-      //   const fieldValuesData = await db.separationFieldValues.findOne({
-      //     where: {
-      //       taskAutoId: 1,
-      //       fields: element.dataValues.taskFieldsAutoId,
-      //       employeeId: user,
-      //     },
-      //     attributes: ['fieldValues'],
-      //   })
-      //   // console.log('nmbjbdn---->>', fieldValuesData)
-      //   element.dataValues.fieldValuesData = fieldValuesData
-      // }
-
       return respHelper(res, {
         status: 200,
         data: separationFields,
@@ -2620,6 +2607,8 @@ class UserController {
         await db.separationFieldValues.update(
           {
             fieldValues: element.value,
+            updatedBy: req.userId,
+            updatedAt: moment()
           },
           {
             where: {
@@ -2634,6 +2623,8 @@ class UserController {
       await db.separationInitiatedTask.update(
         {
           status: 1,
+          updatedBy: req.userId,
+          updatedAt: moment()
         },
         {
           where: {
