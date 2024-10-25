@@ -795,7 +795,10 @@ const onboardEmployeeSchema = Joi.object({
 
   selfService: Joi.number().required().label("Self Service"),
   mobileAccess: Joi.number().required().label("Mobile Access"),
-  laptopSystem: Joi.string().required().label("Laptop Access"),
+  laptopSystem: Joi.string()
+    .valid("No", "Desktop", "Laptop (Mac)", "Laptop (Window)")
+    .required()
+    .label("Laptop Access"),
   backgroundVerification: Joi.number()
     .required()
     .label("Background Verification"),
@@ -804,6 +807,7 @@ const onboardEmployeeSchema = Joi.object({
   visitingCardAdmin: Joi.number().required().label("Visiting Card"),
   workstationAdmin: Joi.number().required().label("Work Station"),
   recruiterName: Joi.string().required().label("Recruiter Name"),
+  // offRoleCTC: Joi.number().required().label("Off Role CTC"),
   offRoleCTC: Joi.number()
     .allow("")
     .default("NA")
@@ -930,13 +934,48 @@ const importOnboardEmployeeSchema = Joi.object({
     .length(10)
     .required()
     .label("Personal Mobile Number"),
-  dateOfBirth: Joi.string().required().label("Date Of Birth"),
-  dateOfJoining: Joi.string().required().label("Date Of Joining"),
+  dateOfBirth: Joi.date()
+    .required()
+    .label("Date Of Birth")
+    .custom((value, helpers) => {
+      const today = new Date();
+      const birthDate = new Date(value);
+      const age = today.getFullYear() - birthDate.getFullYear();
+      const monthDifference = today.getMonth() - birthDate.getMonth();
+
+      // Check if the user is at least 18 years old
+      if (
+        age < 18 ||
+        (age === 18 && monthDifference < 0) ||
+        (age === 18 &&
+          monthDifference === 0 &&
+          today.getDate() < birthDate.getDate())
+      ) {
+        return helpers.message("You must be at least 18 years old");
+      }
+      return value; // Return the valid value
+    }),
+  dateOfJoining: Joi.date()
+    .required()
+    .label("Date Of Joining")
+    .custom((value, helpers) => {
+      const dateOfBirth = helpers.state.ancestors[0].dateOfBirth; // Access dateOfBirth from ancestors
+
+      if (!dateOfBirth) {
+        return helpers.message("Date of Birth is required");
+      }
+
+      if (new Date(value) <= new Date(dateOfBirth)) {
+        return helpers.message(
+          "Date of Joining must be greater than Date of Birth"
+        );
+      }
+      return value; // Return the valid value
+    }),
   manager: Joi.number().required().label("Manager"),
   designation: Joi.string().required().label("Designation"),
   functionalArea: Joi.string().required().label("Functional Area"),
   bu: Joi.string().required().label("Business Unit"),
-
   sbu: Joi.string().required().label("Sub Business Unit"),
   shift: Joi.string().allow("").label("Shift"),
   department: Joi.string().required().label("Department"),
@@ -944,7 +983,6 @@ const importOnboardEmployeeSchema = Joi.object({
   attendancePolicy: Joi.string().allow("").label("Attendance Policy"),
   companyLocation: Joi.string().required().label("Company Location"),
   weekOff: Joi.string().allow("").label("Week Off"),
-
   gender: Joi.string()
     .valid("Male", "Female", "Do not want to disclose", "Transgender", "Other")
     .required()
@@ -973,7 +1011,7 @@ const importOnboardEmployeeSchema = Joi.object({
   selfService: Joi.number().required().label("Self Service"),
   mobileAccess: Joi.number().optional().label("Mobile Access"),
   laptopSystem: Joi.string()
-    .valid("Mac", "Linux", "Windows")
+    .valid("No", "Desktop", "Laptop (Mac)", "Laptop (Window)")
     .required()
     .label("Laptop Access"),
   backgroundVerification: Joi.number()
@@ -984,35 +1022,65 @@ const importOnboardEmployeeSchema = Joi.object({
   visitingCardAdmin: Joi.number().required().label("Visiting Card"),
   workstationAdmin: Joi.number().required().label("Work Station"),
   recruiterName: Joi.string().required().label("Recruiter Name"),
-  offRoleCTC: Joi.number().allow("").default("NA").label("Off Role CTC"),
+  offRoleCTC: Joi.number()
+    .allow("")
+    .default("NA")
+    .when("employeeType", {
+      is: "Off-Roll",
+      then: Joi.required().label("off Role CTC"),
+      otherwise: Joi.optional(),
+    }),
   highestQualification: Joi.string()
     .valid("Education", "Degree Master")
     .required()
     .label("Highest Qualification"),
+  // ESICPFDeduction: Joi.string().valid('Yes', 'No', 'Only PF', 'Only ESIC').optional().label("ESIC/PF Deduction"),
+  // fatherName: Joi.string().allow("").label("Father Name"),
+  // paymentAccountNumber: Joi.string().allow('').default('NA').trim().max(20).label("Account Number"),
+  // paymentBankName: Joi.string().allow('').default('NA').trim().label("Bank Name"),
+  // paymentBankIfsc: Joi.string().allow('').default('NA').trim().min(11).max(11).label("Bank Ifsc Code"),
+  noticePeriodAutoId: Joi.string().required().label("Notice Period"),
   ESICPFDeduction: Joi.string()
     .valid("Yes", "No", "Only PF", "Only ESIC")
-    .optional()
-    .label("ESIC/PF Deduction"),
-  fatherName: Joi.string().allow("").label("Father Name"),
+    .when("employeeType", {
+      is: "Off-Roll",
+      then: Joi.required().label("ESIC/PF Deduction"),
+      otherwise: Joi.optional(),
+    }),
+  fatherName: Joi.string()
+    .allow(null)
+    .when("employeeType", {
+      is: "Off-Roll",
+      then: Joi.required().label("Father Name"),
+      otherwise: Joi.optional(),
+    }),
   paymentAccountNumber: Joi.string()
-    .allow("")
-    .default("NA")
+    .allow(null)
     .trim()
     .max(20)
-    .label("Account Number"),
+    .when("employeeType", {
+      is: "Off-Roll",
+      then: Joi.required().label("Account Number"),
+      otherwise: Joi.optional(),
+    }),
   paymentBankName: Joi.string()
-    .allow("")
-    .default("NA")
+    .allow(null)
     .trim()
-    .label("Bank Name"),
+    .when("employeeType", {
+      is: "Off-Roll",
+      then: Joi.required().label("Bank Name"),
+      otherwise: Joi.optional(),
+    }),
   paymentBankIfsc: Joi.string()
-    .allow("")
-    .default("NA")
+    .allow(null)
     .trim()
     .min(11)
     .max(11)
-    .label("Bank Ifsc Code"),
-  noticePeriodAutoId: Joi.string().required().label("Notice Period"),
+    .when("employeeType", {
+      is: "Off-Roll",
+      then: Joi.required().label("Bank IFSC Code"),
+      otherwise: Joi.optional(),
+    }),
 });
 
 const updatePolicyOfEMP = Joi.array()

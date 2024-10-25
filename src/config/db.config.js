@@ -851,4 +851,45 @@ db.separationTaskFields.hasOne(db.separationFieldValues, {
   foreignKey: "fields",
 });
 
+db.employeeStagingMaster.hasOne(db.attendancePolicymaster, {
+  foreignKey: "attendancePolicyId",
+  sourceKey: "attendancePolicyId",
+});
+
+db.employeeStagingMaster.hasOne(db.weekOffMaster, {
+  foreignKey: "weekOffId",
+  sourceKey: "weekOffId",
+});
+
+db.employeeStagingMaster.hasOne(db.employeeTypeMaster, {
+  foreignKey: "empTypeId",
+  sourceKey: "employeeType",
+});
+
+db.employeeStagingMaster.hasOne(db.probationMaster, {
+  foreignKey: "probationId",
+  sourceKey: "probationId",
+});
+
+db.employeeStagingMaster.hasOne(db.newCustomerNameMaster, {
+  foreignKey: "newCustomerNameId",
+  sourceKey: "newCustomerNameId",
+});
+
+db.employeeStagingMaster.hasOne(db.jobLevelMaster, {
+  foreignKey: "jobLevelId",
+  sourceKey: "jobLevelId",
+});
+
+db.employeeStagingMaster.hasOne(db.noticePeriodMaster, {
+  foreignKey: "noticePeriodAutoId",
+  sourceKey: "noticePeriodAutoId",
+});
+
+db.employeeStagingMaster.hasOne(db.employeeMaster, {
+  foreignKey: "id",
+  sourceKey: "manager",
+});
+
+
 export default db;

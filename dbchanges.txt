@@ -743,6 +743,12 @@ CHANGE COLUMN `email` `email` VARCHAR(255) CHARACTER SET 'utf8mb4' COLLATE 'utf8
 DROP INDEX `email` ;
 ;
 
+24-10-2024
+
+ALTER TABLE `tara`.`companytypemaster` 
+CHANGE COLUMN `isActive` `isActive` TINYINT(1) NOT NULL DEFAULT 1 ;
+
+
 
 
 
