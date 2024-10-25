@@ -2707,8 +2707,6 @@ class UserController {
           },
         ],
       });
-
-      // console.log('separationData', separationData)
       if (separationData) {
 
         const separationConfig = await db.separationTaskConfig.findOne({
@@ -2844,14 +2842,6 @@ class UserController {
               taskName: element.dataValues.separationtaskmaster.taskName
             });
           } else if (element.dataValues.separationtaskmaster.mappingOn === 'OTHER') {
-
-            console.log("other block")
-            console.log('separationData.dataValues.employee.buId', separationData.dataValues.employee.buId)
-            console.log('separationData.dataValues.employee.departmentId', separationData.dataValues.employee.departmentId)
-            console.log('separationData.dataValues.employee.companyId', separationData.dataValues.employee.companyId)
-            console.log('element.dataValues.taskAutoId', element.dataValues.taskAutoId)
-
-
             const buMappingData = await db.taskBuMapping.findOne({
               where: {
                 [Op.and]: [
@@ -3052,79 +3042,6 @@ class UserController {
         order: [['initiatedTaskAutoId', 'DESC']]
       });
 
-
-      // const myTaskData = await db.separationInitiatedTask.findOne({
-      //   where: {
-      //     employeeId: req.userId,
-      //     pendingAt: req.userId,
-      //     status: 0
-      //   },
-      //   attributes: ["initiatedTaskAutoId", "status", "createdDt"],
-      //   include: [
-      //     {
-      //       model: db.employeeMaster,
-      //       attributes: ["id", "empCode", "name", 'dateOfJoining', 'dataCardAdmin', 'mobileAdmin'],
-      //       include: [
-      //         {
-      //           model: db.separationMaster,
-      //           attributes: ["resignationDate", "l2LastWorkingDay"],
-      //         },
-      //         {
-      //           model: db.designationMaster,
-      //           attributes: ["name", "code"],
-      //         },
-      //         {
-      //           model: db.buMaster,
-      //           attributes: ['buName']
-      //         },
-      //         {
-      //           model: db.sbuMaster,
-      //           attributes: ['sbuName']
-      //         },
-      //         {
-      //           model: db.employeeMaster,
-      //           as: 'managerData',
-      //           attributes: ['empCode', 'name', 'email']
-      //         },
-      //         {
-      //           model: db.companyLocationMaster,
-      //           attributes: ["address1"],
-      //         },
-      //       ],
-      //     },
-      //     {
-      //       model: db.separationTaskMaster,
-      //       attributes: ["taskName", 'taskCode'],
-      //     },
-      //     {
-      //       model: db.separationTaskMapping,
-      //       attributes: ["taskMappingAutoId", "taskConfigAutoId", "taskAutoId"],
-      //       required: true
-      //     },
-      //   ],
-      // });
-      // if (myTaskData) {
-      //   let newObj = {
-      //     "taskMappingAutoId": myTaskData.separationtaskmapping.taskMappingAutoId,
-      //     "taskConfigAutoId": myTaskData.separationtaskmapping.taskConfigAutoId,
-      //     "taskAutoId": myTaskData.separationtaskmapping.taskAutoId,
-      //     "separationtaskowners": [
-      //       {
-      //         "taskOwnerAutoId": myTaskData.employee.id,
-      //         "taskMappingAutoId": myTaskData.separationtaskmapping.taskMappingAutoId,
-      //         "taskOwner": myTaskData.employee.id,
-      //         "isActive": req.userData.isActive == 1 ? true : false,
-      //         "employee": {
-      //           "name": myTaskData.employee.name,
-      //           "empCode": myTaskData.employee.empCode,
-      //         }
-      //       }
-      //     ]
-      //   }
-      //   myTaskData.dataValues["separationtaskmapping"] = newObj
-      //   separationTasks.push(myTaskData)
-      // }
-
       return respHelper(res, {
         status: 200,
         data: separationTasks,
@@ -3165,14 +3082,6 @@ class UserController {
             model: db.separationTaskMaster,
             attributes: ['taskAutoId', "taskName", 'taskCode'],
           },
-          // {
-          //   model: db.separationTaskMapping,
-          //   attributes: ["taskMappingAutoId", "taskConfigAutoId", "taskAutoId"],
-          //   required: true,
-          //   include: [
-
-          //   ],
-          // },
           {
             model: db.separationTaskOwner,
             attributes: [
@@ -3192,61 +3101,6 @@ class UserController {
           },
         ],
       });
-
-
-      // const myTaskData = await db.separationInitiatedTask.findOne({
-      //   where: {
-      //     employeeId: user,
-      //     pendingAt: user
-      //   },
-      //   attributes: ["initiatedTaskAutoId", "status", "createdDt"],
-      //   include: [
-      //     {
-      //       model: db.employeeMaster,
-      //       attributes: ["empCode", "name"],
-      //       include: [
-      //         {
-      //           model: db.designationMaster,
-      //           attributes: ["name"],
-      //         },
-      //         {
-      //           model: db.separationMaster,
-      //           attributes: ['resignationDate', 'l2LastWorkingDay']
-      //         }
-      //       ],
-      //     },
-      //     {
-      //       model: db.separationTaskMaster,
-      //       attributes: ["taskName", 'taskCode'],
-      //     },
-      //     {
-      //       model: db.separationTaskMapping,
-      //       attributes: ["taskMappingAutoId", "taskConfigAutoId", "taskAutoId"],
-      //       required: true
-      //     },
-      //   ],
-      // });
-      // if (myTaskData) {
-      //   let newObj = {
-      //     "taskMappingAutoId": myTaskData.separationtaskmapping.taskMappingAutoId,
-      //     "taskConfigAutoId": myTaskData.separationtaskmapping.taskConfigAutoId,
-      //     "taskAutoId": myTaskData.separationtaskmapping.taskAutoId,
-      //     "separationtaskowners": [
-      //       {
-      //         "taskOwnerAutoId": user,
-      //         "taskMappingAutoId": myTaskData.separationtaskmapping.taskMappingAutoId,
-      //         "taskOwner": user,
-      //         "isActive": req.userData.isActive == 1 ? true : false,
-      //         "employee": {
-      //           "name": req.userData.name,
-      //           "empCode": req.userData.empCode,
-      //         }
-      //       }
-      //     ]
-      //   }
-      //   myTaskData.dataValues["separationtaskmapping"] = newObj
-      //   taskData.push(myTaskData)
-      // }
 
       return respHelper(res, {
         status: 200,
