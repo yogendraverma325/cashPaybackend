@@ -114,6 +114,18 @@ class AttendanceController {
         });
       }
 
+      await db.attendanceHistory.create({
+        date: currentDate.format("YYYY-MM-DD"),
+        time: currentDate.format("HH:mm:ss"),
+        status: "Punch In/Out",
+        employeeId: req.userId,
+        location: result.location,
+        lat: result.latitude,
+        long: result.longitude,
+        createdBy: req.userId,
+        createdAt: currentDate,
+      });
+
       const checkAttendance = await db.attendanceMaster.findOne({
         raw: true,
         where: {
