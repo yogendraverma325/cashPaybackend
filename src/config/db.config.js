@@ -97,6 +97,7 @@ import PTLocationMaster from "../api/model/PTLocationMaster.js";
 import TaskBuMapping from "../api/model/TaskBuMapping.js";
 
 import PolicyHistory from "../api/model/PolicyHistory.js";
+import EmployeeLeaveHeader from "../api/model/EmployeeLeaveHeader.js";
 import literal from "sequelize";
 import QueryTypes from "sequelize";
 const sequelize = new Sequelize(
@@ -256,8 +257,9 @@ db.categoryMaster = CategoryMaster(sequelize, Sequelize);
 db.subCategoryMaster = SubCategoryMaster(sequelize, Sequelize);
 db.PolicyHistory = PolicyHistory(sequelize, Sequelize);
 db.ptLocationMaster = PTLocationMaster(sequelize, Sequelize);
-db.taskBuMapping = TaskBuMapping(sequelize, Sequelize)
+db.taskBuMapping = TaskBuMapping(sequelize, Sequelize);
 
+db.EmployeeLeaveHeader = EmployeeLeaveHeader(sequelize, Sequelize);
 db.holidayCompanyLocationConfiguration.hasOne(db.holidayMaster, {
   foreignKey: "holidayId",
   sourceKey: "holidayId",
@@ -490,10 +492,10 @@ db.employeeMaster.hasOne(db.companyLocationMaster, {
   foreignKey: "companyLocationId",
   sourceKey: "companyLocationId",
 });
-db.employeeMaster.hasOne(db.costCenterMaster,{
+db.employeeMaster.hasOne(db.costCenterMaster, {
   foreignKey: "costCenterId",
   sourceKey: "costId",
-})
+});
 db.employeeMaster.hasMany(db.loginDetails, {
   foreignKey: "employeeId",
   sourceKey: "id",
@@ -740,8 +742,8 @@ db.separationStatus.hasOne(db.separationTrail, {
 });
 
 db.separationTrail.belongsTo(db.separationStatus, {
-  foreignKey: "separationStatus",        // The foreign key in separationTrail
-  targetKey: "separationStatusAutoId",   // The primary key in separationStatus
+  foreignKey: "separationStatus", // The foreign key in separationTrail
+  targetKey: "separationStatusAutoId", // The primary key in separationStatus
 });
 
 db.separationTrail.hasOne(db.separationMaster, {
@@ -835,6 +837,22 @@ db.PolicyHistory.hasOne(db.employeeMaster, {
   sourceKey: "createdBy",
   as: "PolicyUpdaterDetails",
 });
+
+db.EmployeeLeaveHeader.hasMany(db.leaveMaster, {
+  foreignKey: "leaveId",
+  sourceKey: "leaveAutoId",
+  as: "leaveMasterDetails",
+});
+
+db.EmployeeLeaveHeader.hasOne(db.employeeMaster, {
+  foreignKey: "id",
+  sourceKey: "employeeId",
+});
+
+db.employeeMaster.belongsTo(db.EmployeeLeaveHeader, {
+  foreignKey: "id",
+  sourceKey: "employeeId",
+});
 db.attendanceMaster.hasOne(db.employeeMaster, {
   foreignKey: "id",
   sourceKey: "createdBy",
@@ -891,5 +909,10 @@ db.employeeStagingMaster.hasOne(db.employeeMaster, {
   sourceKey: "manager",
 });
 
+db.EmployeeLeaveHeader.hasOne(db.employeeMaster, {
+  foreignKey: "id",
+  sourceKey: "updatedBy",
+  as: "leaveUpdatedBy",
+});
 
 export default db;
