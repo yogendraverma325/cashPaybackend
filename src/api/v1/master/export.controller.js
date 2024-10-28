@@ -51,12 +51,12 @@ class MasterController {
         where: Object.assign(
           search
             ? {
-                [Op.or]: [
-                  { empCode: { [Op.like]: `%${search}%` } },
-                  { name: { [Op.like]: `%${search}%` } },
-                  { email: { [Op.like]: `%${search}%` } },
-                ],
-              }
+              [Op.or]: [
+                { empCode: { [Op.like]: `%${search}%` } },
+                { name: { [Op.like]: `%${search}%` } },
+                { email: { [Op.like]: `%${search}%` } },
+              ],
+            }
             : {}
         ),
         include: [
@@ -702,11 +702,9 @@ class MasterController {
       const limit = parseInt(req.query.limit) || 10;
       const pageNo = parseInt(req.query.page) || 1;
       const offset = (pageNo - 1) * limit;
-      const cacheKey = `employeeList:${pageNo}:${limit}:${search || ""}:${
-        department || ""
-      }:${designation || ""}:${buSearch || ""}:${sbuSearch || ""}:${
-        areaSearch || ""
-      }`;
+      const cacheKey = `employeeList:${pageNo}:${limit}:${search || ""}:${department || ""
+        }:${designation || ""}:${buSearch || ""}:${sbuSearch || ""}:${areaSearch || ""
+        }`;
 
       let employeeData = [];
       await client.get(cacheKey).then(async (data) => {
@@ -1005,9 +1003,9 @@ class MasterController {
               ")",
             manager: record["employee.managerData.name"]
               ? record["employee.managerData.name"] +
-                " (" +
-                record["employee.managerData.empCode"] +
-                ")"
+              " (" +
+              record["employee.managerData.empCode"] +
+              ")"
               : "-",
             attendanceDate: moment(record.attendanceDate).format("DD-MM-YYYY"),
             attendanceStatus: record.attendanceStatus,
@@ -1037,14 +1035,12 @@ class MasterController {
             //createdBy: record["punchInCreatedBy.name"] + record["punchInCreatedBy.empCode"] || "N/A",
             //updatedBy: record["punchOutCreatedBy.name"] + record["punchOutCreatedBy.empCode"]|| "N/A",
             createdBy: record["punchInCreatedBy.name"]
-              ? `${record["punchInCreatedBy.name"]} (${
-                  record["punchInCreatedBy.empCode"] ?? "N/A"
-                })`
+              ? `${record["punchInCreatedBy.name"]} (${record["punchInCreatedBy.empCode"] ?? "N/A"
+              })`
               : "N/A",
             updatedBy: record["punchOutCreatedBy.name"]
-              ? `${record["punchOutCreatedBy.name"]} (${
-                  record["punchOutCreatedBy.empCode"] ?? "N/A"
-                })`
+              ? `${record["punchOutCreatedBy.name"]} (${record["punchOutCreatedBy.empCode"] ?? "N/A"
+              })`
               : "N/A",
             createdAt:
               record.createdAt != null
@@ -1181,7 +1177,7 @@ class MasterController {
           const invalidEmployees = [];
 
           for (const employee of chunk) {
-            let obj = createObj(employee);            
+            let obj = createObj(employee);
 
             // validate fields
             const { error } =
@@ -1217,8 +1213,11 @@ class MasterController {
                 obj.newCustomerName
               );
               const isValidJobLevel = await validateJobLevel(obj.jobLevel);
-              const isValidNoticePeriod = await validateNoticePeriod(
-                obj.noticePeriodAutoId
+              // const isValidNoticePeriod = await validateNoticePeriod(
+              //   obj.noticePeriodAutoId
+              // );
+              const isValidDegree = await validateDegree(
+                obj.highestQualification
               );
               const isValidateEmployee = await validateEmployee(
                 obj.personalMobileNumber,
@@ -1240,7 +1239,7 @@ class MasterController {
                 isValidDepartment.status &&
                 isValidateEmployee.status &&
                 isValidJobLevel.status &&
-                isValidNoticePeriod.status
+                isValidDegree.status
               ) {
                 // prepare employee object
                 let newEmployee = {
@@ -1295,14 +1294,14 @@ class MasterController {
                   visitingCardAdmin: obj.visitingCardAdmin,
                   recruiterName: obj.recruiterName,
                   offRoleCTC: obj.offRoleCTC,
-                  highestQualification: obj.highestQualification,
+                  highestQualification: isValidDegree.data?.degreeId,
                   ESICPFDeduction: obj.ESICPFDeduction,
                   fatherName: obj.fatherName,
                   paymentAccountNumber: obj.paymentAccountNumber,
                   paymentBankName: obj.paymentBankName,
                   paymentBankIfsc: obj.paymentBankIfsc,
-                  noticePeriodAutoId:
-                    isValidNoticePeriod.data?.noticePeriodAutoId,
+                  // noticePeriodAutoId:
+                  //   isValidNoticePeriod.data?.noticePeriodAutoId,
                 };
 
                 newEmployee.role_id = 3;
@@ -1332,7 +1331,7 @@ class MasterController {
                   weekOff: isValidWeekOff.message,
                   department: isValidDepartment.message,
                   jobLevel: isValidJobLevel.message,
-                  noticePeriod: isValidNoticePeriod.message,
+                  // noticePeriod: isValidNoticePeriod.message,
                   alreadyExist: isValidateEmployee.message,
                 };
                 invalidEmployees.push(masterErrors);
@@ -1578,8 +1577,8 @@ class MasterController {
                     leave.leaveCount === "1.0"
                       ? "L"
                       : leave.leaveAutoId == 6
-                      ? "0.5U"
-                      : "0.5L";
+                        ? "0.5U"
+                        : "0.5L";
                   dayRecords[dayKey] = `${dayRecords[dayKey]},${leaveStatus}`; // Append leave status
                   //attendanceCount.L++;
                   attendanceCount.L += parseFloat(leave.leaveCount);
@@ -1605,8 +1604,8 @@ class MasterController {
                     leave.leaveCount === "1.0"
                       ? "L"
                       : leave.leaveAutoId == 6
-                      ? "0.5U"
-                      : "0.5L";
+                        ? "0.5U"
+                        : "0.5L";
                   dayRecords[dayKey] = `${dayRecords[dayKey]},${leaveStatus}`; // Append leave status
                   //attendanceCount.L++;
                   attendanceCount.L += parseFloat(leave.leaveCount);
@@ -1632,8 +1631,8 @@ class MasterController {
                     leave.leaveCount === "1.0"
                       ? "L"
                       : leave.leaveAutoId == 6
-                      ? "0.5U"
-                      : "0.5L";
+                        ? "0.5U"
+                        : "0.5L";
                   dayRecords[dayKey] = `${dayRecords[dayKey]},${leaveStatus}`; // Append leave status
                   // attendanceCount.L++;
                   attendanceCount.L += parseFloat(leave.leaveCount);
@@ -1683,8 +1682,8 @@ class MasterController {
                     leave.leaveCount === "1.0"
                       ? "L"
                       : leave.leaveAutoId == 6
-                      ? "0.5U"
-                      : "0.5L";
+                        ? "0.5U"
+                        : "0.5L";
                   dayRecords[dayKey] = `${dayRecords[dayKey]},${leaveStatus}`; // Append leave status
                   //attendanceCount.L++;
                   attendanceCount.L += parseFloat(leave.leaveCount);
@@ -1710,8 +1709,8 @@ class MasterController {
                     leave.leaveCount === "1.0"
                       ? "L"
                       : leave.leaveAutoId == 6
-                      ? "0.5U"
-                      : "0.5L";
+                        ? "0.5U"
+                        : "0.5L";
                   dayRecords[dayKey] = `${dayRecords[dayKey]},${leaveStatus}`; // Append leave status
                   // attendanceCount.L++;
                   attendanceCount.L += parseFloat(leave.leaveCount);
@@ -1737,8 +1736,8 @@ class MasterController {
                     leave.leaveCount === "1.0"
                       ? "L"
                       : leave.leaveAutoId == 6
-                      ? "0.5U"
-                      : "0.5L";
+                        ? "0.5U"
+                        : "0.5L";
                   dayRecords[dayKey] = `${dayRecords[dayKey]},${leaveStatus}`; // Append leave status
                   //attendanceCount.L++;
                   attendanceCount.L += parseFloat(leave.leaveCount);
@@ -1790,8 +1789,8 @@ class MasterController {
                     leave.leaveCount === "1.0"
                       ? "L"
                       : leave.leaveAutoId == 6
-                      ? "0.5U"
-                      : "0.5L";
+                        ? "0.5U"
+                        : "0.5L";
                   dayRecords[dayKey] = `${dayRecords[dayKey]},${leaveStatus}`; // Append leave status
                   //attendanceCount.L++;
                   attendanceCount.L += parseFloat(leave.leaveCount);
@@ -1812,8 +1811,8 @@ class MasterController {
                     leave.leaveCount === "1.0"
                       ? "L"
                       : leave.leaveAutoId == 6
-                      ? "0.5U"
-                      : "0.5L";
+                        ? "0.5U"
+                        : "0.5L";
                   dayRecords[dayKey] = `${dayRecords[dayKey]},${leaveStatus}`; // Append leave status
                   //attendanceCount.L++;
                   attendanceCount.L += parseFloat(leave.leaveCount);
@@ -1834,8 +1833,8 @@ class MasterController {
                     leave.leaveCount === "1.0"
                       ? "L"
                       : leave.leaveAutoId == 6
-                      ? "0.5U"
-                      : "0.5L";
+                        ? "0.5U"
+                        : "0.5L";
                   dayRecords[dayKey] = `${dayRecords[dayKey]},${leaveStatus}`; // Append leave status
                   //attendanceCount.L++;
                   attendanceCount.L += parseFloat(leave.leaveCount);
@@ -2176,8 +2175,8 @@ class MasterController {
               ele.employeejobdetail?.joblevelmaster?.jobLevelCode || "",
             costCenter:
               ele.costcentermaster?.costCenterName +
-                " " +
-                ele.costcentermaster?.costCenterCode || "",
+              " " +
+              ele.costcentermaster?.costCenterCode || "",
             dateOfJoining: ele.employeejobdetail?.dateOfJoining
               ? moment(ele.employeejobdetail.dateOfJoining).format("DD-MM-YYYY")
               : "",
@@ -2194,18 +2193,18 @@ class MasterController {
             nationality: ele.employeebiographicaldetail?.nationality || "",
             maritalStatus: ele.employeebiographicaldetail?.maritalStatus
               ? Object.keys(maritalStatusOptions).find(
-                  (key) =>
-                    maritalStatusOptions[key] ===
-                    ele.employeebiographicaldetail.maritalStatus
-                ) || ""
+                (key) =>
+                  maritalStatusOptions[key] ===
+                  ele.employeebiographicaldetail.maritalStatus
+              ) || ""
               : "",
             maritalStatusSince:
               ele.employeebiographicaldetail.maritalStatusSince || "",
             gender: ele.employeebiographicaldetail?.gender,
             dateOfBirth: ele.employeebiographicaldetail?.dateOfBirth
               ? moment(ele.employeebiographicaldetail.dateOfBirth).format(
-                  "DD-MM-YYYY"
-                )
+                "DD-MM-YYYY"
+              )
               : "",
             office_country:
               ele.companylocationmaster?.countrymaster?.countryName,
@@ -2263,11 +2262,11 @@ class MasterController {
               ele.dataValues.visitingCardAdmin == 0 ? "No" : "Yes",
             workstationAdmin:
               ele.dataValues.workstationAdmin == 0 ? "No" : "Yes",
-              buHeadCode:ele.dataValues.buId && ele.dataValues.companyId
-                ? headAndHrData?.buHeadData?.empCode
-                : "",
-                nomineeName: ele.employeebiographicaldetail?.nomineeName || "",
-                nomineeRelation: ele.employeebiographicaldetail?.nomineeRelation || "",
+            buHeadCode: ele.dataValues.buId && ele.dataValues.companyId
+              ? headAndHrData?.buHeadData?.empCode
+              : "",
+            nomineeName: ele.employeebiographicaldetail?.nomineeName || "",
+            nomineeRelation: ele.employeebiographicaldetail?.nomineeRelation || "",
 
           };
         })
@@ -2351,8 +2350,8 @@ class MasterController {
               { label: "Data Card (Admin)", value: "dataCardAdmin" },
               { label: "Visiting Card (Admin)", value: "visitingCardAdmin" },
               { label: "Workstation (Admin)", value: "workstationAdmin" },
-              {label:"Nominee Name",value:"nomineeName"},
-              {label:"Nominee Relation",value:"nomineeRelation"},
+              { label: "Nominee Name", value: "nomineeName" },
+              { label: "Nominee Relation", value: "nomineeRelation" },
             ],
             content: arr,
           },
@@ -2384,7 +2383,7 @@ class MasterController {
     }
   }
 
-  async sperationPending (req, res) {
+  async sperationPending(req, res) {
     try {
       const {
         search,
@@ -2452,7 +2451,7 @@ class MasterController {
           { model: db.biographicalDetails, required: false },
           {
             model: db.designationMaster,
-            attributes: ["name","code"],
+            attributes: ["name", "code"],
             required: !!designation,
           },
           {
@@ -2505,7 +2504,7 @@ class MasterController {
           {
             model: db.separationMaster,
             // where: {finalStatus:0},
-            required:false
+            required: false
           }
         ],
       });
@@ -2539,15 +2538,15 @@ class MasterController {
             empCode: ele.dataValues.empCode || "",
             name: ele.dataValues.name || "",
             jobTitle: `${ele.dataValues.designationmaster?.name || ""} (${ele.dataValues.designationmaster?.code || ""})`,
-            department: `${ele.dataValues.departmentmaster?.departmentName || ""} (${ele.dataValues.departmentmaster?.departmentCode || ""})`, 
+            department: `${ele.dataValues.departmentmaster?.departmentName || ""} (${ele.dataValues.departmentmaster?.departmentCode || ""})`,
             bu_name: ele.dataValues.bumaster?.buName || "",
             separationRequestedOn: moment(ele.dataValues.separationmaster.createdDt).format("DD-MM-YYYY"),
             requestedLastDay: moment(ele.dataValues.separationmaster.empProposedLastWorkingDay).format("DD-MM-YYYY"),
-            
 
-            
+
+
             separation: ele.dataValues
-           
+
             // name: ele.dataValues.name || "",
             // email: ele.dataValues.email || "",
             // personalEmail: ele.dataValues.personalEmail || "",
@@ -2602,7 +2601,7 @@ class MasterController {
             //   ele.dataValues.buId && ele.dataValues.companyId
             //     ? headAndHrData?.buHeadData?.name
             //     : "",
-          
+
           };
         })
       );
@@ -2610,7 +2609,7 @@ class MasterController {
       return respHelper(res, {
         status: 200,
         message: "Data not availble for available dates",
-        data:arr
+        data: arr
       });
     } catch (error) {
       console.error("Error:", error);
@@ -2684,8 +2683,8 @@ const createObj = (obj) => {
     recruiterName: obj.Recruiter_Name,
     offRoleCTC:
       obj.Off_Role_CTC === "NA" ||
-      obj.Off_Role_CTC === "" ||
-      obj.Off_Role_CTC === undefined
+        obj.Off_Role_CTC === "" ||
+        obj.Off_Role_CTC === undefined
         ? 0
         : obj.Off_Role_CTC,
     highestQualification: obj.Highest_Qualification,
@@ -2694,7 +2693,7 @@ const createObj = (obj) => {
     paymentAccountNumber: (obj.Bank_Account_Number == 'NA' || obj.Bank_Account_Number == '' || obj.Bank_Account_Number == undefined) ? null : obj.Bank_Account_Number,
     paymentBankName: (obj.Bank_Name == 'NA' || obj.Bank_Name == '' || obj.Bank_Name == undefined) ? null : obj.Bank_Name,
     paymentBankIfsc: (obj.Bank_IFSC_Number == 'NA' || obj.Bank_IFSC_Number == '' || obj.Bank_IFSC_Number == undefined) ? null : obj.Bank_IFSC_Number,
-    noticePeriodAutoId: obj.Notice_Period
+    // noticePeriodAutoId: obj.Notice_Period
   };
 };
 
@@ -2726,11 +2725,11 @@ const handleErrors = (error) => {
       : null,
     officeMobileNumber: error
       ? error.details.find((d) => d.context.key === "officeMobileNumber")
-          ?.message
+        ?.message
       : null,
     personalMobileNumber: error
       ? error.details.find((d) => d.context.key === "personalMobileNumber")
-          ?.message
+        ?.message
       : null,
     dateOfJoining: error
       ? error.details.find((d) => d.context.key === "dateOfJoining")?.message
@@ -2782,7 +2781,7 @@ const handleErrors = (error) => {
       : null,
     maritalStatusSince: error
       ? error.details.find((d) => d.context.key === "maritalStatusSince")
-          ?.message
+        ?.message
       : null,
     nationality: error
       ? error.details.find((d) => d.context.key === "nationality")?.message
@@ -2814,7 +2813,7 @@ const handleErrors = (error) => {
       : null,
     backgroundVerification: error
       ? error.details.find((d) => d.context.key === "backgroundVerification")
-          ?.message
+        ?.message
       : null,
     workstationAdmin: error
       ? error.details.find((d) => d.context.key === "workstationAdmin")?.message
@@ -2827,7 +2826,7 @@ const handleErrors = (error) => {
       : null,
     visitingCardAdmin: error
       ? error.details.find((d) => d.context.key === "visitingCardAdmin")
-          ?.message
+        ?.message
       : null,
     recruiterName: error
       ? error.details.find((d) => d.context.key === "recruiterName")?.message
@@ -2837,7 +2836,7 @@ const handleErrors = (error) => {
       : null,
     highestQualification: error
       ? error.details.find((d) => d.context.key === "highestQualification")
-          ?.message
+        ?.message
       : null,
     ESICPFDeduction: error
       ? error.details.find((d) => d.context.key === "ESICPFDeduction")?.message
@@ -2847,7 +2846,7 @@ const handleErrors = (error) => {
       : null,
     paymentAccountNumber: error
       ? error.details.find((d) => d.context.key === "paymentAccountNumber")
-          ?.message
+        ?.message
       : null,
     paymentBankName: error
       ? error.details.find((d) => d.context.key === "paymentBankName")?.message
@@ -3019,37 +3018,23 @@ const validateAttendancePolicy = async (name) => {
   }
 };
 
-const validateCompanyLocation = async (cityName, isValidCompany) => {
-  if (cityName) {
-    cityName = cityName.split(",");
+const validateCompanyLocation = async (companyLocationCode, isValidCompany) => {
 
-    let isVerify = await db.cityMaster.findOne({
-      where: { cityName: cityName[0] },
-      attributes: ["cityId"],
-    });
-    if (isVerify) {
-      isVerify = await db.companyLocationMaster.findOne({
-        where: {
-          cityId: isVerify.cityId,
-          companyLocationCode: cityName[1].trim(),
-          companyId: isValidCompany.data?.companyId,
-        },
-        attributes: ["companyLocationId"],
-      });
-      if (isVerify) {
-        return { status: true, message: "", data: isVerify };
-      } else {
-        return {
-          status: false,
-          message: "This city has not been mapped.",
-          data: {},
-        };
-      }
-    } else {
-      return { status: false, message: "Invalid city", data: {} };
-    }
+  let isVerify = await db.companyLocationMaster.findOne({
+    where: {
+      companyLocationCode: companyLocationCode,
+      companyId: isValidCompany.data?.companyId,
+    },
+    attributes: ["companyLocationId"],
+  });
+  if (isVerify) {
+    return { status: true, message: "", data: isVerify };
   } else {
-    return { status: false, message: "Invalid city", data: {} };
+    return {
+      status: false,
+      message: "Invalid company location.",
+      data: {},
+    };
   }
 };
 
@@ -3110,6 +3095,18 @@ const validateNoticePeriod = async (name) => {
     return { status: true, message: "", data: isVerify };
   } else {
     return { status: false, message: "Invalid Notice Period", data: {} };
+  }
+};
+
+const validateDegree = async (name) => {
+  let isVerify = await db.degreeMaster.findOne({
+    where: { degreeName: name },
+    attributes: ["degreeId"],
+  });
+  if (isVerify) {
+    return { status: true, message: "", data: isVerify };
+  } else {
+    return { status: false, message: "Invalid Highest qualification", data: {} };
   }
 };
 

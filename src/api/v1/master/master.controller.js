@@ -1471,6 +1471,25 @@ class MasterController {
       });
     }
   }
+
+  async degree(req, res) {
+    try {
+      let query = { 'isActive': 1 };
+      const docs = await db.degreeMaster.findAll({
+        where: query,
+        attributes: ["degreeId", "degreeName"],
+      });
+      return respHelper(res, {
+        status: 200,
+        data: docs,
+      });
+    } catch (error) {
+      console.log(error);
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
 }
 
 export default new MasterController();

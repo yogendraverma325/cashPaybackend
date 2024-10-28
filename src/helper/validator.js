@@ -816,7 +816,7 @@ const onboardEmployeeSchema = Joi.object({
       then: Joi.required().label("off Role CTC"),
       otherwise: Joi.optional(),
     }),
-  highestQualification: Joi.string().required().label("Highest Qualification"),
+  highestQualification: Joi.number().required().label("Highest Qualification"),
   ESICPFDeduction: Joi.string().allow("").label("ESIC/PF Deduction"),
   fatherName: Joi.string().trim().allow("").label("Father Name"),
   paymentAccountNumber: Joi.string()
@@ -831,7 +831,7 @@ const onboardEmployeeSchema = Joi.object({
     .min(11)
     .max(11)
     .label("Bank Ifsc Code"),
-  noticePeriodAutoId: Joi.number().required().label("Notice Period"),
+  // noticePeriodAutoId: Joi.number().allow().label("Notice Period"),
 });
 
 const createTMCSchema = Joi.object({
@@ -1039,7 +1039,7 @@ const importOnboardEmployeeSchema = Joi.object({
   // paymentAccountNumber: Joi.string().allow('').default('NA').trim().max(20).label("Account Number"),
   // paymentBankName: Joi.string().allow('').default('NA').trim().label("Bank Name"),
   // paymentBankIfsc: Joi.string().allow('').default('NA').trim().min(11).max(11).label("Bank Ifsc Code"),
-  noticePeriodAutoId: Joi.string().required().label("Notice Period"),
+  // noticePeriodAutoId: Joi.string().required().label("Notice Period"),
   ESICPFDeduction: Joi.string()
     .valid("Yes", "No", "Only PF", "Only ESIC")
     .when("employeeType", {

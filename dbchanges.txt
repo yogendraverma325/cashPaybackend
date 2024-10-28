@@ -748,6 +748,12 @@ DROP INDEX `email` ;
 ALTER TABLE `tara`.`companytypemaster` 
 CHANGE COLUMN `isActive` `isActive` TINYINT(1) NOT NULL DEFAULT 1 ;
 
+28-10-2024
+
+ALTER TABLE `tara`.`employeestaging` 
+CHANGE COLUMN `highestQualification` `highestQualification` INT NULL DEFAULT NULL ;
+
+
 
 
 

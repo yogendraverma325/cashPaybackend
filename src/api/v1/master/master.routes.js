@@ -90,4 +90,5 @@ export default Express.Router()
   .get("/lwfDesignation", masterController.lwfDesignation)
   .get("/ptLocation/:stateId", masterController.ptLocation)
   .get("/unionCode", masterController.unionCode)
-  .get("/noticePeriod", masterController.noticePeriod);
+  .get("/noticePeriod", masterController.noticePeriod)
+  .get("/degree", masterController.degree)
