@@ -1451,8 +1451,8 @@ class UserController {
         l2BillingType: result.l2BillingType,
         l2CustomerName:
           result.l2CustomerName != "" ? result.l2CustomerName : null,
-        shortFallPayoutBasis: result.shortFallPayoutBasis,
-        shortFallPayoutDays: result.shortFallPayoutDays,
+        shortFallPayoutBasis: result.shortFallPayoutBasis != '' ? result.shortFallPayoutBasis : null,
+        shortFallPayoutDays: result.shortFallPayoutDays != "" ? result.shortFallPayoutDays : null,
         shortfallPayoutRequired: result.shortfallPayoutRequired,
         ndaConfirmation: result.ndaConfirmation,
         holdFnf: result.holdFnf,
@@ -2029,8 +2029,8 @@ class UserController {
           l2BillingType: result.l2BillingType,
           l2CustomerName:
             result.l2CustomerName != "" ? result.l2CustomerName : null,
-          shortFallPayoutBasis: result.shortFallPayoutBasis,
-          shortFallPayoutDays: result.shortFallPayoutDays,
+          shortFallPayoutBasis: result.shortFallPayoutBasis != "" ? result.shortFallPayoutBasis : null,
+          shortFallPayoutDays: result.shortFallPayoutDays != "" ? result.shortFallPayoutDays : null,
           shortfallPayoutRequired: result.shortfallPayoutRequired,
           ndaConfirmation: result.ndaConfirmation,
           holdFnf: result.holdFnf,
