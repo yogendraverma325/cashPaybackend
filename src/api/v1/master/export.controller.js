@@ -1396,7 +1396,7 @@ class MasterController {
       const attendanceData = await db.attendanceMaster.findAll({
         attributes: ["employeeId", "attendanceDate", "attendancePresentStatus"],
         where: {
-          //employeeId: [2414],
+          // employeeId: [4254],
           attendanceDate: {
             [db.Sequelize.Op.between]: [
               fromDate.format("YYYY-MM-DD"),
@@ -1510,7 +1510,7 @@ class MasterController {
             null,
           dateOfexit: employeeRecords[0].employee?.dateOfexit || null,
         };
-        console.log("employeeRecordemployeeRecord>>>>",employeeRecord)
+        console.log("employeeRecordemployeeRecord>>>>", employeeRecord);
         const dayRecords = {};
         let attendanceCount = {
           P: 0,
@@ -1780,51 +1780,78 @@ class MasterController {
 
               // Set attendance based on the presence status
               if (attendancePresentStatus === "present") {
-                dayRecords[dayKey] = "P"; // Initially set to P
-                attendanceCount.P++;
+                if (
+                  !currentDay.isBefore(employeeRecord.dateOfJoining) &&
+                  (!employeeRecord.dateOfexit ||
+                    !currentDay.isAfter(
+                      moment(employeeRecord.dateOfexit).format("YYYY-MM-DD")
+                    ))
+                ) {
+                  dayRecords[dayKey] = "P"; // Initially set to P
+                  attendanceCount.P++;
 
-                // Check for regularization
-                if (attendanceRecord.latest_Regularization_Request.length > 0) {
-                  dayRecords[dayKey] = `${dayRecords[dayKey]},R`; // Append R for regularization
-                  attendanceCount.R++;
-                }
+                  // Check for regularization
+                  if (
+                    attendanceRecord.latest_Regularization_Request.length > 0
+                  ) {
+                    dayRecords[dayKey] = `${dayRecords[dayKey]},R`; // Append R for regularization
+                    attendanceCount.R++;
+                  }
 
-                // If there was a leave, append it after regularization
-                if (leave) {
-                  // Determine the leave status based on leaveCount and leaveAutoId
-                  let leaveStatus =
-                    leave.leaveCount === "1.0"
-                      ? "L"
-                      : leave.leaveAutoId == 6
-                      ? "0.5U"
-                      : "0.5L";
-                  dayRecords[dayKey] = `${dayRecords[dayKey]},${leaveStatus}`; // Append leave status
-                  //attendanceCount.L++;
-                  attendanceCount.L += parseFloat(leave.leaveCount);
+                  // If there was a leave, append it after regularization
+                  if (leave) {
+                    // Determine the leave status based on leaveCount and leaveAutoId
+                    let leaveStatus =
+                      leave.leaveCount === "1.0"
+                        ? "L"
+                        : leave.leaveAutoId == 6
+                        ? "0.5U"
+                        : "0.5L";
+                    dayRecords[dayKey] = `${dayRecords[dayKey]},${leaveStatus}`; // Append leave status
+                    //attendanceCount.L++;
+                    attendanceCount.L += parseFloat(leave.leaveCount);
+                  }
                 }
               } else if (attendancePresentStatus === "singlePunchAbsent") {
-                dayRecords[dayKey] = "SA";
-                attendanceCount.SA++;
+                if (
+                  !currentDay.isBefore(employeeRecord.dateOfJoining) &&
+                  (!employeeRecord.dateOfexit ||
+                    !currentDay.isAfter(
+                      moment(employeeRecord.dateOfexit).format("YYYY-MM-DD")
+                    ))
+                ) {
+                  dayRecords[dayKey] = "SA";
+                  attendanceCount.SA++;
 
-                if (attendanceRecord.latest_Regularization_Request.length > 0) {
-                  dayRecords[dayKey] = `${dayRecords[dayKey]},R`; // Append R for regularization
-                  attendanceCount.R++;
-                }
+                  if (
+                    attendanceRecord.latest_Regularization_Request.length > 0
+                  ) {
+                    dayRecords[dayKey] = `${dayRecords[dayKey]},R`; // Append R for regularization
+                    attendanceCount.R++;
+                  }
 
-                // If there was a leave, append it after regularization
-                if (leave) {
-                  // Determine the leave status based on leaveCount and leaveAutoId
-                  let leaveStatus =
-                    leave.leaveCount === "1.0"
-                      ? "L"
-                      : leave.leaveAutoId == 6
-                      ? "0.5U"
-                      : "0.5L";
-                  dayRecords[dayKey] = `${dayRecords[dayKey]},${leaveStatus}`; // Append leave status
-                  //attendanceCount.L++;
-                  attendanceCount.L += parseFloat(leave.leaveCount);
+                  // If there was a leave, append it after regularization
+                  if (leave) {
+                    // Determine the leave status based on leaveCount and leaveAutoId
+                    let leaveStatus =
+                      leave.leaveCount === "1.0"
+                        ? "L"
+                        : leave.leaveAutoId == 6
+                        ? "0.5U"
+                        : "0.5L";
+                    dayRecords[dayKey] = `${dayRecords[dayKey]},${leaveStatus}`; // Append leave status
+                    //attendanceCount.L++;
+                    attendanceCount.L += parseFloat(leave.leaveCount);
+                  }
                 }
               } else if (attendancePresentStatus === "absent") {
+                if (
+                  !currentDay.isBefore(employeeRecord.dateOfJoining) &&
+                  (!employeeRecord.dateOfexit ||
+                    !currentDay.isAfter(
+                      moment(employeeRecord.dateOfexit).format("YYYY-MM-DD")
+                    ))
+                ) {
                 dayRecords[dayKey] = "A";
                 attendanceCount.A++;
 
@@ -1846,6 +1873,7 @@ class MasterController {
                   //attendanceCount.L++;
                   attendanceCount.L += parseFloat(leave.leaveCount);
                 }
+               }
               } else if (attendancePresentStatus === "weeklyOff") {
                 dayRecords[dayKey] = "W";
                 attendanceCount.W++;
@@ -1853,7 +1881,7 @@ class MasterController {
                 dayRecords[dayKey] = "L";
                 attendanceCount.L++;
               }
-          //  }
+              //  }
             } else {
               // If there are no attendance records, set to '-'
               //dayRecords[dayKey] = "-";
@@ -1897,8 +1925,8 @@ class MasterController {
         const orderedEmployeeRecord = {
           name: employeeRecord.name,
           empCode: employeeRecord.empCode,
-          dateOfJoining:employeeRecord.dateOfJoining,
-          dateOfExit:employeeRecord.dateOfexit,
+          dateOfJoining: employeeRecord.dateOfJoining,
+          dateOfExit: employeeRecord.dateOfexit,
           ...dayRecords,
           P: attendanceCount.P,
           A: attendanceCount.A,
@@ -1934,7 +1962,7 @@ class MasterController {
         }
 
         const data = [
-          { 
+          {
             sheet: "Attendance Summary",
             columns: [
               { label: "Employee Code", value: "empCode" },
@@ -2843,7 +2871,7 @@ class MasterController {
               },
               {
                 model: db.separationTrail,
-                where: { separationStatus: 9, pending:0 },
+                where: { separationStatus: 9, pending: 0 },
                 required: true,
               },
             ],
@@ -2943,9 +2971,10 @@ class MasterController {
               ele.dataValues.separationmaster?.l2Remark?.separationReason ||
               "N/A",
 
-            dateOfApproval: ele.dataValues.separationmaster.initiatedBy == "BuHr"?
-            ele.dataValues.separationmaster.separationtrails[0].createdDt:
-            ele.dataValues.separationmaster.separationtrails[0].updatedDt,
+            dateOfApproval:
+              ele.dataValues.separationmaster.initiatedBy == "BuHr"
+                ? ele.dataValues.separationmaster.separationtrails[0].createdDt
+                : ele.dataValues.separationmaster.separationtrails[0].updatedDt,
 
             noticePeriodName:
               ele.dataValues.noticeperiodmaster?.noticePeriodName || "N/A",
@@ -3251,18 +3280,21 @@ class MasterController {
               },
               {
                 model: db.separationTrail,
-                where: { separationStatus: 9, pending:0 },
-                include:[{
-                  model:db.employeeMaster,
-                  attributes:['id','name','empCode'],
-                  as:"createdBySeparationTrail",
-                  required:false
-                },{
-                  model:db.employeeMaster,
-                  attributes:['id','name','empCode'],
-                  as:"updatedBySeparationTrail",
-                  required:false
-                }],
+                where: { separationStatus: 9, pending: 0 },
+                include: [
+                  {
+                    model: db.employeeMaster,
+                    attributes: ["id", "name", "empCode"],
+                    as: "createdBySeparationTrail",
+                    required: false,
+                  },
+                  {
+                    model: db.employeeMaster,
+                    attributes: ["id", "name", "empCode"],
+                    as: "updatedBySeparationTrail",
+                    required: false,
+                  },
+                ],
                 required: true,
               },
             ],
@@ -3274,18 +3306,17 @@ class MasterController {
       });
       const arr = await Promise.all(
         employeeData.map(async (ele) => {
-
           return {
             empCode: ele.dataValues.empCode || "",
             name: ele.dataValues.name || "",
             jobTitle: `${ele.dataValues.designationmaster?.name || ""} (${
               ele.dataValues.designationmaster?.code || ""
             })`,
-            
+
             department: `${
               ele.dataValues.departmentmaster?.departmentName || ""
             } (${ele.dataValues.departmentmaster?.departmentCode || ""})`,
-            
+
             bu_name: ele.dataValues.bumaster?.buName || "",
 
             resignationDate: ele.dataValues.separationmaster?.resignationDate,
@@ -3296,8 +3327,8 @@ class MasterController {
                   ele.dataValues.separationmaster.empProposedLastWorkingDay
                 ).format("DD-MM-YYYY")
               : "",
-           
-              noticePeriodRecoveryDays:
+
+            noticePeriodRecoveryDays:
               ele.dataValues.separationmaster?.noticePeriodDay || "N/A",
 
             reasonForResignation:
@@ -3308,17 +3339,17 @@ class MasterController {
 
             comment: "N/A",
             l1ProposedLastWorkingDay:
-            ele.dataValues.separationmaster?.l1ProposedLastWorkingDay ||
-            "N/A",
+              ele.dataValues.separationmaster?.l1ProposedLastWorkingDay ||
+              "N/A",
 
-          l1ProposedRecoveryDays:
-            ele.dataValues.separationmaster?.l1ProposedRecoveryDays || "N/A",
+            l1ProposedRecoveryDays:
+              ele.dataValues.separationmaster?.l1ProposedRecoveryDays || "N/A",
 
-          l1ReasonForProposedRecoveryDays:
-            ele.dataValues.separationmaster
-              ?.l1ReasonForProposedRecoveryDays || "N/A",
-           
-          finalRecoveryDays:
+            l1ReasonForProposedRecoveryDays:
+              ele.dataValues.separationmaster
+                ?.l1ReasonForProposedRecoveryDays || "N/A",
+
+            finalRecoveryDays:
               ele.dataValues.separationmaster?.l2RecoveryDays == null
                 ? ""
                 : ele.dataValues.separationmaster?.l2RecoveryDays,
@@ -3328,8 +3359,7 @@ class MasterController {
                 ? ""
                 : ele.dataValues.separationmaster?.l2RecoveryDaysReason,
 
-            
-              adminSeparationType:
+            adminSeparationType:
               ele.dataValues.separationmaster?.l2Separationtype
                 ?.separationTypeName || "N/A",
 
@@ -3340,54 +3370,57 @@ class MasterController {
             adminOtherReason:
               ele.dataValues.separationmaster?.l2Remark?.separationReason ||
               "N/A",
-  
-           dateOfApproval: ele.dataValues.separationmaster.initiatedBy == "BuHr"?
-                  ele.dataValues.separationmaster.separationtrails[0].createdDt:
-                  ele.dataValues.separationmaster.separationtrails[0].updatedDt,
 
-              updatedByName: ele.dataValues.separationmaster.initiatedBy == "BuHr"?
-              ele.dataValues.separationmaster.separationtrails[0].createdBySeparationTrail.name:
-              ele.dataValues.separationmaster.separationtrails[0].updatedBySeparationTrail.name,
-              
-              updatedByEmployeeNumber: ele.dataValues.separationmaster.initiatedBy == "BuHr"?
-              ele.dataValues.separationmaster.separationtrails[0].createdBySeparationTrail.empCode:
-              ele.dataValues.separationmaster.separationtrails[0].updatedBySeparationTrail.empCode,
-             
-              updatedOn: ele.dataValues.separationmaster.initiatedBy == "BuHr"?
-              ele.dataValues.separationmaster.separationtrails[0].createdDt:
-              ele.dataValues.separationmaster.separationtrails[0].updatedDt,
-      
-              isManger:"",
-              noticePeriodName:
+            dateOfApproval:
+              ele.dataValues.separationmaster.initiatedBy == "BuHr"
+                ? ele.dataValues.separationmaster.separationtrails[0].createdDt
+                : ele.dataValues.separationmaster.separationtrails[0].updatedDt,
+
+            updatedByName:
+              ele.dataValues.separationmaster.initiatedBy == "BuHr"
+                ? ele.dataValues.separationmaster.separationtrails[0]
+                    .createdBySeparationTrail.name
+                : ele.dataValues.separationmaster.separationtrails[0]
+                    .updatedBySeparationTrail.name,
+
+            updatedByEmployeeNumber:
+              ele.dataValues.separationmaster.initiatedBy == "BuHr"
+                ? ele.dataValues.separationmaster.separationtrails[0]
+                    .createdBySeparationTrail.empCode
+                : ele.dataValues.separationmaster.separationtrails[0]
+                    .updatedBySeparationTrail.empCode,
+
+            updatedOn:
+              ele.dataValues.separationmaster.initiatedBy == "BuHr"
+                ? ele.dataValues.separationmaster.separationtrails[0].createdDt
+                : ele.dataValues.separationmaster.separationtrails[0].updatedDt,
+
+            isManger: "",
+            noticePeriodName:
               ele.dataValues.noticeperiodmaster?.noticePeriodName || "N/A",
             noticePeriodDuration:
               ele.dataValues.noticeperiodmaster?.nPDaysAfterConfirmation +
                 " " +
                 "Day(s)" || "N/A",
 
-          
-  
-            
-              l2SalaryHike:
-                ele.dataValues.separationmaster?.l2SalaryHike == null
-                  ? "N/A"
-                  : ele.dataValues.separationmaster?.l2SalaryHike,
-              doNotReHire:
-                ele.dataValues.separationmaster?.doNotReHire == null
-                  ? "N/A"
-                  : ele.dataValues.separationmaster?.doNotReHire,
-              l2BillingType:
-                ele.dataValues.separationmaster?.l2BillingType == null
-                  ? "N/A"
-                  : ele.dataValues.separationmaster?.l2BillingType,
-              l2CustomerName:
-                ele.dataValues.separationmaster?.l2CustomerName == null
-                  ? "N/A"
-                  : ele.dataValues.separationmaster?.l2CustomerName,   
-            
-            
-            
-                replacementRequired:
+            l2SalaryHike:
+              ele.dataValues.separationmaster?.l2SalaryHike == null
+                ? "N/A"
+                : ele.dataValues.separationmaster?.l2SalaryHike,
+            doNotReHire:
+              ele.dataValues.separationmaster?.doNotReHire == null
+                ? "N/A"
+                : ele.dataValues.separationmaster?.doNotReHire,
+            l2BillingType:
+              ele.dataValues.separationmaster?.l2BillingType == null
+                ? "N/A"
+                : ele.dataValues.separationmaster?.l2BillingType,
+            l2CustomerName:
+              ele.dataValues.separationmaster?.l2CustomerName == null
+                ? "N/A"
+                : ele.dataValues.separationmaster?.l2CustomerName,
+
+            replacementRequired:
               ele.dataValues.separationmaster?.replacementRequired == null ||
               false
                 ? "N/A"
@@ -3410,8 +3443,6 @@ class MasterController {
             holdFnf:
               ele.dataValues.separationmaster?.holdFnf == null ? "No" : "Yes",
 
-
-
             newCtc: "N/A",
             newRole: "N/A",
 
@@ -3419,11 +3450,10 @@ class MasterController {
               ele.dataValues.separationmaster?.ndaConfirmation == null
                 ? "No"
                 : "Yes",
-          
-            
+
             // empProposedRecoveryDays:
             // ele.dataValues.separationmaster?.empProposedRecoveryDays || "N/A",
-            
+
             l1BillingType:
               ele.dataValues.separationmaster?.l1BillingType || "N/A",
             l1CustomerName:
@@ -3447,7 +3477,6 @@ class MasterController {
               ele.dataValues.separationmaster?.l2CustomerName == null
                 ? "N/A"
                 : ele.dataValues.separationmaster?.l2CustomerName,
-          
 
             // buHeadCode: ele.dataValues.buHeadData?.empCode,
             // buHeadName: ele.dataValues.buHeadData?.name,
@@ -3511,7 +3540,7 @@ class MasterController {
                 label: "Organization Name (L2)",
                 value: "l2NewOrganizationName",
               },
-              
+
               { label: "SalaryHike (L2)", value: "l2SalaryHike" },
               { label: "Do Not ReHire (L2)", value: "doNotReHire" },
               { label: "Billing Type (L2)", value: "l2BillingType" },
@@ -3528,9 +3557,12 @@ class MasterController {
                 label: "Notice Period Duration",
                 value: "noticePeriodDuration",
               },
-              { label: "Updated By Name", value:"updatedByName"},
-              { label: "Updated By Employee Number", value:"updatedByEmployeeNumber"},
-              { label: "Updated On", value:"updatedOn"},
+              { label: "Updated By Name", value: "updatedByName" },
+              {
+                label: "Updated By Employee Number",
+                value: "updatedByEmployeeNumber",
+              },
+              { label: "Updated On", value: "updatedOn" },
               { label: "Short Fall Payout", value: "shortFallPayout" },
               { label: "Short Fall Payout Days", value: "shortFallPayoutDays" },
 
