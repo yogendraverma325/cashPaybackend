@@ -3144,7 +3144,7 @@ class UserController {
        },
        {
             model: db.separationTrail,
-            where:{ pendingAt :req.userId, pending: [0], },
+            where:{ pendingAt :req.userId, pending: 0 },
             required: true,
             include: [
               {
