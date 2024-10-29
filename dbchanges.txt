@@ -1,3 +1,8 @@
+ALTER TABLE `tara_hrms_live`.`separationtrail` 
+ADD COLUMN `actionUserRole` VARCHAR(50) NULL DEFAULT NULL AFTER `pendingAt`;
+
+
+
 //-----------------------------------------------2024-10-21------------------------------------------------//
 
 ALTER TABLE `tara`.`separationmaster` 
