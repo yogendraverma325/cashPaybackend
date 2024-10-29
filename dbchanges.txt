@@ -1,3 +1,7 @@
+
+ALTER TABLE `tara_hrms_live`.`separationmaster` 
+ADD COLUMN `shortfallPayoutRequired` TINYINT NULL DEFAULT NULL AFTER `shortFallPayoutDays`;
+
 ALTER TABLE `tara_hrms_live`.`separationtrail` 
 ADD COLUMN `actionUserRole` VARCHAR(50) NULL DEFAULT NULL AFTER `pendingAt`;
 

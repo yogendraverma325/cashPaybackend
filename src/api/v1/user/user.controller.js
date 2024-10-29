@@ -1453,6 +1453,7 @@ class UserController {
           result.l2CustomerName != "" ? result.l2CustomerName : null,
         shortFallPayoutBasis: result.shortFallPayoutBasis,
         shortFallPayoutDays: result.shortFallPayoutDays,
+        shortfallPayoutRequired: result.shortfallPayoutRequired,
         ndaConfirmation: result.ndaConfirmation,
         holdFnf: result.holdFnf,
         holdFnfTillDate:
@@ -2030,6 +2031,7 @@ class UserController {
             result.l2CustomerName != "" ? result.l2CustomerName : null,
           shortFallPayoutBasis: result.shortFallPayoutBasis,
           shortFallPayoutDays: result.shortFallPayoutDays,
+          shortfallPayoutRequired: result.shortfallPayoutRequired,
           ndaConfirmation: result.ndaConfirmation,
           holdFnf: result.holdFnf,
           holdFnfReason:
