@@ -3153,6 +3153,8 @@ class MasterController {
         employeeType,
         businessUnit,
         companyLocation,
+        fromDate,
+        toDate
       } = req.query;
 
       const employeeData = await db.employeeMaster.findAll({
@@ -3256,7 +3258,14 @@ class MasterController {
           { model: db.weekOffMaster, attributes: ["weekOffName"] },
           {
             model: db.separationMaster,
-            // finalStatus: { [Op.in]: [9] },
+            where:{
+              ...(fromDate &&
+                toDate && {
+                  resignationDate: {
+                    [db.Sequelize.Op.between]: [fromDate,toDate],
+                },
+              }),
+            },
             required: true,
             include: [
               {
