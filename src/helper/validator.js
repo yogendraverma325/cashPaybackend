@@ -609,6 +609,7 @@ const buhrInputOnSeparation = Joi.object({
     .label("New Organization Name"),
   l2SalaryHike: Joi.string().trim().allow("").label("Salary Hike"),
   doNotReHire: Joi.boolean().valid(0, 1).label("Do Not Rehire"),
+  doNotReHireRemark: Joi.string().max(100).allow("").label("Comment"),
   l2BillingType: Joi.string().trim().required().label("Billing Type"),
   l2CustomerName: Joi.string().trim().max(100).allow("").label("Customer Name"),
   shortFallPayoutBasis: Joi.string().trim().allow("").label("Payout Basis"),
@@ -858,6 +859,7 @@ const onBehalfSeperationByBUHr = Joi.object({
     .label("New Organization Name"),
   l2SalaryHike: Joi.string().trim().allow("").label("Salary Hike"),
   doNotReHire: Joi.boolean().valid(0, 1).label("Do Not Rehire"),
+  doNotReHireRemark: Joi.string().max(100).allow("").label("Comment"),
   l2BillingType: Joi.string().trim().required().label("Billing Type"),
   l2CustomerName: Joi.string()
     .trim()

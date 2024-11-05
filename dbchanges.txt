@@ -1,3 +1,9 @@
+------------------------------------------- 2024-11-05 --------------------------------------------------
+
+ALTER TABLE `tara_hrms_live`.`separationmaster` 
+ADD COLUMN `doNotReHireRemark` VARCHAR(100) NULL DEFAULT NULL AFTER `doNotReHire`;
+
+---------------------------------------------------------------------------------------------------------------
 
 ALTER TABLE `tara_hrms_live`.`separationmaster` 
 ADD COLUMN `shortfallPayoutRequired` TINYINT NULL DEFAULT NULL AFTER `shortFallPayoutDays`;
