@@ -1427,7 +1427,6 @@ class UserController {
       let onBehalfObject = {
         employeeId: existUser.dataValues.id,
         resignationDate: result.resignationDate,
-        //initiatedBy: "Other",
         initiatedBy: "BuHr",
         noticePeriodDay:
           existUser.dataValues.noticeperiodmaster.nPDaysAfterConfirmation,
@@ -1448,6 +1447,7 @@ class UserController {
             : null,
         l2SalaryHike: result.l2SalaryHike,
         doNotReHire: result.doNotReHire,
+        doNotReHireRemark: result.doNotReHireRemark != "" ? result.doNotReHireRemark : null,
         l2BillingType: result.l2BillingType,
         l2CustomerName:
           result.l2CustomerName != "" ? result.l2CustomerName : null,
@@ -2026,6 +2026,7 @@ class UserController {
             : null,
           l2SalaryHike: result.l2SalaryHike ? result.l2SalaryHike : null,
           doNotReHire: result.doNotReHire,
+          doNotReHireRemark: result.doNotReHireRemark != "" ? result.doNotReHireRemark : null,
           l2BillingType: result.l2BillingType,
           l2CustomerName:
             result.l2CustomerName != "" ? result.l2CustomerName : null,

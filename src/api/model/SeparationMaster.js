@@ -128,6 +128,9 @@ export default (sequelize, Sequelize) => {
         doNotReHire: {
             type: Sequelize.BOOLEAN
         },
+        doNotReHireRemark: {
+            type: Sequelize.STRING
+        },
         l2BillingType: {
             type: Sequelize.STRING
         },
