@@ -71,11 +71,7 @@ class LeaveController {
           query === "raisedByMe"
             ? {
               employeeId: req.userId,
-              status: "pending",
-              [Op.or]: [
-                { source: { [Op.ne]: "system_generated" } },
-                { source: null }
-              ]
+              status: "pending"
             }
             : { pendingAt: req.userId, status: "pending" }
         ),
