@@ -82,6 +82,18 @@ class AttendanceController {
         ],
       });
 
+      await db.attendanceHistory.create({
+        date: currentDate.format("YYYY-MM-DD"),
+        time: currentDate.format("HH:mm:ss"),
+        status: "Punch In/Out",
+        employeeId: req.userId,
+        location: result.location,
+        lat: result.latitude,
+        long: result.longitude,
+        createdBy: req.userId,
+        createdAt: currentDate,
+      });
+
       if (!existEmployee) {
         return respHelper(res, {
           status: 200,
@@ -102,6 +114,18 @@ class AttendanceController {
           msg: message.ATTENDANCE_POLICY_DID_NOT_MAP,
         });
       }
+
+      await db.attendanceHistory.create({
+        date: currentDate.format("YYYY-MM-DD"),
+        time: currentDate.format("HH:mm:ss"),
+        status: "Punch In/Out",
+        employeeId: req.userId,
+        location: result.location,
+        lat: result.latitude,
+        long: result.longitude,
+        createdBy: req.userId,
+        createdAt: currentDate,
+      });
 
       const checkAttendance = await db.attendanceMaster.findOne({
         raw: true,
@@ -183,17 +207,17 @@ class AttendanceController {
           };
 
           await db.attendanceMaster.create(creationObject);
-          await db.attendanceHistory.create({
-            date: currentDate.format("YYYY-MM-DD"),
-            time: currentDate.format("HH:mm:ss"),
-            status: "Punch In",
-            employeeId: req.userId,
-            location: result.location,
-            lat: result.latitude,
-            long: result.longitude,
-            createdBy: req.userId,
-            createdAt: currentDate,
-          });
+          // await db.attendanceHistory.create({
+          //   date: currentDate.format("YYYY-MM-DD"),
+          //   time: currentDate.format("HH:mm:ss"),
+          //   status: "Punch In",
+          //   employeeId: req.userId,
+          //   location: result.location,
+          //   lat: result.latitude,
+          //   long: result.longitude,
+          //   createdBy: req.userId,
+          //   createdAt: currentDate,
+          // });
 
           return respHelper(res, {
             status: 200,
@@ -269,7 +293,7 @@ class AttendanceController {
               attendancePunchOutLatitude: result.latitude,
               attendancePunchOutLongitude: result.longitude,
               punchOutSource: req.device,
-              updatedBy:req.userId
+              updatedBy: req.userId,
             },
             {
               where: {
@@ -278,17 +302,17 @@ class AttendanceController {
               },
             }
           );
-          await db.attendanceHistory.create({
-            date: currentDate.format("YYYY-MM-DD"),
-            time: currentDate.format("HH:mm:ss"),
-            status: "Punch Out",
-            employeeId: req.userId,
-            location: result.location,
-            lat: result.latitude,
-            long: result.longitude,
-            updatedBy: req.userId,
-            updatedAt: currentDate,
-          });
+          // await db.attendanceHistory.create({
+          //   date: currentDate.format("YYYY-MM-DD"),
+          //   time: currentDate.format("HH:mm:ss"),
+          //   status: "Punch Out",
+          //   employeeId: req.userId,
+          //   location: result.location,
+          //   lat: result.latitude,
+          //   long: result.longitude,
+          //   updatedBy: req.userId,
+          //   updatedAt: currentDate,
+          // });
         }
 
         return respHelper(res, {
@@ -356,7 +380,11 @@ class AttendanceController {
         where: {
           attendanceAutoId: result.attendanceAutoId,
         },
-        attributes: ["attendancePunchInTime","attendancePunchOutTime","attendanceRegularizeCount"],
+        attributes: [
+          "attendancePunchInTime",
+          "attendancePunchOutTime",
+          "attendanceRegularizeCount",
+        ],
         include: [
           {
             model: db.regularizationMaster,
@@ -419,8 +447,8 @@ class AttendanceController {
         regularizePunchInTime: result.punchInTime,
         regularizePunchOutTime: result.punchOutTime,
         regularizeLocationType: result.locationType,
-        actualPunchIn:attendanceData.dataValues.attendancePunchInTime,
-        actualPunchOut:attendanceData.dataValues.attendancePunchOutTime,
+        actualPunchIn: attendanceData.dataValues.attendancePunchInTime,
+        actualPunchOut: attendanceData.dataValues.attendancePunchOutTime,
         regularizeReason: result.reason,
         regularizeStatus: "Pending",
         createdBy: req.userId,
@@ -1458,8 +1486,8 @@ class AttendanceController {
         {
           regularizeManagerRemark: result.remark != "" ? result.remark : null,
           regularizeStatus: result.status ? "Approved" : "Rejected",
-          updatedBy:req.userId,
-          updatedAt:moment().format("YYYY-MM-DD HH:mm:ss")
+          updatedBy: req.userId,
+          updatedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
         },
         {
           where: {
@@ -1491,9 +1519,9 @@ class AttendanceController {
               withGraceTime
             ),
             createdBy: req.userId,
-            createdAt:moment().format('YYYY-MM-DD HH:mm:ss'),
+            createdAt: moment().format("YYYY-MM-DD HH:mm:ss"),
             updatedBy: req.userId,
-            updatedAt:moment().format('YYYY-MM-DD HH:mm:ss')
+            updatedAt: moment().format("YYYY-MM-DD HH:mm:ss"),
           },
           {
             where: {
@@ -1833,7 +1861,7 @@ class AttendanceController {
         }
 
         if (singleEmp.attendancemaster) {
-          console.log("attendancce ka data hai");
+          //console.log("attendancce ka data hai");
           if (singleEmp.attendancemaster.needAttendanceCron == 1) {
             if (
               singleEmp.attendancemaster.attendancePunchInTime &&
@@ -1979,7 +2007,11 @@ class AttendanceController {
                         ? singleEmp.weekOffMaster.weekOffId
                         : 0,
                     },
-                    "id_" + moment().format("YYYYMMDDHHmmss") + singleEmp.id
+                    "id_" + moment().format("YYYYMMDDHHmmss") + singleEmp.id,
+                    isHalfDay_late_by,
+                    isHalfDay_total_work,
+                    EMP_DATA,
+                    singleEmp
                   );
                 }
               }
@@ -2342,7 +2374,11 @@ class AttendanceController {
                       punchOutTime:
                         singleEmp.attendancemaster.attendancePunchOutTime,
                     },
-                    "id_" + moment().format("YYYYMMDDHHmmss")
+                    "id_" + moment().format("YYYYMMDDHHmmss") + singleEmp.id,
+                    isHalfDay_late_by,
+                    isHalfDay_total_work,
+                    EMP_DATA,
+                    singleEmp
                   );
                 }
               }
@@ -2653,7 +2689,11 @@ class AttendanceController {
                         ? singleEmp.weekOffMaster.weekOffId
                         : 0,
                     },
-                    "id_" + moment().format("YYYYMMDDHHmmss") + singleEmp.id
+                    "id_" + moment().format("YYYYMMDDHHmmss") + singleEmp.id,
+                    isHalfDay_late_by,
+                    isHalfDay_total_work,
+                    EMP_DATA,
+                    singleEmp
                   );
                 }
               }

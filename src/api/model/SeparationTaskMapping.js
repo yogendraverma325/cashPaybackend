@@ -11,18 +11,6 @@ export default (sequelize, Sequelize) => {
         taskAutoId: {
             type: Sequelize.INTEGER
         },
-        companyId: {
-            type: Sequelize.INTEGER
-        },
-        buId: {
-            type: Sequelize.INTEGER
-        },
-        sbuId: {
-            type: Sequelize.INTEGER
-        },
-        functionalAreaId: {
-            type: Sequelize.INTEGER
-        },
         isActive: {
             type: Sequelize.BOOLEAN
         },

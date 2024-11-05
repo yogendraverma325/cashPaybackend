@@ -9,7 +9,7 @@ export default (sequelize, Sequelize) => {
             type: Sequelize.INTEGER
         },
         initiatedBy: {
-            type: Sequelize.ENUM('Self', 'Manager','BuHr','Other')
+            type: Sequelize.ENUM('Self', 'Manager', 'BuHr', 'Other')
         },
         pendingAt: {
             type: Sequelize.INTEGER
@@ -139,6 +139,9 @@ export default (sequelize, Sequelize) => {
         },
         shortFallPayoutDays: {
             type: Sequelize.STRING
+        },
+        shortfallPayoutRequired: {
+            type: Sequelize.BOOLEAN
         },
         ndaConfirmation: {
             type: Sequelize.BOOLEAN

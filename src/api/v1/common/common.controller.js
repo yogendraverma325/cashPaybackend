@@ -144,7 +144,7 @@ class commonController {
           data: {},
         });
       }
-    } catch (error) {}
+    } catch (error) { }
   }
 
   async updatePaymentDetails(req, res) {
@@ -327,7 +327,7 @@ class commonController {
           data: {},
         });
       }
-    } catch (error) {}
+    } catch (error) { }
   }
 
   async getFamilyMember(req, res) {
@@ -824,11 +824,9 @@ class commonController {
       const pageNo = req.query.page * 1 || 1;
       const offset = (pageNo - 1) * limit;
 
-      const cacheKey = `employeeList:${req.userId}:${pageNo}:${limit}:${
-        search || ""
-      }:${department || ""}:${designation || ""}:${buSearch || ""}:${
-        sbuSearch || ""
-      }:${areaSearch || ""}`;
+      const cacheKey = `employeeList:${req.userId}:${pageNo}:${limit}:${search || ""
+        }:${department || ""}:${designation || ""}:${buSearch || ""}:${sbuSearch || ""
+        }:${areaSearch || ""}`;
 
       let employeeData = [];
       await client.get(cacheKey).then(async (data) => {
@@ -861,44 +859,44 @@ class commonController {
             where: Object.assign(
               search
                 ? {
-                    [Op.or]: [
-                      {
-                        empCode: {
-                          [Op.like]: `%${search}%`,
-                        },
+                  [Op.or]: [
+                    {
+                      empCode: {
+                        [Op.like]: `%${search}%`,
                       },
-                      {
-                        name: {
-                          [Op.like]: `%${search}%`,
-                        },
+                    },
+                    {
+                      name: {
+                        [Op.like]: `%${search}%`,
                       },
-                      {
-                        email: {
-                          [Op.like]: `%${search}%`,
-                        },
+                    },
+                    {
+                      email: {
+                        [Op.like]: `%${search}%`,
                       },
-                    ],
-                    [Op.and]: [
-                      {
-                        isActive:
-                          usersData.role_id == 1 || usersData.role_id == 2
-                            ? [1, 0]
-                            : [1],
-                        ...empFilters,
-                      },
-                    ],
-                  }
+                    },
+                  ],
+                  [Op.and]: [
+                    {
+                      isActive:
+                        usersData.role_id == 1 || usersData.role_id == 2
+                          ? [1, 0]
+                          : [1],
+                      ...empFilters,
+                    },
+                  ],
+                }
                 : {
-                    [Op.and]: [
-                      {
-                        isActive:
-                          usersData.role_id == 1 || usersData.role_id == 2
-                            ? [1, 0]
-                            : [1],
-                        ...empFilters,
-                      },
-                    ],
-                  }
+                  [Op.and]: [
+                    {
+                      isActive:
+                        usersData.role_id == 1 || usersData.role_id == 2
+                          ? [1, 0]
+                          : [1],
+                      ...empFilters,
+                    },
+                  ],
+                }
             ),
             attributes: [
               "id",

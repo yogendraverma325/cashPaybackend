@@ -1,3 +1,12 @@
+
+ALTER TABLE `tara_hrms_live`.`separationmaster` 
+ADD COLUMN `shortfallPayoutRequired` TINYINT NULL DEFAULT NULL AFTER `shortFallPayoutDays`;
+
+ALTER TABLE `tara_hrms_live`.`separationtrail` 
+ADD COLUMN `actionUserRole` VARCHAR(50) NULL DEFAULT NULL AFTER `pendingAt`;
+
+
+
 //-----------------------------------------------2024-10-21------------------------------------------------//
 
 ALTER TABLE `tara`.`separationmaster` 
@@ -742,6 +751,12 @@ ALTER TABLE `tara`.`employee`
 CHANGE COLUMN `email` `email` VARCHAR(255) CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_unicode_ci' NULL DEFAULT NULL ,
 DROP INDEX `email` ;
 ;
+
+24-10-2024
+
+ALTER TABLE `tara`.`companytypemaster` 
+CHANGE COLUMN `isActive` `isActive` TINYINT(1) NOT NULL DEFAULT 1 ;
+
 
 
 

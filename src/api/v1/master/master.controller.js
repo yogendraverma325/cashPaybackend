@@ -1455,7 +1455,9 @@ class MasterController {
 
   async noticePeriod(req, res) {
     try {
+      let query = { 'isActive': 1 };
       const docs = await db.noticePeriodMaster.findAll({
+        where: query,
         attributes: ["noticePeriodAutoId", "noticePeriodName"],
       });
       return respHelper(res, {

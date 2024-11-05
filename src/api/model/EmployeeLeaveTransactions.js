@@ -7,6 +7,9 @@ export default (sequelize, Sequelize) => {
         primaryKey: true,
         autoIncrement: true,
       },
+      employeeleaveheaderID: {
+        type: Sequelize.INTEGER,
+      },
       employeeId: {
         type: Sequelize.INTEGER,
       },
@@ -47,7 +50,7 @@ export default (sequelize, Sequelize) => {
         type: Sequelize.STRING,
       },
       managerRemark: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       batch_id: {
         type: Sequelize.STRING,

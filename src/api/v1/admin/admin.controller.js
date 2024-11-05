@@ -1153,24 +1153,149 @@ class AdminController {
       let result = await db.employeeStagingMaster.findOne({
         where: condition,
         attributes: attributes,
-        raw: true,
+        include: [
+          { model: db.companyMaster, attributes: ["companyId", "companyName"] },
+          { model: db.shiftMaster, attributes: ["shiftId", "shiftName"] },
+          {
+            model: db.attendancePolicymaster,
+            attributes: ["attendancePolicyId", "policyName"],
+          },
+          { model: db.weekOffMaster, attributes: ["weekOffId", "weekOffName"] },
+          { model: db.employeeMaster, attributes: ["id", "name", "empCode"] },
+          {
+            model: db.designationMaster,
+            attributes: ["designationId", "name", "code"],
+          },
+        ],
       });
       if (result) {
-        let buMappingDetails = await db.buMapping.findOne({
-          where: { buId: result.buId },
-          attributes: ["buMappingId"],
-          raw: true,
+        let subQuery = { isActive: 1 };
+
+        const buData = await db.buMapping.findAll({
+          where: { companyId: result.companyId },
+          include: [
+            {
+              model: db.buMaster,
+              where: subQuery,
+              attributes: ["buId", "buName", "buCode"],
+            },
+          ],
         });
-        let departmentMappingDetails = await db.departmentMapping.findOne({
-          where: { departmentId: result.departmentId },
-          attributes: ["departmentMappingId"],
-          raw: true,
+
+        const mappingBU = buData.find((bu) => bu.buId === result.buId);
+
+        const sbuData = await db.sbuMapping.findAll({
+          where: { buMappingId: mappingBU.buMappingId },
+          include: [
+            {
+              model: db.sbuMaster,
+              where: subQuery,
+              attributes: ["sbuId", "sbuName", "code"],
+            },
+          ],
         });
+
+        const mappingSBU = sbuData.find((bu) => bu.sbuId === result.sbuId);
+
+        const departmentData = await db.departmentMapping.findAll({
+          where: { sbuMappingId: mappingSBU.sbuMappingId },
+          include: [
+            {
+              model: db.departmentMaster,
+              where: subQuery,
+              attributes: ["departmentId", "departmentName", "departmentCode"],
+            },
+          ],
+        });
+
+        const mappingDepartment = departmentData.find(
+          (bu) => bu.departmentId === result.departmentId
+        );
+
+        const functionalAreaData = await db.functionalAreaMapping.findAll({
+          where: { departmentMappingId: mappingDepartment.departmentMappingId },
+          include: [
+            {
+              model: db.functionalAreaMaster,
+              where: subQuery,
+              attributes: [
+                "functionalAreaId",
+                "functionalAreaName",
+                "functionalAreaCode",
+              ],
+            },
+          ],
+        });
+
+        const buhrData = await db.buMapping.findAll({
+          where: { buMappingId: mappingBU.buMappingId },
+          include: [
+            {
+              model: db.employeeMaster,
+              where: subQuery,
+              attributes: ["id", "name"],
+              as: "buhrData",
+            },
+          ],
+        });
+
+        const buheadData = await db.buMapping.findAll({
+          where: { buMappingId: mappingBU.buMappingId },
+          include: [
+            {
+              model: db.employeeMaster,
+              where: subQuery,
+              attributes: ["id", "name"],
+              as: "buHeadData",
+            },
+          ],
+        });
+
+        const companyLocationData = await db.companyLocationMaster.findAll({
+          where: { isActive: 1, companyId: result.companyId },
+          attributes: ["companyLocationId", "address1", "companyLocationCode"],
+          include: [{ model: db.cityMaster, attributes: ["cityName"] }],
+        });
+
+        const employeeTypeData = await db.employeeTypeMaster.findAll({
+          where: subQuery,
+        });
+        const probationData = await db.probationMaster.findAll({
+          where: subQuery,
+          attributes: ["probationId", "probationName"],
+        });
+        const newCustomerNameData = await db.newCustomerNameMaster.findAll({
+          where: subQuery,
+          attributes: ["newCustomerNameId", "newCustomerName"],
+        });
+        const jobLevelData = await db.jobLevelMaster.findAll({
+          where: subQuery,
+        });
+        const noticePeriodData = await db.noticePeriodMaster.findAll({
+          where: subQuery,
+          attributes: ["noticePeriodAutoId", "noticePeriodName"],
+        });
+
+        let allDetails = {
+          result,
+          buData,
+          sbuData,
+          departmentData,
+          functionalAreaData,
+          buhrData,
+          buheadData,
+          companyLocationData,
+          employeeTypeData,
+          probationData,
+          newCustomerNameData,
+          jobLevelData,
+          noticePeriodData,
+        };
 
         return respHelper(res, {
           status: 200,
           msg: constant.DATA_FETCHED,
-          data: { ...result, ...buMappingDetails, ...departmentMappingDetails },
+          data: allDetails,
         });
       } else {
         return respHelper(res, {

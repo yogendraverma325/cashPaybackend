@@ -1181,7 +1181,7 @@ class MasterController {
           const invalidEmployees = [];
 
           for (const employee of chunk) {
-            let obj = createObj(employee);
+            let obj = createObj(employee);            
 
             // validate fields
             const { error } =
@@ -3694,12 +3694,12 @@ const createObj = (obj) => {
         ? 0
         : obj.Off_Role_CTC,
     highestQualification: obj.Highest_Qualification,
-    ESICPFDeduction: replaceNAWithNull(obj.ESIC_PF_Deduction),
-    fatherName: replaceNAWithNull(obj.Father_Name),
-    paymentAccountNumber: replaceNAWithNull(obj.Bank_Account_Number),
-    paymentBankName: replaceNAWithNull(obj.Bank_Name),
-    paymentBankIfsc: replaceNAWithNull(obj.Bank_IFSC_Number),
-    noticePeriodAutoId: obj.Notice_Period,
+    ESICPFDeduction: (obj.ESIC_PF_Deduction == 'NA' || obj.ESIC_PF_Deduction == '' || obj.ESIC_PF_Deduction == undefined) ? null : obj.ESIC_PF_Deduction,
+    fatherName: (obj.Father_Name == 'NA' || obj.Father_Name == '' || obj.Father_Name == undefined) ? null : obj.Father_Name,
+    paymentAccountNumber: (obj.Bank_Account_Number == 'NA' || obj.Bank_Account_Number == '' || obj.Bank_Account_Number == undefined) ? null : obj.Bank_Account_Number,
+    paymentBankName: (obj.Bank_Name == 'NA' || obj.Bank_Name == '' || obj.Bank_Name == undefined) ? null : obj.Bank_Name,
+    paymentBankIfsc: (obj.Bank_IFSC_Number == 'NA' || obj.Bank_IFSC_Number == '' || obj.Bank_IFSC_Number == undefined) ? null : obj.Bank_IFSC_Number,
+    noticePeriodAutoId: obj.Notice_Period
   };
 };
 

@@ -11,6 +11,21 @@ export default (sequelize, Sequelize) => {
         isActive: {
             type: Sequelize.TINYINT(1)
         },
+        companyId: {
+            type: Sequelize.STRING
+        },
+        buId: {
+            type: Sequelize.STRING
+        },
+        sbuId: {
+            type: Sequelize.STRING
+        },
+        jobLevelId: {
+            type: Sequelize.STRING
+        },
+        functionalAreaId: {
+            type: Sequelize.STRING
+        },
         createdBy: {
             type: Sequelize.INTEGER
         },

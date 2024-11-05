@@ -243,25 +243,20 @@ export default Express.Router()
         authentication.authenticate,
         userController.empInitiatedTask
     )
-
     .get(
         "/managerHistory",
         authentication.authenticate,
         userController.managerHistory
     )
-
     .get(
         "/userPolicyHistory",
         authentication.authenticate,
         userController.userPolicyHistory
     )
+    .get("/taskData", authentication.authenticate, userController.taskData)
 
-    .get("/taskData",
-        authentication.authenticate,
-        userController.taskData
-    )
-
-    .get("/taskHistorySeparation",
+    .get(
+        "/taskHistorySeparation",
         authentication.authenticate,
         userController.taskHistorySeparation
-    )
+    );

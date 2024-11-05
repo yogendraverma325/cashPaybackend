@@ -1,0 +1,92 @@
+export default (sequelize, Sequelize) => {
+  const employeeleaveheader = sequelize.define("employeeleaveheader", {
+    employeeleaveheaderID: {
+      type: Sequelize.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    employeeId: {
+      type: Sequelize.INTEGER,
+    },
+    attendanceShiftId: {
+      type: Sequelize.INTEGER,
+    },
+    attendancePolicyId: {
+      type: Sequelize.INTEGER,
+    },
+    leaveAutoId: {
+      type: Sequelize.INTEGER,
+    },
+    appliedOn: {
+      type: Sequelize.DATE,
+    },
+    fromDate: {
+      type: Sequelize.DATE,
+    },
+    toDate: {
+      type: Sequelize.DATE,
+    },
+    isHalfDay: {
+      type: Sequelize.INTEGER,
+    },
+    halfDayFor: {
+      type: Sequelize.INTEGER,
+    },
+    isHalfDaySecond: {
+      type: Sequelize.INTEGER,
+    },
+    halfDayForSecond: {
+      type: Sequelize.INTEGER,
+    },
+    isMultipleDays: {
+      type: Sequelize.INTEGER,
+    },
+    status: {
+      type: Sequelize.STRING,
+    },
+    reason: {
+      type: Sequelize.STRING,
+    },
+    message: {
+      type: Sequelize.STRING,
+    },
+    managerRemark: {
+      type: Sequelize.STRING,
+    },
+    batch_id: {
+      type: Sequelize.STRING,
+    },
+    pendingAt: {
+      type: Sequelize.INTEGER,
+    },
+    employeeId: {
+      type: Sequelize.INTEGER,
+    },
+    leaveAttachment: {
+      type: Sequelize.STRING,
+    },
+    leaveCount: {
+      type: Sequelize.DECIMAL(10, 1),
+      defaltValue: 0,
+    },
+    weekOffId: {
+      type: Sequelize.INTEGER,
+    },
+    source: {
+      type: Sequelize.STRING,
+    },
+    createdBy: {
+      type: Sequelize.INTEGER,
+    },
+    createdAt: {
+      type: Sequelize.DATE,
+    },
+    updatedBy: {
+      type: Sequelize.INTEGER,
+    },
+    updatedAt: {
+      type: Sequelize.DATE,
+    },
+  });
+  return employeeleaveheader;
+};
