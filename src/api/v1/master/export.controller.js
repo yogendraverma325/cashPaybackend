@@ -2690,7 +2690,7 @@ class MasterController {
               { label: "New CTC", value: "newCtc" },
               { label: "New Role", value: "newRole" },
               {
-                label: "New Letter Confirmation",
+                label: "NDA Letter Confirmation",
                 value: "newLetterConfimation",
               },
             ],
@@ -3099,7 +3099,7 @@ class MasterController {
               { label: "New CTC", value: "newCtc" },
               { label: "New Role", value: "newRole" },
               {
-                label: "New Letter Confirmation",
+                label: "NDA Letter Confirmation",
                 value: "newLetterConfimation",
               },
             ],
@@ -3487,6 +3487,11 @@ class MasterController {
                 ? "N/A"
                 : ele.dataValues.separationmaster?.l2CustomerName,
 
+                l2LastWorkingDay:
+                ele.dataValues.separationmaster?.l2LastWorkingDay == null
+                  ? "N/A"
+                  : ele.dataValues.separationmaster?.l2LastWorkingDay,
+
             // buHeadCode: ele.dataValues.buHeadData?.empCode,
             // buHeadName: ele.dataValues.buHeadData?.name,
             // buHeadEmail: ele.dataValues.buHeadData?.email,
@@ -3554,6 +3559,7 @@ class MasterController {
               { label: "Do Not ReHire (L2)", value: "doNotReHire" },
               { label: "Billing Type (L2)", value: "l2BillingType" },
               { label: "Customer Name (L2)", value: "l2CustomerName" },
+              { label: "Last Working Day (L2)", value: "l2LastWorkingDay" },
               { label: "Admin Separation Type", value: "adminSeparationType" },
               {
                 label: "Admin Separation Reason",
@@ -3579,7 +3585,7 @@ class MasterController {
               { label: "New CTC", value: "newCtc" },
               { label: "New Role", value: "newRole" },
               {
-                label: "New Letter Confirmation",
+                label: "NDA Letter Confirmation",
                 value: "newLetterConfimation",
               },
             ],

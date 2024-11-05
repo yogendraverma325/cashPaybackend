@@ -72,6 +72,10 @@ class LeaveController {
             ? {
               employeeId: req.userId,
               status: "pending",
+              [Op.or]: [
+                { source: { [Op.ne]: "system_generated" } },
+                { source: null }
+              ]
             }
             : { pendingAt: req.userId, status: "pending" }
         ),
