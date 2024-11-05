@@ -65,7 +65,7 @@ class LeaveController {
   async leaveRequestList(req, res) {
     try {
       const query = req.query.listFor;
-
+  
       const regularizeList = await db.EmployeeLeaveHeader.findAll({
         where: Object.assign(
           query === "raisedByMe"
