@@ -2655,7 +2655,7 @@ const createObj = (obj) => {
     newCustomerName: replaceNAWithNull(obj.New_Customer_Name),
     iqTestApplicable: obj.IQ_Test_Applicable,
     positionType: obj.Position_Type,
-    manager: obj.Manager_EMP_CODE,
+    manager: obj.Manager_EMP_CODE.toString(),
     designation: obj.Designation_Name,
     functionalArea: obj.Functional_Area_Name,
     bu: obj.BU_Name,

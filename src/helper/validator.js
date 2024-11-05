@@ -972,7 +972,7 @@ const importOnboardEmployeeSchema = Joi.object({
       }
       return value; // Return the valid value
     }),
-  manager: Joi.number().required().label("Manager"),
+  manager: Joi.string().trim().required().label("Manager"),
   designation: Joi.string().required().label("Designation"),
   functionalArea: Joi.string().required().label("Functional Area"),
   bu: Joi.string().required().label("Business Unit"),
@@ -981,7 +981,7 @@ const importOnboardEmployeeSchema = Joi.object({
   department: Joi.string().required().label("Department"),
   company: Joi.string().required().label("Company"),
   attendancePolicy: Joi.string().allow("").label("Attendance Policy"),
-  companyLocation: Joi.string().required().label("Company Location"),
+  companyLocation: Joi.number().required().label("Company Location"),
   weekOff: Joi.string().allow("").label("Week Off"),
   gender: Joi.string()
     .valid("Male", "Female", "Do not want to disclose", "Transgender", "Other")
@@ -1031,7 +1031,6 @@ const importOnboardEmployeeSchema = Joi.object({
       otherwise: Joi.optional(),
     }),
   highestQualification: Joi.string()
-    .valid("Education", "Degree Master")
     .required()
     .label("Highest Qualification"),
   // ESICPFDeduction: Joi.string().valid('Yes', 'No', 'Only PF', 'Only ESIC').optional().label("ESIC/PF Deduction"),
