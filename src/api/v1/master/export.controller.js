@@ -1181,7 +1181,7 @@ class MasterController {
           const invalidEmployees = [];
 
           for (const employee of chunk) {
-            let obj = createObj(employee);            
+            let obj = createObj(employee);
 
             // validate fields
             const { error } =
@@ -1217,8 +1217,11 @@ class MasterController {
                 obj.newCustomerName
               );
               const isValidJobLevel = await validateJobLevel(obj.jobLevel);
-              const isValidNoticePeriod = await validateNoticePeriod(
-                obj.noticePeriodAutoId
+              // const isValidNoticePeriod = await validateNoticePeriod(
+              //   obj.noticePeriodAutoId
+              // );
+              const isValidDegree = await validateDegree(
+                obj.highestQualification
               );
               const isValidateEmployee = await validateEmployee(
                 obj.personalMobileNumber,
@@ -1240,7 +1243,7 @@ class MasterController {
                 isValidDepartment.status &&
                 isValidateEmployee.status &&
                 isValidJobLevel.status &&
-                isValidNoticePeriod.status
+                isValidDegree.status
               ) {
                 // prepare employee object
                 let newEmployee = {
@@ -1295,14 +1298,14 @@ class MasterController {
                   visitingCardAdmin: obj.visitingCardAdmin,
                   recruiterName: obj.recruiterName,
                   offRoleCTC: obj.offRoleCTC,
-                  highestQualification: obj.highestQualification,
+                  highestQualification: isValidDegree.data?.degreeId,
                   ESICPFDeduction: obj.ESICPFDeduction,
                   fatherName: obj.fatherName,
                   paymentAccountNumber: obj.paymentAccountNumber,
                   paymentBankName: obj.paymentBankName,
                   paymentBankIfsc: obj.paymentBankIfsc,
-                  noticePeriodAutoId:
-                    isValidNoticePeriod.data?.noticePeriodAutoId,
+                  // noticePeriodAutoId:
+                  //   isValidNoticePeriod.data?.noticePeriodAutoId,
                 };
 
                 newEmployee.role_id = 3;
@@ -1332,7 +1335,7 @@ class MasterController {
                   weekOff: isValidWeekOff.message,
                   department: isValidDepartment.message,
                   jobLevel: isValidJobLevel.message,
-                  noticePeriod: isValidNoticePeriod.message,
+                  // noticePeriod: isValidNoticePeriod.message,
                   alreadyExist: isValidateEmployee.message,
                 };
                 invalidEmployees.push(masterErrors);
@@ -1852,28 +1855,30 @@ class MasterController {
                       moment(employeeRecord.dateOfexit).format("YYYY-MM-DD")
                     ))
                 ) {
-                dayRecords[dayKey] = "A";
-                attendanceCount.A++;
+                  dayRecords[dayKey] = "A";
+                  attendanceCount.A++;
 
-                if (attendanceRecord.latest_Regularization_Request.length > 0) {
-                  dayRecords[dayKey] = `${dayRecords[dayKey]},R`; // Append R for regularization
-                  attendanceCount.R++;
-                }
+                  if (
+                    attendanceRecord.latest_Regularization_Request.length > 0
+                  ) {
+                    dayRecords[dayKey] = `${dayRecords[dayKey]},R`; // Append R for regularization
+                    attendanceCount.R++;
+                  }
 
-                // If there was a leave, append it after regularization
-                if (leave) {
-                  // Determine the leave status based on leaveCount and leaveAutoId
-                  let leaveStatus =
-                    leave.leaveCount === "1.0"
-                      ? "L"
-                      : leave.leaveAutoId == 6
-                      ? "0.5U"
-                      : "0.5L";
-                  dayRecords[dayKey] = `${dayRecords[dayKey]},${leaveStatus}`; // Append leave status
-                  //attendanceCount.L++;
-                  attendanceCount.L += parseFloat(leave.leaveCount);
+                  // If there was a leave, append it after regularization
+                  if (leave) {
+                    // Determine the leave status based on leaveCount and leaveAutoId
+                    let leaveStatus =
+                      leave.leaveCount === "1.0"
+                        ? "L"
+                        : leave.leaveAutoId == 6
+                        ? "0.5U"
+                        : "0.5L";
+                    dayRecords[dayKey] = `${dayRecords[dayKey]},${leaveStatus}`; // Append leave status
+                    //attendanceCount.L++;
+                    attendanceCount.L += parseFloat(leave.leaveCount);
+                  }
                 }
-               }
               } else if (attendancePresentStatus === "weeklyOff") {
                 dayRecords[dayKey] = "W";
                 attendanceCount.W++;
@@ -2325,10 +2330,10 @@ class MasterController {
               ele.dataValues.visitingCardAdmin == 0 ? "No" : "Yes",
             workstationAdmin:
               ele.dataValues.workstationAdmin == 0 ? "No" : "Yes",
-            buHeadCode: ele.dataValues?.buHeadData?.empCode,
-            // ele.dataValues.buId && ele.dataValues.companyId
-            //   ? headAndHrData?.buHeadData?.empCode
-            //   : "",
+            buHeadCode:
+              ele.dataValues.buId && ele.dataValues.companyId
+                ? headAndHrData?.buHeadData?.empCode
+                : "",
             nomineeName: ele.employeebiographicaldetail?.nomineeName || "",
             nomineeRelation:
               ele.employeebiographicaldetail?.nomineeRelation || "",
@@ -3154,7 +3159,7 @@ class MasterController {
         businessUnit,
         companyLocation,
         fromDate,
-        toDate
+        toDate,
       } = req.query;
 
       const employeeData = await db.employeeMaster.findAll({
@@ -3258,13 +3263,13 @@ class MasterController {
           { model: db.weekOffMaster, attributes: ["weekOffName"] },
           {
             model: db.separationMaster,
-            where:{
+            where: {
               ...(fromDate &&
                 toDate && {
                   resignationDate: {
-                    [db.Sequelize.Op.between]: [fromDate,toDate],
-                },
-              }),
+                    [db.Sequelize.Op.between]: [fromDate, toDate],
+                  },
+                }),
             },
             required: true,
             include: [
@@ -3487,10 +3492,10 @@ class MasterController {
                 ? "N/A"
                 : ele.dataValues.separationmaster?.l2CustomerName,
 
-                l2LastWorkingDay:
-                ele.dataValues.separationmaster?.l2LastWorkingDay == null
-                  ? "N/A"
-                  : ele.dataValues.separationmaster?.l2LastWorkingDay,
+            l2LastWorkingDay:
+              ele.dataValues.separationmaster?.l2LastWorkingDay == null
+                ? "N/A"
+                : ele.dataValues.separationmaster?.l2LastWorkingDay,
 
             // buHeadCode: ele.dataValues.buHeadData?.empCode,
             // buHeadName: ele.dataValues.buHeadData?.name,
@@ -3661,7 +3666,7 @@ const createObj = (obj) => {
     newCustomerName: replaceNAWithNull(obj.New_Customer_Name),
     iqTestApplicable: obj.IQ_Test_Applicable,
     positionType: obj.Position_Type,
-    manager: obj.Manager_EMP_CODE,
+    manager: obj.Manager_EMP_CODE.toString(),
     designation: obj.Designation_Name,
     functionalArea: obj.Functional_Area_Name,
     bu: obj.BU_Name,
@@ -3694,12 +3699,35 @@ const createObj = (obj) => {
         ? 0
         : obj.Off_Role_CTC,
     highestQualification: obj.Highest_Qualification,
-    ESICPFDeduction: (obj.ESIC_PF_Deduction == 'NA' || obj.ESIC_PF_Deduction == '' || obj.ESIC_PF_Deduction == undefined) ? null : obj.ESIC_PF_Deduction,
-    fatherName: (obj.Father_Name == 'NA' || obj.Father_Name == '' || obj.Father_Name == undefined) ? null : obj.Father_Name,
-    paymentAccountNumber: (obj.Bank_Account_Number == 'NA' || obj.Bank_Account_Number == '' || obj.Bank_Account_Number == undefined) ? null : obj.Bank_Account_Number,
-    paymentBankName: (obj.Bank_Name == 'NA' || obj.Bank_Name == '' || obj.Bank_Name == undefined) ? null : obj.Bank_Name,
-    paymentBankIfsc: (obj.Bank_IFSC_Number == 'NA' || obj.Bank_IFSC_Number == '' || obj.Bank_IFSC_Number == undefined) ? null : obj.Bank_IFSC_Number,
-    noticePeriodAutoId: obj.Notice_Period
+    ESICPFDeduction:
+      obj.ESIC_PF_Deduction == "NA" ||
+      obj.ESIC_PF_Deduction == "" ||
+      obj.ESIC_PF_Deduction == undefined
+        ? null
+        : obj.ESIC_PF_Deduction,
+    fatherName:
+      obj.Father_Name == "NA" ||
+      obj.Father_Name == "" ||
+      obj.Father_Name == undefined
+        ? null
+        : obj.Father_Name,
+    paymentAccountNumber:
+      obj.Bank_Account_Number == "NA" ||
+      obj.Bank_Account_Number == "" ||
+      obj.Bank_Account_Number == undefined
+        ? null
+        : obj.Bank_Account_Number,
+    paymentBankName:
+      obj.Bank_Name == "NA" || obj.Bank_Name == "" || obj.Bank_Name == undefined
+        ? null
+        : obj.Bank_Name,
+    paymentBankIfsc:
+      obj.Bank_IFSC_Number == "NA" ||
+      obj.Bank_IFSC_Number == "" ||
+      obj.Bank_IFSC_Number == undefined
+        ? null
+        : obj.Bank_IFSC_Number,
+    // noticePeriodAutoId: obj.Notice_Period
   };
 };
 
@@ -4024,37 +4052,22 @@ const validateAttendancePolicy = async (name) => {
   }
 };
 
-const validateCompanyLocation = async (cityName, isValidCompany) => {
-  if (cityName) {
-    cityName = cityName.split(",");
-
-    let isVerify = await db.cityMaster.findOne({
-      where: { cityName: cityName[0] },
-      attributes: ["cityId"],
-    });
-    if (isVerify) {
-      isVerify = await db.companyLocationMaster.findOne({
-        where: {
-          cityId: isVerify.cityId,
-          companyLocationCode: cityName[1].trim(),
-          companyId: isValidCompany.data?.companyId,
-        },
-        attributes: ["companyLocationId"],
-      });
-      if (isVerify) {
-        return { status: true, message: "", data: isVerify };
-      } else {
-        return {
-          status: false,
-          message: "This city has not been mapped.",
-          data: {},
-        };
-      }
-    } else {
-      return { status: false, message: "Invalid city", data: {} };
-    }
+const validateCompanyLocation = async (companyLocationCode, isValidCompany) => {
+  let isVerify = await db.companyLocationMaster.findOne({
+    where: {
+      companyLocationCode: companyLocationCode,
+      companyId: isValidCompany.data?.companyId,
+    },
+    attributes: ["companyLocationId"],
+  });
+  if (isVerify) {
+    return { status: true, message: "", data: isVerify };
   } else {
-    return { status: false, message: "Invalid city", data: {} };
+    return {
+      status: false,
+      message: "Invalid company location.",
+      data: {},
+    };
   }
 };
 
@@ -4115,6 +4128,22 @@ const validateNoticePeriod = async (name) => {
     return { status: true, message: "", data: isVerify };
   } else {
     return { status: false, message: "Invalid Notice Period", data: {} };
+  }
+};
+
+const validateDegree = async (name) => {
+  let isVerify = await db.degreeMaster.findOne({
+    where: { degreeName: name },
+    attributes: ["degreeId"],
+  });
+  if (isVerify) {
+    return { status: true, message: "", data: isVerify };
+  } else {
+    return {
+      status: false,
+      message: "Invalid Highest qualification",
+      data: {},
+    };
   }
 };
 

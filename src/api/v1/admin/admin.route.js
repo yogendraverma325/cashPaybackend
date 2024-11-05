@@ -121,7 +121,7 @@ export default Express.Router()
     authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"),
     adminController.createTMC
   )
-  .patch(
+  .delete(
     "/onboardEmployee/:id",
     authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"),
     adminController.changeStatusOnboardEmployee
@@ -155,4 +155,9 @@ export default Express.Router()
     "/uploadHRDocuments",
     authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"),
     commonController.uploadHRDocuments
-  );
+  )
+  .patch(
+    "/onboardEmployee/:id",
+    authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"),
+    adminController.changeStatusOnboardEmployee
+  )
