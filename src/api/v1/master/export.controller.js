@@ -1396,7 +1396,7 @@ class MasterController {
       const attendanceData = await db.attendanceMaster.findAll({
         attributes: ["employeeId", "attendanceDate", "attendancePresentStatus"],
         where: {
-          // employeeId: 1335,
+          // employeeId: [4254],
           attendanceDate: {
             [db.Sequelize.Op.between]: [
               fromDate.format("YYYY-MM-DD"),
@@ -1413,9 +1413,11 @@ class MasterController {
               "empCode",
               "weekOffId",
               "companyLocationId",
+              "dateOfexit",
             ],
             where: {
               // isActive: 1,
+              //id:4254,
               ...(attendanceFor == 0 && { isActive: 0 }),
               ...(attendanceFor == 1 && { isActive: 1 }),
               ...(attendanceFor == 2 && { isActive: [0, 1] }),
@@ -1439,7 +1441,7 @@ class MasterController {
             include: [
               {
                 model: db.jobDetails,
-                attributes: ["jobId"],
+                attributes: ["jobId", "dateOfJoining"],
                 where: {
                   ...(grade && { gradeId: { [Op.in]: grade.split(",") } }),
                 },
@@ -1503,8 +1505,12 @@ class MasterController {
           weekOffId: employeeRecords[0].employee?.weekOffId || 0,
           companyLocationId:
             employeeRecords[0].employee?.companyLocationId || 0,
+          dateOfJoining:
+            employeeRecords[0].employee?.employeejobdetail?.dateOfJoining ||
+            null,
+          dateOfexit: employeeRecords[0].employee?.dateOfexit || null,
         };
-
+        console.log("employeeRecordemployeeRecord>>>>", employeeRecord);
         const dayRecords = {};
         let attendanceCount = {
           P: 0,
@@ -1774,51 +1780,78 @@ class MasterController {
 
               // Set attendance based on the presence status
               if (attendancePresentStatus === "present") {
-                dayRecords[dayKey] = "P"; // Initially set to P
-                attendanceCount.P++;
+                if (
+                  !currentDay.isBefore(employeeRecord.dateOfJoining) &&
+                  (!employeeRecord.dateOfexit ||
+                    !currentDay.isAfter(
+                      moment(employeeRecord.dateOfexit).format("YYYY-MM-DD")
+                    ))
+                ) {
+                  dayRecords[dayKey] = "P"; // Initially set to P
+                  attendanceCount.P++;
 
-                // Check for regularization
-                if (attendanceRecord.latest_Regularization_Request.length > 0) {
-                  dayRecords[dayKey] = `${dayRecords[dayKey]},R`; // Append R for regularization
-                  attendanceCount.R++;
-                }
+                  // Check for regularization
+                  if (
+                    attendanceRecord.latest_Regularization_Request.length > 0
+                  ) {
+                    dayRecords[dayKey] = `${dayRecords[dayKey]},R`; // Append R for regularization
+                    attendanceCount.R++;
+                  }
 
-                // If there was a leave, append it after regularization
-                if (leave) {
-                  // Determine the leave status based on leaveCount and leaveAutoId
-                  let leaveStatus =
-                    leave.leaveCount === "1.0"
-                      ? "L"
-                      : leave.leaveAutoId == 6
-                      ? "0.5U"
-                      : "0.5L";
-                  dayRecords[dayKey] = `${dayRecords[dayKey]},${leaveStatus}`; // Append leave status
-                  //attendanceCount.L++;
-                  attendanceCount.L += parseFloat(leave.leaveCount);
+                  // If there was a leave, append it after regularization
+                  if (leave) {
+                    // Determine the leave status based on leaveCount and leaveAutoId
+                    let leaveStatus =
+                      leave.leaveCount === "1.0"
+                        ? "L"
+                        : leave.leaveAutoId == 6
+                        ? "0.5U"
+                        : "0.5L";
+                    dayRecords[dayKey] = `${dayRecords[dayKey]},${leaveStatus}`; // Append leave status
+                    //attendanceCount.L++;
+                    attendanceCount.L += parseFloat(leave.leaveCount);
+                  }
                 }
               } else if (attendancePresentStatus === "singlePunchAbsent") {
-                dayRecords[dayKey] = "SA";
-                attendanceCount.SA++;
+                if (
+                  !currentDay.isBefore(employeeRecord.dateOfJoining) &&
+                  (!employeeRecord.dateOfexit ||
+                    !currentDay.isAfter(
+                      moment(employeeRecord.dateOfexit).format("YYYY-MM-DD")
+                    ))
+                ) {
+                  dayRecords[dayKey] = "SA";
+                  attendanceCount.SA++;
 
-                if (attendanceRecord.latest_Regularization_Request.length > 0) {
-                  dayRecords[dayKey] = `${dayRecords[dayKey]},R`; // Append R for regularization
-                  attendanceCount.R++;
-                }
+                  if (
+                    attendanceRecord.latest_Regularization_Request.length > 0
+                  ) {
+                    dayRecords[dayKey] = `${dayRecords[dayKey]},R`; // Append R for regularization
+                    attendanceCount.R++;
+                  }
 
-                // If there was a leave, append it after regularization
-                if (leave) {
-                  // Determine the leave status based on leaveCount and leaveAutoId
-                  let leaveStatus =
-                    leave.leaveCount === "1.0"
-                      ? "L"
-                      : leave.leaveAutoId == 6
-                      ? "0.5U"
-                      : "0.5L";
-                  dayRecords[dayKey] = `${dayRecords[dayKey]},${leaveStatus}`; // Append leave status
-                  //attendanceCount.L++;
-                  attendanceCount.L += parseFloat(leave.leaveCount);
+                  // If there was a leave, append it after regularization
+                  if (leave) {
+                    // Determine the leave status based on leaveCount and leaveAutoId
+                    let leaveStatus =
+                      leave.leaveCount === "1.0"
+                        ? "L"
+                        : leave.leaveAutoId == 6
+                        ? "0.5U"
+                        : "0.5L";
+                    dayRecords[dayKey] = `${dayRecords[dayKey]},${leaveStatus}`; // Append leave status
+                    //attendanceCount.L++;
+                    attendanceCount.L += parseFloat(leave.leaveCount);
+                  }
                 }
               } else if (attendancePresentStatus === "absent") {
+                if (
+                  !currentDay.isBefore(employeeRecord.dateOfJoining) &&
+                  (!employeeRecord.dateOfexit ||
+                    !currentDay.isAfter(
+                      moment(employeeRecord.dateOfexit).format("YYYY-MM-DD")
+                    ))
+                ) {
                 dayRecords[dayKey] = "A";
                 attendanceCount.A++;
 
@@ -1840,6 +1873,7 @@ class MasterController {
                   //attendanceCount.L++;
                   attendanceCount.L += parseFloat(leave.leaveCount);
                 }
+               }
               } else if (attendancePresentStatus === "weeklyOff") {
                 dayRecords[dayKey] = "W";
                 attendanceCount.W++;
@@ -1847,14 +1881,15 @@ class MasterController {
                 dayRecords[dayKey] = "L";
                 attendanceCount.L++;
               }
+              //  }
             } else {
               // If there are no attendance records, set to '-'
               //dayRecords[dayKey] = "-";
               //If it's a working day
-
               //new changes
-              dayRecords[dayKey] = "A"; // Default to 'A' (Absent)
 
+              dayRecords[dayKey] = "A"; // Default to 'A' (Absent)
+              // if(currentDay.isBefore(employeeRecord.dateOfJoining)){
               if (currentDay.isBefore(today)) {
                 dayRecords[dayKey] = "A"; // For past dates, default to "A" if no data
               } else if (currentDay.isSame(today)) {
@@ -1872,11 +1907,26 @@ class MasterController {
               dayRecords[dayKey] = "-"; // Default to '-' for future/current days if not already set
             }
           }
+
+          if (currentDay.isBefore(employeeRecord.dateOfJoining)) {
+            // if (currentDay.isBefore(today)) {
+            dayRecords[dayKey] = "-"; // For past dates, default to "A" if no data
+          }
+
+          if (
+            currentDay.isAfter(
+              moment(employeeRecord.dateOfexit).format("YYYY-MM-DD")
+            )
+          ) {
+            dayRecords[dayKey] = "-"; // For past dates, default to "A" if no data
+          }
         }
 
         const orderedEmployeeRecord = {
           name: employeeRecord.name,
           empCode: employeeRecord.empCode,
+          dateOfJoining: employeeRecord.dateOfJoining,
+          dateOfExit: employeeRecord.dateOfexit,
           ...dayRecords,
           P: attendanceCount.P,
           A: attendanceCount.A,
@@ -1917,6 +1967,8 @@ class MasterController {
             columns: [
               { label: "Employee Code", value: "empCode" },
               { label: "Employee Name", value: "name" },
+              { label: "Date Of Joining", value: "dateOfJoining" },
+              { label: "Date Of Exit", value: "dateOfExit" },
               ...dayColumns,
               { label: "P", value: "P" },
               { label: "A", value: "A" },
@@ -2102,6 +2154,16 @@ class MasterController {
           { model: db.buMaster, attributes: ["buName"], required: false },
           { model: db.sbuMaster, attributes: ["sbuname"], required: false },
           {
+            model: db.employeeMaster,
+            attributes: ["id", "name", "empCode", "email"],
+            as: "buHeadData",
+          },
+          {
+            model: db.employeeMaster,
+            attributes: ["id", "name", "empCode", "email"],
+            as: "buhrData",
+          },
+          {
             model: db.companyLocationMaster,
             attributes: ["address1"],
             include: [
@@ -2110,6 +2172,7 @@ class MasterController {
               { model: db.cityMaster, attributes: ["cityName"] },
             ],
           },
+
           {
             model: db.companyMaster,
             attributes: ["companyName", "companyCode"],
@@ -2119,31 +2182,30 @@ class MasterController {
           { model: db.weekOffMaster, attributes: ["weekOffName"] },
         ],
       });
-
       const arr = await Promise.all(
         employeeData.map(async (ele) => {
           let headAndHrData = {};
-          if (ele.dataValues.buId && ele.dataValues.companyId) {
-            headAndHrData =
-              (await db.buMapping.findOne({
-                where: {
-                  buId: ele.dataValues.buId,
-                  companyId: ele.dataValues.companyId,
-                },
-                include: [
-                  {
-                    model: db.employeeMaster,
-                    attributes: ["id", "name", "empCode", "email"],
-                    as: "buHeadData",
-                  },
-                  {
-                    model: db.employeeMaster,
-                    attributes: ["id", "name", "empCode", "email"],
-                    as: "buhrData",
-                  },
-                ],
-              })) || {};
-          }
+          // if (ele.dataValues.buId && ele.dataValues.companyId) {
+          //   headAndHrData =
+          //     (await db.buMapping.findOne({
+          //       where: {
+          //         buId: ele.dataValues.buId,
+          //         companyId: ele.dataValues.companyId,
+          //       },
+          //       include: [
+          //         {
+          //           model: db.employeeMaster,
+          //           attributes: ["id", "name", "empCode", "email"],
+          //           as: "buHeadData",
+          //         },
+          //         {
+          //           model: db.employeeMaster,
+          //           attributes: ["id", "name", "empCode", "email"],
+          //           as: "buhrData",
+          //         },
+          //       ],
+          //     })) || {};
+          // }
 
           return {
             id: ele.dataValues.id || "",
@@ -2168,7 +2230,7 @@ class MasterController {
             department_code:
               ele.dataValues.departmentmaster?.departmentCode || "",
             bu_name: ele.dataValues.bumaster?.buName || "",
-            sub_bu_name: ele.dataValues.sbumaster.dataValues?.sbuname || "",
+            sub_bu_name: ele.dataValues.sbumaster?.dataValues.sbuname || "", //ele.dataValues.sbumaster.dataValues?.sbuname || "",
             grade: ele.employeejobdetail?.grademaster?.gradeName || "",
             band: ele.employeejobdetail?.bandmaster?.bandDesc || "",
             jobLevel: ele.employeejobdetail?.joblevelmaster?.jobLevelName || "",
@@ -2231,19 +2293,19 @@ class MasterController {
               ele.attendancePolicymaster?.policyName || "",
             weekOffMaster: ele.weekOffMaster?.weekOffName || "",
             buhrData: headAndHrData.buhrData,
-            hrbpCode: headAndHrData?.buhrData?.empCode || "",
-            hrbpName:
-              ele.dataValues.buId && ele.dataValues.companyId
-                ? headAndHrData?.buhrData?.name
-                : "",
-            hrbpEmail:
-              ele.dataValues.buId && ele.dataValues.companyId
-                ? headAndHrData?.buhrData?.email
-                : "",
-            buHeadName:
-              ele.dataValues.buId && ele.dataValues.companyId
-                ? headAndHrData?.buHeadData?.name
-                : "",
+            hrbpCode: ele.dataValues?.buhrData?.empCode || "",
+            hrbpName: ele.dataValues.buhrData?.name,
+            // ele.dataValues.buId && ele.dataValues.companyId
+            //   ? headAndHrData?.buhrData?.name
+            //   : "",
+            hrbpEmail: ele.dataValues.buhrData?.email,
+            // ele.dataValues.buId && ele.dataValues.companyId
+            //   ? headAndHrData?.buhrData?.email
+            //   : "",
+            buHeadName: ele.dataValues.buHeadData?.name,
+            // ele.dataValues.buId && ele.dataValues.companyId
+            //   ? headAndHrData?.buHeadData?.name
+            //   : "",
             emergencyContactRelation:
               ele.employeeemergencycontact?.emergencyContactRelation || "",
             emergencyBloodGroup:
@@ -2263,12 +2325,13 @@ class MasterController {
               ele.dataValues.visitingCardAdmin == 0 ? "No" : "Yes",
             workstationAdmin:
               ele.dataValues.workstationAdmin == 0 ? "No" : "Yes",
-              buHeadCode:ele.dataValues.buId && ele.dataValues.companyId
-                ? headAndHrData?.buHeadData?.empCode
-                : "",
-                nomineeName: ele.employeebiographicaldetail?.nomineeName || "",
-                nomineeRelation: ele.employeebiographicaldetail?.nomineeRelation || "",
-
+            buHeadCode: ele.dataValues?.buHeadData?.empCode,
+            // ele.dataValues.buId && ele.dataValues.companyId
+            //   ? headAndHrData?.buHeadData?.empCode
+            //   : "",
+            nomineeName: ele.employeebiographicaldetail?.nomineeName || "",
+            nomineeRelation:
+              ele.employeebiographicaldetail?.nomineeRelation || "",
           };
         })
       );
@@ -2351,8 +2414,8 @@ class MasterController {
               { label: "Data Card (Admin)", value: "dataCardAdmin" },
               { label: "Visiting Card (Admin)", value: "visitingCardAdmin" },
               { label: "Workstation (Admin)", value: "workstationAdmin" },
-              {label:"Nominee Name",value:"nomineeName"},
-              {label:"Nominee Relation",value:"nomineeRelation"},
+              { label: "Nominee Name", value: "nomineeName" },
+              { label: "Nominee Relation", value: "nomineeRelation" },
             ],
             content: arr,
           },
@@ -2384,7 +2447,7 @@ class MasterController {
     }
   }
 
-  async sperationPending (req, res) {
+  async sperationPending(req, res) {
     try {
       const {
         search,
@@ -2452,7 +2515,7 @@ class MasterController {
           { model: db.biographicalDetails, required: false },
           {
             model: db.designationMaster,
-            attributes: ["name","code"],
+            attributes: ["name", "code"],
             required: !!designation,
           },
           {
@@ -2484,134 +2547,1076 @@ class MasterController {
             attributes: ["id", "name", "empCode", "email"],
             as: "managerData",
           },
+          {
+            model: db.employeeMaster,
+            attributes: ["id", "name", "empCode", "email"],
+            as: "buHeadData",
+          },
+          {
+            model: db.employeeMaster,
+            attributes: ["id", "name", "empCode", "email"],
+            as: "buhrData",
+          },
           { model: db.buMaster, attributes: ["buName"], required: false },
           { model: db.sbuMaster, attributes: ["sbuname"], required: false },
-          {
-            model: db.companyLocationMaster,
-            attributes: ["address1"],
-            include: [
-              { model: db.countryMaster, attributes: ["countryName"] },
-              { model: db.stateMaster, attributes: ["stateName"] },
-              { model: db.cityMaster, attributes: ["cityName"] },
-            ],
-          },
-          {
-            model: db.companyMaster,
-            attributes: ["companyName", "companyCode"],
-          },
           { model: db.shiftMaster, attributes: ["shiftName"] },
           { model: db.attendancePolicymaster, attributes: ["policyName"] },
           { model: db.weekOffMaster, attributes: ["weekOffName"] },
           {
             model: db.separationMaster,
-            // where: {finalStatus:0},
-            required:false
-          }
+            finalStatus: { [Op.in]: [2, 5] },
+            required: true,
+            include: [
+              {
+                model: db.separationStatus,
+                attributes: ["separationStatusCode", "separationStatusDesc"],
+              },
+              {
+                model: db.separationReason,
+                as: "empReasonofResignation",
+                attributes: ["separationReason"],
+              },
+            ],
+          },
+          {
+            model: db.noticePeriodMaster,
+          },
         ],
       });
 
       const arr = await Promise.all(
         employeeData.map(async (ele) => {
-          let headAndHrData = {};
-          if (ele.dataValues.buId && ele.dataValues.companyId) {
-            headAndHrData =
-              (await db.buMapping.findOne({
-                where: {
-                  buId: ele.dataValues.buId,
-                  companyId: ele.dataValues.companyId,
-                },
-                include: [
-                  {
-                    model: db.employeeMaster,
-                    attributes: ["id", "name", "empCode", "email"],
-                    as: "buHeadData",
-                  },
-                  {
-                    model: db.employeeMaster,
-                    attributes: ["id", "name", "empCode", "email"],
-                    as: "buhrData",
-                  },
-                ],
-              })) || {};
-          }
-
           return {
             empCode: ele.dataValues.empCode || "",
             name: ele.dataValues.name || "",
-            jobTitle: `${ele.dataValues.designationmaster?.name || ""} (${ele.dataValues.designationmaster?.code || ""})`,
-            department: `${ele.dataValues.departmentmaster?.departmentName || ""} (${ele.dataValues.departmentmaster?.departmentCode || ""})`, 
+            jobTitle: `${ele.dataValues.designationmaster?.name || ""} (${
+              ele.dataValues.designationmaster?.code || ""
+            })`,
+            department: `${
+              ele.dataValues.departmentmaster?.departmentName || ""
+            } (${ele.dataValues.departmentmaster?.departmentCode || ""})`,
             bu_name: ele.dataValues.bumaster?.buName || "",
-            separationRequestedOn: moment(ele.dataValues.separationmaster.createdDt).format("DD-MM-YYYY"),
-            requestedLastDay: moment(ele.dataValues.separationmaster.empProposedLastWorkingDay).format("DD-MM-YYYY"),
-            
-
-            
-            separation: ele.dataValues
-           
-            // name: ele.dataValues.name || "",
-            // email: ele.dataValues.email || "",
-            // personalEmail: ele.dataValues.personalEmail || "",
-            // firstName: ele.dataValues.firstName || "",
-            // lastName: ele.dataValues.lastName || "",
-            // officeMobileNumber: ele.dataValues.officeMobileNumber || "",
-            // personalMobileNumber: ele.dataValues.personalMobileNumber || "",
-            // manager_code: ele.dataValues.managerData?.empCode || "",
-            // manager_name: ele.dataValues.managerData?.name || "",
-            // manager_email_id: ele.dataValues.managerData?.email || "",
-            // designation_name: ele.dataValues.designationmaster?.name || "",
-            // functional_area_name:
-            //   ele.dataValues.functionalareamaster?.functionalAreaName || "",
-            // functional_area_code:
-            //   ele.dataValues.functionalareamaster?.functionalAreaCode || "",
-            // department_name:
-            //   ele.dataValues.departmentmaster?.departmentName || "",
-            // department_code:
-            //   ele.dataValues.departmentmaster?.departmentCode || "",
-            // bu_name: ele.dataValues.bumaster?.buName || "",
-            // sub_bu_name: ele.dataValues.sbumaster.dataValues?.sbuname || "",
-            // grade: ele.employeejobdetail?.grademaster?.gradeName || "",
-            // band: ele.employeejobdetail?.bandmaster?.bandDesc || "",
-            // jobLevel: ele.employeejobdetail?.joblevelmaster?.jobLevelName || "",
-            // jobLevelCode:
-            //   ele.employeejobdetail?.joblevelmaster?.jobLevelCode || "",
-            // costCenter:
-            //   ele.costcentermaster?.costCenterName +
-            //     " " +
-            //     ele.costcentermaster?.costCenterCode || "",
-            // dateOfJoining: ele.employeejobdetail?.dateOfJoining
-            //   ? moment(ele.employeejobdetail.dateOfJoining).format("DD-MM-YYYY")
-            //   : "",
-            // gender: ele.employeebiographicaldetail?.gender,
-            // employeeType: ele.employeetypemaster?.emptypename || "",
-            // groupCompany: ele.companymaster?.companyName || "",
-            // groupCode: ele.companymaster?.companyCode || "",
-            // isActive: ele.dataValues.isActive == 1 ? "Active" : "In Active",
-            // lastIncrementDate: ele.dataValues.lastIncrementDate || "",
-            // weekOffMaster: ele.weekOffMaster?.weekOffName || "",
-            // buhrData: headAndHrData.buhrData,
-            // hrbpCode: headAndHrData?.buhrData?.empCode || "",
-            // hrbpName:
-            //   ele.dataValues.buId && ele.dataValues.companyId
-            //     ? headAndHrData?.buhrData?.name
-            //     : "",
-            // hrbpEmail:
-            //   ele.dataValues.buId && ele.dataValues.companyId
-            //     ? headAndHrData?.buhrData?.email
-            //     : "",
-            // buHeadName:
-            //   ele.dataValues.buId && ele.dataValues.companyId
-            //     ? headAndHrData?.buHeadData?.name
-            //     : "",
-          
+            separationRequestedOn: ele.dataValues.separationmaster?.createdDt
+              ? moment(ele.dataValues.separationmaster.createdDt).format(
+                  "DD-MM-YYYY"
+                )
+              : "",
+            requestedLastDay: ele.dataValues.separationmaster
+              ?.empProposedLastWorkingDay
+              ? moment(
+                  ele.dataValues.separationmaster.empProposedLastWorkingDay
+                ).format("DD-MM-YYYY")
+              : "",
+            status:
+              ele.dataValues.separationmaster?.finalStatus === 2 ||
+              ele.dataValues.separationmaster?.finalStatus === 5
+                ? "Pending with Manager"
+                : "Pending with BuHr",
+            agreedLastDay: "N/A",
+            reasonForResignation:
+              ele.dataValues.separationmaster?.empReasonofResignation
+                ?.separationReason || "",
+            otherReason: ele.dataValues.separationmaster?.empRemark || "N/A",
+            comment: "N/A",
+            transactionDate: "",
+            noticePeriodName:
+              ele.dataValues.noticeperiodmaster?.noticePeriodName || "N/A",
+            noticePeriodDuration:
+              ele.dataValues.noticeperiodmaster?.nPDaysAfterConfirmation +
+                " " +
+                "Day(s)" || "N/A",
+            replacementRequired:
+              ele.dataValues.separationmaster?.replacementRequired == null ||
+              false
+                ? "N/A"
+                : "Yes",
+            replacementRequiredBy:
+              ele.dataValues.separationmaster?.replacementRequired == null ||
+              false
+                ? "N/A"
+                : ele.dataValues.separationmaster?.replacementRequired,
+            shortFallPayout:
+              ele.dataValues.separationmaster?.shortFallPayoutBasis || "N/A",
+            newCompanyName:
+              ele.dataValues.separationmaster?.empNewOrganizationName || "N/A",
+            newCtc: ele.dataValues.separationmaster?.empSalaryHike || "N/A",
+            newRole: "N/A",
+            newLetterConfimation:
+              ele.dataValues.separationmaster?.ndaConfirmation == null
+                ? "No"
+                : "Yes",
+            buHeadCode: ele.dataValues.buHeadData?.empCode,
+            buHeadName: ele.dataValues.buHeadData?.name,
+            buHeadEmail: ele.dataValues.buHeadData?.email,
+            hrbpCode: ele.dataValues?.buhrData?.empCode || "",
+            hrbpName: ele.dataValues.buhrData?.name,
+            hrbpEmail: ele.dataValues.buhrData?.email,
           };
         })
       );
 
-      return respHelper(res, {
-        status: 200,
-        message: "Data not availble for available dates",
-        data:arr
+      if (arr.length > 0) {
+        const timestamp = moment().format("HH:mm"); //Date.now();
+
+        const data = [
+          {
+            sheet: "Employee",
+            columns: [
+              { label: "Employee Id", value: "empCode" },
+              { label: "Name", value: "name" },
+              { label: "Job Title", value: "jobTitle" },
+              { label: "Department", value: "department" },
+              { label: "Business Unit", value: "bu_name" },
+              {
+                label: "Separation Requested On",
+                value: "separationRequestedOn",
+              },
+              { label: "Requested Last Day", value: "requestedLastDay" },
+              { label: "status", value: "status" },
+              { label: "Agreed Last Day", value: "agreedLastDay" },
+              {
+                label: "Reason For Resignation",
+                value: "reasonForResignation",
+              },
+              { label: "Other Reason", value: "otherReason" },
+              { label: "Comment", value: "comment" },
+              { label: "Notice Period Name", value: "noticePeriodName" },
+              {
+                label: "Notice Period Duration",
+                value: "noticePeriodDuration",
+              },
+              { label: "Short Fall Payout", value: "shortFallPayout" },
+              { label: "New Company Name", value: "newCompanyName" },
+              { label: "New CTC", value: "newCtc" },
+              { label: "New Role", value: "newRole" },
+              {
+                label: "NDA Letter Confirmation",
+                value: "newLetterConfimation",
+              },
+            ],
+            content: arr,
+          },
+        ];
+
+        const settings = {
+          fileName: `Employee_Master_${timestamp}`,
+          extraLength: 3,
+          writeOptions: {
+            type: "buffer",
+            bookType: "xlsx",
+          },
+        };
+
+        const report = xlsx(data, settings);
+        res.setHeader(
+          "Content-Disposition",
+          `attachment; filename=Separation_Pending_${timestamp}.xlsx`
+        );
+        res.end(report);
+      } else {
+        res.status(204).json({ message: "No employee data found" });
+      }
+
+      // return respHelper(res, {
+      //   status: 200,
+      //   message: "Data not availble for available dates",
+      //   data:arr
+      // });
+    } catch (error) {
+      console.error("Error:", error);
+      res.status(500).json({
+        message: "An error occurred while exporting employee master data",
       });
+    }
+  }
+
+  async sperationApproved(req, res) {
+    try {
+      const {
+        search,
+        department,
+        designation,
+        buSearch,
+        sbuSearch,
+        areaSearch,
+        grade,
+        attendanceFor,
+        employeeType,
+        businessUnit,
+        companyLocation,
+      } = req.query;
+
+      const employeeData = await db.employeeMaster.findAll({
+        attributes: [
+          "id",
+          "empCode",
+          "name",
+          "email",
+          "personalEmail",
+          "firstName",
+          "lastName",
+          "officeMobileNumber",
+          "buId",
+          "companyId",
+          "personalMobileNumber",
+          "drivingLicence",
+          "passportNumber",
+          "lastIncrementDate",
+          "iqTestApplicable",
+          "positionType",
+          "newCustomerName",
+          "recruiterName",
+          "dataCardAdmin",
+          "visitingCardAdmin",
+          "workstationAdmin",
+          "isActive",
+        ],
+        where: {
+          ...(attendanceFor == 0 && { isActive: 0 }),
+          ...(attendanceFor == 1 && { isActive: 1 }),
+          ...(attendanceFor == 2 && { isActive: [0, 1] }),
+          ...(search && { id: { [Op.in]: search.split(",") } }),
+          ...(employeeType && {
+            employeeType: { [Op.in]: employeeType.split(",") },
+          }),
+          ...(businessUnit && {
+            buId: { [Op.in]: businessUnit.split(",") },
+          }),
+          ...(department && {
+            departmentId: { [Op.in]: department.split(",") },
+          }),
+          ...(companyLocation && {
+            companyLocationId: { [Op.in]: companyLocation.split(",") },
+          }),
+        },
+        include: [
+          {
+            model: db.employeeTypeMaster,
+            attributes: ["emptypename"],
+            required: false,
+          },
+          { model: db.biographicalDetails, required: false },
+          {
+            model: db.designationMaster,
+            attributes: ["name", "code"],
+            required: !!designation,
+          },
+          {
+            model: db.functionalAreaMaster,
+            attributes: ["functionalAreaName", "functionalAreaCode"],
+            required: !!areaSearch,
+          },
+          {
+            model: db.departmentMaster,
+            attributes: ["departmentName", "departmentCode"],
+            required: !!department,
+          },
+          {
+            model: db.jobDetails,
+            attributes: ["dateOfJoining", "residentEng", "customerName"],
+            where: { ...(grade && { gradeId: { [Op.in]: grade.split(",") } }) },
+            include: [
+              { model: db.gradeMaster, attributes: ["gradeName"] },
+              { model: db.bandMaster, attributes: ["bandDesc"] },
+              {
+                model: db.jobLevelMaster,
+                attributes: ["jobLevelName", "jobLevelCode"],
+              },
+            ],
+          },
+          {
+            model: db.employeeMaster,
+            required: false,
+            attributes: ["id", "name", "empCode", "email"],
+            as: "managerData",
+          },
+          {
+            model: db.employeeMaster,
+            attributes: ["id", "name", "empCode", "email"],
+            as: "buHeadData",
+          },
+          {
+            model: db.employeeMaster,
+            attributes: ["id", "name", "empCode", "email"],
+            as: "buhrData",
+          },
+          { model: db.buMaster, attributes: ["buName"], required: false },
+          { model: db.sbuMaster, attributes: ["sbuname"], required: false },
+          { model: db.shiftMaster, attributes: ["shiftName"] },
+          { model: db.attendancePolicymaster, attributes: ["policyName"] },
+          { model: db.weekOffMaster, attributes: ["weekOffName"] },
+          {
+            model: db.separationMaster,
+            // finalStatus: { [Op.in]: [9] },
+            required: true,
+            include: [
+              {
+                model: db.separationStatus,
+                attributes: ["separationStatusCode", "separationStatusDesc"],
+              },
+              {
+                model: db.separationReason,
+                as: "empReasonofResignation",
+                attributes: ["separationReason"],
+              },
+              {
+                model: db.separationType,
+                as: "l2Separationtype",
+                required: false,
+              },
+              {
+                model: db.separationReason,
+                as: "l2ReasonofSeparation",
+                attributes: ["separationReason"],
+              },
+              {
+                model: db.separationTrail,
+                where: { separationStatus: 9, pending: 0 },
+                required: true,
+              },
+            ],
+          },
+          {
+            model: db.noticePeriodMaster,
+          },
+        ],
+      });
+
+      const arr = await Promise.all(
+        employeeData.map(async (ele) => {
+          return {
+            empCode: ele.dataValues.empCode || "",
+            name: ele.dataValues.name || "",
+            jobTitle: `${ele.dataValues.designationmaster?.name || ""} (${
+              ele.dataValues.designationmaster?.code || ""
+            })`,
+            department: `${
+              ele.dataValues.departmentmaster?.departmentName || ""
+            } (${ele.dataValues.departmentmaster?.departmentCode || ""})`,
+            bu_name: ele.dataValues.bumaster?.buName || "",
+
+            resignationDate: ele.dataValues.separationmaster?.resignationDate,
+
+            requestedLastDay: ele.dataValues.separationmaster
+              ?.empProposedLastWorkingDay
+              ? moment(
+                  ele.dataValues.separationmaster.empProposedLastWorkingDay
+                ).format("DD-MM-YYYY")
+              : "",
+            noticePeriodRecoveryDays:
+              ele.dataValues.separationmaster?.noticePeriodDay || "N/A",
+            empProposedRecoveryDays:
+              ele.dataValues.separationmaster?.empProposedRecoveryDays || "N/A",
+
+            reasonForResignation:
+              ele.dataValues.separationmaster?.empReasonofResignation
+                ?.separationReason || "N/A",
+
+            otherReason: ele.dataValues.separationmaster?.empRemark || "N/A",
+
+            comment: "N/A",
+            l1ProposedLastWorkingDay:
+              ele.dataValues.separationmaster?.l1ProposedLastWorkingDay ||
+              "N/A",
+
+            l1ProposedRecoveryDays:
+              ele.dataValues.separationmaster?.l1ProposedRecoveryDays || "N/A",
+
+            l1ReasonForProposedRecoveryDays:
+              ele.dataValues.separationmaster
+                ?.l1ReasonForProposedRecoveryDays || "N/A",
+            l1BillingType:
+              ele.dataValues.separationmaster?.l1BillingType || "N/A",
+            l1CustomerName:
+              ele.dataValues.separationmaster?.l1CustomerName || "N/A",
+
+            l2NewOrganizationName:
+              ele.dataValues.separationmaster?.l2NewOrganizationName || "N/A",
+            l2SalaryHike:
+              ele.dataValues.separationmaster?.l2SalaryHike == null
+                ? "N/A"
+                : ele.dataValues.separationmaster?.l2SalaryHike,
+            doNotReHire:
+              ele.dataValues.separationmaster?.doNotReHire == null
+                ? "N/A"
+                : ele.dataValues.separationmaster?.doNotReHire,
+            l2BillingType:
+              ele.dataValues.separationmaster?.l2BillingType == null
+                ? "N/A"
+                : ele.dataValues.separationmaster?.l2BillingType,
+            l2CustomerName:
+              ele.dataValues.separationmaster?.l2CustomerName == null
+                ? "N/A"
+                : ele.dataValues.separationmaster?.l2CustomerName,
+
+            finalRecoveryDays:
+              ele.dataValues.separationmaster?.l2RecoveryDays == null
+                ? ""
+                : ele.dataValues.separationmaster?.l2RecoveryDays,
+
+            finalRecoveryDaysReason:
+              ele.dataValues.separationmaster?.l2RecoveryDaysReason == null
+                ? ""
+                : ele.dataValues.separationmaster?.l2RecoveryDaysReason,
+
+            adminSeparationType:
+              ele.dataValues.separationmaster?.l2Separationtype
+                ?.separationTypeName || "N/A",
+
+            adminSeparationReason:
+              ele.dataValues.separationmaster?.l2ReasonofSeparation
+                ?.separationReason || "N/A",
+
+            adminOtherReason:
+              ele.dataValues.separationmaster?.l2Remark?.separationReason ||
+              "N/A",
+
+            dateOfApproval:
+              ele.dataValues.separationmaster.initiatedBy == "BuHr"
+                ? ele.dataValues.separationmaster.separationtrails[0].createdDt
+                : ele.dataValues.separationmaster.separationtrails[0].updatedDt,
+
+            noticePeriodName:
+              ele.dataValues.noticeperiodmaster?.noticePeriodName || "N/A",
+            noticePeriodDuration:
+              ele.dataValues.noticeperiodmaster?.nPDaysAfterConfirmation +
+                " " +
+                "Day(s)" || "N/A",
+
+            replacementRequired:
+              ele.dataValues.separationmaster?.replacementRequired == null ||
+              false
+                ? "N/A"
+                : "Yes",
+            replacementRequiredBy:
+              ele.dataValues.separationmaster?.replacementRequired == null ||
+              false
+                ? "N/A"
+                : ele.dataValues.separationmaster?.replacementRequired,
+
+            shortFallPayout:
+              ele.dataValues.separationmaster?.shortFallPayoutBasis || "N/A",
+
+            shortFallPayoutDays:
+              ele.dataValues.separationmaster?.shortFallPayoutDays || "N/A",
+
+            newCompanyName:
+              ele.dataValues.separationmaster?.empNewOrganizationName || "N/A",
+
+            holdFnf:
+              ele.dataValues.separationmaster?.holdFnf == null ? "No" : "Yes",
+
+            newCtc: "N/A",
+            newRole: "N/A",
+
+            newLetterConfimation:
+              ele.dataValues.separationmaster?.ndaConfirmation == null
+                ? "No"
+                : "Yes",
+
+            buHeadCode: ele.dataValues.buHeadData?.empCode,
+            buHeadName: ele.dataValues.buHeadData?.name,
+            buHeadEmail: ele.dataValues.buHeadData?.email,
+            hrbpCode: ele.dataValues?.buhrData?.empCode || "",
+            hrbpName: ele.dataValues.buhrData?.name,
+            hrbpEmail: ele.dataValues.buhrData?.email,
+          };
+        })
+      );
+      // console.log("arrr",arr.length)
+
+      if (arr.length > 0) {
+        const timestamp = moment().format("HH:mm"); //Date.now();
+
+        const data = [
+          {
+            sheet: "Employee",
+            columns: [
+              { label: "Employee Id", value: "empCode" },
+              { label: "Name", value: "name" },
+              { label: "Job Title", value: "jobTitle" },
+              { label: "Department", value: "department" },
+              { label: "Business Unit", value: "bu_name" },
+              {
+                label: "Date Of Resignation",
+                value: "resignationDate",
+              },
+              { label: "Requested Last Day", value: "requestedLastDay" },
+              {
+                label: "Notice Period Recovery Days",
+                value: "noticePeriodRecoveryDays",
+              },
+              {
+                label: "Reason For Resignation",
+                value: "reasonForResignation",
+              },
+              { label: "Other Reason", value: "otherReason" },
+              { label: "Comment", value: "comment" },
+              {
+                label: "Proposed Last Day (L1)",
+                value: "l1ProposedLastWorkingDay",
+              },
+              {
+                label: "Proposed Number Of Recovery Days (L1)",
+                value: "l1ProposedRecoveryDays",
+              },
+              {
+                label: "Reson For Porposed Recovery Day (L1)",
+                value: "l1ReasonForProposedRecoveryDays",
+              },
+              { label: "Billing Type (L1)", value: "l1BillingType" },
+              { label: "Customer Name (L1)", value: "l1CustomerName" },
+
+              { label: "Final Recovery Days (L2)", value: "finalRecoveryDays" },
+              {
+                label: "Final Recovery Days Reason (L2)",
+                value: "finalRecoveryDaysReason",
+              },
+              {
+                label: "Organization Name (L2)",
+                value: "l2NewOrganizationName",
+              },
+              { label: "SalaryHike (L2)", value: "l2SalaryHike" },
+              { label: "Do Not ReHire (L2)", value: "doNotReHire" },
+              { label: "Billing Type (L2)", value: "l2BillingType" },
+              { label: "Customer Name (L2)", value: "l2CustomerName" },
+              { label: "Admin Separation Type", value: "adminSeparationType" },
+              {
+                label: "Admin Separation Reason",
+                value: "adminSeparationReason",
+              },
+              { label: "Admin Other Reason", value: "adminOtherReason" },
+              { label: "Date Of Approval", value: "dateOfApproval" },
+              { label: "Notice Period Name", value: "noticePeriodName" },
+              {
+                label: "Notice Period Duration",
+                value: "noticePeriodDuration",
+              },
+              { label: "Short Fall Payout", value: "shortFallPayout" },
+              { label: "Short Fall Payout Days", value: "shortFallPayoutDays" },
+
+              { label: "New Company Name", value: "newCompanyName" },
+              { label: "New CTC", value: "newCtc" },
+              { label: "New Role", value: "newRole" },
+              {
+                label: "NDA Letter Confirmation",
+                value: "newLetterConfimation",
+              },
+            ],
+            content: arr,
+          },
+        ];
+
+        const settings = {
+          fileName: `Employee_Master_${timestamp}`,
+          extraLength: 3,
+          writeOptions: {
+            type: "buffer",
+            bookType: "xlsx",
+          },
+        };
+
+        const report = xlsx(data, settings);
+        res.setHeader(
+          "Content-Disposition",
+          `attachment; filename=Separation_Approved_${timestamp}.xlsx`
+        );
+        res.end(report);
+      } else {
+        res.status(204).json({ message: "No employee data found" });
+      }
+
+      // return respHelper(res, {
+      //   status: 200,
+      //   message: "Data not availble for available dates",
+      //   data: employeeData,
+      // });
+    } catch (error) {
+      console.error("Error:", error);
+      res.status(500).json({
+        message: "An error occurred while exporting employee master data",
+      });
+    }
+  }
+
+  async sperationApprovedHistory(req, res) {
+    try {
+      const {
+        search,
+        department,
+        designation,
+        buSearch,
+        sbuSearch,
+        areaSearch,
+        grade,
+        attendanceFor,
+        employeeType,
+        businessUnit,
+        companyLocation,
+        fromDate,
+        toDate
+      } = req.query;
+
+      const employeeData = await db.employeeMaster.findAll({
+        attributes: [
+          "id",
+          "empCode",
+          "name",
+          "email",
+          "personalEmail",
+          "firstName",
+          "lastName",
+          "officeMobileNumber",
+          "buId",
+          "companyId",
+          "personalMobileNumber",
+          "drivingLicence",
+          "passportNumber",
+          "lastIncrementDate",
+          "iqTestApplicable",
+          "positionType",
+          "newCustomerName",
+          "recruiterName",
+          "dataCardAdmin",
+          "visitingCardAdmin",
+          "workstationAdmin",
+          "isActive",
+        ],
+        where: {
+          ...(attendanceFor == 0 && { isActive: 0 }),
+          ...(attendanceFor == 1 && { isActive: 1 }),
+          ...(attendanceFor == 2 && { isActive: [0, 1] }),
+          ...(search && { id: { [Op.in]: search.split(",") } }),
+          ...(employeeType && {
+            employeeType: { [Op.in]: employeeType.split(",") },
+          }),
+          ...(businessUnit && {
+            buId: { [Op.in]: businessUnit.split(",") },
+          }),
+          ...(department && {
+            departmentId: { [Op.in]: department.split(",") },
+          }),
+          ...(companyLocation && {
+            companyLocationId: { [Op.in]: companyLocation.split(",") },
+          }),
+        },
+        include: [
+          {
+            model: db.employeeTypeMaster,
+            attributes: ["emptypename"],
+            required: false,
+          },
+          { model: db.biographicalDetails, required: false },
+          {
+            model: db.designationMaster,
+            attributes: ["name", "code"],
+            required: !!designation,
+          },
+          {
+            model: db.functionalAreaMaster,
+            attributes: ["functionalAreaName", "functionalAreaCode"],
+            required: !!areaSearch,
+          },
+          {
+            model: db.departmentMaster,
+            attributes: ["departmentName", "departmentCode"],
+            required: !!department,
+          },
+          {
+            model: db.jobDetails,
+            attributes: ["dateOfJoining", "residentEng", "customerName"],
+            where: { ...(grade && { gradeId: { [Op.in]: grade.split(",") } }) },
+            include: [
+              { model: db.gradeMaster, attributes: ["gradeName"] },
+              { model: db.bandMaster, attributes: ["bandDesc"] },
+              {
+                model: db.jobLevelMaster,
+                attributes: ["jobLevelName", "jobLevelCode"],
+              },
+            ],
+          },
+          {
+            model: db.employeeMaster,
+            required: false,
+            attributes: ["id", "name", "empCode", "email"],
+            as: "managerData",
+          },
+          {
+            model: db.employeeMaster,
+            attributes: ["id", "name", "empCode", "email"],
+            as: "buHeadData",
+          },
+          {
+            model: db.employeeMaster,
+            attributes: ["id", "name", "empCode", "email"],
+            as: "buhrData",
+          },
+          { model: db.buMaster, attributes: ["buName"], required: false },
+          { model: db.sbuMaster, attributes: ["sbuname"], required: false },
+          { model: db.shiftMaster, attributes: ["shiftName"] },
+          { model: db.attendancePolicymaster, attributes: ["policyName"] },
+          { model: db.weekOffMaster, attributes: ["weekOffName"] },
+          {
+            model: db.separationMaster,
+            where:{
+              ...(fromDate &&
+                toDate && {
+                  resignationDate: {
+                    [db.Sequelize.Op.between]: [fromDate,toDate],
+                },
+              }),
+            },
+            required: true,
+            include: [
+              {
+                model: db.separationStatus,
+                attributes: ["separationStatusCode", "separationStatusDesc"],
+              },
+              {
+                model: db.separationReason,
+                as: "empReasonofResignation",
+                attributes: ["separationReason"],
+              },
+              {
+                model: db.separationType,
+                as: "l2Separationtype",
+                required: false,
+              },
+              {
+                model: db.separationReason,
+                as: "l2ReasonofSeparation",
+                attributes: ["separationReason"],
+              },
+              {
+                model: db.separationTrail,
+                where: { separationStatus: 9, pending: 0 },
+                include: [
+                  {
+                    model: db.employeeMaster,
+                    attributes: ["id", "name", "empCode"],
+                    as: "createdBySeparationTrail",
+                    required: false,
+                  },
+                  {
+                    model: db.employeeMaster,
+                    attributes: ["id", "name", "empCode"],
+                    as: "updatedBySeparationTrail",
+                    required: false,
+                  },
+                ],
+                required: true,
+              },
+            ],
+          },
+          {
+            model: db.noticePeriodMaster,
+          },
+        ],
+      });
+      const arr = await Promise.all(
+        employeeData.map(async (ele) => {
+          return {
+            empCode: ele.dataValues.empCode || "",
+            name: ele.dataValues.name || "",
+            jobTitle: `${ele.dataValues.designationmaster?.name || ""} (${
+              ele.dataValues.designationmaster?.code || ""
+            })`,
+
+            department: `${
+              ele.dataValues.departmentmaster?.departmentName || ""
+            } (${ele.dataValues.departmentmaster?.departmentCode || ""})`,
+
+            bu_name: ele.dataValues.bumaster?.buName || "",
+
+            resignationDate: ele.dataValues.separationmaster?.resignationDate,
+
+            requestedLastDay: ele.dataValues.separationmaster
+              ?.empProposedLastWorkingDay
+              ? moment(
+                  ele.dataValues.separationmaster.empProposedLastWorkingDay
+                ).format("DD-MM-YYYY")
+              : "",
+
+            noticePeriodRecoveryDays:
+              ele.dataValues.separationmaster?.noticePeriodDay || "N/A",
+
+            reasonForResignation:
+              ele.dataValues.separationmaster?.empReasonofResignation
+                ?.separationReason || "N/A",
+
+            otherReason: ele.dataValues.separationmaster?.empRemark || "N/A",
+
+            comment: "N/A",
+            l1ProposedLastWorkingDay:
+              ele.dataValues.separationmaster?.l1ProposedLastWorkingDay ||
+              "N/A",
+
+            l1ProposedRecoveryDays:
+              ele.dataValues.separationmaster?.l1ProposedRecoveryDays || "N/A",
+
+            l1ReasonForProposedRecoveryDays:
+              ele.dataValues.separationmaster
+                ?.l1ReasonForProposedRecoveryDays || "N/A",
+
+            finalRecoveryDays:
+              ele.dataValues.separationmaster?.l2RecoveryDays == null
+                ? ""
+                : ele.dataValues.separationmaster?.l2RecoveryDays,
+
+            finalRecoveryDaysReason:
+              ele.dataValues.separationmaster?.l2RecoveryDaysReason == null
+                ? ""
+                : ele.dataValues.separationmaster?.l2RecoveryDaysReason,
+
+            adminSeparationType:
+              ele.dataValues.separationmaster?.l2Separationtype
+                ?.separationTypeName || "N/A",
+
+            adminSeparationReason:
+              ele.dataValues.separationmaster?.l2ReasonofSeparation
+                ?.separationReason || "N/A",
+
+            adminOtherReason:
+              ele.dataValues.separationmaster?.l2Remark?.separationReason ||
+              "N/A",
+
+            dateOfApproval:
+              ele.dataValues.separationmaster.initiatedBy == "BuHr"
+                ? ele.dataValues.separationmaster.separationtrails[0].createdDt
+                : ele.dataValues.separationmaster.separationtrails[0].updatedDt,
+
+            updatedByName:
+              ele.dataValues.separationmaster.initiatedBy == "BuHr"
+                ? ele.dataValues.separationmaster.separationtrails[0]
+                    .createdBySeparationTrail.name
+                : ele.dataValues.separationmaster.separationtrails[0]
+                    .updatedBySeparationTrail.name,
+
+            updatedByEmployeeNumber:
+              ele.dataValues.separationmaster.initiatedBy == "BuHr"
+                ? ele.dataValues.separationmaster.separationtrails[0]
+                    .createdBySeparationTrail.empCode
+                : ele.dataValues.separationmaster.separationtrails[0]
+                    .updatedBySeparationTrail.empCode,
+
+            updatedOn:
+              ele.dataValues.separationmaster.initiatedBy == "BuHr"
+                ? ele.dataValues.separationmaster.separationtrails[0].createdDt
+                : ele.dataValues.separationmaster.separationtrails[0].updatedDt,
+
+            isManger: "",
+            noticePeriodName:
+              ele.dataValues.noticeperiodmaster?.noticePeriodName || "N/A",
+            noticePeriodDuration:
+              ele.dataValues.noticeperiodmaster?.nPDaysAfterConfirmation +
+                " " +
+                "Day(s)" || "N/A",
+
+            l2SalaryHike:
+              ele.dataValues.separationmaster?.l2SalaryHike == null
+                ? "N/A"
+                : ele.dataValues.separationmaster?.l2SalaryHike,
+            doNotReHire:
+              ele.dataValues.separationmaster?.doNotReHire == null
+                ? "N/A"
+                : ele.dataValues.separationmaster?.doNotReHire,
+            l2BillingType:
+              ele.dataValues.separationmaster?.l2BillingType == null
+                ? "N/A"
+                : ele.dataValues.separationmaster?.l2BillingType,
+            l2CustomerName:
+              ele.dataValues.separationmaster?.l2CustomerName == null
+                ? "N/A"
+                : ele.dataValues.separationmaster?.l2CustomerName,
+
+            replacementRequired:
+              ele.dataValues.separationmaster?.replacementRequired == null ||
+              false
+                ? "N/A"
+                : "Yes",
+            replacementRequiredBy:
+              ele.dataValues.separationmaster?.replacementRequired == null ||
+              false
+                ? "N/A"
+                : ele.dataValues.separationmaster?.replacementRequired,
+
+            shortFallPayout:
+              ele.dataValues.separationmaster?.shortFallPayoutBasis || "N/A",
+
+            shortFallPayoutDays:
+              ele.dataValues.separationmaster?.shortFallPayoutDays || "N/A",
+
+            newCompanyName:
+              ele.dataValues.separationmaster?.empNewOrganizationName || "N/A",
+
+            holdFnf:
+              ele.dataValues.separationmaster?.holdFnf == null ? "No" : "Yes",
+
+            newCtc: "N/A",
+            newRole: "N/A",
+
+            newLetterConfimation:
+              ele.dataValues.separationmaster?.ndaConfirmation == null
+                ? "No"
+                : "Yes",
+
+            // empProposedRecoveryDays:
+            // ele.dataValues.separationmaster?.empProposedRecoveryDays || "N/A",
+
+            l1BillingType:
+              ele.dataValues.separationmaster?.l1BillingType || "N/A",
+            l1CustomerName:
+              ele.dataValues.separationmaster?.l1CustomerName || "N/A",
+
+            l2NewOrganizationName:
+              ele.dataValues.separationmaster?.l2NewOrganizationName || "N/A",
+            l2SalaryHike:
+              ele.dataValues.separationmaster?.l2SalaryHike == null
+                ? "N/A"
+                : ele.dataValues.separationmaster?.l2SalaryHike,
+            doNotReHire:
+              ele.dataValues.separationmaster?.doNotReHire == null
+                ? "N/A"
+                : ele.dataValues.separationmaster?.doNotReHire,
+            l2BillingType:
+              ele.dataValues.separationmaster?.l2BillingType == null
+                ? "N/A"
+                : ele.dataValues.separationmaster?.l2BillingType,
+            l2CustomerName:
+              ele.dataValues.separationmaster?.l2CustomerName == null
+                ? "N/A"
+                : ele.dataValues.separationmaster?.l2CustomerName,
+
+                l2LastWorkingDay:
+                ele.dataValues.separationmaster?.l2LastWorkingDay == null
+                  ? "N/A"
+                  : ele.dataValues.separationmaster?.l2LastWorkingDay,
+
+            // buHeadCode: ele.dataValues.buHeadData?.empCode,
+            // buHeadName: ele.dataValues.buHeadData?.name,
+            // buHeadEmail: ele.dataValues.buHeadData?.email,
+            // hrbpCode: ele.dataValues?.buhrData?.empCode || "",
+            // hrbpName: ele.dataValues.buhrData?.name,
+            // hrbpEmail: ele.dataValues.buhrData?.email,
+          };
+        })
+      );
+      // console.log("arrr",arr.length)
+
+      if (arr.length > 0) {
+        const timestamp = moment().format("HH:mm"); //Date.now();
+
+        const data = [
+          {
+            sheet: "Employee",
+            columns: [
+              { label: "Employee Id", value: "empCode" },
+              { label: "Name", value: "name" },
+              { label: "Job Title", value: "jobTitle" },
+              { label: "Department", value: "department" },
+              { label: "Business Unit", value: "bu_name" },
+              {
+                label: "Date Of Resignation",
+                value: "resignationDate",
+              },
+              { label: "Requested Last Day", value: "requestedLastDay" },
+              {
+                label: "Notice Period Recovery Days",
+                value: "noticePeriodRecoveryDays",
+              },
+              {
+                label: "Reason For Resignation",
+                value: "reasonForResignation",
+              },
+              { label: "Other Reason", value: "otherReason" },
+              { label: "Comment", value: "comment" },
+              {
+                label: "Proposed Last Day (L1)",
+                value: "l1ProposedLastWorkingDay",
+              },
+              {
+                label: "Proposed Number Of Recovery Days (L1)",
+                value: "l1ProposedRecoveryDays",
+              },
+              {
+                label: "Reson For Porposed Recovery Day (L1)",
+                value: "l1ReasonForProposedRecoveryDays",
+              },
+              { label: "Billing Type (L1)", value: "l1BillingType" },
+              { label: "Customer Name (L1)", value: "l1CustomerName" },
+
+              { label: "Final Recovery Days (L2)", value: "finalRecoveryDays" },
+              {
+                label: "Final Recovery Days Reason (L2)",
+                value: "finalRecoveryDaysReason",
+              },
+              {
+                label: "Organization Name (L2)",
+                value: "l2NewOrganizationName",
+              },
+
+              { label: "SalaryHike (L2)", value: "l2SalaryHike" },
+              { label: "Do Not ReHire (L2)", value: "doNotReHire" },
+              { label: "Billing Type (L2)", value: "l2BillingType" },
+              { label: "Customer Name (L2)", value: "l2CustomerName" },
+              { label: "Last Working Day (L2)", value: "l2LastWorkingDay" },
+              { label: "Admin Separation Type", value: "adminSeparationType" },
+              {
+                label: "Admin Separation Reason",
+                value: "adminSeparationReason",
+              },
+              { label: "Admin Other Reason", value: "adminOtherReason" },
+              { label: "Date Of Approval", value: "dateOfApproval" },
+              { label: "Notice Period Name", value: "noticePeriodName" },
+              {
+                label: "Notice Period Duration",
+                value: "noticePeriodDuration",
+              },
+              { label: "Updated By Name", value: "updatedByName" },
+              {
+                label: "Updated By Employee Number",
+                value: "updatedByEmployeeNumber",
+              },
+              { label: "Updated On", value: "updatedOn" },
+              { label: "Short Fall Payout", value: "shortFallPayout" },
+              { label: "Short Fall Payout Days", value: "shortFallPayoutDays" },
+
+              { label: "New Company Name", value: "newCompanyName" },
+              { label: "New CTC", value: "newCtc" },
+              { label: "New Role", value: "newRole" },
+              {
+                label: "NDA Letter Confirmation",
+                value: "newLetterConfimation",
+              },
+            ],
+            content: arr,
+          },
+        ];
+
+        const settings = {
+          fileName: `Employee_Master_${timestamp}`,
+          extraLength: 3,
+          writeOptions: {
+            type: "buffer",
+            bookType: "xlsx",
+          },
+        };
+
+        const report = xlsx(data, settings);
+        res.setHeader(
+          "Content-Disposition",
+          `attachment; filename=Separation_History_${timestamp}.xlsx`
+        );
+        res.end(report);
+      } else {
+        res.status(204).json({ message: "No employee data found" });
+      }
+
+      // return respHelper(res, {
+      //   status: 200,
+      //   message: "Data not availble for available dates",
+      //   data: employeeData,
+      // });
     } catch (error) {
       console.error("Error:", error);
       res.status(500).json({

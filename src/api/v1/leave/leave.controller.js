@@ -70,9 +70,13 @@ class LeaveController {
         where: Object.assign(
           query === "raisedByMe"
             ? {
-                employeeId: req.userId,
-                status: "pending",
-              }
+              employeeId: req.userId,
+              status: "pending",
+              [Op.or]: [
+                { source: { [Op.ne]: "system_generated" } },
+                { source: null }
+              ]
+            }
             : { pendingAt: req.userId, status: "pending" }
         ),
         attributes: { exclude: ["createdBy", "updatedBy", "updatedAt"] },

@@ -751,6 +751,17 @@ db.separationTrail.hasOne(db.separationMaster, {
   sourceKey: "separationAutoId",
 });
 
+db.separationTrail.hasOne(db.employeeMaster, {
+  foreignKey: "id",
+  sourceKey: "createdBy",
+  as:"createdBySeparationTrail"
+});
+
+db.separationTrail.hasOne(db.employeeMaster, {
+  foreignKey: "id",
+  sourceKey: "updatedBy",
+  as:"updatedBySeparationTrail"
+});
 db.separationMaster.hasMany(db.separationTrail, {
   foreignKey: "separationAutoId",
   sourceKey: "resignationAutoId",

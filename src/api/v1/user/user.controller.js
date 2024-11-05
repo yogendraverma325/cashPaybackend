@@ -3394,59 +3394,59 @@ class UserController {
       const limit = parseInt(req.query.limit, 10) || 10;
       const pageNo = parseInt(req.query.page, 10) || 1;
       const offset = (pageNo - 1) * limit;
-      const { count, rows: separationData } =
-        await db.separationMaster.findAndCountAll({
-          where: {
-            employeeId: { [Op.ne]: req.userId },
-          },
-          include: [
-            {
-              model: db.employeeMaster,
-              attributes: ["empCode", "name"],
-              where: {
-                ...(search && { name: { [Op.like]: `%${search}%` } }),
+      const { count, rows: separationData } = await db.separationMaster.findAndCountAll({
+        where: {
+          employeeId: { [Op.ne]: req.userId }
+        },        
+        include: [
+          {
+            model: db.employeeMaster,
+            attributes: ["empCode", "name"],
+            where:{
+              ...(search && { name: { [Op.like]: `%${search}%` } }),
+          }
+         },
+         {
+            model: db.separationStatus,
+            attributes: ["separationStatusCode", "separationStatusDesc"],
+         },
+         {
+          model: db.separationReason,
+          as: "empReasonofResignation",
+          attributes: ["separationReason"],
+         },
+         {
+          model: db.separationReason,
+          as: "l1ReasonofResignation",
+          attributes: ["separationReason"],
+         },
+         {
+          model: db.separationReason,
+          attributes: ["separationReason"],
+          as: "l2ReasonofSeparation",
+
+       },
+       {
+            model: db.separationTrail,
+            where:{ pendingAt :req.userId, pending: 0 },
+            required: true,
+            include: [
+              {
+                model: db.separationStatus,
+                attributes: ["separationStatusCode", "separationStatusDesc"],
               },
-            },
-            {
-              model: db.separationStatus,
-              attributes: ["separationStatusCode", "separationStatusDesc"],
-            },
-            {
-              model: db.separationReason,
-              as: "empReasonofResignation",
-              attributes: ["separationReason"],
-            },
-            {
-              model: db.separationReason,
-              as: "l1ReasonofResignation",
-              attributes: ["separationReason"],
-            },
-            {
-              model: db.separationReason,
-              attributes: ["separationReason"],
-              as: "l2ReasonofSeparation",
-            },
-            {
-              model: db.separationTrail,
-              where: { pendingAt: req.userId, pending: [0] },
-              required: true,
-              include: [
-                {
-                  model: db.separationStatus,
-                  attributes: ["separationStatusCode", "separationStatusDesc"],
-                },
-                {
-                  model: db.employeeMaster,
-                  attributes: ["empCode", "name"],
-                  as: "pendingat",
-                },
-              ],
-            },
-          ],
-          limit,
-          offset,
-          distinct: true,
-        });
+              {
+                model: db.employeeMaster,
+                attributes: ["empCode", "name"],
+                as: "pendingat",
+              }
+            ],
+          },
+        ],
+        limit,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
+        offset,
+        distinct: true
+      });
 
       return respHelper(res, {
         status: 200,
