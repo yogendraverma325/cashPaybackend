@@ -1911,7 +1911,7 @@ class MasterController {
             if (!dayRecords[dayKey]) {
               dayRecords[dayKey] = "-"; // Default to '-' for future/current days if not already set
             }
-          }
+          } 
 
           if (currentDay.isSameOrBefore(employeeRecord.dateOfJoining)) {
             // if (currentDay.isBefore(today)) {
