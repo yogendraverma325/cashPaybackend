@@ -891,9 +891,11 @@ class AdminController {
                   let newEmployeeJobDetails = {
                     userId: createdUser.id,
                     dateOfJoining: employeeOnboardingDetails.dateOfJoining,
-                    probationPeriod: `${probationName}(${durationOfProbation} day(s))`,
+                    probationPeriod: probationName,
                     probationDays: durationOfProbation,
                     jobLevelId: employeeOnboardingDetails.jobLevelId,
+                    pfNumber: employeeOnboardingDetails.pfNo,
+                    uanNumber: employeeOnboardingDetails.uanNo,
                   };
 
                   const createdUserJobDetails = await db.jobDetails.create(

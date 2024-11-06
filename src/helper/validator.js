@@ -1009,7 +1009,7 @@ const importOnboardEmployeeSchema = Joi.object({
     .label("Position Type"),
 
   selfService: Joi.number().required().label("Self Service"),
-  mobileAccess: Joi.number().optional().label("Mobile Access"),
+  mobileAccess: Joi.number().required().label("Mobile Access"),
   laptopSystem: Joi.string()
     .valid("No", "Desktop", "Laptop (Mac)", "Laptop (Window)")
     .required()
@@ -1040,7 +1040,7 @@ const importOnboardEmployeeSchema = Joi.object({
   // paymentBankIfsc: Joi.string().allow('').default('NA').trim().min(11).max(11).label("Bank Ifsc Code"),
   // noticePeriodAutoId: Joi.string().required().label("Notice Period"),
   ESICPFDeduction: Joi.string()
-    .valid("Yes", "No", "Only PF", "Only ESIC")
+    .valid("Yes", "No", "Only PF", "Only ESIC", null)
     .when("employeeType", {
       is: "Off-Roll",
       then: Joi.required().label("ESIC/PF Deduction"),

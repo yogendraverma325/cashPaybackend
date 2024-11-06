@@ -1178,6 +1178,7 @@ class MasterController {
 
           for (const employee of chunk) {
             let obj = createObj(employee);
+            console.log(obj);
             
             // validate fields
             const { error } =
@@ -1309,9 +1310,9 @@ class MasterController {
                   Remarks: "Success",
                 });
 
-                const createdEmployees = await db.employeeStagingMaster.create(
-                  newEmployee
-                );
+                // const createdEmployees = await db.employeeStagingMaster.create(
+                //   newEmployee
+                // );
               } else {
                 const masterErrors = {
                   index: employee.Index,
@@ -2668,9 +2669,7 @@ const createObj = (obj) => {
     jobLevel: obj.Job_Level_Name,
 
     selfService: replaceYesOrNoWithNumber(obj.Self_Service),
-    mobileAccess: obj.Mobile_Access
-      ? replaceYesOrNoWithNumber(obj.Mobile_Access)
-      : null,
+    mobileAccess: replaceYesOrNoWithNumber(obj.Mobile_Access),
     laptopSystem: obj.Laptop_System,
     backgroundVerification: replaceYesOrNoWithNumber(
       obj.Background_Verification
