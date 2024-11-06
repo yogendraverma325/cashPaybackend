@@ -414,8 +414,8 @@ class AdminController {
           }
         } else {
           result.role_id = 3;
-          result.offRoleCTC = result.offRoleCTC ? result.offRoleCTC : 0;
-
+          result.offRoleCTC = (result.offRoleCTC) ? result.offRoleCTC : 0;
+          
           const createdUser = await db.employeeStagingMaster.create(result);
 
           if (result.image) {
@@ -1154,22 +1154,17 @@ class AdminController {
         where: condition,
         attributes: attributes,
         include: [
-          { model: db.companyMaster, attributes: ["companyId", "companyName"] },
-          { model: db.shiftMaster, attributes: ["shiftId", "shiftName"] },
-          {
-            model: db.attendancePolicymaster,
-            attributes: ["attendancePolicyId", "policyName"],
-          },
-          { model: db.weekOffMaster, attributes: ["weekOffId", "weekOffName"] },
-          { model: db.employeeMaster, attributes: ["id", "name", "empCode"] },
-          {
-            model: db.designationMaster,
-            attributes: ["designationId", "name", "code"],
-          },
-        ],
+          { model: db.companyMaster, attributes: ['companyId', 'companyName'] },
+          { model: db.shiftMaster, attributes: ['shiftId', 'shiftName'] },
+          { model: db.attendancePolicymaster, attributes: ['attendancePolicyId', 'policyName'] },
+          { model: db.weekOffMaster, attributes: ['weekOffId', 'weekOffName'] },
+          { model: db.employeeMaster, attributes: ['id', 'name', 'empCode'] },
+          { model: db.designationMaster, attributes: ['designationId', 'name', 'code'] },
+        ]
       });
       if (result) {
-        let subQuery = { isActive: 1 };
+
+        let subQuery = { 'isActive': 1 };
 
         const buData = await db.buMapping.findAll({
           where: { companyId: result.companyId },
@@ -1182,10 +1177,10 @@ class AdminController {
           ],
         });
 
-        const mappingBU = buData.find((bu) => bu.buId === result.buId);
+        const mappingBU = buData.find(bu => bu.buId === result.buId);
 
         const sbuData = await db.sbuMapping.findAll({
-          where: { buMappingId: mappingBU.buMappingId },
+          where: { 'buMappingId': mappingBU.buMappingId },
           include: [
             {
               model: db.sbuMaster,
@@ -1195,7 +1190,7 @@ class AdminController {
           ],
         });
 
-        const mappingSBU = sbuData.find((bu) => bu.sbuId === result.sbuId);
+        const mappingSBU = sbuData.find(bu => bu.sbuId === result.sbuId);
 
         const departmentData = await db.departmentMapping.findAll({
           where: { sbuMappingId: mappingSBU.sbuMappingId },
@@ -1208,12 +1203,10 @@ class AdminController {
           ],
         });
 
-        const mappingDepartment = departmentData.find(
-          (bu) => bu.departmentId === result.departmentId
-        );
+        const mappingDepartment = departmentData.find(bu => bu.departmentId === result.departmentId);
 
         const functionalAreaData = await db.functionalAreaMapping.findAll({
-          where: { departmentMappingId: mappingDepartment.departmentMappingId },
+          where: { departmentMappingId: mappingDepartment.departmentMappingId  },
           include: [
             {
               model: db.functionalAreaMaster,
@@ -1228,7 +1221,7 @@ class AdminController {
         });
 
         const buhrData = await db.buMapping.findAll({
-          where: { buMappingId: mappingBU.buMappingId },
+          where: { 'buMappingId': mappingBU.buMappingId },
           include: [
             {
               model: db.employeeMaster,
@@ -1240,7 +1233,7 @@ class AdminController {
         });
 
         const buheadData = await db.buMapping.findAll({
-          where: { buMappingId: mappingBU.buMappingId },
+          where: { 'buMappingId': mappingBU.buMappingId },
           include: [
             {
               model: db.employeeMaster,
@@ -1252,45 +1245,21 @@ class AdminController {
         });
 
         const companyLocationData = await db.companyLocationMaster.findAll({
-          where: { isActive: 1, companyId: result.companyId },
+          where: { 'isActive': 1, 'companyId': result.companyId },
           attributes: ["companyLocationId", "address1", "companyLocationCode"],
           include: [{ model: db.cityMaster, attributes: ["cityName"] }],
         });
 
-        const employeeTypeData = await db.employeeTypeMaster.findAll({
-          where: subQuery,
-        });
-        const probationData = await db.probationMaster.findAll({
-          where: subQuery,
-          attributes: ["probationId", "probationName"],
-        });
-        const newCustomerNameData = await db.newCustomerNameMaster.findAll({
-          where: subQuery,
-          attributes: ["newCustomerNameId", "newCustomerName"],
-        });
-        const jobLevelData = await db.jobLevelMaster.findAll({
-          where: subQuery,
-        });
-        const noticePeriodData = await db.noticePeriodMaster.findAll({
-          where: subQuery,
-          attributes: ["noticePeriodAutoId", "noticePeriodName"],
-        });
+        const employeeTypeData = await db.employeeTypeMaster.findAll({ where: subQuery });
+        const probationData = await db.probationMaster.findAll({ where: subQuery, attributes: ["probationId", "probationName"] });
+        const newCustomerNameData = await db.newCustomerNameMaster.findAll({ where: subQuery, attributes: ["newCustomerNameId", "newCustomerName"] });
+        const jobLevelData = await db.jobLevelMaster.findAll({ where: subQuery });
+        // const noticePeriodData = await db.noticePeriodMaster.findAll({ where: subQuery, attributes: ["noticePeriodAutoId", "noticePeriodName"] });
+        const noticePeriodData = [];
+        const degreeData = await db.degreeMaster.findAll({ where: subQuery, attributes: ["degreeId", "degreeName"] });
 
-        let allDetails = {
-          result,
-          buData,
-          sbuData,
-          departmentData,
-          functionalAreaData,
-          buhrData,
-          buheadData,
-          companyLocationData,
-          employeeTypeData,
-          probationData,
-          newCustomerNameData,
-          jobLevelData,
-          noticePeriodData,
-        };
+        let allDetails = { result, buData, sbuData, departmentData, functionalAreaData, buhrData, buheadData, 
+          companyLocationData, employeeTypeData, probationData, newCustomerNameData, jobLevelData, noticePeriodData, degreeData };
 
         return respHelper(res, {
           status: 200,

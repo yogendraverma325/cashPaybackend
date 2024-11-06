@@ -372,25 +372,25 @@ const addJobDetailsSchema = Joi.object({
     .min(12)
     .max(12)
     .optional(),
-  epsApplicability: Joi.boolean().allow("").label("EPS Applicability"),
-  esicApplicable: Joi.boolean().allow("").label("ESIC Applicable"),
-  lwfApplicable: Joi.boolean().allow("").label("LWF Applicable"),
-  pfRestricted: Joi.boolean().allow("").label("PF Restricted"),
-  pfApplicability: Joi.boolean().allow("").label("PF Applicability"),
-  epfApplicable: Joi.boolean().allow("").label("EPF Applicable"),
-  pfNumber: Joi.string().label("PF Number").optional(),
-  lwfDesignation: Joi.number().label("LWF Designation").optional(),
-  lwfState: Joi.number().label("LWF State").optional(),
-  restrictCompanyPf: Joi.boolean().allow("").label("Restrict Company PF"),
-  pranNumber: Joi.string().label("PRAN Number").optional(),
-  npsNumber: Joi.string().label("NPS Number").optional(),
-  companyLocationId: Joi.number().label("Company Location").optional(),
-  unionId: Joi.number().label("Union Code").optional(),
-  bandId: Joi.number().label("Band").optional(),
-  gradeId: Joi.number().label("Grade").optional(),
-  jobLevelId: Joi.number().label("Job Level").optional(),
-  residentEng: Joi.boolean().label("Resident Engineer").optional(),
-  customerName: Joi.string().label("Customer Name").optional(),
+  epsApplicability: Joi.boolean().allow(null).label("EPS Applicability"),
+  esicApplicable: Joi.boolean().allow(null).label("ESIC Applicable"),
+  lwfApplicable: Joi.boolean().allow(null).label("LWF Applicable"),
+  pfRestricted: Joi.boolean().allow(null).label("PF Restricted"),
+  pfApplicability: Joi.boolean().allow(null).label("PF Applicability"),
+  epfApplicable: Joi.boolean().allow(null).label("EPF Applicable"),
+  pfNumber: Joi.string().allow(null).label("PF Number").optional(),
+  lwfDesignation: Joi.number().allow(null).label("LWF Designation").optional(),
+  lwfState: Joi.number().allow(null).label("LWF State").optional(),
+  restrictCompanyPf: Joi.boolean().allow(null).label("Restrict Company PF"),
+  pranNumber: Joi.string().allow(null).label("PRAN Number").optional(),
+  npsNumber: Joi.string().allow(null).label("NPS Number").optional(),
+  companyLocationId: Joi.number().allow(null).label("Company Location").optional(),
+  unionId: Joi.number().allow(null).label("Union Code").optional(),
+  bandId: Joi.number().allow(null).label("Band").optional(),
+  gradeId: Joi.number().allow(null).label("Grade").optional(),
+  jobLevelId: Joi.number().allow(null).label("Job Level").optional(),
+  residentEng: Joi.boolean().allow(null).label("Resident Engineer").optional(),
+  customerName: Joi.string().allow(null).label("Customer Name").optional(),
 });
 
 const updateManagerSchema = Joi.array()
@@ -818,7 +818,7 @@ const onboardEmployeeSchema = Joi.object({
       then: Joi.required().label("off Role CTC"),
       otherwise: Joi.optional(),
     }),
-  highestQualification: Joi.string().required().label("Highest Qualification"),
+  highestQualification: Joi.number().required().label("Highest Qualification"),
   ESICPFDeduction: Joi.string().allow("").label("ESIC/PF Deduction"),
   fatherName: Joi.string().trim().allow("").label("Father Name"),
   paymentAccountNumber: Joi.string()
@@ -833,7 +833,7 @@ const onboardEmployeeSchema = Joi.object({
     .min(11)
     .max(11)
     .label("Bank Ifsc Code"),
-  noticePeriodAutoId: Joi.number().required().label("Notice Period"),
+  // noticePeriodAutoId: Joi.number().allow().label("Notice Period"),
 });
 
 const createTMCSchema = Joi.object({
@@ -976,7 +976,7 @@ const importOnboardEmployeeSchema = Joi.object({
       }
       return value; // Return the valid value
     }),
-  manager: Joi.number().required().label("Manager"),
+  manager: Joi.string().trim().required().label("Manager"),
   designation: Joi.string().required().label("Designation"),
   functionalArea: Joi.string().required().label("Functional Area"),
   bu: Joi.string().required().label("Business Unit"),
@@ -985,7 +985,7 @@ const importOnboardEmployeeSchema = Joi.object({
   department: Joi.string().required().label("Department"),
   company: Joi.string().required().label("Company"),
   attendancePolicy: Joi.string().allow("").label("Attendance Policy"),
-  companyLocation: Joi.string().required().label("Company Location"),
+  companyLocation: Joi.number().required().label("Company Location"),
   weekOff: Joi.string().allow("").label("Week Off"),
   gender: Joi.string()
     .valid("Male", "Female", "Do not want to disclose", "Transgender", "Other")
@@ -1035,7 +1035,6 @@ const importOnboardEmployeeSchema = Joi.object({
       otherwise: Joi.optional(),
     }),
   highestQualification: Joi.string()
-    .valid("Education", "Degree Master")
     .required()
     .label("Highest Qualification"),
   // ESICPFDeduction: Joi.string().valid('Yes', 'No', 'Only PF', 'Only ESIC').optional().label("ESIC/PF Deduction"),
@@ -1043,7 +1042,7 @@ const importOnboardEmployeeSchema = Joi.object({
   // paymentAccountNumber: Joi.string().allow('').default('NA').trim().max(20).label("Account Number"),
   // paymentBankName: Joi.string().allow('').default('NA').trim().label("Bank Name"),
   // paymentBankIfsc: Joi.string().allow('').default('NA').trim().min(11).max(11).label("Bank Ifsc Code"),
-  noticePeriodAutoId: Joi.string().required().label("Notice Period"),
+  // noticePeriodAutoId: Joi.string().required().label("Notice Period"),
   ESICPFDeduction: Joi.string()
     .valid("Yes", "No", "Only PF", "Only ESIC")
     .when("employeeType", {
