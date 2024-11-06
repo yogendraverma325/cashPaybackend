@@ -1373,7 +1373,7 @@ class MasterController {
       });
     }
   }
-
+  
   async attendanceSummary(req, res) {
     try {
       const {
@@ -1396,7 +1396,7 @@ class MasterController {
       const attendanceData = await db.attendanceMaster.findAll({
         attributes: ["employeeId", "attendanceDate", "attendancePresentStatus"],
         where: {
-          // employeeId: [4254],
+          //employeeId: 1431,
           attendanceDate: {
             [db.Sequelize.Op.between]: [
               fromDate.format("YYYY-MM-DD"),
@@ -1908,13 +1908,13 @@ class MasterController {
             }
           }
 
-          if (currentDay.isBefore(employeeRecord.dateOfJoining)) {
+          if (currentDay.isSameOrBefore(employeeRecord.dateOfJoining)) {
             // if (currentDay.isBefore(today)) {
             dayRecords[dayKey] = "-"; // For past dates, default to "A" if no data
           }
 
           if (
-            currentDay.isAfter(
+            currentDay.isSameOrAfter(
               moment(employeeRecord.dateOfexit).format("YYYY-MM-DD")
             )
           ) {
