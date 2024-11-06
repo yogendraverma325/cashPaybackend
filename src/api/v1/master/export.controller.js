@@ -2659,7 +2659,6 @@ class MasterController {
           };
         })
       );
-
       if (arr.length > 0) {
         const timestamp = moment().format("HH:mm"); //Date.now();
 
@@ -2719,14 +2718,10 @@ class MasterController {
         );
         res.end(report);
       } else {
-        res.status(204).json({ message: "No employee data found" });
+        res.status(404).json({
+          message: "Data not found",
+        });
       }
-
-      // return respHelper(res, {
-      //   status: 200,
-      //   message: "Data not availble for available dates",
-      //   data:arr
-      // });
     } catch (error) {
       console.error("Error:", error);
       res.status(500).json({
@@ -3028,8 +3023,6 @@ class MasterController {
           };
         })
       );
-      // console.log("arrr",arr.length)
-
       if (arr.length > 0) {
         const timestamp = moment().format("HH:mm"); //Date.now();
 
@@ -3127,15 +3120,11 @@ class MasterController {
           `attachment; filename=Separation_Approved_${timestamp}.xlsx`
         );
         res.end(report);
-      } else {
-        res.status(204).json({ message: "No employee data found" });
+      } else {  
+        res.status(404).json({
+          message: "Data not found",
+        });
       }
-
-      // return respHelper(res, {
-      //   status: 200,
-      //   message: "Data not availble for available dates",
-      //   data: employeeData,
-      // });
     } catch (error) {
       console.error("Error:", error);
       res.status(500).json({
@@ -3507,6 +3496,7 @@ class MasterController {
         })
       );
       // console.log("arrr",arr.length)
+      console.log("arr",arr.length)
 
       if (arr.length > 0) {
         const timestamp = moment().format("HH:mm"); //Date.now();
@@ -3614,14 +3604,10 @@ class MasterController {
         );
         res.end(report);
       } else {
-        res.status(204).json({ message: "No employee data found" });
+        res.status(404).json({
+          message: "Data not found",
+        });
       }
-
-      // return respHelper(res, {
-      //   status: 200,
-      //   message: "Data not availble for available dates",
-      //   data: employeeData,
-      // });
     } catch (error) {
       console.error("Error:", error);
       res.status(500).json({
