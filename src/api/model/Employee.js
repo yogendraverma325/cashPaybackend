@@ -207,8 +207,8 @@ export default (sequelize, Sequelize) => {
     costId: {
       type: Sequelize.INTEGER,
     },
-    dateOfexit:{
-      type:Sequelize.DATE
+    dateOfexit: {
+      type: Sequelize.DATE
     },
     createdBy: {
       type: Sequelize.INTEGER,

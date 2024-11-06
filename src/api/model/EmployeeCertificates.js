@@ -23,13 +23,13 @@ export default (sequelize, Sequelize) => {
         oem: {
             type: Sequelize.STRING,
         },
-        completionStatus:{
+        completionStatus: {
             type: Sequelize.STRING,
         },
-        certificationAndValidityFirst:{
+        certificationAndValidityFirst: {
             type: Sequelize.STRING
         },
-        certificationAndValiditySecond:{
+        certificationAndValiditySecond: {
             type: Sequelize.STRING
         },
         createdAt: {

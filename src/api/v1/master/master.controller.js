@@ -270,13 +270,13 @@ class MasterController {
         where: Object.assign(
           manager
             ? {
-                id: manager,
-                isActive: 1,
-              }
+              id: manager,
+              isActive: 1,
+            }
             : {
-                manager: null,
-                isActive: 1,
-              }
+              manager: null,
+              isActive: 1,
+            }
         ),
         attributes: { exclude: ["password", "role_id", "designation_id"] },
         include: [
@@ -328,13 +328,15 @@ class MasterController {
         ],
       });
 
-      for (const iterator of reportie.dataValues.reportie) {
-        const reportie = await db.employeeMaster.findOne({
-          where: {
-            manager: iterator.dataValues.id,
-          },
-        });
-        iterator.dataValues["reportings"] = reportie ? true : false;
+      if (reportie) {
+        for (const iterator of reportie.dataValues.reportie) {
+          const reportie = await db.employeeMaster.findOne({
+            where: {
+              manager: iterator.dataValues.id,
+            },
+          });
+          iterator.dataValues["reportings"] = reportie ? true : false;
+        }
       }
 
       return respHelper(res, {
@@ -545,23 +547,23 @@ class MasterController {
         where: Object.assign(
           stateCode
             ? {
-                stateCode,
-              }
+              stateCode,
+            }
             : {},
           stateName
             ? {
-                stateName,
-              }
+              stateName,
+            }
             : {},
           countryId
             ? {
-                countryId,
-              }
+              countryId,
+            }
             : {},
           regionId
             ? {
-                regionId,
-              }
+              regionId,
+            }
             : {}
         ),
       });
@@ -591,8 +593,8 @@ class MasterController {
         where: Object.assign(
           countryId
             ? {
-                countryId,
-              }
+              countryId,
+            }
             : {}
         ),
       });
@@ -622,8 +624,8 @@ class MasterController {
         where: Object.assign(
           stateId
             ? {
-                stateId,
-              }
+              stateId,
+            }
             : {}
         ),
       });
@@ -963,27 +965,27 @@ class MasterController {
               : [["webPosition", "asc"]],
             attributes: mobile
               ? [
-                  "cardId",
-                  "cardName",
-                  "mobileUrl",
-                  "isCardWorking",
-                  "mobileLightFontColor",
-                  "mobileIcon",
-                  "mobileLightBackgroundColor",
-                  "mobilePosition",
-                  "mobileDarkFontColor",
-                  "mobileDarkBackgroundColor",
-                ]
+                "cardId",
+                "cardName",
+                "mobileUrl",
+                "isCardWorking",
+                "mobileLightFontColor",
+                "mobileIcon",
+                "mobileLightBackgroundColor",
+                "mobilePosition",
+                "mobileDarkFontColor",
+                "mobileDarkBackgroundColor",
+              ]
               : [
-                  "cardId",
-                  "cardName",
-                  "isCardWorking",
-                  "webUrl",
-                  "webFontColor",
-                  "webBackgroundColor",
-                  "webIcon",
-                  "webPosition",
-                ],
+                "cardId",
+                "cardName",
+                "isCardWorking",
+                "webUrl",
+                "webFontColor",
+                "webBackgroundColor",
+                "webIcon",
+                "webPosition",
+              ],
           });
 
           const dashboardJson = JSON.stringify(dashboardData);
@@ -1318,7 +1320,7 @@ class MasterController {
 
   async reportModule(req, res) {
     try {
-      const {} = req.query;
+      const { } = req.query;
       let query = { isActive: 1 };
       const reportModule = await db.reportModuleMaster.findAll({
         where: query,
@@ -1346,7 +1348,7 @@ class MasterController {
 
   async shiftMaster(req, res) {
     try {
-      const {} = req.query;
+      const { } = req.query;
       let query = { isActive: 1 };
       const reportModule = await db.shiftMaster.findAll({});
 

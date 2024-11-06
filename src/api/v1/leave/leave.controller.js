@@ -65,7 +65,7 @@ class LeaveController {
   async leaveRequestList(req, res) {
     try {
       const query = req.query.listFor;
-  
+
       const regularizeList = await db.EmployeeLeaveHeader.findAll({
         where: Object.assign(
           query === "raisedByMe"
@@ -615,10 +615,10 @@ class LeaveController {
             leaveAttachment:
               result.attachment != ""
                 ? await helper.fileUpload(
-                    result.attachment,
-                    `leaveAttachment_${uuid}`,
-                    `uploads/${EMP_DATA.empCode}`
-                  )
+                  result.attachment,
+                  `leaveAttachment_${uuid}`,
+                  `uploads/${EMP_DATA.empCode}`
+                )
                 : null,
             pendingAt: EMP_DATA.managerData.id, // Replace with actual pending at value
             createdBy: req.userId, // Replace with actual creator user ID
@@ -688,10 +688,10 @@ class LeaveController {
         leaveAttachment:
           result.attachment != ""
             ? await helper.fileUpload(
-                result.attachment,
-                `leaveAttachment_${uuid}`,
-                `uploads/${EMP_DATA.empCode}`
-              )
+              result.attachment,
+              `leaveAttachment_${uuid}`,
+              `uploads/${EMP_DATA.empCode}`
+            )
             : null,
         pendingAt: EMP_DATA.managerData.id, // Replace with actual pending at value
         createdBy: req.userId, // Replace with actual creator user ID

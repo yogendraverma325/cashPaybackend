@@ -84,11 +84,11 @@ class CommonService {
             let updateMetaData = { 'isActive': (!doc.isActive) ? 1 : 0 };
             let [updated] = await model.update(updateMetaData, { where: query });
 
-            if(updated) {
+            if (updated) {
                 result = { status: 202, msg: constant.UPDATE_SUCCESS.replace("<module>", "Status"), data: {} };
                 return result;
             }
-            
+
             else {
                 result = { status: 404, msg: constant.DATA_BLANK, data: {} };
                 return result;

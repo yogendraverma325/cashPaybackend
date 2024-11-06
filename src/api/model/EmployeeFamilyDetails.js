@@ -23,7 +23,7 @@ export default (sequelize, Sequelize) => {
         relationWithEmp: {
             type: Sequelize.STRING,
         },
-        memberAddress:{
+        memberAddress: {
             type: Sequelize.STRING,
         },
         createdAt: {
