@@ -1178,7 +1178,7 @@ class MasterController {
 
           for (const employee of chunk) {
             let obj = createObj(employee);
-
+            
             // validate fields
             const { error } =
               await validator.importOnboardEmployeeSchema.validate(obj);
@@ -1243,9 +1243,7 @@ class MasterController {
               ) {
                 // prepare employee object
                 let newEmployee = {
-                  name: `${obj.firstName} ${obj.middleName} ${obj.lastName}`
-                    .replace(/\s+/g, " ")
-                    .trim(),
+                  name: [obj.firstName, obj.middleName, obj.lastName].filter(name => name).join(" "),
                   firstName: obj.firstName,
                   middleName: obj.middleName,
                   lastName: obj.lastName,
@@ -1275,14 +1273,14 @@ class MasterController {
                   employeeType: isValidEmployeeType.data.empTypeId,
                   manager: isValidManager.data.id,
                   designation_id: isValidDesignation.data.designationId,
-                  shiftId: isValidShift.data?.shiftId,
+                  shiftId: (isValidShift.status) ? isValidShift.data.shiftId : null,
                   attendancePolicyId:
-                    isValidAttendancePolicy.data?.attendancePolicyId,
+                    (isValidAttendancePolicy.status) ? isValidAttendancePolicy.data.attendancePolicyId : null,
                   companyLocationId:
-                    isValidCompanyLocation.data.companyLocationId,
-                  weekOffId: isValidWeekOff.data?.weekOffId,
+                    (isValidCompanyLocation.status) ? isValidCompanyLocation.data.companyLocationId : null,
+                  weekOffId: (isValidWeekOff.status) ? isValidWeekOff.data.weekOffId : null,
                   newCustomerNameId:
-                    isValidNewCustomerName.data?.newCustomerNameId,
+                    (isValidNewCustomerName.status) ? isValidNewCustomerName.data.newCustomerNameId : null,
                   jobLevelId: isValidJobLevel.data?.jobLevelId,
                   selfService: obj.selfService,
                   mobileAccess: obj.mobileAccess,
@@ -1310,6 +1308,7 @@ class MasterController {
                   Personal_Email: obj.personalEmail,
                   Remarks: "Success",
                 });
+
                 const createdEmployees = await db.employeeStagingMaster.create(
                   newEmployee
                 );
@@ -2622,7 +2621,7 @@ class MasterController {
 
 const createObj = (obj) => {
   let officeMobileNumber = replaceNAWithNull(obj.Official_Mobile_Number);
-  officeMobileNumber = officeMobileNumber ? officeMobileNumber.toString() : "";
+  officeMobileNumber = officeMobileNumber ? officeMobileNumber.toString() : null;
   let personalMobileNumber = obj.Personal_Mobile_Number?.toString();
   let uanNo = replaceNAWithNull(obj.UAN_No);
 
@@ -2637,7 +2636,7 @@ const createObj = (obj) => {
     middleName: replaceNAWithNull(obj.Middle_Name),
     lastName: replaceNAWithNull(obj.Last_Name),
     panNo: replaceNAWithNull(obj.Pan_No),
-    uanNo: uanNo?.toString(),
+    uanNo: (uanNo) ? uanNo.toString() : null,
     pfNo: replaceNAWithNull(obj.PF_No),
     employeeType: obj.Employee_Type_Name,
     officeMobileNumber: officeMobileNumber,
@@ -2647,9 +2646,9 @@ const createObj = (obj) => {
     dateOfJoining: convertExcelDate(obj.Date_of_Joining),
     maritalStatus: obj.Marital_Status,
     maritalStatusSince:
-      obj.Marital_Since != "NA" && obj.Marital_Since != ""
+      (obj.Marital_Since == "" || obj.Marital_Since == undefined || obj.Marital_Since == "NA")
         ? convertExcelDate(obj.Marital_Since)
-        : "",
+        : null,
     nationality: obj.Nationality_Name,
     probation: obj.Probation_Name,
     newCustomerName: replaceNAWithNull(obj.New_Customer_Name),
@@ -2671,7 +2670,7 @@ const createObj = (obj) => {
     selfService: replaceYesOrNoWithNumber(obj.Self_Service),
     mobileAccess: obj.Mobile_Access
       ? replaceYesOrNoWithNumber(obj.Mobile_Access)
-      : "",
+      : null,
     laptopSystem: obj.Laptop_System,
     backgroundVerification: replaceYesOrNoWithNumber(
       obj.Background_Verification
@@ -3199,8 +3198,8 @@ const convertExcelDate = (serial) => {
 };
 
 const replaceNAWithNull = (value) => {
-  return value === "NA" || value === undefined || value === "" || value === null
-    ? ""
+  return value === "NA" || value === undefined || value === "" || value === null || value === " "
+    ? null
     : value; // Replace 'NA' with ''
 };
 
