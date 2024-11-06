@@ -577,60 +577,55 @@ const empMarkLeaveOfGivenDate = async function (
     leaveType = "Full Day";
   }
   if (lateCase != null && workCase == null) {
-    leaveText = `Auto-requested for Leave deduction based on late duration policy.${
-      empData.name
-    } (${empData.empCode}) has clocked in late in ${
-      attendanceandOtherData.attendancemaster.attendanceLateBy
-    }
+    leaveText = `Auto-requested for Leave deduction based on late duration policy.${empData.name
+      } (${empData.empCode}) has clocked in late in ${attendanceandOtherData.attendancemaster.attendanceLateBy
+      }
 Late by duration to deduct half day is : ${minutesNunmberToHoursFormat(
-      attendanceandOtherData.attendancePolicymaster
-        .leaveDeductPolicyLateDurationHalfDayTime
-    )}
+        attendanceandOtherData.attendancePolicymaster
+          .leaveDeductPolicyLateDurationHalfDayTime
+      )}
 Late by duration to deduct full day is : ${minutesNunmberToHoursFormat(
-      attendanceandOtherData.attendancePolicymaster
-        .leaveDeductPolicyLateDurationFullDayTime
-    )}
+        attendanceandOtherData.attendancePolicymaster
+          .leaveDeductPolicyLateDurationFullDayTime
+      )}
 ${moment(inputData.fromDate).format("DD-MM-YYYY")} to ${moment(
-      inputData.toDate
-    ).format("DD-MM-YYYY")} (${leaveType}, System Half)`;
+        inputData.toDate
+      ).format("DD-MM-YYYY")} (${leaveType}, System Half)`;
   } else if (lateCase == null && workCase != null) {
-    leaveText = `Auto-requested for Leave because of Work duration policy.${
-      empData.name
-    } (${empData.empCode}) has worked for ${
-      attendanceandOtherData.attendancemaster.attendanceWorkingTime
-    }
+    leaveText = `Auto-requested for Leave because of Work duration policy.${empData.name
+      } (${empData.empCode}) has worked for ${attendanceandOtherData.attendancemaster.attendanceWorkingTime
+      }
 Working hours required in order to complete Half Day: ${minutesNunmberToHoursFormat(
-      attendanceandOtherData.attendancePolicymaster
-        .leaveDeductPolicyWorkDurationHalfDayTime
-    )}
+        attendanceandOtherData.attendancePolicymaster
+          .leaveDeductPolicyWorkDurationHalfDayTime
+      )}
 Working hours required in order to complete Full Day: ${minutesNunmberToHoursFormat(
-      attendanceandOtherData.attendancePolicymaster
-        .leaveDeductPolicyWorkDurationFullDayTime
-    )}`;
+        attendanceandOtherData.attendancePolicymaster
+          .leaveDeductPolicyWorkDurationFullDayTime
+      )}`;
   } else {
     leaveText = `Auto-requested for Leave because of Work and Late duration policy. 
-${empData.name} (${empData.empCode}) has worked for ${
-      attendanceandOtherData.attendancemaster.attendanceWorkingTime
-    } and Late By ${attendanceandOtherData.attendancemaster.attendanceLateBy}
+${empData.name} (${empData.empCode}) has worked for ${attendanceandOtherData.attendancemaster.attendanceWorkingTime
+      } and Late By ${attendanceandOtherData.attendancemaster.attendanceLateBy}
 Working hours required in order to complete Half Day: ${minutesNunmberToHoursFormat(
-      attendanceandOtherData.attendancePolicymaster
-        .leaveDeductPolicyWorkDurationHalfDayTime
-    )}
+        attendanceandOtherData.attendancePolicymaster
+          .leaveDeductPolicyWorkDurationHalfDayTime
+      )}
 Working hours required in order to complete Full Day: ${minutesNunmberToHoursFormat(
-      attendanceandOtherData.attendancePolicymaster
-        .leaveDeductPolicyWorkDurationFullDayTime
-    )}
+        attendanceandOtherData.attendancePolicymaster
+          .leaveDeductPolicyWorkDurationFullDayTime
+      )}
 Late by duration to deduct half day is : ${minutesNunmberToHoursFormat(
-      attendanceandOtherData.attendancePolicymaster
-        .leaveDeductPolicyLateDurationHalfDayTime
-    )}
+        attendanceandOtherData.attendancePolicymaster
+          .leaveDeductPolicyLateDurationHalfDayTime
+      )}
 Late by duration to deduct full day is : ${minutesNunmberToHoursFormat(
-      attendanceandOtherData.attendancePolicymaster
-        .leaveDeductPolicyLateDurationFullDayTime
-    )}
+        attendanceandOtherData.attendancePolicymaster
+          .leaveDeductPolicyLateDurationFullDayTime
+      )}
 ${moment(inputData.fromDate).format("DD-MM-YYYY")} to ${moment(
-      inputData.toDate
-    ).format("DD-MM-YYYY")} (${leaveType}, System Half)`;
+        inputData.toDate
+      ).format("DD-MM-YYYY")} (${leaveType}, System Half)`;
   }
   inputData.source = "system_generated";
 

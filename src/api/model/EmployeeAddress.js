@@ -8,70 +8,70 @@ export default (sequelize, Sequelize) => {
         employeeId: {
             type: Sequelize.INTEGER,
         },
-        addressType:{
+        addressType: {
             type: Sequelize.INTEGER,
         },
         currentHouse: {
             type: Sequelize.STRING,
         },
-        currentStreet:{
+        currentStreet: {
             type: Sequelize.STRING,
         },
         currentStateId: {
             type: Sequelize.INTEGER
         },
-        currentCityId:{
+        currentCityId: {
             type: Sequelize.INTEGER
         },
         currentCountryId: {
             type: Sequelize.INTEGER
         },
-        currentPincodeId:{
+        currentPincodeId: {
             type: Sequelize.STRING
         },
-        currentLandmark:{
+        currentLandmark: {
             type: Sequelize.STRING
         },
-        permanentCityId:{
+        permanentCityId: {
             type: Sequelize.INTEGER
         },
-        permanentStateId:{
+        permanentStateId: {
             type: Sequelize.INTEGER
         },
-        permanentCountryId:{
+        permanentCountryId: {
             type: Sequelize.INTEGER
         },
-        permanentPincodeId:{
+        permanentPincodeId: {
             type: Sequelize.STRING
         },
-        permanentStreet:{
+        permanentStreet: {
             type: Sequelize.STRING
         },
-        permanentHouse:{
+        permanentHouse: {
             type: Sequelize.STRING
         },
-        permanentLandmark:{
+        permanentLandmark: {
             type: Sequelize.STRING
         },
-        emergencyStreet:{
+        emergencyStreet: {
             type: Sequelize.STRING
         },
-        emergencyHouse :{
+        emergencyHouse: {
             type: Sequelize.STRING
         },
-        emergencyCityId:{
+        emergencyCityId: {
             type: Sequelize.INTEGER
         },
-        emergencyStateId:{
+        emergencyStateId: {
             type: Sequelize.INTEGER
         },
-        emergencyCountryId:{
+        emergencyCountryId: {
             type: Sequelize.INTEGER
         },
-        emergencyPincodeId:{
+        emergencyPincodeId: {
             type: Sequelize.STRING
         },
-        emergencyLandmark:{
+        emergencyLandmark: {
             type: Sequelize.STRING
         },
         // laptopSystem: {

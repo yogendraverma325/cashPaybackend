@@ -5,7 +5,7 @@ export default (sequelize, Sequelize) => {
             primaryKey: true,
             autoIncrement: true
         },
-        reportModuleId:{
+        reportModuleId: {
             type: Sequelize.INTEGER,
         },
         reportTypeName: {

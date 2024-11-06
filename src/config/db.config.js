@@ -754,13 +754,13 @@ db.separationTrail.hasOne(db.separationMaster, {
 db.separationTrail.hasOne(db.employeeMaster, {
   foreignKey: "id",
   sourceKey: "createdBy",
-  as:"createdBySeparationTrail"
+  as: "createdBySeparationTrail"
 });
 
 db.separationTrail.hasOne(db.employeeMaster, {
   foreignKey: "id",
   sourceKey: "updatedBy",
-  as:"updatedBySeparationTrail"
+  as: "updatedBySeparationTrail"
 });
 db.separationMaster.hasMany(db.separationTrail, {
   foreignKey: "separationAutoId",

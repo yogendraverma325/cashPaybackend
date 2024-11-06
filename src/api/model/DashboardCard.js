@@ -44,7 +44,7 @@ export default (sequelize, Sequelize) => {
         mobileDarkBackgroundColor: {
             type: Sequelize.STRING(255)
         },
-        isCardWorking:{
+        isCardWorking: {
             type: Sequelize.INTEGER
         },
         createdAt: {
@@ -59,7 +59,7 @@ export default (sequelize, Sequelize) => {
         updatedBy: {
             type: Sequelize.INTEGER
         },
-        isActive:{
+        isActive: {
             type: Sequelize.INTEGER
         },
         isActiveWeb: {

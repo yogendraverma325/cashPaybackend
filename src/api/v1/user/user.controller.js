@@ -3397,38 +3397,38 @@ class UserController {
       const { count, rows: separationData } = await db.separationMaster.findAndCountAll({
         where: {
           employeeId: { [Op.ne]: req.userId }
-        },        
+        },
         include: [
           {
             model: db.employeeMaster,
             attributes: ["empCode", "name"],
-            where:{
+            where: {
               ...(search && { name: { [Op.like]: `%${search}%` } }),
-          }
-         },
-         {
+            }
+          },
+          {
             model: db.separationStatus,
             attributes: ["separationStatusCode", "separationStatusDesc"],
-         },
-         {
-          model: db.separationReason,
-          as: "empReasonofResignation",
-          attributes: ["separationReason"],
-         },
-         {
-          model: db.separationReason,
-          as: "l1ReasonofResignation",
-          attributes: ["separationReason"],
-         },
-         {
-          model: db.separationReason,
-          attributes: ["separationReason"],
-          as: "l2ReasonofSeparation",
+          },
+          {
+            model: db.separationReason,
+            as: "empReasonofResignation",
+            attributes: ["separationReason"],
+          },
+          {
+            model: db.separationReason,
+            as: "l1ReasonofResignation",
+            attributes: ["separationReason"],
+          },
+          {
+            model: db.separationReason,
+            attributes: ["separationReason"],
+            as: "l2ReasonofSeparation",
 
-       },
-       {
+          },
+          {
             model: db.separationTrail,
-            where:{ pendingAt :req.userId, pending: 0 },
+            where: { pendingAt: req.userId, pending: 0 },
             required: true,
             include: [
               {
@@ -3443,7 +3443,7 @@ class UserController {
             ],
           },
         ],
-        limit,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
+        limit,
         offset,
         distinct: true
       });

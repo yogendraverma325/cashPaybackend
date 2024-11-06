@@ -14,10 +14,10 @@ export default (sequelize, Sequelize) => {
             allowNull: false,
             unique: true,
         },
-        nPDaysAfterConfirmation:{
+        nPDaysAfterConfirmation: {
             type: Sequelize.INTEGER,
         },
-        nPDaysInProbation:{
+        nPDaysInProbation: {
             type: Sequelize.INTEGER,
         },
         createdDt: {

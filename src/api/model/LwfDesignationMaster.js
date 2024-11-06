@@ -1,4 +1,3 @@
-
 export default (sequelize, Sequelize) => {
     const lwfDesignationMaster = sequelize.define("lwfdesignationmaster", {
         lwfDesignationId: {
