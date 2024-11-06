@@ -2330,10 +2330,10 @@ class MasterController {
               ele.dataValues.visitingCardAdmin == 0 ? "No" : "Yes",
             workstationAdmin:
               ele.dataValues.workstationAdmin == 0 ? "No" : "Yes",
-            buHeadCode:
-              ele.dataValues.buId && ele.dataValues.companyId
-                ? headAndHrData?.buHeadData?.empCode
-                : "",
+            buHeadCode:ele.dataValues.buHeadData?.empCode,
+              // ele.dataValues.buId && ele.dataValues.companyId
+              //   ? headAndHrData?.buHeadData?.empCode
+              //   : "",
             nomineeName: ele.employeebiographicaldetail?.nomineeName || "",
             nomineeRelation:
               ele.employeebiographicaldetail?.nomineeRelation || "",
@@ -2361,8 +2361,8 @@ class MasterController {
               { label: "Bussiness Unit", value: "bu_name" },
               { label: "Bussiness Unit Head", value: "buHeadName" },
               { label: "Bussiness Unit Head Code", value: "buHeadCode" },
-              { label: "Direct Manager Code", value: "manager_code" },
               { label: "Direct Manager Name", value: "manager_name" },
+              { label: "Direct Manager Code", value: "manager_code" },
               { label: "Direct Manager Email Id", value: "manager_email_id" },
               { label: "HRBP Code", value: "hrbpCode" },
               { label: "HRBP Name", value: "hrbpName" },
