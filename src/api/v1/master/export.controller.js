@@ -2441,7 +2441,9 @@ class MasterController {
         );
         res.end(report);
       } else {
-        res.status(204).json({ message: "No employee data found" });
+        res.status(404).json({
+          message: "Data not found",
+        });
       }
     } catch (error) {
       console.error("Error:", error);
