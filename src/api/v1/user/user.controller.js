@@ -3145,6 +3145,9 @@ class UserController {
               {
                 model: db.separationMaster,
                 attributes: ["resignationDate", "l2LastWorkingDay"],
+                where: {
+                  finalStatus: 9
+                }
               },
               {
                 model: db.designationMaster,
@@ -3228,6 +3231,9 @@ class UserController {
               },
               {
                 model: db.separationMaster,
+                where: {
+                  finalStatus: 9
+                },
                 attributes: ["resignationDate", "l2LastWorkingDay"],
               },
             ],
@@ -3549,15 +3555,48 @@ class UserController {
 
   async revokeSeparationBUHR(req, res) {
     try {
+      const result = await validator.revokeSeparationBUHR.validateAsync(req.body);
 
+      const separationData = await db.separationMaster.findOne({
+        where: {
+          resignationAutoId: result.resignationAutoId,
+          finalStatus: 9,
+        },
+      });
 
-      console.log("Revoke Separation BY BU HR")
+      if (!separationData) {
+        return respHelper(res, {
+          status: 404,
+          msg: constant.DETAILS_NOT_FOUND.replace("<module>", "Separation"),
+        });
+      }
+
+      await db.separationMaster.update(
+        {
+          l2RevokeReason: result.reason,
+          l2Remark: result.remark,
+          l2RevokeDate: moment(),
+          finalStatus: 11,
+        },
+        {
+          where: {
+            resignationAutoId: separationData.dataValues.resignationAutoId,
+          },
+        }
+      );
 
       return respHelper(res, {
         status: 200,
+        msg: constant.SEPARATION_REVOKED,
       });
     } catch (error) {
-      console.error(error);
+      console.log(error);
+      if (error.isJoi === true) {
+        return respHelper(res, {
+          status: 422,
+          msg: error.details[0].message,
+        });
+      }
       return respHelper(res, {
         status: 500,
       });
