@@ -253,7 +253,10 @@ export default Express.Router()
         authentication.authenticate,
         userController.userPolicyHistory
     )
-    .get("/taskData", authentication.authenticate, userController.taskData)
+    .get("/taskData",
+        authentication.authenticate,
+        userController.taskData
+    )
 
     .get(
         "/taskHistorySeparation",
@@ -261,4 +264,12 @@ export default Express.Router()
         userController.taskHistorySeparation
     )
 
-    .get("/separationWorkflow", authentication.authenticate, userController.separationWorkflow)
+    .get("/separationWorkflow",
+        authentication.authenticate,
+        userController.separationWorkflow
+    )
+
+    .post("/revokeSeparationBUHR",
+        authentication.authenticate,
+        userController.revokeSeparationBUHR
+    )

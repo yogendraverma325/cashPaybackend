@@ -2694,7 +2694,7 @@ class UserController {
     try {
       let reqObj = {};
       for (const element of req.body) {
-        if (element.fieldsCode === 'file') {
+        if (element.fieldsCode === 'file' && element.value !== "") {
           const d = Math.floor(Date.now() / 1000);
           const userData = await db.employeeMaster.findOne({
             where: {
@@ -3474,7 +3474,6 @@ class UserController {
       console.error(error);
       return respHelper(res, {
         status: 500,
-        message: "Internal Server Error",
       });
     }
   }
@@ -3530,6 +3529,23 @@ class UserController {
       });
     } catch (error) {
       console.log(error);
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+
+  async revokeSeparationBUHR(req, res) {
+    try {
+
+
+      console.log("Revoke Separation BY BU HR")
+
+      return respHelper(res, {
+        status: 200,
+      });
+    } catch (error) {
+      console.error(error);
       return respHelper(res, {
         status: 500,
       });
