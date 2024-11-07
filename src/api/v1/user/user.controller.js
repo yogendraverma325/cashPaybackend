@@ -3480,13 +3480,17 @@ class UserController {
 
   async separationWorkflow(req, res) {
     try {
+      const limit = parseInt(req.query.limit, 10) || 10;
+      const pageNo = parseInt(req.query.page, 10) || 1;
+      const offset = (pageNo - 1) * limit;
 
-      const workflowData = await db.separationInitiatedTask.findAll({
+      const { count, rows: workflowData } = await db.separationInitiatedTask.findAndCountAll({
         where: {
           updatedBy: req.userId
         },
         include: [{
           model: db.separationTaskMaster,
+
           attributes: ['taskAutoId', 'taskCode', "taskName"]
         },
         {
@@ -3516,16 +3520,24 @@ class UserController {
         }, {
           model: db.separationFieldValues,
           attributes: ['fieldValues'],
+          separate: true,
           include: [{
             model: db.separationTaskFields,
             attributes: ["fieldsCode", "label", "isRequired"]
           }]
-        }]
+        }],
+        limit,
+        offset,
       })
 
       return respHelper(res, {
         status: 200,
-        data: workflowData
+        data: {
+          totalRecords: count,
+          totalPages: Math.ceil(count / limit),
+          currentPage: pageNo,
+          workflowData,
+        },
       });
     } catch (error) {
       console.log(error);
