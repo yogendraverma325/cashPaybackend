@@ -16,7 +16,7 @@ const msg = function (res, data) {
             res.status(data.status).json({
                 statusCode: 201,
                 status: true,
-                token: data.token,
+                token: data.token || res.token,
                 message: data.msg,
                 data: data.data,
             });
@@ -26,7 +26,7 @@ const msg = function (res, data) {
             res.status(data.status).json({
                 statusCode: 202,
                 status: true,
-                token: data.token,
+                token: data.token || res.token,
                 message: data.msg,
                 data: data.data,
             });

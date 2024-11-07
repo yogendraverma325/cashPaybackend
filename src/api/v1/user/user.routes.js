@@ -259,4 +259,6 @@ export default Express.Router()
         "/taskHistorySeparation",
         authentication.authenticate,
         userController.taskHistorySeparation
-    );
+    )
+
+    .get("/separationWorkflow", authentication.authenticate, userController.separationWorkflow)

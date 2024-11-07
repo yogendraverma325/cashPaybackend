@@ -2694,7 +2694,22 @@ class UserController {
     try {
       let reqObj = {};
       for (const element of req.body) {
-        reqObj[element.fieldsCode] = element.value;
+        if (element.fieldsCode === 'file') {
+          const d = Math.floor(Date.now() / 1000);
+          const userData = await db.employeeMaster.findOne({
+            where: {
+              id: element.user
+            },
+            attributes: ['empCode']
+          })
+          const fileName = await helper.fileUpload(
+            element.value,
+            `separationTask_${element.id}_${d}`,
+            `uploads/${userData.dataValues.empCode.toString()}`
+          );
+          element.value = fileName
+        }
+        reqObj[element.fieldsCode] = element.value !== "" ? element.value : null;
       }
 
       for (const element of req.body) {
@@ -2862,7 +2877,6 @@ class UserController {
         });
 
         for (const element of separationOwner) {
-          console.log("dependent task--->>", element);
           const initiatedTask = await db.separationInitiatedTask.create({
             employeeId: separationData.dataValues.employee.id,
             taskAutoId: element.dataValues.taskAutoId,
@@ -2873,7 +2887,6 @@ class UserController {
           });
 
           if (element.dataValues.separationtaskmaster.mappingOn === "FIX") {
-            console.log("fix block");
             const ownerArray =
               element.dataValues.separationtaskmaster.mappingData.split(",");
             for (const element11 of ownerArray) {
@@ -2900,7 +2913,7 @@ class UserController {
           } else if (
             element.dataValues.separationtaskmaster.mappingOn === "SELF"
           ) {
-            console.log("self block");
+
             db.separationTaskOwner.create({
               taskMappingAutoId: initiatedTask.dataValues.initiatedTaskAutoId,
               taskOwner: separationData.dataValues.employee.id,
@@ -2923,7 +2936,7 @@ class UserController {
           } else if (
             element.dataValues.separationtaskmaster.mappingOn === "MANAGER"
           ) {
-            console.log("manager block");
+
             db.separationTaskOwner.create({
               taskMappingAutoId: initiatedTask.dataValues.initiatedTaskAutoId,
               taskOwner: separationData.dataValues.employee.managerData.id,
@@ -3010,7 +3023,7 @@ class UserController {
               },
             });
 
-            console.log(buMappingData);
+
 
             if (buMappingData) {
               for (const element12 of buMappingData.dataValues.ownerId.split(
@@ -3462,6 +3475,63 @@ class UserController {
       return respHelper(res, {
         status: 500,
         message: "Internal Server Error",
+      });
+    }
+  }
+
+  async separationWorkflow(req, res) {
+    try {
+
+      const workflowData = await db.separationInitiatedTask.findAll({
+        where: {
+          updatedBy: req.userId
+        },
+        include: [{
+          model: db.separationTaskMaster,
+          attributes: ['taskAutoId', 'taskCode', "taskName"]
+        },
+        {
+          model: db.employeeMaster,
+          attributes: ['id', "name", "email", 'empCode'],
+          include: [
+            {
+              model: db.companyLocationMaster,
+              attributes: ['address1']
+            },
+            {
+              model: db.jobDetails,
+              attributes: ['dateOfJoining'],
+              include: [{
+                model: db.jobLevelMaster,
+                attributes: ["jobLevelId", "jobLevelName", "jobLevelCode"]
+              }]
+            },
+            {
+              model: db.separationMaster,
+              attributes: ["resignationDate",
+                "noticePeriodDay",
+                "l2LastWorkingDay"
+              ]
+            }
+          ]
+        }, {
+          model: db.separationFieldValues,
+          attributes: ['fieldValues'],
+          include: [{
+            model: db.separationTaskFields,
+            attributes: ["fieldsCode", "label", "isRequired"]
+          }]
+        }]
+      })
+
+      return respHelper(res, {
+        status: 200,
+        data: workflowData
+      });
+    } catch (error) {
+      console.log(error);
+      return respHelper(res, {
+        status: 500,
       });
     }
   }
