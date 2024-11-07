@@ -754,13 +754,13 @@ db.separationTrail.hasOne(db.separationMaster, {
 db.separationTrail.hasOne(db.employeeMaster, {
   foreignKey: "id",
   sourceKey: "createdBy",
-  as: "createdBySeparationTrail"
+  as: "createdBySeparationTrail",
 });
 
 db.separationTrail.hasOne(db.employeeMaster, {
   foreignKey: "id",
   sourceKey: "updatedBy",
-  as: "updatedBySeparationTrail"
+  as: "updatedBySeparationTrail",
 });
 db.separationMaster.hasMany(db.separationTrail, {
   foreignKey: "separationAutoId",
@@ -928,11 +928,15 @@ db.EmployeeLeaveHeader.hasOne(db.employeeMaster, {
 
 db.separationInitiatedTask.hasMany(db.separationFieldValues, {
   foreignKey: "initiatedTaskAutoId",
-})
+});
 
 db.separationFieldValues.hasOne(db.separationTaskFields, {
   foreignKey: "taskFieldsAutoId",
-  sourceKey: 'fields'
-})
+  sourceKey: "fields",
+});
+db.jobDetails.hasOne(db.probationMaster, {
+  foreignKey: "probationId",
+  sourceKey: "probationId",
+});
 
 export default db;

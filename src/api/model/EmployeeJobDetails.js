@@ -14,6 +14,9 @@ export default (sequelize, Sequelize) => {
     probationPeriod: {
       type: Sequelize.STRING,
     },
+    probationId: {
+      type: Sequelize.INTEGER
+    },
     probationDays: {
       type: Sequelize.INTEGER,
     },

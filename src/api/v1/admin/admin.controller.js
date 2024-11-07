@@ -884,16 +884,15 @@ class AdminController {
                   where: { probationId: employeeOnboardingDetails.probationId },
                 });
                 if (getProbationDetails) {
-                  let probationName = getProbationDetails.probationName;
-                  let durationOfProbation =
-                    getProbationDetails.durationOfProbation;
-
+                  
                   let newEmployeeJobDetails = {
                     userId: createdUser.id,
                     dateOfJoining: employeeOnboardingDetails.dateOfJoining,
-                    probationPeriod: `${probationName}(${durationOfProbation} day(s))`,
-                    probationDays: durationOfProbation,
+                    probationId: getProbationDetails.probationId,
+                    probationDays: getProbationDetails.durationOfProbation,
                     jobLevelId: employeeOnboardingDetails.jobLevelId,
+                    pfNumber: employeeOnboardingDetails.pfNo,
+                    uanNumber: employeeOnboardingDetails.uanNo,
                   };
 
                   const createdUserJobDetails = await db.jobDetails.create(
