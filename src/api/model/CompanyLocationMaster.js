@@ -41,11 +41,11 @@ export default (sequelize, Sequelize) => {
         phoneNo: {
             type: Sequelize.STRING
         },
-         longitude: {
-            type:  Sequelize.DECIMAL(10, 8)
+        longitude: {
+            type: Sequelize.DECIMAL(10, 8)
         },
-         latitude: {
-            type:  Sequelize.DECIMAL(10, 8)
+        latitude: {
+            type: Sequelize.DECIMAL(10, 8)
         },
         isHeadquarter: {
             type: Sequelize.BOOLEAN

@@ -38,13 +38,13 @@ export default (sequelize, Sequelize) => {
     regularizeManagerRemark: {
       type: Sequelize.STRING,
     },
-    regularizeLocationType:{
+    regularizeLocationType: {
       type: Sequelize.STRING,
     },
-    actualPunchIn:{
+    actualPunchIn: {
       type: Sequelize.TIME,
     },
-    actualPunchOut:{
+    actualPunchOut: {
       type: Sequelize.TIME,
     },
     createdBy: {

@@ -23,22 +23,22 @@ export default (sequelize, Sequelize) => {
         paymentAttachment: {
             type: Sequelize.STRING
         },
-        ptApplicability:{
+        ptApplicability: {
             type: Sequelize.BOOLEAN
         },
-        ptStateId:{
+        ptStateId: {
             type: Sequelize.INTEGER
         },
-        ptLocationId:{
+        ptLocationId: {
             type: Sequelize.INTEGER
         },
-        tdsApplicability:{
+        tdsApplicability: {
             type: Sequelize.BOOLEAN
         },
-        itrFiling:{
+        itrFiling: {
             type: Sequelize.BOOLEAN
         },
-        status:{
+        status: {
             type: Sequelize.STRING
         },
         createdAt: {

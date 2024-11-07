@@ -70,9 +70,9 @@ class LeaveController {
         where: Object.assign(
           query === "raisedByMe"
             ? {
-                employeeId: req.userId,
-                status: "pending",
-              }
+              employeeId: req.userId,
+              status: "pending"
+            }
             : { pendingAt: req.userId, status: "pending" }
         ),
         attributes: { exclude: ["createdBy", "updatedBy", "updatedAt"] },
@@ -615,10 +615,10 @@ class LeaveController {
             leaveAttachment:
               result.attachment != ""
                 ? await helper.fileUpload(
-                    result.attachment,
-                    `leaveAttachment_${uuid}`,
-                    `uploads/${EMP_DATA.empCode}`
-                  )
+                  result.attachment,
+                  `leaveAttachment_${uuid}`,
+                  `uploads/${EMP_DATA.empCode}`
+                )
                 : null,
             pendingAt: EMP_DATA.managerData.id, // Replace with actual pending at value
             createdBy: req.userId, // Replace with actual creator user ID
@@ -688,10 +688,10 @@ class LeaveController {
         leaveAttachment:
           result.attachment != ""
             ? await helper.fileUpload(
-                result.attachment,
-                `leaveAttachment_${uuid}`,
-                `uploads/${EMP_DATA.empCode}`
-              )
+              result.attachment,
+              `leaveAttachment_${uuid}`,
+              `uploads/${EMP_DATA.empCode}`
+            )
             : null,
         pendingAt: EMP_DATA.managerData.id, // Replace with actual pending at value
         createdBy: req.userId, // Replace with actual creator user ID

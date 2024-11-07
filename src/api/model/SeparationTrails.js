@@ -17,6 +17,9 @@ export default (sequelize, Sequelize) => {
         actionDate: {
             type: Sequelize.DATE,
         },
+        actionUserRole: {
+            type: Sequelize.STRING
+        },
         pendingAt: {
             type: Sequelize.INTEGER
         },

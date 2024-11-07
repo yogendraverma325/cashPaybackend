@@ -415,7 +415,7 @@ class AdminController {
         } else {
           result.role_id = 3;
           result.offRoleCTC = (result.offRoleCTC) ? result.offRoleCTC : 0;
-          
+
           const createdUser = await db.employeeStagingMaster.create(result);
 
           if (result.image) {
@@ -566,39 +566,39 @@ class AdminController {
         where: Object.assign(
           search
             ? {
-                [Op.or]: [
-                  {
-                    name: {
-                      [Op.like]: `%${search}%`,
-                    },
+              [Op.or]: [
+                {
+                  name: {
+                    [Op.like]: `%${search}%`,
                   },
-                  {
-                    email: {
-                      [Op.like]: `%${search}%`,
-                    },
+                },
+                {
+                  email: {
+                    [Op.like]: `%${search}%`,
                   },
-                ],
-                [Op.and]: [
-                  {
-                    isActive:
-                      usersData.role_id == 1 || usersData.role_id == 2
-                        ? [1, 0]
-                        : [1],
-                  },
-                ],
-                [Op.and]: activeQuery,
-              }
+                },
+              ],
+              [Op.and]: [
+                {
+                  isActive:
+                    usersData.role_id == 1 || usersData.role_id == 2
+                      ? [1, 0]
+                      : [1],
+                },
+              ],
+              [Op.and]: activeQuery,
+            }
             : {
-                [Op.and]: [
-                  {
-                    isActive:
-                      usersData.role_id == 1 || usersData.role_id == 2
-                        ? [1, 0]
-                        : [1],
-                  },
-                ],
-                [Op.and]: activeQuery,
-              }
+              [Op.and]: [
+                {
+                  isActive:
+                    usersData.role_id == 1 || usersData.role_id == 2
+                      ? [1, 0]
+                      : [1],
+                },
+              ],
+              [Op.and]: activeQuery,
+            }
         ),
         attributes: [
           "id",
@@ -750,9 +750,9 @@ class AdminController {
           if (existUser) {
             if (
               existUser.personalEmail ===
-                employeeOnboardingDetails.personalEmail ||
+              employeeOnboardingDetails.personalEmail ||
               existUser.personalMobileNumber ===
-                employeeOnboardingDetails.personalMobileNumber
+              employeeOnboardingDetails.personalMobileNumber
             ) {
               return respHelper(res, {
                 status: 400,
@@ -1208,7 +1208,7 @@ class AdminController {
         const mappingDepartment = departmentData.find(bu => bu.departmentId === result.departmentId);
 
         const functionalAreaData = await db.functionalAreaMapping.findAll({
-          where: { departmentMappingId: mappingDepartment.departmentMappingId  },
+          where: { departmentMappingId: mappingDepartment.departmentMappingId },
           include: [
             {
               model: db.functionalAreaMaster,
@@ -1260,8 +1260,10 @@ class AdminController {
         const noticePeriodData = [];
         const degreeData = await db.degreeMaster.findAll({ where: subQuery, attributes: ["degreeId", "degreeName"] });
 
-        let allDetails = { result, buData, sbuData, departmentData, functionalAreaData, buhrData, buheadData, 
-          companyLocationData, employeeTypeData, probationData, newCustomerNameData, jobLevelData, noticePeriodData, degreeData };
+        let allDetails = {
+          result, buData, sbuData, departmentData, functionalAreaData, buhrData, buheadData,
+          companyLocationData, employeeTypeData, probationData, newCustomerNameData, jobLevelData, noticePeriodData, degreeData
+        };
 
         return respHelper(res, {
           status: 200,

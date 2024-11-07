@@ -609,10 +609,12 @@ const buhrInputOnSeparation = Joi.object({
     .label("New Organization Name"),
   l2SalaryHike: Joi.string().trim().allow("").label("Salary Hike"),
   doNotReHire: Joi.boolean().valid(0, 1).label("Do Not Rehire"),
+  doNotReHireRemark: Joi.string().max(100).allow("").label("Comment"),
   l2BillingType: Joi.string().trim().required().label("Billing Type"),
   l2CustomerName: Joi.string().trim().max(100).allow("").label("Customer Name"),
-  shortFallPayoutBasis: Joi.string().trim().required().label("Payout Basis"),
-  shortFallPayoutDays: Joi.number().required().label("Payout Days"),
+  shortFallPayoutBasis: Joi.string().trim().allow("").label("Payout Basis"),
+  shortFallPayoutDays: Joi.number().allow("").label("Payout Days"),
+  shortfallPayoutRequired: Joi.boolean().valid(true, false).label("Short Fall Payout"),
   ndaConfirmation: Joi.boolean().valid(0, 1).label("NDA Confirmation"),
   holdFnf: Joi.boolean().valid(0, 1).label("Hold FNF"),
   holdFnfTillDate: Joi.string().trim().allow("").label("FNF Till Date"),
@@ -857,14 +859,16 @@ const onBehalfSeperationByBUHr = Joi.object({
     .label("New Organization Name"),
   l2SalaryHike: Joi.string().trim().allow("").label("Salary Hike"),
   doNotReHire: Joi.boolean().valid(0, 1).label("Do Not Rehire"),
+  doNotReHireRemark: Joi.string().max(100).allow("").label("Comment"),
   l2BillingType: Joi.string().trim().required().label("Billing Type"),
   l2CustomerName: Joi.string()
     .trim()
     .required()
     .allow("")
     .label("Customer Name"),
-  shortFallPayoutBasis: Joi.string().trim().required().label("Payout Basis"),
-  shortFallPayoutDays: Joi.number().required().label("Payout Days"),
+  shortFallPayoutBasis: Joi.string().trim().allow("").label("Payout Basis"),
+  shortFallPayoutDays: Joi.number().allow("").label("Payout Days"),
+  shortfallPayoutRequired: Joi.boolean().valid(true, false).label("Short Fall Payout"),
   ndaConfirmation: Joi.boolean().valid(0, 1).label("NDA Confirmation"),
   holdFnf: Joi.boolean().valid(0, 1).label("Hold FNF"),
   holdFnfTillDate: Joi.string().trim().allow("").label("FNF Till Date"),

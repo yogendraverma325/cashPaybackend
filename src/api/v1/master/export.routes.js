@@ -22,5 +22,9 @@ export default Express
     .post("/onboardingEmployee", upload.single('excelFile'), masterExportController.onboardingEmployeeImport)
     .get("/employeeMasterExport", masterExportController.employeeMasterExport)
     .get("/sperationPending", masterExportController.sperationPending)
+    .get("/sperationApproved", masterExportController.sperationApproved)
+    .get("/sperationApprovedHistory", masterExportController.sperationApprovedHistory)
+
+
 
 
