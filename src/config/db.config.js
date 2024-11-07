@@ -926,4 +926,10 @@ db.EmployeeLeaveHeader.hasOne(db.employeeMaster, {
   as: "leaveUpdatedBy",
 });
 
+db.jobDetails.hasOne(db.probationMaster, {
+  foreignKey: "probationId",
+  sourceKey: "probationId",
+});
+
+
 export default db;

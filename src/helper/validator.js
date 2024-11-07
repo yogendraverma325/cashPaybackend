@@ -358,7 +358,7 @@ const remainingLeaves = Joi.object({
 const addJobDetailsSchema = Joi.object({
   userId: Joi.number().label("User ID"),
   dateOfJoining: Joi.string().label("Date Of Joining").optional(),
-  probationPeriod: Joi.string().label("Probation Period").optional(),
+  probationId: Joi.number().label("Probation Period").optional(),
   languagesSpoken: Joi.string().label("Language Spoken").allow(null).optional(),
   esicNumber: Joi.string()
     .label("ESIC Number")

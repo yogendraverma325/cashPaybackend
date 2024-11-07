@@ -220,6 +220,11 @@ class UserController {
                 attributes: ["lwfDesignationId", "lwfDesignationName"],
                 as: "lwfDesignationName",
               },
+              {
+                model: db.probationMaster,
+                attributes: ['probationId', 'probationName', 'durationOfProbation'],
+                required: false
+              }
             ],
           },
           {
