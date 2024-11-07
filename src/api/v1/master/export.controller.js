@@ -3715,7 +3715,7 @@ const createObj = (obj) => {
       obj.Bank_Account_Number == "" ||
       obj.Bank_Account_Number == undefined
         ? null
-        : obj.Bank_Account_Number,
+        : obj.Bank_Account_Number.toString(),
     paymentBankName:
       obj.Bank_Name == "NA" || obj.Bank_Name == "" || obj.Bank_Name == undefined
         ? null
