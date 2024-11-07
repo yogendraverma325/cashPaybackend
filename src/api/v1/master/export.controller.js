@@ -1183,7 +1183,7 @@ class MasterController {
           for (const employee of chunk) {
             let obj = createObj(employee);
             console.log(obj);
-            
+
             // validate fields
             const { error } =
               await validator.importOnboardEmployeeSchema.validate(obj);
@@ -1248,7 +1248,9 @@ class MasterController {
               ) {
                 // prepare employee object
                 let newEmployee = {
-                  name: [obj.firstName, obj.middleName, obj.lastName].filter(name => name).join(" "),
+                  name: [obj.firstName, obj.middleName, obj.lastName]
+                    .filter((name) => name)
+                    .join(" "),
                   firstName: obj.firstName,
                   middleName: obj.middleName,
                   lastName: obj.lastName,
@@ -1278,14 +1280,21 @@ class MasterController {
                   employeeType: isValidEmployeeType.data.empTypeId,
                   manager: isValidManager.data.id,
                   designation_id: isValidDesignation.data.designationId,
-                  shiftId: (isValidShift.status) ? isValidShift.data.shiftId : null,
-                  attendancePolicyId:
-                    (isValidAttendancePolicy.status) ? isValidAttendancePolicy.data.attendancePolicyId : null,
-                  companyLocationId:
-                    (isValidCompanyLocation.status) ? isValidCompanyLocation.data.companyLocationId : null,
-                  weekOffId: (isValidWeekOff.status) ? isValidWeekOff.data.weekOffId : null,
-                  newCustomerNameId:
-                    (isValidNewCustomerName.status) ? isValidNewCustomerName.data.newCustomerNameId : null,
+                  shiftId: isValidShift.status
+                    ? isValidShift.data.shiftId
+                    : null,
+                  attendancePolicyId: isValidAttendancePolicy.status
+                    ? isValidAttendancePolicy.data.attendancePolicyId
+                    : null,
+                  companyLocationId: isValidCompanyLocation.status
+                    ? isValidCompanyLocation.data.companyLocationId
+                    : null,
+                  weekOffId: isValidWeekOff.status
+                    ? isValidWeekOff.data.weekOffId
+                    : null,
+                  newCustomerNameId: isValidNewCustomerName.status
+                    ? isValidNewCustomerName.data.newCustomerNameId
+                    : null,
                   jobLevelId: isValidJobLevel.data?.jobLevelId,
                   selfService: obj.selfService,
                   mobileAccess: obj.mobileAccess,
@@ -1314,9 +1323,9 @@ class MasterController {
                   Remarks: "Success",
                 });
 
-                // const createdEmployees = await db.employeeStagingMaster.create(
-                //   newEmployee
-                // );
+                const createdEmployees = await db.employeeStagingMaster.create(
+                  newEmployee
+                );
               } else {
                 const masterErrors = {
                   index: employee.Index,
@@ -1376,7 +1385,7 @@ class MasterController {
       });
     }
   }
-  
+
   async attendanceSummary(req, res) {
     try {
       const {
@@ -1911,7 +1920,7 @@ class MasterController {
             if (!dayRecords[dayKey]) {
               dayRecords[dayKey] = "-"; // Default to '-' for future/current days if not already set
             }
-          } 
+          }
 
           if (currentDay.isSameOrBefore(employeeRecord.dateOfJoining)) {
             // if (currentDay.isBefore(today)) {
@@ -2330,10 +2339,10 @@ class MasterController {
               ele.dataValues.visitingCardAdmin == 0 ? "No" : "Yes",
             workstationAdmin:
               ele.dataValues.workstationAdmin == 0 ? "No" : "Yes",
-            buHeadCode:ele.dataValues.buHeadData?.empCode,
-              // ele.dataValues.buId && ele.dataValues.companyId
-              //   ? headAndHrData?.buHeadData?.empCode
-              //   : "",
+            buHeadCode: ele.dataValues.buHeadData?.empCode,
+            // ele.dataValues.buId && ele.dataValues.companyId
+            //   ? headAndHrData?.buHeadData?.empCode
+            //   : "",
             nomineeName: ele.employeebiographicaldetail?.nomineeName || "",
             nomineeRelation:
               ele.employeebiographicaldetail?.nomineeRelation || "",
@@ -3122,7 +3131,7 @@ class MasterController {
           `attachment; filename=Separation_Approved_${timestamp}.xlsx`
         );
         res.end(report);
-      } else {  
+      } else {
         res.status(404).json({
           message: "Data not found",
         });
@@ -3498,7 +3507,7 @@ class MasterController {
         })
       );
       // console.log("arrr",arr.length)
-      console.log("arr",arr.length)
+      console.log("arr", arr.length);
 
       if (arr.length > 0) {
         const timestamp = moment().format("HH:mm"); //Date.now();
@@ -3621,7 +3630,9 @@ class MasterController {
 
 const createObj = (obj) => {
   let officeMobileNumber = replaceNAWithNull(obj.Official_Mobile_Number);
-  officeMobileNumber = officeMobileNumber ? officeMobileNumber.toString() : null;
+  officeMobileNumber = officeMobileNumber
+    ? officeMobileNumber.toString()
+    : null;
   let personalMobileNumber = obj.Personal_Mobile_Number?.toString();
   let uanNo = replaceNAWithNull(obj.UAN_No);
 
@@ -3636,7 +3647,7 @@ const createObj = (obj) => {
     middleName: replaceNAWithNull(obj.Middle_Name),
     lastName: replaceNAWithNull(obj.Last_Name),
     panNo: replaceNAWithNull(obj.Pan_No),
-    uanNo: (uanNo) ? uanNo.toString() : null,
+    uanNo: uanNo ? uanNo.toString() : null,
     pfNo: replaceNAWithNull(obj.PF_No),
     employeeType: obj.Employee_Type_Name,
     officeMobileNumber: officeMobileNumber,
@@ -3646,7 +3657,9 @@ const createObj = (obj) => {
     dateOfJoining: convertExcelDate(obj.Date_of_Joining),
     maritalStatus: obj.Marital_Status,
     maritalStatusSince:
-      (obj.Marital_Since == "" || obj.Marital_Since == undefined || obj.Marital_Since == "NA")
+      obj.Marital_Since == "" ||
+      obj.Marital_Since == undefined ||
+      obj.Marital_Since == "NA"
         ? convertExcelDate(obj.Marital_Since)
         : null,
     nationality: obj.Nationality_Name,
@@ -4222,7 +4235,11 @@ const convertExcelDate = (serial) => {
 };
 
 const replaceNAWithNull = (value) => {
-  return value === "NA" || value === undefined || value === "" || value === null || value === " "
+  return value === "NA" ||
+    value === undefined ||
+    value === "" ||
+    value === null ||
+    value === " "
     ? null
     : value; // Replace 'NA' with ''
 };
