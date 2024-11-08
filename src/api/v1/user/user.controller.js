@@ -2694,7 +2694,7 @@ class UserController {
     try {
       let reqObj = {};
       for (const element of req.body) {
-        if (element.fieldsCode === 'file' && element.value !== "") {
+        if (element.fieldsCode === 'file' && (element.value !== "" && element.value)) {
           const d = Math.floor(Date.now() / 1000);
           const userData = await db.employeeMaster.findOne({
             where: {
