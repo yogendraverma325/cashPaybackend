@@ -2694,7 +2694,22 @@ class UserController {
     try {
       let reqObj = {};
       for (const element of req.body) {
-        reqObj[element.fieldsCode] = element.value;
+        if (element.fieldsCode === 'file' && element.value !== "") {
+          const d = Math.floor(Date.now() / 1000);
+          const userData = await db.employeeMaster.findOne({
+            where: {
+              id: element.user
+            },
+            attributes: ['empCode']
+          })
+          const fileName = await helper.fileUpload(
+            element.value,
+            `separationTask_${element.id}_${d}`,
+            `uploads/${userData.dataValues.empCode.toString()}`
+          );
+          element.value = fileName
+        }
+        reqObj[element.fieldsCode] = element.value !== "" ? element.value : null;
       }
 
       for (const element of req.body) {
@@ -2862,7 +2877,6 @@ class UserController {
         });
 
         for (const element of separationOwner) {
-          console.log("dependent task--->>", element);
           const initiatedTask = await db.separationInitiatedTask.create({
             employeeId: separationData.dataValues.employee.id,
             taskAutoId: element.dataValues.taskAutoId,
@@ -2873,7 +2887,6 @@ class UserController {
           });
 
           if (element.dataValues.separationtaskmaster.mappingOn === "FIX") {
-            console.log("fix block");
             const ownerArray =
               element.dataValues.separationtaskmaster.mappingData.split(",");
             for (const element11 of ownerArray) {
@@ -2900,7 +2913,7 @@ class UserController {
           } else if (
             element.dataValues.separationtaskmaster.mappingOn === "SELF"
           ) {
-            console.log("self block");
+
             db.separationTaskOwner.create({
               taskMappingAutoId: initiatedTask.dataValues.initiatedTaskAutoId,
               taskOwner: separationData.dataValues.employee.id,
@@ -2923,7 +2936,7 @@ class UserController {
           } else if (
             element.dataValues.separationtaskmaster.mappingOn === "MANAGER"
           ) {
-            console.log("manager block");
+
             db.separationTaskOwner.create({
               taskMappingAutoId: initiatedTask.dataValues.initiatedTaskAutoId,
               taskOwner: separationData.dataValues.employee.managerData.id,
@@ -3010,7 +3023,7 @@ class UserController {
               },
             });
 
-            console.log(buMappingData);
+
 
             if (buMappingData) {
               for (const element12 of buMappingData.dataValues.ownerId.split(
@@ -3132,6 +3145,9 @@ class UserController {
               {
                 model: db.separationMaster,
                 attributes: ["resignationDate", "l2LastWorkingDay"],
+                where: {
+                  finalStatus: 9
+                }
               },
               {
                 model: db.designationMaster,
@@ -3215,6 +3231,9 @@ class UserController {
               },
               {
                 model: db.separationMaster,
+                where: {
+                  finalStatus: 9
+                },
                 attributes: ["resignationDate", "l2LastWorkingDay"],
               },
             ],
@@ -3461,7 +3480,125 @@ class UserController {
       console.error(error);
       return respHelper(res, {
         status: 500,
-        message: "Internal Server Error",
+      });
+    }
+  }
+
+  async separationWorkflow(req, res) {
+    try {
+      const limit = parseInt(req.query.limit, 10) || 10;
+      const pageNo = parseInt(req.query.page, 10) || 1;
+      const offset = (pageNo - 1) * limit;
+
+      const { count, rows: workflowData } = await db.separationInitiatedTask.findAndCountAll({
+        where: {
+          updatedBy: req.userId
+        },
+        include: [{
+          model: db.separationTaskMaster,
+
+          attributes: ['taskAutoId', 'taskCode', "taskName"]
+        },
+        {
+          model: db.employeeMaster,
+          attributes: ['id', "name", "email", 'empCode'],
+          include: [
+            {
+              model: db.companyLocationMaster,
+              attributes: ['address1']
+            },
+            {
+              model: db.jobDetails,
+              attributes: ['dateOfJoining'],
+              include: [{
+                model: db.jobLevelMaster,
+                attributes: ["jobLevelId", "jobLevelName", "jobLevelCode"]
+              }]
+            },
+            {
+              model: db.separationMaster,
+              attributes: ["resignationDate",
+                "noticePeriodDay",
+                "l2LastWorkingDay"
+              ]
+            }
+          ]
+        }, {
+          model: db.separationFieldValues,
+          attributes: ['fieldValues'],
+          separate: true,
+          include: [{
+            model: db.separationTaskFields,
+            attributes: ["fieldsCode", "label", "isRequired"]
+          }]
+        }],
+        limit,
+        offset,
+      })
+
+      return respHelper(res, {
+        status: 200,
+        data: {
+          totalRecords: count,
+          totalPages: Math.ceil(count / limit),
+          currentPage: pageNo,
+          workflowData,
+        },
+      });
+    } catch (error) {
+      console.log(error);
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+
+  async revokeSeparationBUHR(req, res) {
+    try {
+      const result = await validator.revokeSeparationBUHR.validateAsync(req.body);
+
+      const separationData = await db.separationMaster.findOne({
+        where: {
+          resignationAutoId: result.resignationAutoId,
+          finalStatus: 9,
+        },
+      });
+
+      if (!separationData) {
+        return respHelper(res, {
+          status: 404,
+          msg: constant.DETAILS_NOT_FOUND.replace("<module>", "Separation"),
+        });
+      }
+
+      await db.separationMaster.update(
+        {
+          l2RevokeReason: result.reason,
+          l2Remark: result.remark,
+          l2RevokeDate: moment(),
+          finalStatus: 11,
+        },
+        {
+          where: {
+            resignationAutoId: separationData.dataValues.resignationAutoId,
+          },
+        }
+      );
+
+      return respHelper(res, {
+        status: 200,
+        msg: constant.SEPARATION_REVOKED,
+      });
+    } catch (error) {
+      console.log(error);
+      if (error.isJoi === true) {
+        return respHelper(res, {
+          status: 422,
+          msg: error.details[0].message,
+        });
+      }
+      return respHelper(res, {
+        status: 500,
       });
     }
   }

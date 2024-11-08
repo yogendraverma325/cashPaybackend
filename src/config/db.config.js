@@ -926,4 +926,13 @@ db.EmployeeLeaveHeader.hasOne(db.employeeMaster, {
   as: "leaveUpdatedBy",
 });
 
+db.separationInitiatedTask.hasMany(db.separationFieldValues, {
+  foreignKey: "initiatedTaskAutoId",
+})
+
+db.separationFieldValues.hasOne(db.separationTaskFields, {
+  foreignKey: "taskFieldsAutoId",
+  sourceKey: 'fields'
+})
+
 export default db;

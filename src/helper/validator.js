@@ -1107,12 +1107,20 @@ const updatePolicyOfEMP = Joi.array()
   .messages({
     "array.base": "Please Select Atleaset One User",
   });
+
+
 const updateIQDetailsSchema = Joi.object({
   userId: Joi.number().label("User ID"),
   abstractReasoning: Joi.string().optional().label("Abstract Reasoning"),
   numericalSequences: Joi.string().optional().label("Abstract Reasoning"),
   numericalCalculation: Joi.string().optional().label("Abstract Reasoning"),
   mbtiType: Joi.string().optional().label("Abstract Reasoning"),
+});
+
+const revokeSeparationBUHR = Joi.object({
+  resignationAutoId: Joi.number().required().label("Resignation Details"),
+  reason: Joi.number().required().label("Reason"),
+  remark: Joi.string().trim().allow("").label("Remark"),
 });
 
 export default {
@@ -1161,4 +1169,5 @@ export default {
   importOnboardEmployeeSchema,
   updatePolicyOfEMP,
   updateIQDetailsSchema,
+  revokeSeparationBUHR
 };
