@@ -1,3 +1,9 @@
+//-------------------------------------------2024-11-05-------------------------------------------------//
+
+ALTER TABLE `tara_hrms_live`.`employeejobdetails` 
+ADD COLUMN `probationId` INT NULL DEFAULT NULL AFTER `probationDays`;
+
+
 ------------------------------------------- 2024-11-05 --------------------------------------------------
 
 ALTER TABLE `tara_hrms_live`.`separationmaster` 
