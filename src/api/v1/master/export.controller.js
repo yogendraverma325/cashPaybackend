@@ -1223,13 +1223,20 @@ class MasterController {
               const isValidDegree = await validateDegree(
                 obj.highestQualification
               );
-              const isValidBank = await validateBank(
-                obj.paymentBankName
-              );
-              const isValidIFSC = await validateBankIfsc(
-                obj.paymentBankName,
-                obj.paymentBankIfsc
-              );
+
+              let isValidBank = { status: true, message: "", data: {} };
+              let isValidIFSC = { status: true, message: "", data: {} };
+
+              if(isValidEmployeeType.data.empTypeId === 3) {
+                isValidBank = await validateBank(
+                  obj.paymentBankName
+                );
+                isValidIFSC = await validateBankIfsc(
+                  obj.paymentBankName,
+                  obj.paymentBankIfsc
+                );
+              }
+
               const isValidateEmployee = await validateEmployee(
                 obj.personalMobileNumber,
                 obj.email,
@@ -1318,8 +1325,8 @@ class MasterController {
                   ESICPFDeduction: obj.ESICPFDeduction,
                   fatherName: obj.fatherName,
                   paymentAccountNumber: obj.paymentAccountNumber,
-                  paymentBankName: isValidBank.data?.bankName,
-                  paymentBankIfsc: isValidIFSC.data?.bankIfsc,
+                  paymentBankName: (isValidEmployeeType.data.empTypeId === 3) ? isValidBank.data?.bankName : "",
+                  paymentBankIfsc: (isValidEmployeeType.data.empTypeId === 3) ? isValidIFSC.data?.bankIfsc : "",
                   // noticePeriodAutoId:
                   //   isValidNoticePeriod.data?.noticePeriodAutoId,
                 };
