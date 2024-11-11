@@ -879,7 +879,7 @@ const onBehalfSeperationByBUHr = Joi.object({
 });
 
 const revokeSeparation = Joi.object({
-  reason: Joi.number().required().label("Reason"),
+  reason: Joi.string().required().trim().label("Reason"),
   remark: Joi.string().trim().allow("").label("Remark"),
 });
 
@@ -1119,7 +1119,7 @@ const updateIQDetailsSchema = Joi.object({
 
 const revokeSeparationBUHR = Joi.object({
   resignationAutoId: Joi.number().required().label("Resignation Details"),
-  reason: Joi.number().required().label("Reason"),
+  reason: Joi.string().required().trim().label("Reason"),
   remark: Joi.string().trim().allow("").label("Remark"),
 });
 
