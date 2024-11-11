@@ -947,4 +947,22 @@ db.employeeMaster.hasOne(db.degreeMaster, {
   sourceKey: "highestQualification",
 });
 
+db.employeeStagingMaster.hasOne(db.employeeMaster, {
+  foreignKey: "id",
+  sourceKey: "buHRId",
+  as: "buhrData",
+});
+
+db.employeeStagingMaster.hasOne(db.employeeMaster, {
+  foreignKey: "id",
+  sourceKey: "buHeadId",
+  as: "buHeadData",
+});
+
+db.employeeStagingMaster.hasOne(db.degreeMaster, {
+  foreignKey: "degreeId",
+  sourceKey: "highestQualification",
+});
+
+
 export default db;

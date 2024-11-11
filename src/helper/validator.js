@@ -1011,7 +1011,6 @@ const importOnboardEmployeeSchema = Joi.object({
     .valid("New", "Replacement")
     .required()
     .label("Position Type"),
-
   selfService: Joi.number().required().label("Self Service"),
   mobileAccess: Joi.number().required().label("Mobile Access"),
   laptopSystem: Joi.string()

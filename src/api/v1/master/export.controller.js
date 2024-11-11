@@ -3750,17 +3750,23 @@ const createObj = (obj) => {
 
 const handleErrors = (error) => {
   const errors = {
-    name: error
-      ? error.details.find((d) => d.context.key === "name")?.message
-      : null,
     email: error
       ? error.details.find((d) => d.context.key === "email")?.message
       : null,
     personalEmail: error
       ? error.details.find((d) => d.context.key === "personalEmail")?.message
       : null,
+    name: error
+      ? error.details.find((d) => d.context.key === "name")?.message
+      : null,
     firstName: error
       ? error.details.find((d) => d.context.key === "firstName")?.message
+      : null,
+    middleName: error
+      ? error.details.find((d) => d.context.key === "middleName")?.message
+      : null,
+    lastName: error
+      ? error.details.find((d) => d.context.key === "lastName")?.message
       : null,
     panNo: error
       ? error.details.find((d) => d.context.key === "panNo")?.message
@@ -3781,6 +3787,9 @@ const handleErrors = (error) => {
     personalMobileNumber: error
       ? error.details.find((d) => d.context.key === "personalMobileNumber")
           ?.message
+      : null,
+    dateOfBirth: error
+      ? error.details.find((d) => d.context.key === "dateOfBirth")?.message
       : null,
     dateOfJoining: error
       ? error.details.find((d) => d.context.key === "dateOfJoining")?.message
@@ -3840,9 +3849,9 @@ const handleErrors = (error) => {
     probation: error
       ? error.details.find((d) => d.context.key === "probation")?.message
       : null,
-    dateOfBirth: error
-      ? error.details.find((d) => d.context.key === "dateOfBirth")?.message
-      : null,
+    jobLevel: error
+    ? error.details.find((d) => d.context.key === "jobLevel")?.message
+    : null,
     newCustomerName: error
       ? error.details.find((d) => d.context.key === "newCustomerName")?.message
       : null,
@@ -3852,7 +3861,6 @@ const handleErrors = (error) => {
     positionType: error
       ? error.details.find((d) => d.context.key === "positionType")?.message
       : null,
-
     selfService: error
       ? error.details.find((d) => d.context.key === "selfService")?.message
       : null,
