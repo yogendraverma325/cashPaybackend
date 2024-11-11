@@ -1182,7 +1182,6 @@ class MasterController {
 
           for (const employee of chunk) {
             let obj = createObj(employee);
-            console.log(obj);
 
             // validate fields
             const { error } =
@@ -1224,6 +1223,13 @@ class MasterController {
               const isValidDegree = await validateDegree(
                 obj.highestQualification
               );
+              const isValidBank = await validateBank(
+                obj.paymentBankName
+              );
+              const isValidIFSC = await validateBankIfsc(
+                obj.paymentBankName,
+                obj.paymentBankIfsc
+              );
               const isValidateEmployee = await validateEmployee(
                 obj.personalMobileNumber,
                 obj.email,
@@ -1244,7 +1250,9 @@ class MasterController {
                 isValidDepartment.status &&
                 isValidateEmployee.status &&
                 isValidJobLevel.status &&
-                isValidDegree.status
+                isValidDegree.status &&
+                isValidBank.status &&
+                isValidIFSC.status
               ) {
                 // prepare employee object
                 let newEmployee = {
@@ -1310,8 +1318,8 @@ class MasterController {
                   ESICPFDeduction: obj.ESICPFDeduction,
                   fatherName: obj.fatherName,
                   paymentAccountNumber: obj.paymentAccountNumber,
-                  paymentBankName: obj.paymentBankName,
-                  paymentBankIfsc: obj.paymentBankIfsc,
+                  paymentBankName: isValidBank.data?.bankName,
+                  paymentBankIfsc: isValidIFSC.data?.bankIfsc,
                   // noticePeriodAutoId:
                   //   isValidNoticePeriod.data?.noticePeriodAutoId,
                 };
@@ -1344,6 +1352,9 @@ class MasterController {
                   weekOff: isValidWeekOff.message,
                   department: isValidDepartment.message,
                   jobLevel: isValidJobLevel.message,
+                  degree: isValidDegree.message,
+                  bankName: isValidBank.message,
+                  bankIFSC: isValidIFSC.message,
                   // noticePeriod: isValidNoticePeriod.message,
                   alreadyExist: isValidateEmployee.message,
                 };
@@ -3660,8 +3671,8 @@ const createObj = (obj) => {
       obj.Marital_Since == "" ||
       obj.Marital_Since == undefined ||
       obj.Marital_Since == "NA"
-        ? convertExcelDate(obj.Marital_Since)
-        : null,
+        ? null
+        : convertExcelDate(obj.Marital_Since),
     nationality: obj.Nationality_Name,
     probation: obj.Probation_Name,
     newCustomerName: replaceNAWithNull(obj.New_Customer_Name),
@@ -4141,6 +4152,38 @@ const validateDegree = async (name) => {
     return {
       status: false,
       message: "Invalid Highest qualification",
+      data: {},
+    };
+  }
+};
+
+const validateBank = async (name) => {
+  let isVerify = await db.bankMaster.findOne({
+    where: { bankName: name },
+    attributes: ["bankName"],
+  });
+  if (isVerify) {
+    return { status: true, message: "", data: isVerify };
+  } else {
+    return {
+      status: false,
+      message: "Invalid bank name",
+      data: {},
+    };
+  }
+};
+
+const validateBankIfsc = async (name, bankIfsc) => {
+  let isVerify = await db.bankMaster.findOne({
+    where: { bankName: name, bankIfsc: bankIfsc },
+    attributes: ["bankIfsc"],
+  });
+  if (isVerify) {
+    return { status: true, message: "", data: isVerify };
+  } else {
+    return {
+      status: false,
+      message: "Invalid bank IFSC",
       data: {},
     };
   }

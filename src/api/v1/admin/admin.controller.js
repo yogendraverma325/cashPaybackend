@@ -1256,10 +1256,29 @@ class AdminController {
         // const noticePeriodData = await db.noticePeriodMaster.findAll({ where: subQuery, attributes: ["noticePeriodAutoId", "noticePeriodName"] });
         const noticePeriodData = [];
         const degreeData = await db.degreeMaster.findAll({ where: subQuery, attributes: ["degreeId", "degreeName"] });
+        
+        let bankData = [];
+        let bankIfscData = [];
+
+        if(result.employeeType === 3) {
+          bankData = await db.bankMaster.findAll(
+            {
+              attributes: [
+                [db.Sequelize.fn("MIN", db.Sequelize.col("bankId")), "bankId"],
+                "bankName"
+              ],
+              group: ["bankName"]
+            }
+          );
+          
+          bankIfscData = await db.bankMaster.findAll({ where: { "bankName": result.paymentBankName }, attributes: ["bankIfsc"] });
+        }
+
 
         let allDetails = {
           result, buData, sbuData, departmentData, functionalAreaData, buhrData, buheadData,
-          companyLocationData, employeeTypeData, probationData, newCustomerNameData, jobLevelData, noticePeriodData, degreeData
+          companyLocationData, employeeTypeData, probationData, newCustomerNameData, jobLevelData, 
+          noticePeriodData, degreeData, bankData, bankIfscData
         };
 
         return respHelper(res, {

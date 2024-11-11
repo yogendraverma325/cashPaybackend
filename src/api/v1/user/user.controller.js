@@ -387,6 +387,11 @@ class UserController {
           {
             model: db.employeeCertificates,
           },
+          {
+            model: db.degreeMaster,
+            attributes: ["degreeId", "degreeName"],
+            required: false
+          }
         ],
       });
 

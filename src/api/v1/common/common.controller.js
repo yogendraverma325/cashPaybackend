@@ -1704,13 +1704,33 @@ class commonController {
           `insuranceCard${d}`,
           `uploads/${existUser.empCode}`
         );
-        let updateDocument = {
-          documentImage: insuranceCard,
-          createdBy: createdBy,
+        
+        let insuranceQuery = { where: {
+            userId: userId,
+            documentType: 6
+          }
         };
-        await db.hrLetters.update(updateDocument, {
-          where: { userId: userId, documentType: 6, updatedBy: updatedBy },
-        });
+
+        let isVerify = await db.hrLetters.findOne(insuranceQuery);
+        if(isVerify) {
+          let updateDocument = {
+            userId: userId,
+            documentType: 6,
+            documentImage: insuranceCard,
+            createdBy: createdBy,
+          };
+          await db.hrLetters.update(updateDocument, insuranceQuery);
+        }
+        else {
+          let addDocument = {
+            userId: userId,
+            documentType: 6,
+            documentImage: insuranceCard,
+            createdBy: createdBy,
+          };
+          await db.hrLetters.create(addDocument);
+        }
+
       }
 
       if (req.body.contractLetter) {

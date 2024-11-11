@@ -235,7 +235,7 @@ const updateEducationDetailsSchema = Joi.object({
       "date.greater": "End date must be greater than the start date",
     })
     .required(),
-  isHighestEducation: Joi.boolean().required().allow(null),
+  isHighestEducation: Joi.boolean().allow(null).optional(),
   userId: Joi.number().integer().required(),
 });
 

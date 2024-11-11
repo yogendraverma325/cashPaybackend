@@ -1492,6 +1492,48 @@ class MasterController {
       });
     }
   }
+
+  async bank(req, res) {
+    try {
+      let query = { 'isActive': 1 };
+      const docs = await db.bankMaster.findAll({
+        attributes: [
+          [db.Sequelize.fn("MIN", db.Sequelize.col("bankId")), "bankId"],
+          "bankName"
+        ],
+        group: ["bankName"]
+      });
+      return respHelper(res, {
+        status: 200,
+        data: docs,
+      });
+    } catch (error) {
+      console.log(error);
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+
+  async ifsc(req, res) {
+    try {
+      let query = { 'bankName': req.params.bankName };
+      const docs = await db.bankMaster.findAll({
+        where: query,
+        attributes: ['bankIfsc']
+      });
+      return respHelper(res, {
+        status: 200,
+        data: docs,
+      });
+    } catch (error) {
+      console.log(error);
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+
 }
 
 export default new MasterController();
