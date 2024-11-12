@@ -307,7 +307,7 @@ class AdminController {
           const currentManagerOfTheEmployeeExist = await db.managerHistory.findOne({ where: { employeeId:iterator.user, }, });
            if(!currentManagerOfTheEmployeeExist){ 
             await db.managerHistory.create({ 
-          employeeId:element.employeeId, 
+          employeeId:iterator.user,
           managerId:userData.manager,
           fromDate:moment(userData.createdAt).format("YYYY-MM-DD"),
           needAttendanceCron:0
