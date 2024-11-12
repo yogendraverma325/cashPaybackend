@@ -309,7 +309,7 @@ class AdminController {
             await db.managerHistory.create({ 
           employeeId:iterator.user,
           managerId:userData.manager,
-          fromDate:moment(userData.createdAt).format("YYYY-MM-DD"),
+          fromDate:moment(userData.createdAt,"YYYY-MM-DD HH:mm:ss").format("YYYY-MM-DD"),
           needAttendanceCron:0,
           createdBy: 1,
                }
