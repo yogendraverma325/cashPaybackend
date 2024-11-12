@@ -140,12 +140,12 @@ class CronController {
           },
         });
 
-        const currentManagerOfTheEmployee = await db.managerHistory.findOne({
+        const currentManagerOfTheEmployeeExist = await db.managerHistory.findOne({
           where: {
             employeeId: element.employeeId,
           },
         });
-        if(!currentManagerOfTheEmployee){
+        if(!currentManagerOfTheEmployeeExist){
           await db.managerHistory.create({
             employeeId:element.employeeId,
             fromDate:moment(userData.createdAt).format("YYYY-MM-DD"),
