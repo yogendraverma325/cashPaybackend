@@ -135,7 +135,6 @@ class CronController {
         const currentManagerOfTheEmployee = await db.managerHistory.findOne({
           raw: true,
           where: {
-            needAttendanceCron: 0,
             toDate: {
               [Op.eq]: null,
             },
