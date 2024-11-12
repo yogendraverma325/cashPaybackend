@@ -205,6 +205,17 @@ class CronController {
               },
             }
           );
+          await db.EmployeeLeaveHeader.update(
+            {
+              pendingAt: element.managerId,
+            },
+            {
+              where: {
+                status: "pending",
+                createdBy: element.employeeId,
+              },
+            }
+          );
           let dataAudit = await db.separationMaster.update(
             {
               pendingAt: element.managerId,
@@ -216,8 +227,9 @@ class CronController {
               },
             }
           );
+          console.log("dataAudit",dataAudit)
           if (dataAudit) {
-            await db.separationTrail.update(
+            let res_sep=await db.separationTrail.update(
               {
                 pendingAt: element.managerId,
               },
@@ -228,6 +240,7 @@ class CronController {
                 },
               }
             );
+            console.log("res_sep",res_sep)
           }
         }
         //UPDATE MANGER TO EMP MASTER TABLE
