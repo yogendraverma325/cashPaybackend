@@ -298,7 +298,7 @@ class AdminController {
         });
         if (!recordsExistForDate) {
           const userData = await db.employeeMaster.findOne({
-            attributes:['id','manager'],
+            attributes:['id','manager','createdAt'],
             where: {
               id:  iterator.user,
             },
