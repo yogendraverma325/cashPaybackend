@@ -310,7 +310,8 @@ class AdminController {
           employeeId:iterator.user,
           managerId:userData.manager,
           fromDate:moment(userData.createdAt).format("YYYY-MM-DD"),
-          needAttendanceCron:0
+          needAttendanceCron:0,
+          createdBy: 1,
                }
               ); 
             }
