@@ -7,3 +7,4 @@ export default Express
     .get("/unlockAccount", cronController.updateActiveStatus)
     .get("/updateManager", cronController.updateManager)
     .get("/blockAccess", cronController.blockAccess)
+    .get("/newJoinEmployee", cronController.newJoinEmployee)

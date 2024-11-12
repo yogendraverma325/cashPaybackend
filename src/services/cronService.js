@@ -22,6 +22,10 @@ cron.schedule("50 7 * * *", async () => {
 
 cron.schedule("1 0 * * *", async () => {
   await cronController.blockAccess()
-})
+});
+
+// cron.schedule("* * * * *", async () => {
+//   cronController.newJoinEmployee();
+// });
 
 export default cron;

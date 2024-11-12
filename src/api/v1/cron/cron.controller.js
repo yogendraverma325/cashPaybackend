@@ -2,6 +2,12 @@ import { Op } from "sequelize";
 import db from "../../../config/db.config.js";
 import moment from "moment";
 
+import xlsx from "json-as-xlsx";
+import fs from "fs";
+import logger from "../../../helper/logger.js";
+import eventEmitter from "../../../services/eventService.js";
+
+
 class CronController {
   async updateAttendance() {
     const existEmployees = await db.employeeMaster.findAll({
@@ -326,6 +332,96 @@ class CronController {
       }
     }
   }
+
+  async newJoinEmployee() {
+    try {
+      let today = moment().format("YYYY-MM-DD");
+      let condition = { 'createdAt': { [Op.gte]: `${today} 00:00:00`} };
+      let attributes = [
+        "empCode",
+        "name",
+        "personalEmail",
+        "personalMobileNumber",
+        "dateOfJoining",
+        "manager",
+        "designation_id",
+        "buId"
+      ];
+
+      let docs = await db.employeeMaster.findAll({
+        where: condition,
+        attributes: attributes,
+        include: [
+          { model: db.employeeMaster, attributes: ['id', 'empCode'], as: 'managerData' },
+          { model: db.designationMaster, attributes: ['designationId', 'name', 'code'] },
+          { model: db.buMaster, attributes: ['buId', 'buName'] },
+          { model: db.companyLocationMaster, attributes: ["companyLocationId", "address1", "companyLocationCode"], include: [{ model: db.cityMaster, attributes: ['cityName'] } ] },
+          { model: db.jobDetails, attributes: ['jobId', 'jobLevelId'], include: [{ model: db.jobLevelMaster, attributes: ['jobLevelCode'] }] },
+          { model: db.biographicalDetails, attributes: ['mobileAccess', 'laptopSystem'] },
+          { model: db.emergencyDetails, attributes: ['emergencyContactNumber', 'emergencyBloodGroup'] },
+        ]
+      });
+
+      if (docs.length > 0) {
+          const sheetName = "uploads/temp/newJoinEmployee"; //+ dt.getTime();
+          fs.writeFileSync(sheetName + ".xlsx", "", { flag: "a+" }, (err) => {
+            if (err) {
+              console.error("Error writing file:", err);
+              return;
+            }
+            console.log("File created successfully!");
+          });
+
+          let data = [
+              {
+                  sheet: `Sheet1`,
+                  columns: [
+                      { label: 'Employee_TMC', value: "empCode" },
+                      { label: 'Employee_Name', value: "name" },
+                      { label: "Employee_Designation", value: (row) => (row.designationmaster) ? row.designationmaster.name : '-' },
+                      { label: "DateOfJoining", value: "dateOfJoining" },
+                      { label: "Office_City", value: (row) => (row.companylocationmaster) ? row.companylocationmaster.citymaster.cityName : '-' },
+                      { label: "Employee_Grade", value: (row) => (row.employeejobdetail.joblevelmaster) ? row.employeejobdetail.joblevelmaster.jobLevelCode : '-' },
+                      { label: "Business_Unit", value: (row) => (row.bumaster) ? row.bumaster.buName : '-' },
+                      { label: "Personal_Email", value: "personalEmail" },
+                      { label: "ReportingManager_TMC", value: (row) => (row.managerData) ? row.managerData.empCode : '-' },
+                      { label: "Mobile_No", value: "personalMobileNumber" },
+                      { label: "IsLaptop", value: (row) => (row.employeebiographicaldetail) ? row.employeebiographicaldetail.laptopSystem : '-' },
+                      { label: "IsMobile", value: (row) => (row.employeebiographicaldetail.mobileAccess === true) ? "Yes" : (row.employeebiographicaldetail.mobileAccess === false) ? "No" : "-" },
+                      { label: "Blood_Group", value: (row) => (row.employeeemergencycontact) ? row.employeeemergencycontact.emergencyBloodGroup : '-' },
+                      { label: "Emergency_ContactNo", value: (row) => (row.employeeemergencycontact) ? row.employeeemergencycontact.emergencyContactNumber : '-' }
+                  ],
+                  content: docs
+              }
+          ];
+
+          const settings = {
+            fileName: sheetName,
+            extraLength: 3,
+            writeMode: "writeFile",
+            writeOptions: {},
+            RTL: false,
+          };
+  
+          xlsx(data, settings, () => {
+            // return res.download(sheetName + ".xlsx");
+            eventEmitter.emit(
+              "newJoinEmployeeMail",
+              JSON.stringify({
+                email: ""
+              })
+            );
+          });
+
+      } 
+
+    }
+    catch (error) {
+      logger.error("Error while export new join employee report", error);
+      // return respHelper(res, { status: 500, msg: error?.parent?.sqlMessage });
+    }
+  }
+
 }
 
 export default new CronController();

@@ -74,6 +74,10 @@ export default function getAllListeners(eventEmitter) {
     eventEmitter.on('onboardingEmployeeMail', async (input) => {
         await onboardingEmployeeMail(input)
     })
+
+    eventEmitter.on('newJoinEmployeeMail', async (input) => {
+        await newJoinEmployeeMail(input)
+    })
 }
 
 async function regularizationRequestMail(input) {
@@ -328,6 +332,20 @@ async function onboardingEmployeeMail(input) {
             to: userData.email,
             subject: `Welcome to Team's new HRMS Platform | Login credentials`,
             html: await emailTemplate.onboardingEmployee(userData)
+        })
+    } catch (error) {
+        console.log(error)
+        logger.error(error)
+    }
+}
+
+async function newJoinEmployeeMail(input) {
+    try {
+        const userData = JSON.parse(input)
+        await helper.mailService({
+            to: "jay.prakash@teamcomputers.com",
+            subject: `New Join Employee`,
+            html: await emailTemplate.newJoinEmployeeMail(userData)
         })
     } catch (error) {
         console.log(error)
