@@ -297,6 +297,23 @@ class AdminController {
           },
         });
         if (!recordsExistForDate) {
+          const userData = await db.employeeMaster.findOne({
+            attributes:['id','manager'],
+            where: {
+              id:  iterator.user,
+            },
+          });
+
+          const currentManagerOfTheEmployeeExist = await db.managerHistory.findOne({ where: { employeeId:iterator.user, }, });
+           if(!currentManagerOfTheEmployeeExist){ 
+            await db.managerHistory.create({ 
+          employeeId:element.employeeId, 
+          managerId:userData.manager,
+          fromDate:moment(userData.createdAt).format("YYYY-MM-DD"),
+          needAttendanceCron:0
+               }
+              ); 
+            }
           let createHistory = {
             employeeId: iterator.user,
             managerId: iterator.manager,
