@@ -132,9 +132,32 @@ class CronController {
     if (managerData.length != 0) {
       for (const element of managerData) {
         let lastDayDate = moment(element.fromDate).format("YYYY-MM-DD");
+
+        const userData = await db.employeeMaster.findOne({
+          attributes:['id','manager'],
+          where: {
+            id: element.employeeId
+          },
+        });
+
+        const currentManagerOfTheEmployee = await db.managerHistory.findOne({
+          where: {
+            employeeId: element.employeeId,
+          },
+        });
+        if(!currentManagerOfTheEmployee){
+          await db.managerHistory.create({
+            employeeId:element.employeeId,
+            fromDate:moment(userData.createdAt).format("YYYY-MM-DD"),
+            needAttendanceCron:0
+          });
+
+        }
+
         const currentManagerOfTheEmployee = await db.managerHistory.findOne({
           raw: true,
           where: {
+            needAttendanceCron:0,
             toDate: {
               [Op.eq]: null,
             },
@@ -218,12 +241,7 @@ class CronController {
           );
           if(sepExist){
 
-            const userData = await db.employeeMaster.findOne({
-              attributes:['id','manager'],
-              where: {
-                id: element.employeeId
-              },
-            });
+          
             let dataAudit = await db.separationMaster.update(
               {
                 pendingAt: element.managerId,
