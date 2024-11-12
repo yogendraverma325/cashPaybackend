@@ -216,10 +216,8 @@ class CronController {
               },
             }
           );
-          let dataAudit = await db.separationMaster.update(
-            {
-              pendingAt: element.managerId,
-            },
+
+          let sepExist = await db.separationMaster.findOne(
             {
               where: {
                 finalStatus: 2,
@@ -227,21 +225,36 @@ class CronController {
               },
             }
           );
-          console.log("dataAudit",dataAudit)
-          if (dataAudit) {
-            let res_sep=await db.separationTrail.update(
+          if(sepExist){
+            let dataAudit = await db.separationMaster.update(
               {
                 pendingAt: element.managerId,
               },
               {
                 where: {
-                  pending: 1,
-                  separationAutoId: dataAudit.resignationAutoId,
+                  finalStatus: 2,
+                  employeeId: element.employeeId,
                 },
               }
             );
-            console.log("res_sep",res_sep)
+            console.log("sepExist",sepExist)
+          
+              let res_sep=await db.separationTrail.update(
+                {
+                  pendingAt: element.managerId,
+                },
+                {
+                  where: {
+                    pending: 1,
+                    separationAutoId: sepExist.resignationAutoId,
+                  },
+                }
+              );
+          
+            
           }
+
+         
         }
         //UPDATE MANGER TO EMP MASTER TABLE
       }
