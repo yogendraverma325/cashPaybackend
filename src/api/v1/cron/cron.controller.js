@@ -171,18 +171,9 @@ class CronController {
         //DISBALE CURRENT DATE DATA
 
         //UPDATE MANGER TO EMP MASTER TABLE
-        let updateDone = await db.employeeMaster.update(
-          {
-            manager: element.managerId,
-          },
-          {
-            where: {
-              id: element.employeeId,
-            },
-          }
-        );
+      
         ///TRANSFER ALL RECORDS TO NEW MANAGER
-        if (updateDone) {
+     
           await db.regularizationMaster.update(
             {
               regularizeManagerId: element.managerId,
@@ -262,9 +253,18 @@ class CronController {
           
             
           }
-
+          let updateDone = await db.employeeMaster.update(
+            {
+              manager: element.managerId,
+            },
+            {
+              where: {
+                id: element.employeeId,
+              },
+            }
+          );
          
-        }
+        
         //UPDATE MANGER TO EMP MASTER TABLE
       }
     }
