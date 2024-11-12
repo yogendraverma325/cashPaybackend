@@ -226,6 +226,13 @@ class CronController {
             }
           );
           if(sepExist){
+
+            const userData = await db.employeeMaster.findOne({
+              attributes:['id','manager'],
+              where: {
+                id: element.employeeId
+              },
+            });
             let dataAudit = await db.separationMaster.update(
               {
                 pendingAt: element.managerId,
@@ -234,6 +241,7 @@ class CronController {
                 where: {
                   finalStatus: 2,
                   employeeId: element.employeeId,
+                  pendingAt:userData.manager
                 },
               }
             );
@@ -247,6 +255,7 @@ class CronController {
                   where: {
                     pending: 1,
                     separationAutoId: sepExist.resignationAutoId,
+                    pendingAt: userData.manager,
                   },
                 }
               );
