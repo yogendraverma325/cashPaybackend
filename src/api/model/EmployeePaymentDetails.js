@@ -8,6 +8,9 @@ export default (sequelize, Sequelize) => {
         userId: {
             type: Sequelize.INTEGER
         },
+        bankId:{
+            type: Sequelize.INTEGER
+        },
         paymentAccountNumber: {
             type: Sequelize.STRING
         },
@@ -21,6 +24,9 @@ export default (sequelize, Sequelize) => {
             type: Sequelize.STRING
         },
         paymentAttachment: {
+            type: Sequelize.STRING
+        },
+        supportingDocument:{
             type: Sequelize.STRING
         },
         ptApplicability: {
@@ -55,7 +61,35 @@ export default (sequelize, Sequelize) => {
         },
         isActive: {
             type: Sequelize.BOOLEAN
-        }
+        },
+        // new fields
+        newBankId:{
+            type: Sequelize.INTEGER
+        },
+        newBankNameReq:{
+            type: Sequelize.STRING
+        },
+        newAccountHolderNameReq:{
+            type: Sequelize.STRING
+        },
+        newAccountNumberReq:{
+            type: Sequelize.STRING
+        },
+        newIfscCodeReq:{
+            type: Sequelize.STRING
+        },
+        newPaymentAttachment: {
+            type: Sequelize.STRING
+        },
+        newSupportingDocument:{
+            type: Sequelize.STRING
+        },
+        pendingAt:{
+            type: Sequelize.INTEGER
+        },
+        comment:{
+            type: Sequelize.STRING
+        },
     })
     return employeePaymentDetails
 }

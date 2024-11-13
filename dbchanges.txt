@@ -1,3 +1,30 @@
+//-------------------------------------------2024-11-12------------------------------------------------//
+ALTER TABLE `tara_hrms_live`.`employeepaymentdetails` 
+ADD COLUMN `bankId` INT NULL DEFAULT NULL AFTER `userId`;
+
+//-------------------------------------------2024-11-08-------------------------------------------------//
+
+ALTER TABLE `tara_hrms_live`.`employeepaymentdetails` 
+ADD COLUMN `comment` TEXT NULL DEFAULT NULL AFTER `pendingAt`;
+
+
+ALTER TABLE `tara_hrms_live`.`employeepaymentdetails` 
+ADD COLUMN `pendingAt` INT NULL DEFAULT NULL AFTER `newSupportingDocument`;
+
+
+ALTER TABLE `tara_hrms_live`.`employeepaymentdetails` 
+ADD COLUMN `newBankNameReq` VARCHAR(255) NULL DEFAULT NULL AFTER `isActive`,
+ADD COLUMN `newAccountNumberReq` VARCHAR(255) NULL DEFAULT NULL AFTER `newBankNameReq`,
+ADD COLUMN `newAccountHolderNameReq` VARCHAR(255) NULL DEFAULT NULL AFTER `newAccountNumberReq`,
+ADD COLUMN `newIfscCodeReq` VARCHAR(255) NULL DEFAULT NULL AFTER `newAccountHolderNameReq`,
+ADD COLUMN `newPaymentAttachment` VARCHAR(255) NULL DEFAULT NULL AFTER `newIfscCodeReq`,
+ADD COLUMN `newSupportingAttachment` VARCHAR(255) NULL DEFAULT NULL AFTER `newPaymentAttachment`;
+
+
+ALTER TABLE `tara_hrms_live`.`employeepaymentdetails` 
+ADD COLUMN `supportingDocument` VARCHAR(255) NULL DEFAULT NULL AFTER `paymentAttachment`;
+
+
 //-------------------------------------------2024-11-05-------------------------------------------------//
 
 ALTER TABLE `tara_hrms_live`.`employeejobdetails` 

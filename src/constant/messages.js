@@ -49,6 +49,10 @@ const message = {
   OTP_SENT: "OTP sent successfully",
   OTP_EXPIRED: "OTP expired",
   OTP_NOT_MATACHED: "Incorrect OTP",
+  PAYMENT_REQUEST_FOR_APPROVAL:"Request Sent For Approval",
+  PAYMENT_REQUEST_APPROVED:"Payment Details has Updated Successfully",
+  PAYMENT_REQUEST_REJECTED:"Payment Details has Rejected",
+
   SHIFT: {
     NO_SHIFT: "No Shift Is assign to you, you can't mark attendance",
     SHIFT_TIME_INVALID: "Invalid Shift Time",
@@ -74,7 +78,8 @@ const message = {
   SEPARATION_ALREADY_SUBMITTED: "Separation Already Submitted",
   SEPARATION_REQUEST_NOT_AVAILABLE: "Separation Request Not Available",
   SEPARATION_REVOKED: "Separation Request Revoked",
-  TASK_SUBMITTED: "Task Submitted"
+  TASK_SUBMITTED: "Task Submitted",
+  
 };
 
 export default message;

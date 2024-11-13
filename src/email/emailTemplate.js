@@ -49,12 +49,16 @@ const regularizationRequestMail = async (data) => {
                           >
                             <img
                               height="45"
-                              src="${process.env.PROXY_URL}/api/uploads/assets/team-new.png"
+                              src="${
+                                process.env.PROXY_URL
+                              }/api/uploads/assets/team-new.png"
                               alt="Logo"
                             />
                             <img
                               height="45"
-                              src="${process.env.PROXY_URL}/api/uploads/assets/tara_small.png"
+                              src="${
+                                process.env.PROXY_URL
+                              }/api/uploads/assets/tara_small.png"
                               alt="Logo"
                                style="float:right"
                             />
@@ -71,21 +75,23 @@ const regularizationRequestMail = async (data) => {
                     >
                       <p>Hi <b>${data.managerName}</b>,</p>
                       <p>
-                        <b>${data.requesterName
-    }</b> has requested for Attendance
+                        <b>${
+                          data.requesterName
+                        }</b> has requested for Attendance
                         Request from ${moment(data.attendenceFromDate).format(
-      "MMMM D, YYYY"
-    )} to ${moment(data.attendenceToDate).format(
-      "MMMM D, YYYY"
-    )}. <br />
+                          "MMMM D, YYYY"
+                        )} to ${moment(data.attendenceToDate).format(
+    "MMMM D, YYYY"
+  )}. <br />
                       </p>
                       <p>
                         Request message : ${data.userRemark}
                       </p>
                       <p>
                         <a
-                          href='${process.env.CLIENT_URL
-    }#/TaskBox?selectedTab=0&selectedMode=assignedToMe'
+                          href='${
+                            process.env.CLIENT_URL
+                          }#/TaskBox?selectedTab=0&selectedMode=assignedToMe'
                           style="
                             padding: 5px 10px;
                             background: #0173c5;
@@ -184,12 +190,16 @@ const leaveRequestMail = async (data) => {
                           >
                             <img
                               height="45"
-                              src="${process.env.PROXY_URL}/api/uploads/assets/team-new.png"
+                              src="${
+                                process.env.PROXY_URL
+                              }/api/uploads/assets/team-new.png"
                               alt="Logo"
                             />
                             <img
                               height="45"
-                              src="${process.env.PROXY_URL}/api/uploads/assets/tara_small.png"
+                              src="${
+                                process.env.PROXY_URL
+                              }/api/uploads/assets/tara_small.png"
                               alt="Logo"
                                style="float:right"
                             />
@@ -220,8 +230,9 @@ const leaveRequestMail = async (data) => {
                               <p>Request message : ${data.userRemark}</p>
                               <p>
                                 <a
-                                  href="${process.env.CLIENT_URL
-    }#/TaskBox?selectedTab=1&selectedMode=assignedToMe"
+                                  href="${
+                                    process.env.CLIENT_URL
+                                  }#/TaskBox?selectedTab=1&selectedMode=assignedToMe"
                                   style="
                                     padding: 5px 10px;
                                     background: #0173c5;
@@ -402,12 +413,16 @@ const revokeRegularizeMail = async (data) => {
                           >
                             <img
                               height="45"
-                              src="${process.env.PROXY_URL}/api/uploads/assets/team-new.png"
+                              src="${
+                                process.env.PROXY_URL
+                              }/api/uploads/assets/team-new.png"
                               alt="Logo"
                             />
                             <img
                               height="45"
-                              src="${process.env.PROXY_URL}/api/uploads/assets/tara_small.png"
+                              src="${
+                                process.env.PROXY_URL
+                              }/api/uploads/assets/tara_small.png"
                               alt="Logo"
                                style="float:right"
                             />
@@ -429,7 +444,9 @@ const revokeRegularizeMail = async (data) => {
                               <p>Hi <b>${data.managerName}</b>,</p>
                               <p>
                                 <b>${data.name}</b> has Revoked own
-                                attendance request of ${moment(data.attendanceDate).format("MMMM D, YYYY")}<br />
+                                attendance request of ${moment(
+                                  data.attendanceDate
+                                ).format("MMMM D, YYYY")}<br />
                               </p>
                               <p>
                                 <a
@@ -476,8 +493,8 @@ const revokeRegularizeMail = async (data) => {
     </table>
   </body>
 </html>
-`
-}
+`;
+};
 
 const regularizationAcknowledgement = async (data) => {
   return `<!DOCTYPE html>
@@ -547,12 +564,16 @@ const regularizationAcknowledgement = async (data) => {
                           >
                             <img
                               height="45"
-                              src="${process.env.PROXY_URL}/api/uploads/assets/team-new.png"
+                              src="${
+                                process.env.PROXY_URL
+                              }/api/uploads/assets/team-new.png"
                               alt="Logo"
                             />
                             <img
                               height="45"
-                              src="${process.env.PROXY_URL}/api/uploads/assets/tara_small.png"
+                              src="${
+                                process.env.PROXY_URL
+                              }/api/uploads/assets/tara_small.png"
                               alt="Logo"
                                style="float:right"
                             />
@@ -574,13 +595,14 @@ const regularizationAcknowledgement = async (data) => {
                               <p>Hi <b>${data.requesterName}</b>,</p>
                               
                               <p>
-                                <b>${data.managerName}</b> has ${data.status
-    } your Attendance
+                                <b>${data.managerName}</b> has ${
+    data.status
+  } your Attendance
                                 Request from ${moment(data.fromDate).format(
-      "MMMM D, YYYY"
-    )} to ${moment(data.toDate).format(
-      "MMMM D, YYYY"
-    )}.
+                                  "MMMM D, YYYY"
+                                )} to ${moment(data.toDate).format(
+    "MMMM D, YYYY"
+  )}.
                               </p>
                               <p>
                                 <a 
@@ -594,7 +616,9 @@ const regularizationAcknowledgement = async (data) => {
                                     display: inline-block;
                                   "
                                   target="_blank"
-                                href="${process.env.CLIENT_URL}">Click Here</a> to view the
+                                href="${
+                                  process.env.CLIENT_URL
+                                }">Click Here</a> to view the
                                 full request. <br />
                               </p>
                               <p><br /></p>
@@ -696,12 +720,16 @@ const leaveAcknowledgement = async (data) => {
                           >
                             <img
                               height="45"
-                              src="${process.env.PROXY_URL}/api/uploads/assets/team-new.png"
+                              src="${
+                                process.env.PROXY_URL
+                              }/api/uploads/assets/team-new.png"
                               alt="Logo"
                             />
                             <img
                               height="45"
-                              src="${process.env.PROXY_URL}/api/uploads/assets/tara_small.png"
+                              src="${
+                                process.env.PROXY_URL
+                              }/api/uploads/assets/tara_small.png"
                               alt="Logo"
                                style="float:right"
                             />
@@ -723,14 +751,15 @@ const leaveAcknowledgement = async (data) => {
                               <p>Hi <b>${data.requesterName}</b>,</p>
                              
                               <p>
-                                <b>${data.managerName}</b> has ${data.status
-    } your leave
+                                <b>${data.managerName}</b> has ${
+    data.status
+  } your leave
                                 request ${data.leaveType} from ${moment(
-      data.fromDate
-    ).format("MMMM D, YYYY")} to
+    data.fromDate
+  ).format("MMMM D, YYYY")} to
                                 ${moment(data.toDate).format(
-      "MMMM D, YYYY"
-    )} <br />
+                                  "MMMM D, YYYY"
+                                )} <br />
                               </p>
                               <p>
                                 <a
@@ -922,12 +951,16 @@ const revokeLeaveRequestMail = async (data) => {
                           >
                             <img
                               height="45"
-                              src="${process.env.PROXY_URL}/api/uploads/assets/team-new.png"
+                              src="${
+                                process.env.PROXY_URL
+                              }/api/uploads/assets/team-new.png"
                               alt="Logo"
                             />
                             <img
                               height="45"
-                              src="${process.env.PROXY_URL}/api/uploads/assets/tara_small.png"
+                              src="${
+                                process.env.PROXY_URL
+                              }/api/uploads/assets/tara_small.png"
                               alt="Logo"
                                style="float:right"
                             />
@@ -950,7 +983,11 @@ const revokeLeaveRequestMail = async (data) => {
                               
                               <p>
                                 <b>${data.empName}</b> has Revoked the own leave
-                                request ${data.leaveType} from ${moment(data.fromDate).format("MMMM D, YYYY")} to ${moment(data.toDate).format("MMMM D, YYYY")}.<br />
+                                request ${data.leaveType} from ${moment(
+    data.fromDate
+  ).format("MMMM D, YYYY")} to ${moment(data.toDate).format(
+    "MMMM D, YYYY"
+  )}.<br />
                               </p>
                               <p>
                                 <a
@@ -997,8 +1034,8 @@ const revokeLeaveRequestMail = async (data) => {
     </table>
   </body>
 </html>
-`
-}
+`;
+};
 
 const autoLeaveDeduction = async (data) => {
   return `<!DOCTYPE html>
@@ -1068,12 +1105,16 @@ const autoLeaveDeduction = async (data) => {
                                   >
                                     <img
                                       height="45"
-                                      src="${process.env.PROXY_URL}/api/uploads/assets/team-new.png"
+                                      src="${
+                                        process.env.PROXY_URL
+                                      }/api/uploads/assets/team-new.png"
                                       alt="Logo"
                                     />
                                     <img
                                       height="45"
-                                      src="${process.env.PROXY_URL}/api/uploads/assets/tara_small.png"
+                                      src="${
+                                        process.env.PROXY_URL
+                                      }/api/uploads/assets/tara_small.png"
                                       alt="Logo"
                                       style="float: right"
                                     />
@@ -1156,8 +1197,12 @@ const autoLeaveDeduction = async (data) => {
                                     color: #444;
                                   "
                                 >
-                                  On ${moment(data.date).format("DD-MM-YYYY")}<br /><br />
-                                  ${data.leaveType} (${data.leaveDuration}) has been generated by system and
+                                  On ${moment(data.date).format(
+                                    "DD-MM-YYYY"
+                                  )}<br /><br />
+                                  ${data.leaveType} (${
+    data.leaveDuration
+  }) has been generated by system and
                                   ${data.leaveReason} because you have not
                                   satisfied the attendance policy.
                                 </p>
@@ -1169,11 +1214,25 @@ const autoLeaveDeduction = async (data) => {
                                     color: #444;
                                   "
                                 >
-                                  Assigned Shift : ${moment(data.shiftStartTime, 'HH:mm:ss').format('hh:mm:ss A')} - ${moment(data.shiftEndTime, 'HH:mm:ss').format('hh:mm:ss A')}
+                                  Assigned Shift : ${moment(
+                                    data.shiftStartTime,
+                                    "HH:mm:ss"
+                                  ).format("hh:mm:ss A")} - ${moment(
+    data.shiftEndTime,
+    "HH:mm:ss"
+  ).format("hh:mm:ss A")}
                                   <br />
-                                  Leave Type : ${data.leaveType} (${data.leaveDuration}) <br />
-                                  Clock-in : ${moment(data.punchInTime, 'HH:mm:ss').format('hh:mm:ss A')} <br />
-                                  Clock-out : ${moment(data.punchOutTime, 'HH:mm:ss').format('hh:mm:ss A')} <br />
+                                  Leave Type : ${data.leaveType} (${
+    data.leaveDuration
+  }) <br />
+                                  Clock-in : ${moment(
+                                    data.punchInTime,
+                                    "HH:mm:ss"
+                                  ).format("hh:mm:ss A")} <br />
+                                  Clock-out : ${moment(
+                                    data.punchOutTime,
+                                    "HH:mm:ss"
+                                  ).format("hh:mm:ss A")} <br />
                                 </p>
                                 <p
                                   style="
@@ -1215,8 +1274,8 @@ const autoLeaveDeduction = async (data) => {
       </tbody>
     </table>
   </body>
-</html>`
-}
+</html>`;
+};
 
 const initiateSeparation = async (data) => {
   return `<!DOCTYPE html>
@@ -1363,8 +1422,8 @@ const initiateSeparation = async (data) => {
       </tbody>
     </table>
   </body>
-</html>`
-}
+</html>`;
+};
 
 const separationAcknowledgementToUser = async (data) => {
   return `<!DOCTYPE html>
@@ -1502,8 +1561,8 @@ const separationAcknowledgementToUser = async (data) => {
       </tbody>
     </table>
   </body>
-</html>`
-}
+</html>`;
+};
 
 const separationApprovalAcknowledgementToUser = async (data) => {
   return `<!DOCTYPE html>
@@ -1627,8 +1686,8 @@ const separationApprovalAcknowledgementToUser = async (data) => {
       </tbody>
     </table>
   </body>
-</html>`
-}
+</html>`;
+};
 
 const separationRejectedByBUHR = async (data) => {
   return `
@@ -1780,8 +1839,8 @@ const separationRejectedByBUHR = async (data) => {
       </tbody>
     </table>
   </body>
-</html>`
-}
+</html>`;
+};
 
 const managerRejectsSeparation = async (data) => {
   return `<!DOCTYPE html>
@@ -1995,8 +2054,8 @@ const managerRejectsSeparation = async (data) => {
     </table>
   </body>
 </html>
-`
-}
+`;
+};
 
 const managerApprovesSeparation = async (data) => {
   return `<!DOCTYPE html>
@@ -2145,8 +2204,8 @@ const managerApprovesSeparation = async (data) => {
       </tbody>
     </table>
   </body>
-</html>`
-}
+</html>`;
+};
 
 const separationApproveByBUHR = async (data) => {
   return `
@@ -2217,12 +2276,16 @@ const separationApproveByBUHR = async (data) => {
                                   >
                                     <img
                                       height="45"
-                                      src="${process.env.PROXY_URL}/api/uploads/assets/team-new.png"
+                                      src="${
+                                        process.env.PROXY_URL
+                                      }/api/uploads/assets/team-new.png"
                                       alt="Logo"
                                     />
                                     <img
                                       height="45"
-                                      src="${process.env.PROXY_URL}/api/uploads/assets/tara_small.png"
+                                      src="${
+                                        process.env.PROXY_URL
+                                      }/api/uploads/assets/tara_small.png"
                                       alt="Logo"
                                       style="float: right"
                                     />
@@ -2259,13 +2322,19 @@ const separationApproveByBUHR = async (data) => {
                                     font-weight: bolder;
                                     font-family: Arial;
                                   "
-                                  >${moment(data.dateOfResignation).format("DD-MM-YYYY")}</span
+                                  >${moment(data.dateOfResignation).format(
+                                    "DD-MM-YYYY"
+                                  )}</span
                                 ></span
                               ><span style="font-size: 12px"
                                 ><span style="font-family: Arial"
-                                  >&nbsp;and your last working day in ${data.companyName} would be&nbsp;</span
+                                  >&nbsp;and your last working day in ${
+                                    data.companyName
+                                  } would be&nbsp;</span
                                 ></span
-                              ><b>${moment(data.lastWorkingDay).format("DD-MM-YYYY")}</b
+                              ><b>${moment(data.lastWorkingDay).format(
+                                "DD-MM-YYYY"
+                              )}</b
                               ><span style="font-family: Georgia"
                                 ><span style="font-family: Arial">.</span></span
                               >
@@ -2619,8 +2688,8 @@ const separationApproveByBUHR = async (data) => {
       </tbody>
     </table>
   </body>
-</html>`
-}
+</html>`;
+};
 
 const clearanceInitiated = async (data) => {
   return `<!DOCTYPE html>
@@ -2691,12 +2760,16 @@ const clearanceInitiated = async (data) => {
                                   >
                                     <img
                                       height="45"
-                                      src="${process.env.PROXY_URL}/api/uploads/assets/team-new.png"
+                                      src="${
+                                        process.env.PROXY_URL
+                                      }/api/uploads/assets/team-new.png"
                                       alt="Logo"
                                     />
                                     <img
                                       height="45"
-                                      src="${process.env.PROXY_URL}/api/uploads/assets/tara_small.png"
+                                      src="${
+                                        process.env.PROXY_URL
+                                      }/api/uploads/assets/tara_small.png"
                                       alt="Logo"
                                       style="float: right"
                                     />
@@ -2718,7 +2791,15 @@ const clearanceInitiated = async (data) => {
                               <br /><br />
 
                               <span>
-                              <b>${data.taskName}</b> Form is pending with you to complete separation formalities for <b>${data.empName}, ${data.empCode}, ${data.department}</b> whose last working day is <b>${moment(data.lastWorkingDay).format("DD-MM-YYYY")}</b>. Please complete the task as early as possible. You can access the task under pending tasks on your dashboard.
+                              <b>${
+                                data.taskName
+                              }</b> Form is pending with you to complete separation formalities for <b>${
+    data.empName
+  }, ${data.empCode}, ${
+    data.department
+  }</b> whose last working day is <b>${moment(data.lastWorkingDay).format(
+    "DD-MM-YYYY"
+  )}</b>. Please complete the task as early as possible. You can access the task under pending tasks on your dashboard.
                               </span>
                              
                             </div>
@@ -2807,19 +2888,25 @@ const clearanceInitiated = async (data) => {
                                 >Date of Joining:&nbsp;</span
                               ><span
                                 style="font-family: Calibri; font-size: 14px"
-                                >${moment(data.dateOfJoining).format("DD-MM-YYYY")}</span
+                                >${moment(data.dateOfJoining).format(
+                                  "DD-MM-YYYY"
+                                )}</span
                               ><span
                                 style="font-family: Calibri; font-size: 14px"
                                 ><br /><span
                                   style="font-family: Calibri; font-size: 14px"
-                                  >Date of Resignation: ${moment(data.dateOfResignation).format("DD-MM-YYYY")}</span
+                                  >Date of Resignation: ${moment(
+                                    data.dateOfResignation
+                                  ).format("DD-MM-YYYY")}</span
                                 ></span
                               ><br /><span
                                 style="font-family: Calibri; font-size: 14px"
                                 >Last Working Day:&nbsp;</span
                               ><span
                                 style="font-family: Calibri; font-size: 14px"
-                                >${moment(data.lastWorkingDay).format("DD-MM-YYYY")}</span
+                                >${moment(data.lastWorkingDay).format(
+                                  "DD-MM-YYYY"
+                                )}</span
                               ><span
                                 style="font-family: Calibri; font-size: 14px"
                                 ><br /></span
@@ -2880,8 +2967,8 @@ const clearanceInitiated = async (data) => {
     </table>
   </body>
 </html>
-`
-}
+`;
+};
 
 const onboardingEmployee = async (data) => {
   return `
@@ -3006,8 +3093,144 @@ const onboardingEmployee = async (data) => {
   </table>
 </body>
 
-</html>`
-}
+</html>`;
+};
+
+const paymentDetailsApprovalRequestMail = async (data) => {
+  return `<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>TARA HRMS Notification</title>
+    <link
+      href="https://fonts.googleapis.com/css?family=Lato"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body style="margin: 0; padding: 40px 0; background: #ffffff; color: #000000;">
+    <table
+      width="100%"
+      style="
+        width: 700px;
+        margin: 0 auto;
+        font-family: Lato, Arial, sans-serif;
+        border-collapse: collapse;
+        border-radius: 10px;
+      "
+    >
+      <tr>
+        <td style="padding: 1.5rem 2rem;">
+          <img
+            src="https://www.teamcomputers.com/images/logo.png"
+            style="width: 80px; padding-right: 30px; padding-bottom: 15px;"
+            alt="Team Computers Logo"
+          />
+        </td>
+      </tr>
+
+      <tr>
+        <td style="padding: 1rem 2rem;">
+          <p style="font-size: 16px; margin-top: 4.5rem; margin-bottom: 1rem;">Hi ${data.name},</p>
+          <p style="font-size: 15px; line-height: 1.6; color: #000000; margin-top: 0;">
+            Your request to update your <strong>Salary Payment</strong> profile has been submitted for approval.
+          </p>
+          <p style="margin-top: 1rem;">
+            <a
+              href="${process.env.CLIENT_URL}"
+              style="
+                padding: 5px 10px;
+                background: #0173c5;
+                color: #fff;
+                text-decoration: none;
+                border-radius: 2px;
+                font-size: 14px;
+                display: inline-block;
+              "
+              target="_blank"
+              >Click Here</a
+            >
+            for complete details of your profile update request.<br />
+          </p>
+          <p><br /></p>
+          <p>Regards,</p>
+          <p>TARA HRMS<br /></p>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>`;
+};
+
+const paymentDetailsAdminApprovedMail = async (data) => {
+  return `<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>TARA HRMS Notification</title>
+    <link
+      href="https://fonts.googleapis.com/css?family=Lato"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body style="margin: 0; padding: 40px 0; background: #ffffff; color: #000000;">
+    <table
+      width="100%"
+      style="
+        width: 700px;
+        margin: 0 auto;
+        font-family: Lato, Arial, sans-serif;
+        border-collapse: collapse;
+        border-radius: 10px;
+      "
+    >
+      <tr>
+        <td style="padding: 1.5rem 2rem;">
+          <img
+            src="https://www.teamcomputers.com/images/logo.png"
+            style="width: 80px; padding-right: 30px; padding-bottom: 15px;"
+            alt="Team Computers Logo"
+          />
+        </td>
+      </tr>
+      <tr>
+        <td style="padding: 1rem 2rem;">
+          <p style="font-size: 16px; margin-top: 4.5rem; margin-bottom: 1rem;">Hi ${data.name}</p>
+          <p style="font-size: 15px; line-height: 1.6; color: #000000; margin-top: 0;">
+           Request to update Salary Payment profile has been acted upon by <strong>Tara Admin</strong>
+           Fields for which changes are not accepted: ${data.fields}
+          </p>
+          <p style="font-size: 15px; line-height: 1.6; color: #000000; margin-top: 0;">
+  Approver comments: ${data.comment}
+</p>
+          <p style="margin-top: 1rem;">
+            <a
+              href="${process.env.CLIENT_URL}"
+              style="
+                padding: 5px 10px;
+                background: #0173c5;
+                color: #fff;
+                text-decoration: none;
+                border-radius: 2px;
+                font-size: 14px;
+                display: inline-block;
+              "
+              target="_blank"
+              >Click Here</a
+            >
+            to view profile.<br />
+          </p>
+          <p><br /></p>
+         <p style="color: #000000;">Regards,</p>
+<p style="color: #000000;">TARA HRMS<br /></p>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>`;
+};
+
 
 export default {
   regularizationRequestMail,
@@ -3027,5 +3250,7 @@ export default {
   managerApprovesSeparation,
   separationApproveByBUHR,
   clearanceInitiated,
-  onboardingEmployee
+  onboardingEmployee,
+  paymentDetailsApprovalRequestMail,
+  paymentDetailsAdminApprovedMail
 };

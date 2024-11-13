@@ -254,6 +254,47 @@ const updatePaymentDetailsSchema = Joi.object({
     .label("Account Holder Name"),
 });
 
+const requestForPaymentApprovalSchema = Joi.object({
+  userId: Joi.number().label("User ID"),
+  bankId:Joi.number().label("Bank Name").optional(),
+  paymentAccountNumber: Joi.string().trim().required().label("Account Number"),
+  paymentBankName: Joi.string().trim().required().label("Bank Name"),
+  paymentAttachment: Joi.string().allow("").optional(),
+  supportingDocument: Joi.string().allow("").optional(),
+  comment:Joi.string().optional(),
+  paymentBankIfsc: Joi.string()
+    .trim()
+    .required()
+    .max(20)
+    .label("Bank Ifsc Code"),
+  paymentHolderName: Joi.string()
+    .trim()
+    .required()
+    .label("Account Holder Name")
+    
+});
+
+const actionPaymentSchema = Joi.object({
+  userId: Joi.number().label("User ID"),
+  bankId: Joi.number().label("Bank Name"),
+  paymentAccountNumber: Joi.string().trim().required().label("Account Number"),
+  paymentBankName: Joi.string().trim().required().label("Bank Name"),
+  paymentAttachment: Joi.string().allow("").optional(),
+  supportingDocument: Joi.string().allow("").optional(),
+  paymentBankIfsc: Joi.string()
+    .trim()
+    .required()
+    .max(20)
+    .label("Bank Ifsc Code"),
+  paymentHolderName: Joi.string()
+    .trim()
+    .required()
+    .label("Account Holder Name"),
+    status:Joi.number(),
+    comment:Joi.string().allow("").optional(),
+});
+
+
 const addPaymentDetailsSchema = Joi.object({
   userId: Joi.number().label("User ID"),
   paymentAccountNumber: Joi.string()
@@ -1169,5 +1210,7 @@ export default {
   importOnboardEmployeeSchema,
   updatePolicyOfEMP,
   updateIQDetailsSchema,
-  revokeSeparationBUHR
+  revokeSeparationBUHR,
+  requestForPaymentApprovalSchema,
+  actionPaymentSchema
 };

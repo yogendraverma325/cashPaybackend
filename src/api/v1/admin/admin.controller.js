@@ -1347,6 +1347,23 @@ class AdminController {
       });
     }
   }
+
+  async actionOnPaymentRequest(req, res){
+    try {
+      
+    } catch (error) {
+      console.log(error);
+      if (error.isJoi === true) {
+        return respHelper(res, {
+          status: 422,
+          msg: error.details[0].message,
+        });
+      }
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
 }
 
 export default new AdminController();

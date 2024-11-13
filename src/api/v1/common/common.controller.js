@@ -5,6 +5,7 @@ import helper from "../../../helper/helper.js";
 import respHelper from "../../../helper/respHelper.js";
 import constant from "../../../constant/messages.js";
 import client from "../../../config/redisDb.config.js";
+import eventEmitter from "../../../services/eventService.js";
 import moment from "moment";
 import { Op } from "sequelize";
 
@@ -1735,6 +1736,101 @@ class commonController {
       return respHelper(res, {
         status: 500,
         data: error,
+      });
+    }
+  }
+
+  async actionOnPaymentDetails(req,res){
+    try {
+      const result =
+      await validator.actionPaymentSchema.validateAsync(req.body);
+      const existUser = await db.employeeMaster.findOne({
+        raw: true,
+        where: {
+          id: result.userId,
+          isActive: 1,
+        },
+        attributes: ["name","empCode", "profileImage"],
+      });
+      if(result.status == 0){
+        const objForRejction = {
+          status:"rejected",
+          newBankId:null,
+          pendingAt:null,
+          newBankNameReq: null,
+          newAccountNumberReq: null,
+          newAccountHolderNameReq: null,
+          newIfscCodeReq: null,
+          comment: null,
+          newPaymentAttachment: null,
+          newSupportingDocument: null
+         }
+        await db.paymentDetails.update(objForRejction,{ where: { userId: result.userId }});
+        
+        eventEmitter.emit(
+          "paymentDetailsAdminApprovedMail",
+          JSON.stringify({
+            email: result.email,
+            name: existUser.name,
+            fields: "Account NumberReq,Swift/IFSC code",
+            status:"Rejected",
+            comment:result.comment == undefined || "" ? "" : result.comment
+          })
+        );
+        return respHelper(res, {
+          status: 200,
+          msg: constant.PAYMENT_REQUEST_REJECTED,
+        });
+      }
+      else{
+        const getNewChanges = await db.paymentDetails.findOne({
+          where: { userId: result.userId,status:"pending" },
+        });
+
+        if(getNewChanges){
+          const objForApproval = {
+            ...result,...
+            {
+              status:"approved",
+              pendingAt:null,
+              newBankId:null,
+              newBankNameReq: null,
+              newAccountNumberReq: null,
+              newAccountHolderNameReq: null,
+              newIfscCodeReq: null,
+              comment: null,
+              newPaymentAttachment: null,
+              newSupportingDocument: null
+            }}
+          await db.paymentDetails.update(objForApproval,{ where: { userId: result.userId }});
+          eventEmitter.emit(
+            "paymentDetailsAdminApprovedMail",
+            JSON.stringify({
+              email: result.email,
+              name: existUser.name,
+              fields: "",
+              status:"Approved",
+              comment:result.comment == undefined || "" ? "" : result.comment
+            })
+          );
+          return respHelper(res, {
+            status: 200,
+            msg: constant.PAYMENT_REQUEST_APPROVED,
+            data: {}
+          });
+        }
+        else{
+          return respHelper(res, {
+            status: 404,
+            msg: constant.DETAILS_NOT_FOUND
+          });
+        }
+      }
+
+    } catch (error) {
+      console.log(error);
+      return respHelper(res, {
+        status: 500,
       });
     }
   }

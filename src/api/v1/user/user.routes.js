@@ -273,3 +273,12 @@ export default Express.Router()
         authentication.authenticate,
         userController.revokeSeparationBUHR
     )
+
+    .post("/requestForPaymentApproval",
+        authentication.authenticate,
+        userController.requestForPaymentApproval
+    )
+
+    .post("/mapBank",
+        userController.mapBank
+    )

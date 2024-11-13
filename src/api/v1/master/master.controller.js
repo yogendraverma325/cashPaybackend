@@ -270,13 +270,13 @@ class MasterController {
         where: Object.assign(
           manager
             ? {
-              id: manager,
-              isActive: 1,
-            }
+                id: manager,
+                isActive: 1,
+              }
             : {
-              manager: null,
-              isActive: 1,
-            }
+                manager: null,
+                isActive: 1,
+              }
         ),
         attributes: { exclude: ["password", "role_id", "designation_id"] },
         include: [
@@ -547,23 +547,23 @@ class MasterController {
         where: Object.assign(
           stateCode
             ? {
-              stateCode,
-            }
+                stateCode,
+              }
             : {},
           stateName
             ? {
-              stateName,
-            }
+                stateName,
+              }
             : {},
           countryId
             ? {
-              countryId,
-            }
+                countryId,
+              }
             : {},
           regionId
             ? {
-              regionId,
-            }
+                regionId,
+              }
             : {}
         ),
       });
@@ -593,8 +593,8 @@ class MasterController {
         where: Object.assign(
           countryId
             ? {
-              countryId,
-            }
+                countryId,
+              }
             : {}
         ),
       });
@@ -624,8 +624,8 @@ class MasterController {
         where: Object.assign(
           stateId
             ? {
-              stateId,
-            }
+                stateId,
+              }
             : {}
         ),
       });
@@ -965,27 +965,27 @@ class MasterController {
               : [["webPosition", "asc"]],
             attributes: mobile
               ? [
-                "cardId",
-                "cardName",
-                "mobileUrl",
-                "isCardWorking",
-                "mobileLightFontColor",
-                "mobileIcon",
-                "mobileLightBackgroundColor",
-                "mobilePosition",
-                "mobileDarkFontColor",
-                "mobileDarkBackgroundColor",
-              ]
+                  "cardId",
+                  "cardName",
+                  "mobileUrl",
+                  "isCardWorking",
+                  "mobileLightFontColor",
+                  "mobileIcon",
+                  "mobileLightBackgroundColor",
+                  "mobilePosition",
+                  "mobileDarkFontColor",
+                  "mobileDarkBackgroundColor",
+                ]
               : [
-                "cardId",
-                "cardName",
-                "isCardWorking",
-                "webUrl",
-                "webFontColor",
-                "webBackgroundColor",
-                "webIcon",
-                "webPosition",
-              ],
+                  "cardId",
+                  "cardName",
+                  "isCardWorking",
+                  "webUrl",
+                  "webFontColor",
+                  "webBackgroundColor",
+                  "webIcon",
+                  "webPosition",
+                ],
           });
 
           const dashboardJson = JSON.stringify(dashboardData);
@@ -1320,7 +1320,7 @@ class MasterController {
 
   async reportModule(req, res) {
     try {
-      const { } = req.query;
+      const {} = req.query;
       let query = { isActive: 1 };
       const reportModule = await db.reportModuleMaster.findAll({
         where: query,
@@ -1348,7 +1348,7 @@ class MasterController {
 
   async shiftMaster(req, res) {
     try {
-      const { } = req.query;
+      const {} = req.query;
       let query = { isActive: 1 };
       const reportModule = await db.shiftMaster.findAll({});
 
@@ -1366,7 +1366,7 @@ class MasterController {
 
   async taskFilter(req, res) {
     try {
-      let query = { isActive: 1 };
+      let query = req.query.taskFor == "web"?  { isActive: 1, taskForWeb:1}: { isActive: 1,taskForApp:1 }
       const taskFilter = await db.taskFilterMaster.findAll({
         where: query,
         //attributes: ['']
@@ -1457,7 +1457,7 @@ class MasterController {
 
   async noticePeriod(req, res) {
     try {
-      let query = { 'isActive': 1 };
+      let query = { isActive: 1 };
       const docs = await db.noticePeriodMaster.findAll({
         where: query,
         attributes: ["noticePeriodAutoId", "noticePeriodName"],
@@ -1476,7 +1476,7 @@ class MasterController {
 
   async degree(req, res) {
     try {
-      let query = { 'isActive': 1 };
+      let query = { isActive: 1 };
       const docs = await db.degreeMaster.findAll({
         where: query,
         attributes: ["degreeId", "degreeName"],
@@ -1484,6 +1484,53 @@ class MasterController {
       return respHelper(res, {
         status: 200,
         data: docs,
+      });
+    } catch (error) {
+      console.log(error);
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+
+  async bank(req, res) {
+    try {
+
+      const bankData = await db.BankMaster.findAndCountAll({
+        where: {
+          isActive: 1,
+          ...(req.query.search && {bankName: { [Op.like]: `%${req.query.search}%` }})
+        },
+        attributes: [[db.sequelize.fn('DISTINCT', db.sequelize.col('bankName')), 'bankName']],
+
+      });
+
+      return respHelper(res, {
+        status: 200,
+        data: bankData,
+      });
+    } catch (error) {
+      console.log(error);
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+
+  async ifsc(req, res) {
+    try {
+      const bankData = await db.BankMaster.findAll({
+        where: {
+          isActive: 1,
+          bankName: { [Op.like]: `%${req.query.bankName}%` },
+          ...(req.query.search && {bankIfsc: { [Op.like]: `%${req.query.search}%` }})
+
+        }
+      });
+
+      return respHelper(res, {
+        status: 200,
+        data: bankData,
       });
     } catch (error) {
       console.log(error);

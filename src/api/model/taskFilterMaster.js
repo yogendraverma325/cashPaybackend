@@ -11,6 +11,12 @@ export default (sequelize, Sequelize) => {
         taskFor: {
             type: Sequelize.STRING
         },
+        taskForWeb:{
+           type: Sequelize.INTEGER,
+        },
+        taskForApp:{
+           type: Sequelize.INTEGER,
+        },
         createdAt: {
             type: Sequelize.DATE
         },

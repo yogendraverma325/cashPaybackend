@@ -95,6 +95,7 @@ import CategoryMaster from "../api/model/CategoryMaster.js";
 import SubCategoryMaster from "../api/model/SubCategoryMaster.js";
 import PTLocationMaster from "../api/model/PTLocationMaster.js";
 import TaskBuMapping from "../api/model/TaskBuMapping.js";
+import BankMaster from "../api/model/BankMaster.js"
 
 import PolicyHistory from "../api/model/PolicyHistory.js";
 import EmployeeLeaveHeader from "../api/model/EmployeeLeaveHeader.js";
@@ -260,6 +261,7 @@ db.ptLocationMaster = PTLocationMaster(sequelize, Sequelize);
 db.taskBuMapping = TaskBuMapping(sequelize, Sequelize);
 
 db.EmployeeLeaveHeader = EmployeeLeaveHeader(sequelize, Sequelize);
+db.BankMaster = BankMaster(sequelize,Sequelize)
 db.holidayCompanyLocationConfiguration.hasOne(db.holidayMaster, {
   foreignKey: "holidayId",
   sourceKey: "holidayId",
@@ -935,4 +937,8 @@ db.separationFieldValues.hasOne(db.separationTaskFields, {
   sourceKey: 'fields'
 })
 
+db.paymentDetails.hasOne(db.BankMaster, {
+  foreignKey: "bankId",
+  sourceKey: "bankId",
+});
 export default db;

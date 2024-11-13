@@ -161,3 +161,9 @@ export default Express.Router()
     authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"),
     adminController.changeStatusOnboardEmployee
   )
+
+  .post(
+    "/actionOnPaymentDetails",
+    authorization("ADMIN"),
+    commonController.actionOnPaymentDetails
+  )

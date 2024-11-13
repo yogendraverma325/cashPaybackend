@@ -74,6 +74,14 @@ export default function getAllListeners(eventEmitter) {
     eventEmitter.on('onboardingEmployeeMail', async (input) => {
         await onboardingEmployeeMail(input)
     })
+
+    eventEmitter.on('paymentDetailsApprovalRequestMail', async (input) => {
+        await paymentDetailsApprovalRequest(input)
+    })
+    eventEmitter.on('paymentDetailsAdminApprovedMail', async (input) => {
+        await paymentDetailsAdminApproval(input)
+    })
+    
 }
 
 async function regularizationRequestMail(input) {
@@ -164,6 +172,7 @@ async function leaveAckMail(input) {
 async function forgotPassword(input) {
     try {
         const userData = JSON.parse(input)
+        console.log("userData",userData)
         await helper.mailService({
             to: userData.email,
             subject: `Your One-Time Password (OTP)`,
@@ -334,3 +343,33 @@ async function onboardingEmployeeMail(input) {
         logger.error(error)
     }
 }
+
+async function paymentDetailsApprovalRequest(input) {
+    try {
+        const userData = JSON.parse(input)
+        console.log("userData>>>>>",userData)
+        await helper.mailService({
+            to: userData.email,
+            subject: `Your profile update request has been submitted for approval of Salary Payment`,
+            html: await emailTemplate.paymentDetailsApprovalRequestMail(userData)
+        })
+    } catch (error) {
+        console.log(error)
+        logger.error(error)
+    }
+}
+
+async function paymentDetailsAdminApproval(input) {
+    try {
+        const userData = JSON.parse(input)
+        await helper.mailService({
+            to: userData.email,
+            subject: `Your profile update request has been acted upon by Tara Admin`,
+            html: await emailTemplate.paymentDetailsAdminApprovedMail(userData)
+        })
+    } catch (error) {
+        console.log(error)
+        logger.error(error)
+    }
+}
+
