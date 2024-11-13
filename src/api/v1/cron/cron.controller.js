@@ -132,10 +132,18 @@ class CronController {
     if (managerData.length != 0) {
       for (const element of managerData) {
         let lastDayDate = moment(element.fromDate).format("YYYY-MM-DD");
-        const currentManagerOfTheEmployee = await db.managerHistory.findOne({
+
+        const userData = await db.employeeMaster.findOne({
+          attributes:['id','manager'],
+          where: {
+            id: element.employeeId
+          },
+        });
+
+         const currentManagerOfTheEmployee = await db.managerHistory.findOne({
           raw: true,
           where: {
-            needAttendanceCron: 0,
+            needAttendanceCron:0,
             toDate: {
               [Op.eq]: null,
             },
@@ -172,18 +180,9 @@ class CronController {
         //DISBALE CURRENT DATE DATA
 
         //UPDATE MANGER TO EMP MASTER TABLE
-        let updateDone = await db.employeeMaster.update(
-          {
-            manager: element.managerId,
-          },
-          {
-            where: {
-              id: element.employeeId,
-            },
-          }
-        );
+      
         ///TRANSFER ALL RECORDS TO NEW MANAGER
-        if (updateDone) {
+     
           await db.regularizationMaster.update(
             {
               regularizeManagerId: element.managerId,
@@ -206,10 +205,19 @@ class CronController {
               },
             }
           );
-          let dataAudit = await db.separationMaster.update(
+          await db.EmployeeLeaveHeader.update(
             {
               pendingAt: element.managerId,
             },
+            {
+              where: {
+                status: "pending",
+                createdBy: element.employeeId,
+              },
+            }
+          );
+
+          let sepExist = await db.separationMaster.findOne(
             {
               where: {
                 finalStatus: 2,
@@ -217,20 +225,50 @@ class CronController {
               },
             }
           );
-          if (dataAudit) {
-            await db.separationTrail.update(
+          if(sepExist){
+
+          
+            let dataAudit = await db.separationMaster.update(
               {
                 pendingAt: element.managerId,
               },
               {
                 where: {
-                  pending: 1,
-                  separationAutoId: dataAudit.resignationAutoId,
+                  finalStatus: 2,
+                  employeeId: element.employeeId,
+                  pendingAt:userData.manager
                 },
               }
             );
+            console.log("sepExist",sepExist)
+          
+              let res_sep=await db.separationTrail.update(
+                {
+                  pendingAt: element.managerId,
+                },
+                {
+                  where: {
+                    pending: 1,
+                    separationAutoId: sepExist.resignationAutoId,
+                    pendingAt: userData.manager,
+                  },
+                }
+              );
+          
+            
           }
-        }
+          let updateDone = await db.employeeMaster.update(
+            {
+              manager: element.managerId,
+            },
+            {
+              where: {
+                id: element.employeeId,
+              },
+            }
+          );
+         
+        
         //UPDATE MANGER TO EMP MASTER TABLE
       }
     }
