@@ -74,7 +74,9 @@ const message = {
   SEPARATION_ALREADY_SUBMITTED: "Separation Already Submitted",
   SEPARATION_REQUEST_NOT_AVAILABLE: "Separation Request Not Available",
   SEPARATION_REVOKED: "Separation Request Revoked",
-  TASK_SUBMITTED: "Task Submitted"
+  TASK_SUBMITTED: "Task Submitted",
+  LOGIN_BLOCKED: "Your login has been disabled.",
+  LOGIN_STATUS: "Login <status>"
 };
 
 export default message;

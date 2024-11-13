@@ -161,3 +161,8 @@ export default Express.Router()
     authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"),
     adminController.changeStatusOnboardEmployee
   )
+
+  .post("/blockLogin",
+    // authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"),
+    adminController.blockLogin
+  )

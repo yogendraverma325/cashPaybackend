@@ -3509,44 +3509,52 @@ class UserController {
         where: {
           updatedBy: req.userId
         },
-        include: [{
-          model: db.separationTaskMaster,
-
-          attributes: ['taskAutoId', 'taskCode', "taskName"]
-        },
-        {
-          model: db.employeeMaster,
-          attributes: ['id', "name", "email", 'empCode'],
-          include: [
-            {
-              model: db.companyLocationMaster,
-              attributes: ['address1']
-            },
-            {
-              model: db.jobDetails,
-              attributes: ['dateOfJoining'],
-              include: [{
-                model: db.jobLevelMaster,
-                attributes: ["jobLevelId", "jobLevelName", "jobLevelCode"]
-              }]
-            },
-            {
-              model: db.separationMaster,
-              attributes: ["resignationDate",
-                "noticePeriodDay",
-                "l2LastWorkingDay"
-              ]
-            }
-          ]
-        }, {
-          model: db.separationFieldValues,
-          attributes: ['fieldValues'],
-          separate: true,
-          include: [{
-            model: db.separationTaskFields,
-            attributes: ["fieldsCode", "label", "isRequired"]
-          }]
-        }],
+        include: [
+          {
+            model: db.separationTaskOwner,
+            attributes: ['taskOwnerAutoId', 'taskOwner'],
+            include: [{
+              model: db.employeeMaster,
+              attributes: ['empCode', 'name']
+            }]
+          },
+          {
+            model: db.separationTaskMaster,
+            attributes: ['taskAutoId', 'taskCode', "taskName"]
+          },
+          {
+            model: db.employeeMaster,
+            attributes: ['id', "name", "email", 'empCode'],
+            include: [
+              {
+                model: db.companyLocationMaster,
+                attributes: ['address1']
+              },
+              {
+                model: db.jobDetails,
+                attributes: ['dateOfJoining'],
+                include: [{
+                  model: db.jobLevelMaster,
+                  attributes: ["jobLevelId", "jobLevelName", "jobLevelCode"]
+                }]
+              },
+              {
+                model: db.separationMaster,
+                attributes: ["resignationDate",
+                  "noticePeriodDay",
+                  "l2LastWorkingDay"
+                ]
+              }
+            ]
+          }, {
+            model: db.separationFieldValues,
+            attributes: ['fieldValues'],
+            separate: true,
+            include: [{
+              model: db.separationTaskFields,
+              attributes: ["fieldsCode", "label", "isRequired"]
+            }]
+          }],
         limit,
         offset,
       })

@@ -1347,6 +1347,46 @@ class AdminController {
       });
     }
   }
+
+  async blockLogin(req, res) {
+    try {
+
+      const result = await validator.blockLoginSchema.validateAsync(req.body)
+
+      const existUser = await db.employeeMaster.findOne({
+        where: {
+          empCode: result.employeeCode,
+          isActive: 1,
+        }
+      })
+
+      if (!existUser) {
+        return respHelper(res, {
+          status: 404,
+          msg: constant.USER_NOT_EXIST
+        });
+      }
+
+      await db.employeeMaster.update({
+        isLoginActive: !existUser.dataValues.isLoginActive
+      }, {
+        where: {
+          id: existUser.dataValues.id
+        }
+      })
+
+      return respHelper(res, {
+        status: 200,
+        msg: constant.LOGIN_STATUS.replace("<status>", `${!existUser.dataValues.isLoginActive ? "Enabled" : "Disabled"}`)
+      });
+
+    } catch (error) {
+      console.log(error);
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
 }
 
 export default new AdminController();

@@ -5,7 +5,8 @@ import moment from "moment";
 import db from "../config/db.config.js";
 import sendGrid from "@sendgrid/mail";
 import bcrypt from "bcrypt";
-import { Op, where } from "sequelize";
+import pepipost from 'pepipost'
+import { Op } from "sequelize";
 import eventEmitter from "../services/eventService.js";
 
 const generateJwtToken = async (data) => {
@@ -72,34 +73,111 @@ const checkActiveUser = async (data) => {
     where: {
       id: data,
       isActive: 1,
+      isLoginActive: 1
     },
   });
   return existUser;
 };
 
+// const mailService = async (data) => {
+//   sendGrid.setApiKey(process.env.SENDGRID_API_KEY);
+//   const filteredCc = data.cc
+//     ? data.cc.filter((email) => !data.to.includes(email))
+//     : undefined;
+//   const testMail = parseInt(process.env.TEST_MAIL);
+//   const testMailIDs = process.env.TEST_MAIL_ID.split(",");
+//   console.log("Mail is Sending On --->>", data.to);
+//   const msg = {
+//     to: testMail ? testMailIDs : data.to,
+//     from: {
+//       email: process.env.SENDER_MAIL,
+//       name: process.env.SENDER_NAME,
+//     },
+//     subject: data.subject,
+//     text: data.text,
+//     html: data.html,
+//     cc: testMail ? undefined : filteredCc,
+//     // bcc: (testMail) ? undefined : testMailIDs
+//   };
+//   let result = await sendGrid.sendMultiple(msg);
+//   return result;
+// };
+
 const mailService = async (data) => {
-  sendGrid.setApiKey(process.env.SENDGRID_API_KEY);
-  const filteredCc = data.cc
-    ? data.cc.filter((email) => !data.to.includes(email))
-    : undefined;
-  const testMail = parseInt(process.env.TEST_MAIL);
-  const testMailIDs = process.env.TEST_MAIL_ID.split(",");
-  console.log("Mail is Sending On --->>", data.to);
-  const msg = {
-    to: testMail ? testMailIDs : data.to,
-    from: {
-      email: process.env.SENDER_MAIL,
-      name: process.env.SENDER_NAME,
-    },
-    subject: data.subject,
-    text: data.text,
-    html: data.html,
-    cc: testMail ? undefined : filteredCc,
-    // bcc: (testMail) ? undefined : testMailIDs
-  };
-  let result = await sendGrid.sendMultiple(msg);
-  return result;
-};
+
+  try {
+    const testMail = parseInt(process.env.TEST_MAIL);
+    const testMailIDs = process.env.TEST_MAIL_ID.split(",");
+    const configuration = pepipost.Configuration;
+    const controller = pepipost.MailSendController;
+    configuration.apiKey = process.env.NETCORE_API_KEY;
+
+    let body = new pepipost.Send();
+    body.from = new pepipost.From();
+
+
+    body.from.email = process.env.SENDER_MAIL
+    body.from.name = process.env.SENDER_NAME
+    body.subject = data.subject;
+
+
+    body.content = [];
+    body.content[0] = new pepipost.Content();
+    body.content[0].type = pepipost.TypeEnum.HTML;
+    body.content[0].value = data.html;
+    body.personalizations = [];
+
+    body.personalizations[0] = new pepipost.Personalizations();
+    if (data.attachments && data.attachments.length >= 1 && data.attachments != undefined) {
+      let attach = Buffer.from(data.attachments, "binary").toString("base64");
+      body.personalizations[0].attachments = [];
+      let attachment = data.attachments.map((attc) => {
+        return {
+          content: Buffer.from(attc.content, "binary").toString("base64"),
+          name: attc.filename,
+        };
+      });
+      body.personalizations[0].attachments[0] = new pepipost.Attachments();
+      body.personalizations[0].attachments = attachment;
+    }
+    body.personalizations[0].To = [];
+    body.personalizations[0].To = new pepipost.EmailStruct();
+    body.personalizations[0].To = mergeEmail(testMail ? testMailIDs : data.to.split(","));
+
+
+    body.personalizations[0].cc = [];
+    body.personalizations[0].cc = new pepipost.EmailStruct();
+    body.personalizations[0].cc = mergeEmail((data.cc) ? data.cc.split(",") : []);
+
+
+    body.personalizations[0].bcc = [];
+    body.personalizations[0].bcc = new pepipost.EmailStruct();
+    body.personalizations[0].bcc = mergeEmail((data.bcc) ? data.bcc.split(",") : []);
+    body.settings = {};
+    body.settings.open_track = true;
+    body.settings.click_track = true;
+    body.settings.unsubscribe_track = false;
+
+
+    const promise = await controller.createGeneratethemailsendrequest(body);
+
+    console.log(promise)
+    return promise;
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+const mergeEmail = (email) => {
+  let emails =
+    typeof email === "string"
+      ? [{ email }]
+      : email.map((email) => {
+        return { email };
+      });
+  return emails;
+}
+
 
 const timeDifference = async (start, end) => {
   let startTime = moment(start, "YYYY-MM-DD HH:mm:ss");

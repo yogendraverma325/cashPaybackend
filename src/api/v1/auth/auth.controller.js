@@ -52,6 +52,13 @@ class AuthController {
         });
       }
 
+      if (!existUser.dataValues.isLoginActive) {
+        return respHelper(res, {
+          status: 404,
+          msg: constant.LOGIN_BLOCKED,
+        });
+      }
+
       if (!dataRes.data.status) {
 
         const comparePass = await bcrypt.compare(
@@ -136,6 +143,13 @@ class AuthController {
           status: 404,
           msg: constant.ACCOUNT_LOCKED
         })
+      }
+
+      if (!existUser.dataValues.isLoginActive) {
+        return respHelper(res, {
+          status: 404,
+          msg: constant.LOGIN_BLOCKED,
+        });
       }
 
       const loggedInUser = await validateUser(req, existUser)

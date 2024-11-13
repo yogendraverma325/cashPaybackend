@@ -1123,6 +1123,10 @@ const revokeSeparationBUHR = Joi.object({
   remark: Joi.string().trim().allow("").label("Remark"),
 });
 
+const blockLoginSchema = Joi.object({
+  employeeCode: Joi.string().trim().required().label("Employee Code"),
+});
+
 export default {
   loginSchema,
   userCreationSchema,
@@ -1169,5 +1173,6 @@ export default {
   importOnboardEmployeeSchema,
   updatePolicyOfEMP,
   updateIQDetailsSchema,
-  revokeSeparationBUHR
+  revokeSeparationBUHR,
+  blockLoginSchema
 };
