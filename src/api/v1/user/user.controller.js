@@ -2383,6 +2383,17 @@ class UserController {
         }
       );
 
+      await db.separationTrail.create({
+        separationAutoId: separationData.dataValues.resignationAutoId,
+        actionUserRole: req.userRole,
+        separationStatus: 3,
+        actionDate: moment(),
+        pending: 0,
+        pendingAt: req.userId,
+        createdBy: req.userId,
+        createdDt: moment(),
+      });
+
       return respHelper(res, {
         status: 200,
         msg: constant.SEPARATION_REVOKED,
@@ -2721,7 +2732,7 @@ class UserController {
     try {
       let reqObj = {};
       for (const element of req.body) {
-        if (element.fieldsCode === "file" && element.value !== "") {
+        if (element.fieldsCode === 'file' && (element.value !== "" && element.value)) {
           const d = Math.floor(Date.now() / 1000);
           const userData = await db.employeeMaster.findOne({
             where: {
@@ -3157,6 +3168,7 @@ class UserController {
         include: [
           {
             model: db.employeeMaster,
+            required: true,
             attributes: [
               "id",
               "empCode",
@@ -3169,6 +3181,7 @@ class UserController {
               {
                 model: db.separationMaster,
                 attributes: ["resignationDate", "l2LastWorkingDay"],
+                required: true,
                 where: {
                   finalStatus: 9,
                 },
@@ -3247,6 +3260,7 @@ class UserController {
         include: [
           {
             model: db.employeeMaster,
+            required: true,
             attributes: ["empCode", "name"],
             include: [
               {
@@ -3255,6 +3269,7 @@ class UserController {
               },
               {
                 model: db.separationMaster,
+                required: true,
                 where: {
                   finalStatus: 9,
                 },
@@ -3623,6 +3638,17 @@ class UserController {
           },
         }
       );
+
+      await db.separationTrail.create({
+        separationAutoId: separationData.dataValues.resignationAutoId,
+        actionUserRole: req.userRole,
+        separationStatus: 11,
+        actionDate: moment(),
+        pending: 0,
+        pendingAt: req.userId,
+        createdBy: req.userId,
+        createdDt: moment(),
+      });
 
       return respHelper(res, {
         status: 200,
