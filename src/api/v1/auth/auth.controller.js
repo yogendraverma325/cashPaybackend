@@ -17,7 +17,6 @@ class AuthController {
 
       let dataRes = null
       if (parseInt(process.env.TEST) === 0) {
-        console.log("bcdbjdbcbdhjj")
         const formData = new FormData();
         formData.append("uname", result.tmc);
         formData.append("pass", result.password);
@@ -70,7 +69,7 @@ class AuthController {
         });
       }
 
-      if (dataRes && !dataRes.data.status) {
+      if (!dataRes?.data?.status) {
 
         const comparePass = await bcrypt.compare(
           result.password,
