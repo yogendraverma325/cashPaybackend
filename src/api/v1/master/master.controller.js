@@ -177,6 +177,7 @@ class MasterController {
           "lastName",
           "officeMobileNumber",
           "buId",
+          "isLoginActive",
           "sbuId",
           "isActive",
         ],

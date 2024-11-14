@@ -415,6 +415,7 @@ class UserController {
         {
           password: hashedPassword,
           isTempPassword: 0,
+          passwordExpiryDate: moment().add(parseInt(process.env.PASSWORD_EXPIRY_LIMIT), 'days')
         },
         {
           where: {
@@ -696,6 +697,7 @@ class UserController {
         {
           password: await helper.encryptPassword(newPassword),
           isTempPassword: 0,
+          passwordExpiryDate: moment().add(parseInt(process.env.PASSWORD_EXPIRY_LIMIT), 'days')
         },
         { where: { id: id } }
       );
@@ -3428,6 +3430,86 @@ class UserController {
       const limit = parseInt(req.query.limit, 10) || 10;
       const pageNo = parseInt(req.query.page, 10) || 1;
       const offset = (pageNo - 1) * limit;
+
+      const { count, rows: separationData } = await db.separationTrail.findAndCountAll({
+        where: { pendingAt: req.userId, pending: 0 },
+        include: [{
+          model: db.separationMaster,
+          where: {
+            employeeId: { [Op.ne]: req.userId }
+          },
+          include: [
+            {
+              model: db.employeeMaster,
+              attributes: ["empCode", "name"],
+              where: {
+                ...(search && { name: { [Op.like]: `%${search}%` } }),
+              }
+            },
+            {
+              model: db.separationStatus,
+              attributes: ["separationStatusCode", "separationStatusDesc"],
+            },
+            {
+              model: db.separationReason,
+              as: "empReasonofResignation",
+              attributes: ["separationReason"],
+            },
+            {
+              model: db.separationReason,
+              as: "l1ReasonofResignation",
+              attributes: ["separationReason"],
+            },
+            {
+              model: db.separationReason,
+              attributes: ["separationReason"],
+              as: "l2ReasonofSeparation",
+
+            },
+            {
+              model: db.subCategoryMaster,
+              attributes: ['subCategoryName'],
+              as: 'revokeReason'
+            }
+          ],
+        },
+        {
+          model: db.separationStatus,
+          attributes: ["separationStatusCode", "separationStatusDesc"],
+        },
+        {
+          model: db.employeeMaster,
+          attributes: ["empCode", "name"],
+          as: "pendingat",
+        }],
+        limit,
+        offset,
+        distinct: true
+      })
+
+      return respHelper(res, {
+        status: 200,
+        data: {
+          totalRecords: count,
+          totalPages: Math.ceil(count / limit),
+          currentPage: pageNo,
+          separationData,
+        },
+      });
+
+    } catch (error) {
+      console.error(error);
+      return respHelper(res, {
+        status: 500,
+      });
+    }
+  }
+  async taskHistorySeparation3(req, res) {
+    try {
+      const { search } = req.query;
+      const limit = parseInt(req.query.limit, 10) || 10;
+      const pageNo = parseInt(req.query.page, 10) || 1;
+      const offset = (pageNo - 1) * limit;
       const { count, rows: separationData } = await db.separationMaster.findAndCountAll({
         where: {
           employeeId: { [Op.ne]: req.userId }
@@ -3597,6 +3679,7 @@ class UserController {
       await db.separationMaster.update(
         {
           l2RevokeReason: result.reason,
+          l2RequestStatus: "Revoked",
           l2Remark: result.remark,
           l2RevokeDate: moment(),
           finalStatus: 11,

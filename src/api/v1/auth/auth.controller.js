@@ -45,6 +45,13 @@ class AuthController {
         });
       }
 
+      if (!existUser.dataValues.isLoginActive) {
+        return respHelper(res, {
+          status: 404,
+          msg: constant.LOGIN_BLOCKED,
+        });
+      }
+
       if (existUser.dataValues.wrongPasswordCount === parseInt(process.env.WRONG_PASSWORD_LIMIT)) {
         return respHelper(res, {
           status: 404,
@@ -52,10 +59,10 @@ class AuthController {
         });
       }
 
-      if (!existUser.dataValues.isLoginActive) {
+      if (existUser.dataValues.passwordExpiryDate && moment().isSameOrAfter(existUser.dataValues.passwordExpiryDate)) {
         return respHelper(res, {
-          status: 404,
-          msg: constant.LOGIN_BLOCKED,
+          status: 400,
+          msg: constant.PASSWORD_EXPIRED,
         });
       }
 

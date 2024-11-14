@@ -20,8 +20,13 @@ cron.schedule("50 7 * * *", async () => {
   // cronController.EarnedLeaveCreditCron();
 });
 
-cron.schedule("1 0 * * *", async () => {
+cron.schedule("0 0 * * *", async () => {
   await cronController.blockAccess()
+})
+
+cron.schedule("0 7 * * *", async () => {
+  await cronController.prePasswordExpiryNotification()
+  await cronController.postPasswordExpiryNotification()
 })
 
 export default cron;

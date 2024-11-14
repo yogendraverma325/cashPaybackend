@@ -298,23 +298,23 @@ class AdminController {
         });
         if (!recordsExistForDate) {
           const userData = await db.employeeMaster.findOne({
-            attributes:['id','manager','createdAt'],
+            attributes: ['id', 'manager', 'createdAt'],
             where: {
-              id:  iterator.user,
+              id: iterator.user,
             },
           });
 
-          const currentManagerOfTheEmployeeExist = await db.managerHistory.findOne({ where: { employeeId:iterator.user, }, });
-           if(!currentManagerOfTheEmployeeExist){ 
-            await db.managerHistory.create({ 
-          employeeId:iterator.user,
-          managerId:userData.manager,
-          fromDate:moment(userData.createdAt,"YYYY-MM-DD HH:mm:ss").format("YYYY-MM-DD"),
-          needAttendanceCron:0,
-          createdBy: 1,
-               }
-              ); 
+          const currentManagerOfTheEmployeeExist = await db.managerHistory.findOne({ where: { employeeId: iterator.user, }, });
+          if (!currentManagerOfTheEmployeeExist) {
+            await db.managerHistory.create({
+              employeeId: iterator.user,
+              managerId: userData.manager,
+              fromDate: moment(userData.createdAt, "YYYY-MM-DD HH:mm:ss").format("YYYY-MM-DD"),
+              needAttendanceCron: 0,
+              createdBy: 1,
             }
+            );
+          }
           let createHistory = {
             employeeId: iterator.user,
             managerId: iterator.manager,
@@ -865,6 +865,7 @@ class AdminController {
                   recruiterName: employeeOnboardingDetails.recruiterName,
                   noticePeriodAutoId:
                     employeeOnboardingDetails.noticePeriodAutoId,
+                  passwordExpiryDate: moment().add(parseInt(process.env.PASSWORD_EXPIRY_LIMIT), 'days')
                 };
 
                 const createdUser = await db.employeeMaster.create(newEmployee);

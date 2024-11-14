@@ -74,6 +74,14 @@ export default function getAllListeners(eventEmitter) {
     eventEmitter.on('onboardingEmployeeMail', async (input) => {
         await onboardingEmployeeMail(input)
     })
+
+    eventEmitter.on('prePasswordExpiry', async (input) => {
+        await prePasswordExpiryNotification(input)
+    })
+
+    eventEmitter.on("postPasswordExpiry", async (input) => {
+        await postPasswordExpiryNotification(input)
+    })
 }
 
 async function regularizationRequestMail(input) {
@@ -328,6 +336,34 @@ async function onboardingEmployeeMail(input) {
             to: userData.email,
             subject: `Welcome to Team's new HRMS Platform | Login credentials`,
             html: await emailTemplate.onboardingEmployee(userData)
+        })
+    } catch (error) {
+        console.log(error)
+        logger.error(error)
+    }
+}
+
+async function prePasswordExpiryNotification(input) {
+    try {
+        const userData = JSON.parse(input)
+        await helper.mailService({
+            to: userData.email,
+            subject: `Reminder: Your Password is Set to Expire`,
+            html: await emailTemplate.passwordExpiryNotification(userData)
+        })
+    } catch (error) {
+        console.log(error)
+        logger.error(error)
+    }
+}
+
+async function postPasswordExpiryNotification(input) {
+    try {
+        const userData = JSON.parse(input)
+        await helper.mailService({
+            to: userData.email,
+            subject: `Action Required: Your Password Has Expired`,
+            html: await emailTemplate.postPasswordExpiryNotification(userData)
         })
     } catch (error) {
         console.log(error)

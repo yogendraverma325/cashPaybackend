@@ -115,19 +115,18 @@ const mailService = async (data) => {
     let body = new pepipost.Send();
     body.from = new pepipost.From();
 
-
     body.from.email = process.env.SENDER_MAIL
     body.from.name = process.env.SENDER_NAME
     body.subject = data.subject;
-
 
     body.content = [];
     body.content[0] = new pepipost.Content();
     body.content[0].type = pepipost.TypeEnum.HTML;
     body.content[0].value = data.html;
     body.personalizations = [];
-
     body.personalizations[0] = new pepipost.Personalizations();
+
+    console.log("Mail is Sending On --->>", data.to);
     if (data.attachments && data.attachments.length >= 1 && data.attachments != undefined) {
       let attach = Buffer.from(data.attachments, "binary").toString("base64");
       body.personalizations[0].attachments = [];

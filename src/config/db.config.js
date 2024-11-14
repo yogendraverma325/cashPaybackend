@@ -935,4 +935,10 @@ db.separationFieldValues.hasOne(db.separationTaskFields, {
   sourceKey: 'fields'
 })
 
+db.separationMaster.hasOne(db.subCategoryMaster, {
+  foreignKey: "subCategoryId",
+  sourceKey: 'l2RevokeReason',
+  as: 'revokeReason'
+})
+
 export default db;
