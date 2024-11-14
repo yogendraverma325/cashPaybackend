@@ -204,22 +204,54 @@ const timeDifferenceNew = async (start, end) => {
   return time;
 };
 
-const calculateLateBy = async (actualTime, scheduleTime) => {
-  let actualMoment = moment(actualTime, "HH:mm:ss");
-  let scheduledTime = moment(scheduleTime, "HH:mm:ss");
+const calculateLateBy = async (
+  actualTime,
+  scheduleTime,
+  withFromDate = null,
+  withToDate = null
+) => {
+  if (withFromDate != null && withToDate != null) {
+    const combinedLastDayTime = moment(
+      `${withFromDate} ${scheduleTime}`,
+      "YYYY-MM-DD HH:mm:ss"
+    );
+    const combinedCurrentTime = moment(
+      `${withToDate} ${actualTime}`,
+      "YYYY-MM-DD HH:mm:ss"
+    );
 
-  if (actualMoment.isAfter(scheduledTime)) {
-    let duration = moment.duration(actualMoment.diff(scheduledTime));
-    let hours = Math.floor(duration.asHours());
-    let minutes = Math.floor(duration.minutes());
-    let seconds = Math.floor(duration.seconds());
-    return moment
-      .utc()
-      .startOf("day")
-      .add({ hours: hours, minutes: minutes, seconds: seconds })
-      .format("HH:mm:ss");
+    if (combinedCurrentTime.isAfter(combinedLastDayTime)) {
+      let duration = moment.duration(
+        combinedCurrentTime.diff(combinedLastDayTime)
+      );
+      let hours = Math.floor(duration.asHours());
+      let minutes = Math.floor(duration.minutes());
+      let seconds = Math.floor(duration.seconds());
+      return moment
+        .utc()
+        .startOf("day")
+        .add({ hours: hours, minutes: minutes, seconds: seconds })
+        .format("HH:mm:ss");
+    } else {
+      return "00:00:00";
+    }
   } else {
-    return "00:00:00";
+    let actualMoment = moment(actualTime, "HH:mm:ss");
+    let scheduledTime = moment(scheduleTime, "HH:mm:ss");
+
+    if (actualMoment.isAfter(scheduledTime)) {
+      let duration = moment.duration(actualMoment.diff(scheduledTime));
+      let hours = Math.floor(duration.asHours());
+      let minutes = Math.floor(duration.minutes());
+      let seconds = Math.floor(duration.seconds());
+      return moment
+        .utc()
+        .startOf("day")
+        .add({ hours: hours, minutes: minutes, seconds: seconds })
+        .format("HH:mm:ss");
+    } else {
+      return "00:00:00";
+    }
   }
 };
 
