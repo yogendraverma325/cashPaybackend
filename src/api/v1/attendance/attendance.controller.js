@@ -463,6 +463,7 @@ class AttendanceController {
     }
   }
 
+
   async regularizeRequest(req, res) {
     try {
       const result = await validator.regularizeRequest.validateAsync(req.body);
