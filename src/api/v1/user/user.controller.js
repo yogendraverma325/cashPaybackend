@@ -1609,7 +1609,6 @@ class UserController {
             for (const element12 of buMappingData.dataValues.ownerId.split(
               ","
             )) {
-              console.log(element12);
               db.separationTaskOwner.create({
                 taskMappingAutoId: initiatedTask.dataValues.initiatedTaskAutoId,
                 taskOwner: element12,
@@ -2224,7 +2223,6 @@ class UserController {
             for (const element12 of buMappingData.dataValues.ownerId.split(
               ","
             )) {
-              console.log(element12);
               db.separationTaskOwner.create({
                 taskMappingAutoId: initiatedTask.dataValues.initiatedTaskAutoId,
                 taskOwner: element12,

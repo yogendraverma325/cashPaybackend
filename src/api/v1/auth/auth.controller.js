@@ -15,14 +15,18 @@ class AuthController {
 
       const result = await validator.loginSchema.validateAsync(req.body);
 
-      const formData = new FormData();
-      formData.append("uname", result.tmc);
-      formData.append("pass", result.password);
-      let dataRes = await axios({
-        method: 'post',
-        url: 'https://wap.teamcomputers.com/emaauth/api/AD/Validatelogin',
-        data: formData
-      });
+      let dataRes = null
+      if (parseInt(process.env.TEST) === 0) {
+        console.log("bcdbjdbcbdhjj")
+        const formData = new FormData();
+        formData.append("uname", result.tmc);
+        formData.append("pass", result.password);
+        dataRes = await axios({
+          method: 'post',
+          url: 'https://wap.teamcomputers.com/emaauth/api/AD/Validatelogin',
+          data: formData
+        });
+      }
 
       const existUser = await db.employeeMaster.findOne({
         where: { empCode: result.tmc, isActive: 1 },
@@ -66,7 +70,7 @@ class AuthController {
         });
       }
 
-      if (!dataRes.data.status) {
+      if (dataRes && !dataRes.data.status) {
 
         const comparePass = await bcrypt.compare(
           result.password,
@@ -220,9 +224,7 @@ const validateUser = async (req, existUser) => {
 
   await db.employeeMaster.update(
     { lastLogin: moment(), wrongPasswordCount: 0 },
-    {
-      where: { id: existUser.dataValues.id },
-    }
+    { where: { id: existUser.dataValues.id } }
   );
 
   await db.loginDetails.create({

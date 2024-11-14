@@ -6,5 +6,3 @@ export default Express
     .Router()
     .post("/login", authController.login)
     .get("/sso", authentication.sso, authController.sso)
-
-// .get("/test", authController.testapi)
