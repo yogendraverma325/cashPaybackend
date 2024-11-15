@@ -279,9 +279,9 @@ class UserController {
           {
             model: db.paymentDetails,
             required: false,
-            where: {
-              status: "approved",
-            },
+            // where: {
+            //   status: "approved",
+            // },
             attributes: {
               exclude: [
                 "createdAt",
@@ -291,6 +291,16 @@ class UserController {
                 "isActive",
               ],
             },
+            include:[ {
+              model: db.bankMaster,
+              attributes: ["bankId", "bankName", "bankIfsc"],
+            },
+            {
+              model: db.bankMaster,
+              attributes: ["bankId", "bankName", "bankIfsc"],
+              as: "newBankName",
+            },]
+            
           },
           {
             model: db.vaccinationDetails,

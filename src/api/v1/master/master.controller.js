@@ -1520,7 +1520,7 @@ class MasterController {
 
   async ifsc(req, res) {
     try {
-      const bankData = await db.BankMaster.findAll({
+      const bankData = await db.bankMaster.findAll({
         where: {
           isActive: 1,
           bankName: { [Op.like]: `%${req.query.bankName}%` },
