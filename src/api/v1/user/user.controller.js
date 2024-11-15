@@ -220,6 +220,15 @@ class UserController {
                 attributes: ["lwfDesignationId", "lwfDesignationName"],
                 as: "lwfDesignationName",
               },
+              {
+                model: db.probationMaster,
+                attributes: [
+                  "probationId",
+                  "probationName",
+                  "durationOfProbation",
+                ],
+                required: false,
+              },
             ],
           },
           {
@@ -378,6 +387,11 @@ class UserController {
           {
             model: db.employeeCertificates,
           },
+          {
+            model: db.degreeMaster,
+            attributes: ["degreeId", "degreeName"],
+            required: false,
+          },
         ],
       });
 
@@ -415,7 +429,10 @@ class UserController {
         {
           password: hashedPassword,
           isTempPassword: 0,
-          passwordExpiryDate: moment().add(parseInt(process.env.PASSWORD_EXPIRY_LIMIT), 'days')
+          passwordExpiryDate: moment().add(
+            parseInt(process.env.PASSWORD_EXPIRY_LIMIT),
+            "days"
+          ),
         },
         {
           where: {
@@ -697,7 +714,10 @@ class UserController {
         {
           password: await helper.encryptPassword(newPassword),
           isTempPassword: 0,
-          passwordExpiryDate: moment().add(parseInt(process.env.PASSWORD_EXPIRY_LIMIT), 'days')
+          passwordExpiryDate: moment().add(
+            parseInt(process.env.PASSWORD_EXPIRY_LIMIT),
+            "days"
+          ),
         },
         { where: { id: id } }
       );
@@ -799,10 +819,10 @@ class UserController {
         finalStatus: 2,
         empAttachment: result.attachment
           ? await helper.fileUpload(
-            result.attachment,
-            `separation_attachment_${d}`,
-            `uploads/${existUser.dataValues.empCode}`
-          )
+              result.attachment,
+              `separation_attachment_${d}`,
+              `uploads/${existUser.dataValues.empCode}`
+            )
           : null,
         empSubmissionDate: moment(),
         createdDt: moment(),
@@ -995,10 +1015,10 @@ class UserController {
           l1Remark: result.l1Remark,
           l1Attachment: result.attachment
             ? await helper.fileUpload(
-              result.attachment,
-              `separation_attachment_${d}`,
-              `uploads/${separationData.dataValues.employee.empCode}`
-            )
+                result.attachment,
+                `separation_attachment_${d}`,
+                `uploads/${separationData.dataValues.employee.empCode}`
+              )
             : null,
           l1SubmissionDate: moment(),
           pendingAt: separationData.dataValues.employee.buHRId,
@@ -1449,12 +1469,17 @@ class UserController {
             : null,
         l2SalaryHike: result.l2SalaryHike,
         doNotReHire: result.doNotReHire,
-        doNotReHireRemark: result.doNotReHireRemark != "" ? result.doNotReHireRemark : null,
+        doNotReHireRemark:
+          result.doNotReHireRemark != "" ? result.doNotReHireRemark : null,
         l2BillingType: result.l2BillingType,
         l2CustomerName:
           result.l2CustomerName != "" ? result.l2CustomerName : null,
-        shortFallPayoutBasis: result.shortFallPayoutBasis != '' ? result.shortFallPayoutBasis : null,
-        shortFallPayoutDays: result.shortFallPayoutDays != "" ? result.shortFallPayoutDays : null,
+        shortFallPayoutBasis:
+          result.shortFallPayoutBasis != ""
+            ? result.shortFallPayoutBasis
+            : null,
+        shortFallPayoutDays:
+          result.shortFallPayoutDays != "" ? result.shortFallPayoutDays : null,
         shortfallPayoutRequired: result.shortfallPayoutRequired,
         ndaConfirmation: result.ndaConfirmation,
         holdFnf: result.holdFnf,
@@ -2027,12 +2052,19 @@ class UserController {
             : null,
           l2SalaryHike: result.l2SalaryHike ? result.l2SalaryHike : null,
           doNotReHire: result.doNotReHire,
-          doNotReHireRemark: result.doNotReHireRemark != "" ? result.doNotReHireRemark : null,
+          doNotReHireRemark:
+            result.doNotReHireRemark != "" ? result.doNotReHireRemark : null,
           l2BillingType: result.l2BillingType,
           l2CustomerName:
             result.l2CustomerName != "" ? result.l2CustomerName : null,
-          shortFallPayoutBasis: result.shortFallPayoutBasis != "" ? result.shortFallPayoutBasis : null,
-          shortFallPayoutDays: result.shortFallPayoutDays != "" ? result.shortFallPayoutDays : null,
+          shortFallPayoutBasis:
+            result.shortFallPayoutBasis != ""
+              ? result.shortFallPayoutBasis
+              : null,
+          shortFallPayoutDays:
+            result.shortFallPayoutDays != ""
+              ? result.shortFallPayoutDays
+              : null,
           shortfallPayoutRequired: result.shortfallPayoutRequired,
           ndaConfirmation: result.ndaConfirmation,
           holdFnf: result.holdFnf,
@@ -2043,10 +2075,10 @@ class UserController {
           l2Remark: result.l2Remark,
           l2Attachment: result.attachment
             ? await helper.fileUpload(
-              result.attachment,
-              `separation_attachment_${d}`,
-              `uploads/${separationData.dataValues.employee.empCode}`
-            )
+                result.attachment,
+                `separation_attachment_${d}`,
+                `uploads/${separationData.dataValues.employee.empCode}`
+              )
             : null,
           l2SubmissionDate: moment(),
           l2RequestStatus: "Approved",
@@ -2508,10 +2540,10 @@ class UserController {
             regularizeStatus: { [Op.ne]: "Pending" },
             ...(fromDate &&
               extendedToDate && {
-              createdAt: {
-                [db.Sequelize.Op.between]: [fromDate, extendedToDate],
-              },
-            }),
+                createdAt: {
+                  [db.Sequelize.Op.between]: [fromDate, extendedToDate],
+                },
+              }),
           },
           include: [
             {
@@ -2531,11 +2563,11 @@ class UserController {
                     ...(search && { name: { [Op.like]: `%${search}%` } }),
                     ...(type === "all"
                       ? {
-                        [Op.or]: [
-                          //{ id: req.userId },
-                          { manager: req.userId },
-                        ],
-                      }
+                          [Op.or]: [
+                            //{ id: req.userId },
+                            { manager: req.userId },
+                          ],
+                        }
                       : { id: req.userId }),
                   },
                   include: [
@@ -2592,7 +2624,7 @@ class UserController {
       let order = [];
       if (orderByAppliedFor) {
         const attendanceDateOrder = orderByAppliedFor === "0" ? "desc" : "asc";
-        order.push(["employeeleaveheaderID", attendanceDateOrder]);
+        order.push(["appliedFor", attendanceDateOrder]);
       }
 
       if (orderByOn) {
@@ -2601,36 +2633,28 @@ class UserController {
       }
 
       const { count, rows: leaveRequests } =
-        await db.EmployeeLeaveHeader.findAndCountAll({
+        await db.employeeLeaveTransactions.findAndCountAll({
           where: {
             status: { [Op.ne]: "pending" },
             ...(isSystemGenerated == 1 && { source: "system_generated" }),
-            ...(isSystemGenerated == 0 && {
-              source: {
-                [Op.ne]: "system_generated",
-              },
-            }),
             ...(fromDate &&
               toDate && {
-              fromDate: {
-                [db.Sequelize.Op.between]: [fromDate, toDate],
-              },
-              toDate: {
-                [db.Sequelize.Op.between]: [fromDate, toDate],
-              },
-            }),
+                appliedFor: {
+                  [db.Sequelize.Op.between]: [fromDate, toDate],
+                },
+              }),
             ...(type === "all" && isSystemGenerated == 0
               ? {
-                [Op.or]: [{ pendingAt: req.userId }],
-              }
+                  [Op.or]: [{ pendingAt: req.userId }],
+                }
               : type === "all" && isSystemGenerated == 1
-                ? {
+              ? {
                   [Op.or]: [
                     { employeeId: req.userId },
                     { pendingAt: req.userId },
                   ],
                 }
-                : { employeeId: req.userId }), // Default case for non-"all" types
+              : { employeeId: req.userId }), // Default case for non-"all" types
           },
           include: [
             {
@@ -2705,22 +2729,27 @@ class UserController {
     try {
       let reqObj = {};
       for (const element of req.body) {
-        if (element.fieldsCode === 'file' && (element.value !== "" && element.value)) {
+        if (
+          element.fieldsCode === "file" &&
+          element.value !== "" &&
+          element.value
+        ) {
           const d = Math.floor(Date.now() / 1000);
           const userData = await db.employeeMaster.findOne({
             where: {
-              id: element.user
+              id: element.user,
             },
-            attributes: ['empCode']
-          })
+            attributes: ["empCode"],
+          });
           const fileName = await helper.fileUpload(
             element.value,
             `separationTask_${element.id}_${d}`,
             `uploads/${userData.dataValues.empCode.toString()}`
           );
-          element.value = fileName
+          element.value = fileName;
         }
-        reqObj[element.fieldsCode] = element.value !== "" ? element.value : null;
+        reqObj[element.fieldsCode] =
+          element.value !== "" ? element.value : null;
       }
 
       for (const element of req.body) {
@@ -2924,7 +2953,6 @@ class UserController {
           } else if (
             element.dataValues.separationtaskmaster.mappingOn === "SELF"
           ) {
-
             db.separationTaskOwner.create({
               taskMappingAutoId: initiatedTask.dataValues.initiatedTaskAutoId,
               taskOwner: separationData.dataValues.employee.id,
@@ -2947,7 +2975,6 @@ class UserController {
           } else if (
             element.dataValues.separationtaskmaster.mappingOn === "MANAGER"
           ) {
-
             db.separationTaskOwner.create({
               taskMappingAutoId: initiatedTask.dataValues.initiatedTaskAutoId,
               taskOwner: separationData.dataValues.employee.managerData.id,
@@ -3033,8 +3060,6 @@ class UserController {
                 ],
               },
             });
-
-
 
             if (buMappingData) {
               for (const element12 of buMappingData.dataValues.ownerId.split(
@@ -3159,8 +3184,8 @@ class UserController {
                 attributes: ["resignationDate", "l2LastWorkingDay"],
                 required: true,
                 where: {
-                  finalStatus: 9
-                }
+                  finalStatus: 9,
+                },
               },
               {
                 model: db.designationMaster,
@@ -3247,7 +3272,7 @@ class UserController {
                 model: db.separationMaster,
                 required: true,
                 where: {
-                  finalStatus: 9
+                  finalStatus: 9,
                 },
                 attributes: ["resignationDate", "l2LastWorkingDay"],
               },
@@ -3429,138 +3454,63 @@ class UserController {
       const pageNo = parseInt(req.query.page, 10) || 1;
       const offset = (pageNo - 1) * limit;
 
-      const { count, rows: separationData } = await db.separationTrail.findAndCountAll({
-        where: { pendingAt: req.userId, pending: 0 },
-        include: [{
-          model: db.separationMaster,
-          where: {
-            employeeId: { [Op.ne]: req.userId }
-          },
+      const { count, rows: separationData } =
+        await db.separationTrail.findAndCountAll({
+          where: { pendingAt: req.userId, pending: 0 },
           include: [
             {
-              model: db.employeeMaster,
-              attributes: ["empCode", "name"],
+              model: db.separationMaster,
               where: {
-                ...(search && { name: { [Op.like]: `%${search}%` } }),
-              }
+                employeeId: { [Op.ne]: req.userId },
+              },
+              include: [
+                {
+                  model: db.employeeMaster,
+                  attributes: ["empCode", "name"],
+                  where: {
+                    ...(search && { name: { [Op.like]: `%${search}%` } }),
+                  },
+                },
+                {
+                  model: db.separationStatus,
+                  attributes: ["separationStatusCode", "separationStatusDesc"],
+                },
+                {
+                  model: db.separationReason,
+                  as: "empReasonofResignation",
+                  attributes: ["separationReason"],
+                },
+                {
+                  model: db.separationReason,
+                  as: "l1ReasonofResignation",
+                  attributes: ["separationReason"],
+                },
+                {
+                  model: db.separationReason,
+                  attributes: ["separationReason"],
+                  as: "l2ReasonofSeparation",
+                },
+                {
+                  model: db.subCategoryMaster,
+                  attributes: ["subCategoryName"],
+                  as: "revokeReason",
+                },
+              ],
             },
             {
               model: db.separationStatus,
               attributes: ["separationStatusCode", "separationStatusDesc"],
             },
             {
-              model: db.separationReason,
-              as: "empReasonofResignation",
-              attributes: ["separationReason"],
+              model: db.employeeMaster,
+              attributes: ["empCode", "name"],
+              as: "pendingat",
             },
-            {
-              model: db.separationReason,
-              as: "l1ReasonofResignation",
-              attributes: ["separationReason"],
-            },
-            {
-              model: db.separationReason,
-              attributes: ["separationReason"],
-              as: "l2ReasonofSeparation",
-
-            },
-            {
-              model: db.subCategoryMaster,
-              attributes: ['subCategoryName'],
-              as: 'revokeReason'
-            }
           ],
-        },
-        {
-          model: db.separationStatus,
-          attributes: ["separationStatusCode", "separationStatusDesc"],
-        },
-        {
-          model: db.employeeMaster,
-          attributes: ["empCode", "name"],
-          as: "pendingat",
-        }],
-        limit,
-        offset,
-        distinct: true
-      })
-
-      return respHelper(res, {
-        status: 200,
-        data: {
-          totalRecords: count,
-          totalPages: Math.ceil(count / limit),
-          currentPage: pageNo,
-          separationData,
-        },
-      });
-
-    } catch (error) {
-      console.error(error);
-      return respHelper(res, {
-        status: 500,
-      });
-    }
-  }
-  async taskHistorySeparation3(req, res) {
-    try {
-      const { search } = req.query;
-      const limit = parseInt(req.query.limit, 10) || 10;
-      const pageNo = parseInt(req.query.page, 10) || 1;
-      const offset = (pageNo - 1) * limit;
-      const { count, rows: separationData } = await db.separationMaster.findAndCountAll({
-        where: {
-          employeeId: { [Op.ne]: req.userId }
-        },
-        include: [
-          {
-            model: db.employeeMaster,
-            attributes: ["empCode", "name"],
-            where: {
-              ...(search && { name: { [Op.like]: `%${search}%` } }),
-            }
-          },
-          {
-            model: db.separationStatus,
-            attributes: ["separationStatusCode", "separationStatusDesc"],
-          },
-          {
-            model: db.separationReason,
-            as: "empReasonofResignation",
-            attributes: ["separationReason"],
-          },
-          {
-            model: db.separationReason,
-            as: "l1ReasonofResignation",
-            attributes: ["separationReason"],
-          },
-          {
-            model: db.separationReason,
-            attributes: ["separationReason"],
-            as: "l2ReasonofSeparation",
-
-          },
-          {
-            model: db.separationTrail,
-            where: { pendingAt: req.userId, pending: 0 },
-            required: true,
-            include: [
-              {
-                model: db.separationStatus,
-                attributes: ["separationStatusCode", "separationStatusDesc"],
-              },
-              {
-                model: db.employeeMaster,
-                attributes: ["empCode", "name"],
-                as: "pendingat",
-              }
-            ],
-          },
-        ],
-        limit,
-        offset,
-        distinct: true
-      });
+          limit,
+          offset,
+          distinct: true,
+        });
 
       return respHelper(res, {
         status: 200,
@@ -3585,59 +3535,73 @@ class UserController {
       const pageNo = parseInt(req.query.page, 10) || 1;
       const offset = (pageNo - 1) * limit;
 
-      const { count, rows: workflowData } = await db.separationInitiatedTask.findAndCountAll({
-        where: {
-          updatedBy: req.userId
-        },
-        include: [
-          {
-            model: db.separationTaskOwner,
-            attributes: ['taskOwnerAutoId', 'taskOwner'],
-            include: [{
+      const { count, rows: workflowData } =
+        await db.separationInitiatedTask.findAndCountAll({
+          where: {
+            updatedBy: req.userId,
+          },
+          include: [
+            {
+              model: db.separationTaskOwner,
+              attributes: ["taskOwnerAutoId", "taskOwner"],
+              include: [
+                {
+                  model: db.employeeMaster,
+                  attributes: ["empCode", "name"],
+                },
+              ],
+            },
+            {
+              model: db.separationTaskMaster,
+              attributes: ["taskAutoId", "taskCode", "taskName"],
+            },
+            {
               model: db.employeeMaster,
-              attributes: ['empCode', 'name']
-            }]
-          },
-          {
-            model: db.separationTaskMaster,
-            attributes: ['taskAutoId', 'taskCode', "taskName"]
-          },
-          {
-            model: db.employeeMaster,
-            attributes: ['id', "name", "email", 'empCode'],
-            include: [
-              {
-                model: db.companyLocationMaster,
-                attributes: ['address1']
-              },
-              {
-                model: db.jobDetails,
-                attributes: ['dateOfJoining'],
-                include: [{
-                  model: db.jobLevelMaster,
-                  attributes: ["jobLevelId", "jobLevelName", "jobLevelCode"]
-                }]
-              },
-              {
-                model: db.separationMaster,
-                attributes: ["resignationDate",
-                  "noticePeriodDay",
-                  "l2LastWorkingDay"
-                ]
-              }
-            ]
-          }, {
-            model: db.separationFieldValues,
-            attributes: ['fieldValues'],
-            separate: true,
-            include: [{
-              model: db.separationTaskFields,
-              attributes: ["fieldsCode", "label", "isRequired"]
-            }]
-          }],
-        limit,
-        offset,
-      })
+              attributes: ["id", "name", "email", "empCode"],
+              include: [
+                {
+                  model: db.companyLocationMaster,
+                  attributes: ["address1"],
+                },
+                {
+                  model: db.jobDetails,
+                  attributes: ["dateOfJoining"],
+                  include: [
+                    {
+                      model: db.jobLevelMaster,
+                      attributes: [
+                        "jobLevelId",
+                        "jobLevelName",
+                        "jobLevelCode",
+                      ],
+                    },
+                  ],
+                },
+                {
+                  model: db.separationMaster,
+                  attributes: [
+                    "resignationDate",
+                    "noticePeriodDay",
+                    "l2LastWorkingDay",
+                  ],
+                },
+              ],
+            },
+            {
+              model: db.separationFieldValues,
+              attributes: ["fieldValues"],
+              separate: true,
+              include: [
+                {
+                  model: db.separationTaskFields,
+                  attributes: ["fieldsCode", "label", "isRequired"],
+                },
+              ],
+            },
+          ],
+          limit,
+          offset,
+        });
 
       return respHelper(res, {
         status: 200,
@@ -3658,7 +3622,9 @@ class UserController {
 
   async revokeSeparationBUHR(req, res) {
     try {
-      const result = await validator.revokeSeparationBUHR.validateAsync(req.body);
+      const result = await validator.revokeSeparationBUHR.validateAsync(
+        req.body
+      );
 
       const separationData = await db.separationMaster.findOne({
         where: {

@@ -366,6 +366,8 @@ class commonController {
       const result = await validator.addJobDetailsSchema.validateAsync(
         req.body
       );
+      result["probationId"] = result.probationPeriod;
+
       const userId = req.body.userId == 0 ? req.userId : req.body.userId;
       const existPaymentDetails = await db.jobDetails.findOne({
         raw: true,
@@ -376,11 +378,11 @@ class commonController {
 
       // verify probation id and calculate probation days
       if (
-        result.probationPeriod &&
-        result.probationPeriod != existPaymentDetails.probationPeriod
+        result.probationId &&
+        result.probationId != existPaymentDetails.probationId
       ) {
         let getProbationDetails = await db.probationMaster.findOne({
-          where: { probationName: result.probationPeriod },
+          where: { probationId: result.probationId },
         });
         if (getProbationDetails) {
           let durationOfProbation = getProbationDetails.durationOfProbation;
@@ -1702,13 +1704,33 @@ class commonController {
           `insuranceCard${d}`,
           `uploads/${existUser.empCode}`
         );
-        let updateDocument = {
-          documentImage: insuranceCard,
-          createdBy: createdBy,
+        
+        let insuranceQuery = { where: {
+            userId: userId,
+            documentType: 6
+          }
         };
-        await db.hrLetters.update(updateDocument, {
-          where: { userId: userId, documentType: 6, updatedBy: updatedBy },
-        });
+
+        let isVerify = await db.hrLetters.findOne(insuranceQuery);
+        if(isVerify) {
+          let updateDocument = {
+            userId: userId,
+            documentType: 6,
+            documentImage: insuranceCard,
+            createdBy: createdBy,
+          };
+          await db.hrLetters.update(updateDocument, insuranceQuery);
+        }
+        else {
+          let addDocument = {
+            userId: userId,
+            documentType: 6,
+            documentImage: insuranceCard,
+            createdBy: createdBy,
+          };
+          await db.hrLetters.create(addDocument);
+        }
+
       }
 
       if (req.body.contractLetter) {

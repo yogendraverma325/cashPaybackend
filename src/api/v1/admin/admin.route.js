@@ -132,9 +132,9 @@ export default Express.Router()
     adminController.updateOnboardEmployee
   )
   .get(
-    "/onboardEmployee/:id",
+    "/backup-onboardEmployee/:id",
     authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"),
-    adminController.getOnboardEmployeeDetails
+    adminController.getOnboardEmployeeDetailsBackup
   )
   .put(
     "/updatePolicyOfEMP",
@@ -162,7 +162,13 @@ export default Express.Router()
     adminController.changeStatusOnboardEmployee
   )
 
-  .post("/blockLogin",
-    // authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"),
+  .post(
+    "/blockLogin",
+    authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"),
     adminController.blockLogin
   )
+  .get(
+    "/onboardEmployee/:id",
+    authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"),
+    adminController.getOnboardEmployeeDetails
+  );
