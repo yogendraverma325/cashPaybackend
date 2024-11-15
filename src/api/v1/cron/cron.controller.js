@@ -6,7 +6,6 @@ import eventEmitter from "../../../services/eventService.js";
 import xlsx from "json-as-xlsx";
 import fs from "fs";
 import logger from "../../../helper/logger.js";
-import eventEmitter from "../../../services/eventService.js";
 
 class CronController {
   async updateAttendance() {
