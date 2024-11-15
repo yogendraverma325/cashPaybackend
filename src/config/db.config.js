@@ -952,4 +952,10 @@ db.paymentDetails.hasOne(db.employeeMaster, {
   foreignKey: "id",
   sourceKey: "userId",
 });
+db.separationMaster.hasOne(db.subCategoryMaster, {
+  foreignKey: "subCategoryId",
+  sourceKey: 'l2RevokeReason',
+  as: 'revokeReason'
+})
+
 export default db;

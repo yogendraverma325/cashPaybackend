@@ -82,6 +82,13 @@ export default function getAllListeners(eventEmitter) {
         await paymentDetailsAdminApproval(input)
     })
     
+    eventEmitter.on('prePasswordExpiry', async (input) => {
+        await prePasswordExpiryNotification(input)
+    })
+
+    eventEmitter.on("postPasswordExpiry", async (input) => {
+        await postPasswordExpiryNotification(input)
+    })
 }
 
 async function regularizationRequestMail(input) {
@@ -344,6 +351,34 @@ async function onboardingEmployeeMail(input) {
     }
 }
 
+async function prePasswordExpiryNotification(input) {
+    try {
+        const userData = JSON.parse(input)
+        await helper.mailService({
+            to: userData.email,
+            subject: `Reminder: Your Password is Set to Expire`,
+            html: await emailTemplate.passwordExpiryNotification(userData)
+        })
+    } catch (error) {
+        console.log(error)
+        logger.error(error)
+    }
+}
+
+async function postPasswordExpiryNotification(input) {
+    try {
+        const userData = JSON.parse(input)
+        await helper.mailService({
+            to: userData.email,
+            subject: `Action Required: Your Password Has Expired`,
+            html: await emailTemplate.postPasswordExpiryNotification(userData)
+        })
+    } catch (error) {
+        console.log(error)
+        logger.error(error)
+    }
+}
+
 async function paymentDetailsApprovalRequest(input) {
     try {
         const userData = JSON.parse(input)
@@ -372,4 +407,3 @@ async function paymentDetailsAdminApproval(input) {
         logger.error(error)
     }
 }
-

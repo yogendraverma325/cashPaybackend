@@ -38,6 +38,10 @@ ADD COLUMN `supportingDocument` VARCHAR(255) NULL DEFAULT NULL AFTER `paymentAtt
 
 ALTER TABLE `tara_hrms_live`.`employeejobdetails` 
 ADD COLUMN `probationId` INT NULL DEFAULT NULL AFTER `probationDays`;
+------------------------------------------ 2024-11-13 ----------------------------------------------------
+ALTER TABLE `tara`.`employee` 
+ADD COLUMN `passwordExpiryDate` DATE NULL DEFAULT NULL AFTER `dateOfexit`;
+
 ------------------------------------------- 2024-11-12 ----------------------------------------------------
 ALTER TABLE `tara_hrms_live`.`employee` 
 ADD COLUMN `isLoginActive` TINYINT(1) NULL AFTER `dateOfexit`;

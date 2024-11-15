@@ -15,14 +15,17 @@ class AuthController {
 
       const result = await validator.loginSchema.validateAsync(req.body);
 
-      const formData = new FormData();
-      formData.append("uname", result.tmc);
-      formData.append("pass", result.password);
-      let dataRes = await axios({
-        method: 'post',
-        url: 'https://wap.teamcomputers.com/emaauth/api/AD/Validatelogin',
-        data: formData
-      });
+      let dataRes = null
+      if (parseInt(process.env.TEST) === 0) {
+        const formData = new FormData();
+        formData.append("uname", result.tmc);
+        formData.append("pass", result.password);
+        dataRes = await axios({
+          method: 'post',
+          url: 'https://wap.teamcomputers.com/emaauth/api/AD/Validatelogin',
+          data: formData
+        });
+      }
 
       const existUser = await db.employeeMaster.findOne({
         where: { empCode: result.tmc, isActive: 1 },
@@ -45,6 +48,13 @@ class AuthController {
         });
       }
 
+      if (!existUser.dataValues.isLoginActive) {
+        return respHelper(res, {
+          status: 404,
+          msg: constant.LOGIN_BLOCKED,
+        });
+      }
+
       if (existUser.dataValues.wrongPasswordCount === parseInt(process.env.WRONG_PASSWORD_LIMIT)) {
         return respHelper(res, {
           status: 404,
@@ -52,7 +62,14 @@ class AuthController {
         });
       }
 
-      if (!dataRes.data.status) {
+      if (existUser.dataValues.passwordExpiryDate && moment().isSameOrAfter(existUser.dataValues.passwordExpiryDate)) {
+        return respHelper(res, {
+          status: 400,
+          msg: constant.PASSWORD_EXPIRED,
+        });
+      }
+
+      if (!dataRes?.data?.status) {
 
         const comparePass = await bcrypt.compare(
           result.password,
@@ -138,6 +155,13 @@ class AuthController {
         })
       }
 
+      if (!existUser.dataValues.isLoginActive) {
+        return respHelper(res, {
+          status: 404,
+          msg: constant.LOGIN_BLOCKED,
+        });
+      }
+
       const loggedInUser = await validateUser(req, existUser)
 
       return respHelper(res, {
@@ -199,9 +223,7 @@ const validateUser = async (req, existUser) => {
 
   await db.employeeMaster.update(
     { lastLogin: moment(), wrongPasswordCount: 0 },
-    {
-      where: { id: existUser.dataValues.id },
-    }
+    { where: { id: existUser.dataValues.id } }
   );
 
   await db.loginDetails.create({

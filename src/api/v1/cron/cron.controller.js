@@ -1,6 +1,7 @@
 import { Op } from "sequelize";
 import db from "../../../config/db.config.js";
 import moment from "moment";
+import eventEmitter from "../../../services/eventService.js";
 
 class CronController {
   async updateAttendance() {
@@ -132,6 +133,14 @@ class CronController {
     if (managerData.length != 0) {
       for (const element of managerData) {
         let lastDayDate = moment(element.fromDate).format("YYYY-MM-DD");
+
+        const userData = await db.employeeMaster.findOne({
+          attributes: ['id', 'manager'],
+          where: {
+            id: element.employeeId
+          },
+        });
+
         const currentManagerOfTheEmployee = await db.managerHistory.findOne({
           raw: true,
           where: {
@@ -172,6 +181,83 @@ class CronController {
         //DISBALE CURRENT DATE DATA
 
         //UPDATE MANGER TO EMP MASTER TABLE
+
+        ///TRANSFER ALL RECORDS TO NEW MANAGER
+
+        await db.regularizationMaster.update(
+          {
+            regularizeManagerId: element.managerId,
+          },
+          {
+            where: {
+              regularizeStatus: "Pending",
+              createdBy: element.employeeId,
+            },
+          }
+        );
+        await db.employeeLeaveTransactions.update(
+          {
+            pendingAt: element.managerId,
+          },
+          {
+            where: {
+              status: "pending",
+              createdBy: element.employeeId,
+            },
+          }
+        );
+        await db.EmployeeLeaveHeader.update(
+          {
+            pendingAt: element.managerId,
+          },
+          {
+            where: {
+              status: "pending",
+              createdBy: element.employeeId,
+            },
+          }
+        );
+
+        let sepExist = await db.separationMaster.findOne(
+          {
+            where: {
+              finalStatus: 2,
+              employeeId: element.employeeId,
+            },
+          }
+        );
+        if (sepExist) {
+
+
+          let dataAudit = await db.separationMaster.update(
+            {
+              pendingAt: element.managerId,
+            },
+            {
+              where: {
+                finalStatus: 2,
+                employeeId: element.employeeId,
+                pendingAt: userData.manager
+              },
+            }
+          );
+          console.log("sepExist", sepExist)
+
+          let res_sep = await db.separationTrail.update(
+            {
+              pendingAt: element.managerId,
+            },
+            {
+              where: {
+                pending: 1,
+                separationAutoId: sepExist.resignationAutoId,
+                pendingAt: userData.manager,
+              },
+            }
+          );
+
+
+        }
         let updateDone = await db.employeeMaster.update(
           {
             manager: element.managerId,
@@ -182,55 +268,8 @@ class CronController {
             },
           }
         );
-        ///TRANSFER ALL RECORDS TO NEW MANAGER
-        if (updateDone) {
-          await db.regularizationMaster.update(
-            {
-              regularizeManagerId: element.managerId,
-            },
-            {
-              where: {
-                regularizeStatus: "Pending",
-                createdBy: element.employeeId,
-              },
-            }
-          );
-          await db.employeeLeaveTransactions.update(
-            {
-              pendingAt: element.managerId,
-            },
-            {
-              where: {
-                status: "pending",
-                createdBy: element.employeeId,
-              },
-            }
-          );
-          let dataAudit = await db.separationMaster.update(
-            {
-              pendingAt: element.managerId,
-            },
-            {
-              where: {
-                finalStatus: 2,
-                employeeId: element.employeeId,
-              },
-            }
-          );
-          if (dataAudit) {
-            await db.separationTrail.update(
-              {
-                pendingAt: element.managerId,
-              },
-              {
-                where: {
-                  pending: 1,
-                  separationAutoId: dataAudit.resignationAutoId,
-                },
-              }
-            );
-          }
-        }
+
+
         //UPDATE MANGER TO EMP MASTER TABLE
       }
     }
@@ -324,6 +363,68 @@ class CronController {
           }
         })
       }
+    }
+  }
+
+  async prePasswordExpiryNotification() {
+    try {
+      const existsUserData = await db.employeeMaster.findAll({
+        where: {
+          isActive: 1,
+          passwordExpiryDate: {
+            [Op.lte]: moment().add(parseInt(process.env.PRE_PASSWORD_EXPIRY_ALERT_DAYS), 'day').format("YYYY-MM-DD"),
+            [Op.gt]: moment().format("YYYY-MM-DD")
+          }
+        },
+        attributes: ['name', 'email', 'passwordExpiryDate'],
+        include: [{
+          model: db.companyMaster,
+          attributes: ['companyName']
+        }]
+      })
+      for (const element of existsUserData) {
+        eventEmitter.emit("prePasswordExpiry", JSON.stringify({
+          name: element.dataValues.name,
+          email: element.dataValues.email,
+          passwordExpiryDate: element.dataValues.passwordExpiryDate,
+          companyName: element.dataValues.companymaster.companyName,
+          daysLeft: moment(element.dataValues.passwordExpiryDate).diff(moment(), 'days')
+        }))
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  async postPasswordExpiryNotification() {
+    try {
+      const existsUserData = await db.employeeMaster.findAll({
+        where: {
+          isActive: 1,
+          passwordExpiryDate: {
+            [Op.lt]: moment().format("YYYY-MM-DD"),
+            [Op.gte]: moment().subtract(parseInt(process.env.POST_PASSWORD_EXPIRY_ALERT_DAYS), 'day').format("YYYY-MM-DD"),
+          }
+        },
+        attributes: ['name', 'email', 'passwordExpiryDate'],
+        include: [{
+          model: db.companyMaster,
+          attributes: ['companyName']
+        }]
+      })
+
+      for (const element of existsUserData) {
+        eventEmitter.emit("postPasswordExpiry", JSON.stringify({
+          name: element.dataValues.name,
+          email: element.dataValues.email,
+          passwordExpiryDate: element.dataValues.passwordExpiryDate,
+          companyName: element.dataValues.companymaster.companyName,
+          daysLeft: moment().diff(moment(element.dataValues.passwordExpiryDate), 'days')
+        }))
+      }
+
+    } catch (error) {
+      console.log(error)
     }
   }
 }

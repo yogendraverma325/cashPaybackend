@@ -79,7 +79,9 @@ const message = {
   SEPARATION_REQUEST_NOT_AVAILABLE: "Separation Request Not Available",
   SEPARATION_REVOKED: "Separation Request Revoked",
   TASK_SUBMITTED: "Task Submitted",
-  
+  LOGIN_BLOCKED: "Your login has been disabled.",
+  LOGIN_STATUS: "Login <status>",
+  PASSWORD_EXPIRED: "Your Password has been expired. Kindly reset your password and login again."
 };
 
 export default message;

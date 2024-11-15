@@ -173,3 +173,7 @@ export default Express.Router()
     authorization("ADMIN"),
     commonController.paymentActionPending
   )
+  .post("/blockLogin",
+    // authorization("ADMIN", "BUHR", "HR_OPS", "SUPERADMIN"),
+    adminController.blockLogin
+  )

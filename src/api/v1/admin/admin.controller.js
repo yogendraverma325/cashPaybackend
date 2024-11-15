@@ -297,6 +297,24 @@ class AdminController {
           },
         });
         if (!recordsExistForDate) {
+          const userData = await db.employeeMaster.findOne({
+            attributes: ['id', 'manager', 'createdAt'],
+            where: {
+              id: iterator.user,
+            },
+          });
+
+          const currentManagerOfTheEmployeeExist = await db.managerHistory.findOne({ where: { employeeId: iterator.user, }, });
+          if (!currentManagerOfTheEmployeeExist) {
+            await db.managerHistory.create({
+              employeeId: iterator.user,
+              managerId: userData.manager,
+              fromDate: moment(userData.createdAt, "YYYY-MM-DD HH:mm:ss").format("YYYY-MM-DD"),
+              needAttendanceCron: 0,
+              createdBy: 1,
+            }
+            );
+          }
           let createHistory = {
             employeeId: iterator.user,
             managerId: iterator.manager,
@@ -847,6 +865,7 @@ class AdminController {
                   recruiterName: employeeOnboardingDetails.recruiterName,
                   noticePeriodAutoId:
                     employeeOnboardingDetails.noticePeriodAutoId,
+                  passwordExpiryDate: moment().add(parseInt(process.env.PASSWORD_EXPIRY_LIMIT), 'days')
                 };
 
                 const createdUser = await db.employeeMaster.create(newEmployee);
@@ -1348,17 +1367,40 @@ class AdminController {
     }
   }
 
-  async actionOnPaymentRequest(req, res){
+  async blockLogin(req, res) {
     try {
-      
-    } catch (error) {
-      console.log(error);
-      if (error.isJoi === true) {
+
+      const result = await validator.blockLoginSchema.validateAsync(req.body)
+
+      const existUser = await db.employeeMaster.findOne({
+        where: {
+          empCode: result.employeeCode,
+          isActive: 1,
+        }
+      })
+
+      if (!existUser) {
         return respHelper(res, {
-          status: 422,
-          msg: error.details[0].message,
+          status: 404,
+          msg: constant.USER_NOT_EXIST
         });
       }
+
+      await db.employeeMaster.update({
+        isLoginActive: !existUser.dataValues.isLoginActive
+      }, {
+        where: {
+          id: existUser.dataValues.id
+        }
+      })
+
+      return respHelper(res, {
+        status: 200,
+        msg: constant.LOGIN_STATUS.replace("<status>", `${!existUser.dataValues.isLoginActive ? "Enabled" : "Disabled"}`)
+      });
+
+    } catch (error) {
+      console.log(error);
       return respHelper(res, {
         status: 500,
       });

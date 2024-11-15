@@ -224,6 +224,7 @@ class AttendanceController {
           });
         }
       } else {
+        // Over night code
         let ShiftStartTime = moment(
           existEmployee.shiftsmaster.shiftStartTime,
           "HH:mm"
@@ -356,10 +357,6 @@ class AttendanceController {
             `${currentDate.format("YYYY-MM-DD")} ${finalShiftStartTime}`,
             "YYYY-MM-DD HH:mm:ss"
           );
-          const combinedDateTimeNextDay = moment(
-            `${tommorow.format("YYYY-MM-DD")} ${finalShiftEndTime}`,
-            "YYYY-MM-DD HH:mm:ss"
-          );
 
           const yerterdayDate = combinedDateTimeCurrentDay
             .clone()
@@ -374,19 +371,19 @@ class AttendanceController {
           if (lastDayAttendace) {
             await db.attendanceMaster.update(
               {
-                attendancePunchOutTime: yerterdayDate.format("HH:mm:ss"),
-                attendanceShiftEndDate: yerterdayDate.format("YYYY-MM-DD"),
+                attendancePunchOutTime: currentDate.format("HH:mm:ss"),
+                attendanceShiftEndDate: currentDate.format("YYYY-MM-DD"),
                 attendancePunchOutLocationType: result.locationType,
                 attendanceStatus: "Punch Out",
                 attendancePunchOutRemark: result.remark,
                 attendanceLocationType: result.locationType,
                 attendanceWorkingTime: await helper.timeDifference(
-                  `${yerterdayDate.format("YYYY-MM-DD")} ${currentDate.format(
-                    "HH:mm:ss"
-                  )}`,
-                  `${currentDate.format("YYYY-MM-DD")} ${
+                  `${yerterdayDate.format("YYYY-MM-DD")} ${
                     lastDayAttendace.attendancePunchInTime
-                  }`
+                  }`,
+                  `${currentDate.format("YYYY-MM-DD")} ${currentDate.format(
+                    "HH:mm:ss"
+                  )}`
                 ),
                 attendancePunchOutLocation: result.location,
                 attendancePunchOutLatitude: result.latitude,
@@ -406,9 +403,48 @@ class AttendanceController {
               msg: message.PUNCH_OUT_SUCCESS,
             });
           } else {
+            let graceTime = moment(
+              existEmployee.shiftsmaster.shiftStartTime,
+              "HH:mm"
+            ); // set shift start time
+
+            graceTime.add(
+              existEmployee.attendancePolicymaster.allowBufferTime == 1
+                ? existEmployee.attendancePolicymaster.graceTimeClockIn
+                : 0,
+              "minutes"
+            ); // Add buffer time  to the selected time if buffer allow
+            const withGraceTime = graceTime.format("HH:mm:ss");
+            let creationObject = {
+              attendanceDate: yerterdayDate.format("YYYY-MM-DD"),
+              employeeId: req.userId,
+              attandanceShiftStartDate: currentDate.format("YYYY-MM-DD"),
+              attendanceShiftId: existEmployee.shiftsmaster.shiftId,
+              attendancePunchInTime: currentDate.format("HH:mm:ss"),
+              attendanceStatus: "Punch In",
+              attendanceLateBy: await helper.calculateLateBy(
+                currentDate.format("HH:mm:ss"),
+                withGraceTime,
+                yerterdayDate.format("YYYY-MM-DD"),
+                currentDate.format("YYYY-MM-DD")
+              ),
+              attendancePresentStatus: "present",
+              attendancePunchInRemark: result.remark,
+              attendancePunchInLocationType: result.locationType,
+              attendancePunchInLocation: result.location,
+              attendancePunchInLatitude: result.latitude,
+              attendancePunchInLongitude: result.longitude,
+              createdBy: req.userId,
+              attendancePolicyId: req.userData.attendancePolicyId,
+              createdAt: currentDate,
+              weekOffId: existEmployee.weekOffId,
+              punchInSource: req.device,
+            };
+
+            await db.attendanceMaster.create(creationObject);
             return respHelper(res, {
               status: 200,
-              msg: message.PUNCH_OUT_SUCCESS,
+              msg: message.PUNCH_IN_SUCCESS,
             });
           }
         }
@@ -426,6 +462,7 @@ class AttendanceController {
       });
     }
   }
+
 
   async regularizeRequest(req, res) {
     try {

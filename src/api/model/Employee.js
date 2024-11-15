@@ -229,6 +229,13 @@ export default (sequelize, Sequelize) => {
     isTempPassword: {
       type: Sequelize.BOOLEAN,
     },
+    isLoginActive: {
+      type: Sequelize.BOOLEAN,
+      defaultValue: 1
+    },
+    passwordExpiryDate: {
+      type: Sequelize.DATE,
+    }
   });
   return employeeMaster;
 };
