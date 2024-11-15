@@ -2,6 +2,8 @@
 ALTER TABLE `tara`.`employeepaymentdetails` 
 ADD COLUMN `sectionType` VARCHAR(255) NULL DEFAULT 'Payment Section' AFTER `newBankId`;
 
+ALTER TABLE `tara`.`employeepaymentdetails` 
+ADD COLUMN `newBankId` INT NULL DEFAULT NULL AFTER `isActive`;
 
 ALTER TABLE `tara_hrms_live`.`employeepaymentdetails` 
 ADD COLUMN `bankId` INT NULL DEFAULT NULL AFTER `userId`;
@@ -27,7 +29,7 @@ ADD COLUMN `newAccountNumberReq` VARCHAR(255) NULL DEFAULT NULL AFTER `newBankNa
 ADD COLUMN `newAccountHolderNameReq` VARCHAR(255) NULL DEFAULT NULL AFTER `newAccountNumberReq`,
 ADD COLUMN `newIfscCodeReq` VARCHAR(255) NULL DEFAULT NULL AFTER `newAccountHolderNameReq`,
 ADD COLUMN `newPaymentAttachment` VARCHAR(255) NULL DEFAULT NULL AFTER `newIfscCodeReq`,
-ADD COLUMN `newSupportingAttachment` VARCHAR(255) NULL DEFAULT NULL AFTER `newPaymentAttachment`;
+ADD COLUMN `newSupportingDocument` VARCHAR(255) NULL DEFAULT NULL AFTER `newPaymentAttachment`;
 
 
 ALTER TABLE `tara_hrms_live`.`employeepaymentdetails` 
