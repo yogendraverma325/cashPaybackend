@@ -145,7 +145,7 @@ class commonController {
           data: {},
         });
       }
-    } catch (error) { }
+    } catch (error) {}
   }
 
   async updatePaymentDetails(req, res) {
@@ -328,7 +328,7 @@ class commonController {
           data: {},
         });
       }
-    } catch (error) { }
+    } catch (error) {}
   }
 
   async getFamilyMember(req, res) {
@@ -825,9 +825,11 @@ class commonController {
       const pageNo = req.query.page * 1 || 1;
       const offset = (pageNo - 1) * limit;
 
-      const cacheKey = `employeeList:${req.userId}:${pageNo}:${limit}:${search || ""
-        }:${department || ""}:${designation || ""}:${buSearch || ""}:${sbuSearch || ""
-        }:${areaSearch || ""}`;
+      const cacheKey = `employeeList:${req.userId}:${pageNo}:${limit}:${
+        search || ""
+      }:${department || ""}:${designation || ""}:${buSearch || ""}:${
+        sbuSearch || ""
+      }:${areaSearch || ""}`;
 
       let employeeData = [];
       await client.get(cacheKey).then(async (data) => {
@@ -860,44 +862,44 @@ class commonController {
             where: Object.assign(
               search
                 ? {
-                  [Op.or]: [
-                    {
-                      empCode: {
-                        [Op.like]: `%${search}%`,
+                    [Op.or]: [
+                      {
+                        empCode: {
+                          [Op.like]: `%${search}%`,
+                        },
                       },
-                    },
-                    {
-                      name: {
-                        [Op.like]: `%${search}%`,
+                      {
+                        name: {
+                          [Op.like]: `%${search}%`,
+                        },
                       },
-                    },
-                    {
-                      email: {
-                        [Op.like]: `%${search}%`,
+                      {
+                        email: {
+                          [Op.like]: `%${search}%`,
+                        },
                       },
-                    },
-                  ],
-                  [Op.and]: [
-                    {
-                      isActive:
-                        usersData.role_id == 1 || usersData.role_id == 2
-                          ? [1, 0]
-                          : [1],
-                      ...empFilters,
-                    },
-                  ],
-                }
+                    ],
+                    [Op.and]: [
+                      {
+                        isActive:
+                          usersData.role_id == 1 || usersData.role_id == 2
+                            ? [1, 0]
+                            : [1],
+                        ...empFilters,
+                      },
+                    ],
+                  }
                 : {
-                  [Op.and]: [
-                    {
-                      isActive:
-                        usersData.role_id == 1 || usersData.role_id == 2
-                          ? [1, 0]
-                          : [1],
-                      ...empFilters,
-                    },
-                  ],
-                }
+                    [Op.and]: [
+                      {
+                        isActive:
+                          usersData.role_id == 1 || usersData.role_id == 2
+                            ? [1, 0]
+                            : [1],
+                        ...empFilters,
+                      },
+                    ],
+                  }
             ),
             attributes: [
               "id",
@@ -1740,93 +1742,96 @@ class commonController {
     }
   }
 
-  async actionOnPaymentDetails(req,res){
+  async actionOnPaymentDetails(req, res) {
     try {
-      const result =
-      await validator.actionPaymentSchema.validateAsync(req.body);
+      const result = await validator.actionPaymentSchema.validateAsync(
+        req.body
+      );
       const existUser = await db.employeeMaster.findOne({
         raw: true,
         where: {
           id: result.userId,
           isActive: 1,
         },
-        attributes: ["name","empCode", "profileImage"],
+        attributes: ["name", "empCode", "profileImage"],
       });
-      if(result.status == 0){
+      if (result.status == 0) {
         const objForRejction = {
-          status:"rejected",
-          newBankId:null,
-          pendingAt:null,
+          status: "rejected",
+          newBankId: null,
+          pendingAt: null,
           newBankNameReq: null,
           newAccountNumberReq: null,
           newAccountHolderNameReq: null,
           newIfscCodeReq: null,
-         // comment: null,
+          // comment: null,
           newPaymentAttachment: null,
-          newSupportingDocument: null
-         }
-        await db.paymentDetails.update(objForRejction,{ where: { userId: result.userId }});
-        
+          newSupportingDocument: null,
+        };
+        await db.paymentDetails.update(objForRejction, {
+          where: { userId: result.userId },
+        });
+
         eventEmitter.emit(
           "paymentDetailsAdminApprovedMail",
           JSON.stringify({
             email: result.email,
             name: existUser.name,
             fields: "Account NumberReq,Swift/IFSC code",
-            status:"Rejected",
-            comment:result.comment == undefined || "" ? "" : result.comment
+            status: "Rejected",
+            comment: result.comment == undefined || "" ? "" : result.comment,
           })
         );
         return respHelper(res, {
           status: 200,
           msg: constant.PAYMENT_REQUEST_REJECTED,
         });
-      }
-      else{
+      } else {
         const getNewChanges = await db.paymentDetails.findOne({
-          where: { userId: result.userId,status:"pending" },
+          where: { userId: result.userId, status: "pending" },
         });
 
-        if(getNewChanges){
+        if (getNewChanges) {
           const objForApproval = {
-            ...result,...
-            {
-              status:"approved",
-              pendingAt:null,
-              newBankId:null,
+            ...result,
+            ...{
+              status: "approved",
+              pendingAt: null,
+              newBankId: null,
               newBankNameReq: null,
               newAccountNumberReq: null,
               newAccountHolderNameReq: null,
               newIfscCodeReq: null,
               // comment: null,
               newPaymentAttachment: null,
-              newSupportingDocument: null
-            }}
-          await db.paymentDetails.update(objForApproval,{ where: { userId: result.userId }});
+              newSupportingDocument: null,
+            },
+          };
+          await db.paymentDetails.update(objForApproval, {
+            where: { userId: result.userId },
+          });
           eventEmitter.emit(
             "paymentDetailsAdminApprovedMail",
             JSON.stringify({
               email: result.email,
               name: existUser.name,
               fields: "",
-              status:"Approved",
-              comment:result.comment == undefined || "" ? "" : result.comment
+              status: "Approved",
+              comment: result.comment == undefined || "" ? "" : result.comment,
             })
           );
           return respHelper(res, {
             status: 200,
             msg: constant.PAYMENT_REQUEST_APPROVED,
-            data: {}
+            data: {},
           });
-        }
-        else{
+        } else {
           return respHelper(res, {
             status: 404,
-            msg: constant.DETAILS_NOT_FOUND
+            msg: constant.DETAILS_NOT_FOUND,
           });
         }
       }
-
     } catch (error) {
       console.log(error);
       return respHelper(res, {
@@ -1835,30 +1840,40 @@ class commonController {
     }
   }
 
-  async paymentActionPending(req,res){
-    let profileApprovalCount = await db.paymentDetails.findAll({
-      where: {
-        status: "pending",
-        pendingAt: req.userId
-      },
-      include:[{
-        model:db.employeeMaster,
-        attributes:['id','name','empCode']
-      },{
-        model:db.BankMaster,
-        attributes:['bankId','bankName','bankIfsc']
-      },
-      {
-        model:db.BankMaster,
-        attributes:['bankId','bankName','bankIfsc'],
-        as:"newBankName"
-      }]
-    });
-    return respHelper(res, {
-      status: 200,
-      msg: constant.DATA_FETCHED,
-      data: profileApprovalCount
-    });
+  async paymentActionPending(req, res) {
+    try {
+      let profileApprovalCount = await db.paymentDetails.findAll({
+        where: {
+          status: "pending",
+          pendingAt: req.userId,
+        },
+        include: [
+          {
+            model: db.employeeMaster,
+            attributes: ["id", "name", "empCode"],
+          },
+          {
+            model: db.BankMaster,
+            attributes: ["bankId", "bankName", "bankIfsc"],
+          },
+          {
+            model: db.BankMaster,
+            attributes: ["bankId", "bankName", "bankIfsc"],
+            as: "newBankName",
+          },
+        ],
+      });
+      return respHelper(res, {
+        status: 200,
+        msg: constant.DATA_FETCHED,
+        data: profileApprovalCount,
+      });
+    } catch (error) {
+      console.log(error);
+      return respHelper(res, {
+        status: 500,
+      });
+    }
   }
 }
 
