@@ -1,3 +1,7 @@
+----------------------------------------- 2024-11-15 ----------------------------------------------------
+ALTER TABLE `tara_hrms_live`.`separationinitiatedtask` 
+ADD COLUMN `resignationAutoId` INT NULL DEFAULT NULL AFTER `employeeId`;
+
 ------------------------------------------ 2024-11-13 ----------------------------------------------------
 ALTER TABLE `tara`.`employee` 
 ADD COLUMN `passwordExpiryDate` DATE NULL DEFAULT NULL AFTER `dateOfexit`;

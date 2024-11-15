@@ -13,6 +13,9 @@ export default (sequelize, Sequelize) => {
             type: Sequelize.INTEGER,
             allowNull: false,
         },
+        resignationAutoId: {
+            type: Sequelize.INTEGER,
+        },
         status: {
             type: Sequelize.BOOLEAN,
             allowNull: true,
