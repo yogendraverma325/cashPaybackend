@@ -95,6 +95,10 @@ class commonController {
             iqTestApplicable: result.iqTestApplicable,
             mobileAdmin: result.mobileAdmin,
             recruiterName: result.recruiterName,
+            offRoleCTC: result.offRoleCTC,
+            highestQualification: result.highestQualification,
+            ESICPFDeduction: result.ESICPFDeduction,
+            fatherName: result.fatherName
           },
           {
             where: { id: userId },
