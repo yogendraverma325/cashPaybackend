@@ -1,6 +1,6 @@
 import helper from "./helper.js";
 import logger from "./logger.js";
-import emailTemplate from '../email/emailTemplate.js'
+import emailTemplate from '../email/emailTemplate.js';
 
 export default function getAllListeners(eventEmitter) {
     eventEmitter.on('regularizeRequestMail', async (input) => {
@@ -343,7 +343,7 @@ async function newJoinEmployeeMail(input) {
     try {
         const userData = JSON.parse(input)
         await helper.mailService({
-            to: "jay.prakash@teamcomputers.com",
+            to: process.env.NEW_EMPLOYEE_JOINING,
             subject: `New Join Employee`,
             html: await emailTemplate.newJoinEmployeeMail(userData)
         })
