@@ -3841,14 +3841,9 @@ async mapBank(req, res) {
     if (getAllEmployee) {
       for (let i = 0; i < getAllEmployee.length; i++) {
         const ele = getAllEmployee[i];
-        console.log("paymentBankIfsc",ele.paymentBankIfsc)
-        console.log("ele.userId",ele.userId)
-
-        // Find the bank ID based on IFSC
         const bankRecord = await db.BankMaster.findOne({ where: { bankIfsc: ele.paymentBankIfsc } });
 
         if (bankRecord) {
-          // Update bankId for the user
           await db.paymentDetails.update(
             { bankId: bankRecord.bankId },
             { where: { userId: ele.userId } }
