@@ -277,19 +277,18 @@ const requestForPaymentApprovalSchema = Joi.object({
 const actionPaymentSchema = Joi.object({
   userId: Joi.number().label("User ID"),
   bankId: Joi.number().label("Bank Name"),
-  paymentAccountNumber: Joi.string().trim().required().label("Account Number"),
-  paymentBankName: Joi.string().trim().required().label("Bank Name"),
+  paymentAccountNumber: Joi.string().trim().label("Account Number").optional(),
+  paymentBankName: Joi.string().trim().label("Bank Name").optional(),
   paymentAttachment: Joi.string().allow("").optional(),
   supportingDocument: Joi.string().allow("").optional(),
   paymentBankIfsc: Joi.string()
     .trim()
     .required()
     .max(20)
-    .label("Bank Ifsc Code"),
+    .label("Bank Ifsc Code").optional(),
   paymentHolderName: Joi.string()
     .trim()
-    .required()
-    .label("Account Holder Name"),
+    .label("Account Holder Name").optional(),
     status:Joi.number(),
     comment:Joi.string().allow("").optional(),
 });

@@ -1761,7 +1761,7 @@ class commonController {
           newAccountNumberReq: null,
           newAccountHolderNameReq: null,
           newIfscCodeReq: null,
-          comment: null,
+         // comment: null,
           newPaymentAttachment: null,
           newSupportingDocument: null
          }
@@ -1798,7 +1798,7 @@ class commonController {
               newAccountNumberReq: null,
               newAccountHolderNameReq: null,
               newIfscCodeReq: null,
-              comment: null,
+              // comment: null,
               newPaymentAttachment: null,
               newSupportingDocument: null
             }}
@@ -1833,6 +1833,32 @@ class commonController {
         status: 500,
       });
     }
+  }
+
+  async paymentActionPending(req,res){
+    let profileApprovalCount = await db.paymentDetails.findAll({
+      where: {
+        status: "pending",
+        pendingAt: req.userId
+      },
+      include:[{
+        model:db.employeeMaster,
+        attributes:['id','name','empCode']
+      },{
+        model:db.BankMaster,
+        attributes:['bankId','bankName','bankIfsc']
+      },
+      {
+        model:db.BankMaster,
+        attributes:['bankId','bankName','bankIfsc'],
+        as:"newBankName"
+      }]
+    });
+    return respHelper(res, {
+      status: 200,
+      msg: constant.DATA_FETCHED,
+      data: profileApprovalCount
+    });
   }
 }
 

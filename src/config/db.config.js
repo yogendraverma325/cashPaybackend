@@ -941,4 +941,15 @@ db.paymentDetails.hasOne(db.BankMaster, {
   foreignKey: "bankId",
   sourceKey: "bankId",
 });
+
+db.paymentDetails.hasOne(db.BankMaster, {
+  foreignKey: "bankId",
+  sourceKey: "newBankId",
+  as:"newBankName"
+});
+
+db.paymentDetails.hasOne(db.employeeMaster, {
+  foreignKey: "id",
+  sourceKey: "userId",
+});
 export default db;

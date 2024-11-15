@@ -167,3 +167,9 @@ export default Express.Router()
     authorization("ADMIN"),
     commonController.actionOnPaymentDetails
   )
+
+  .get(
+    "/paymentActionPending",
+    authorization("ADMIN"),
+    commonController.paymentActionPending
+  )

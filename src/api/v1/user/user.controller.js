@@ -285,6 +285,11 @@ class UserController {
             include:[{
               model:db.BankMaster,
               attributes:['bankId','bankName','bankIfsc']
+            },
+            {
+              model:db.BankMaster,
+              attributes:['bankId','bankName','bankIfsc'],
+              as:"newBankName"
             }]
           },
           {
@@ -3714,11 +3719,11 @@ class UserController {
          const objForApproval = {
           status:"pending",
           pendingAt:1982,
-          ...(result.bankId && { newBankId: result.bankId }),
+          ...(result.bankId != isSameDetails.bankId && { newBankId: result.bankId }),
           ...(result.paymentBankName && { newBankNameReq: result.paymentBankName }),
-          ...(result.paymentAccountNumber && { newAccountNumberReq: result.paymentAccountNumber }),
-          ...(result.paymentHolderName && { newAccountHolderNameReq: result.paymentHolderName }),
-          ...(result.paymentBankIfsc && { newIfscCodeReq: result.paymentBankIfsc }),
+          ...(result.paymentAccountNumber != isSameDetails.paymentAccountNumber && { newAccountNumberReq: result.paymentAccountNumber }),
+          ...(result.paymentHolderName != isSameDetails.paymentHolderName && { newAccountHolderNameReq: result.paymentHolderName }),
+          ...(result.paymentBankIfsc != isSameDetails.paymentBankIfsc && { newIfscCodeReq: result.paymentBankIfsc }),
           ...(result.comment ? { comment: result.comment }:{comment: null}),
           ...(result.paymentAttachment ? { newPaymentAttachment: paymentAttachment } : { newPaymentAttachment: null }),
           ...(result.supportingDocument ? { newSupportingDocument: supportingDocument } : { newSupportingDocument: null })

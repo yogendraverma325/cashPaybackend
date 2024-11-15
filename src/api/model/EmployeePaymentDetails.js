@@ -90,6 +90,9 @@ export default (sequelize, Sequelize) => {
         comment:{
             type: Sequelize.STRING
         },
+        sectionType:{
+            type: Sequelize.STRING
+        }
     })
     return employeePaymentDetails
 }

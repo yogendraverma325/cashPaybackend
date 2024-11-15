@@ -442,6 +442,14 @@ const empLeaveDetails = async function (userId, type) {
       raw: true,
     });
 
+     let countPendingLeave = await db.EmployeeLeaveHeader.count({
+        where: {
+          status: "pending",
+          employeeId: userId
+        },
+        raw:true
+      });
+  
     let totalLeaveCountApproved = countApproved
       ? countApproved[0].totalLeaveCount || "0"
       : 0;
@@ -476,11 +484,23 @@ const empLeaveDetails = async function (userId, type) {
       if (item.leaveAutoId === 6 && item.leavemaster) {
         item.leavemaster.dataValues.countApproved = totalLeaveCountApproved;
         item.leavemaster.dataValues.countPending = totalLeaveCountPending;
-        item.leavemaster.dataValues.countSystemDeducting =
-          totalLeaveCountSystemDeducting;
+        item.leavemaster.dataValues.countSystemDeducting = totalLeaveCountSystemDeducting;
+        item.dataValues.totalPendingLeaveCount = countPendingLeave;
+      }
+      else {
+        item.dataValues.totalPendingLeaveCount = countPendingLeave;
       }
     });
   } else {
+
+    let countPendingLeave = await db.EmployeeLeaveHeader.count({
+      where: {
+        status: "pending",
+        employeeId: userId
+      },
+      raw:true
+    });
+
     leaveData = await db.leaveMapping.findOne({
       where: {
         EmployeeId: userId,
@@ -506,7 +526,6 @@ const empLeaveDetails = async function (userId, type) {
         },
         raw: true,
       });
-      console.log("countApproved", countApproved);
 
       let countPending = await db.employeeLeaveTransactions.findAll({
         attributes: [
@@ -545,8 +564,9 @@ const empLeaveDetails = async function (userId, type) {
 
       leaveData.leavemaster.dataValues.countApproved = totalLeaveCountApproved;
       leaveData.leavemaster.dataValues.countPending = totalLeaveCountPending;
-      leaveData.leavemaster.dataValues.countSystemDeducting =
-        totalLeaveCountSystemDeducting;
+      leaveData.leavemaster.dataValues.countSystemDeducting = totalLeaveCountSystemDeducting;
+      leaveData.leavemaster.dataValues.totalPendingLeaveCount = countPendingLeave; // Add totalPendingLeaveCount here
+
     }
   }
 

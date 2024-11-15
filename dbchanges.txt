@@ -1,6 +1,15 @@
 //-------------------------------------------2024-11-12------------------------------------------------//
+ALTER TABLE `tara`.`employeepaymentdetails` 
+ADD COLUMN `sectionType` VARCHAR(255) NULL DEFAULT 'Payment Section' AFTER `newBankId`;
+
+
 ALTER TABLE `tara_hrms_live`.`employeepaymentdetails` 
 ADD COLUMN `bankId` INT NULL DEFAULT NULL AFTER `userId`;
+
+ALTER TABLE `tara`.`taskfiltermaster` 
+ADD COLUMN `taskForWeb` INT NULL DEFAULT NULL AFTER `taskFor`,
+ADD COLUMN `taskForApp` INT NULL DEFAULT NULL AFTER `taskForWeb`;
+
 
 //-------------------------------------------2024-11-08-------------------------------------------------//
 

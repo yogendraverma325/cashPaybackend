@@ -65,7 +65,7 @@ class LeaveController {
   async leaveRequestList(req, res) {
     try {
       const query = req.query.listFor;
-
+      const user = req.query.user;
       const regularizeList = await db.EmployeeLeaveHeader.findAll({
         where: Object.assign(
           query === "raisedByMe"
@@ -73,7 +73,10 @@ class LeaveController {
               employeeId: req.userId,
               status: "pending"
             }
-            : { pendingAt: req.userId, status: "pending" }
+            : { pendingAt: req.userId, 
+              status: "pending",
+              ...(user && { employeeId: user }),
+            }
         ),
         attributes: { exclude: ["createdBy", "updatedBy", "updatedAt"] },
         include: [
