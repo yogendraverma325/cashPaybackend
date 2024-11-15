@@ -19,7 +19,6 @@ export default Express
     .post("/employeeMissedData", masterExportController.employeeMissedData)
     .get("/allAttendancePunchDetails", masterExportController.allAttendancePunchDetails)
     .get("/attendanceSummary", masterExportController.attendanceSummary)
-    .post("/onboardingEmployee", upload.single('excelFile'), masterExportController.onboardingEmployeeImport)
     .get("/employeeMasterExport", masterExportController.employeeMasterExport)
     .get("/sperationPending", masterExportController.sperationPending)
     .get("/sperationApproved", masterExportController.sperationApproved)

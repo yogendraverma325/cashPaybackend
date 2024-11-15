@@ -2966,8 +2966,8 @@ const clearanceInitiated = async (data) => {
       </tbody>
     </table>
   </body>
-</html>`
-}
+</html>`;
+};
 
 const onboardingEmployee = async (data) => {
   return `
@@ -3398,8 +3398,8 @@ const passwordExpiryNotification = async (data) => {
     </table>
   </body>
 </html>
-`
-}
+`;
+};
 
 const postPasswordExpiryNotification = async (data) => {
   return `<!DOCTYPE html>
@@ -3565,9 +3565,68 @@ const postPasswordExpiryNotification = async (data) => {
     </table>
   </body>
 </html>
-`
-}
-
+`;
+};
+const newJoinEmployeeMail = async (data) => {
+  return `
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+</head>
+<body>
+    <table style="border-collapse:collapse;margin:0 auto;width:100%" align="center">
+        <tbody>
+            <tr style="background:#fff">
+                <td colspan="2" style="padding:20px;padding-bottom:0" valign="top">
+                    <table style="width:100%">
+                        <tbody>
+                            <tr>
+                                <td colspan="2" style="padding-bottom:20px;text-align:left;border-bottom:1px solid #eee"
+                                    valign="middle">
+                                    <img
+                                      height="45"
+                                      src="${process.env.PROXY_URL}/api/uploads/assets/team-new.png"
+                                      alt="Logo"
+                                    />
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+            <tr style="min-height:300px;background:#fff">
+                <td colspan="2" style="padding:20px" valign="top">
+                    <p>Hi <b>IT - TARA AUTO REPORT</b>,</p><br><br><b>New Join Employees</b><b>10 AM - 12 PM</b><b><a
+                            href="${process.env.PROXY_URL}/api/uploads/temp/newJoinEmployee.xlsx" target="_blank" data-saferedirecturl="https://www.google.com/url?q=${process.env.PROXY_URL}/api/export/newJoinEmployee/&amp;source=gmail&amp;ust=1727407654468000&amp;usg=AOvVaw0u4ezRJDHPE2alMMkynFks">link</a></b><br><br><br><br><br><br>
+                    <table
+                        style="width:100%;font-size:12px;font-family:Century Gothic,CenturyGothic,AppleGothic,sans-serif">
+                        <tbody>
+                            <tr>
+                                <td> The report - - that is scheduled to be delivered to you in the slot IST has been
+                                    successfully generated.You can download the report from this . The link will remain
+                                    valid till 13-Dec-2024 10:21 AM .Data updates after 12-Nov-2024 08:16 AM may not be
+                                    fully reflected in the report. Regards, Team Computers Pvt Ltd
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+            <tr style="background-color:#fff;width:100%">
+                <td valign="middle" style="padding:18px 0;color:#ffffff;padding-left:25px;text-align:left"></td>
+                <td valign="middle"
+                    style="padding:18px 0;color:#ffffff;padding-right:25px;text-align:right;font-size:12px"><a href="https://tara.teamcomputers.com"
+                        style="text-decoration:none" target="_blank" data-saferedirecturl="https://www.google.com/url?q=https://tara.teamcomputers.com/&amp;source=gmail&amp;ust=1727407654468000&amp;usg=AOvVaw0u4ezRJDHPE2alMMkynFks"><span
+                            style="color:#ccc">Powered By :</span> TARA</a></td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>`;
+};
 export default {
   regularizationRequestMail,
   resetPasswordMail,
@@ -3590,5 +3649,6 @@ export default {
   paymentDetailsApprovalRequestMail,
   paymentDetailsAdminApprovedMail,
   passwordExpiryNotification,
-  postPasswordExpiryNotification
+  postPasswordExpiryNotification,
+  newJoinEmployeeMail,
 };

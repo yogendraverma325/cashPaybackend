@@ -1497,7 +1497,7 @@ class MasterController {
   async bank(req, res) {
     try {
 
-      const bankData = await db.BankMaster.findAndCountAll({
+      const bankData = await db.bankMaster.findAndCountAll({
         where: {
           isActive: 1,
           ...(req.query.search && {bankName: { [Op.like]: `%${req.query.search}%` }})

@@ -7,9 +7,9 @@ export default (sequelize, Sequelize) => {
         primaryKey: true,
         autoIncrement: true,
       },
-      employeeleaveheaderID: {
-        type: Sequelize.INTEGER,
-      },
+      // employeeleaveheaderID: {
+      //   type: Sequelize.INTEGER,
+      // },
       employeeId: {
         type: Sequelize.INTEGER,
       },

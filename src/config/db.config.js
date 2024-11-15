@@ -99,6 +99,7 @@ import BankMaster from "../api/model/BankMaster.js"
 
 import PolicyHistory from "../api/model/PolicyHistory.js";
 import EmployeeLeaveHeader from "../api/model/EmployeeLeaveHeader.js";
+
 import literal from "sequelize";
 import QueryTypes from "sequelize";
 const sequelize = new Sequelize(
@@ -261,7 +262,8 @@ db.ptLocationMaster = PTLocationMaster(sequelize, Sequelize);
 db.taskBuMapping = TaskBuMapping(sequelize, Sequelize);
 
 db.EmployeeLeaveHeader = EmployeeLeaveHeader(sequelize, Sequelize);
-db.BankMaster = BankMaster(sequelize,Sequelize)
+db.bankMaster = BankMaster(sequelize, Sequelize);
+
 db.holidayCompanyLocationConfiguration.hasOne(db.holidayMaster, {
   foreignKey: "holidayId",
   sourceKey: "holidayId",
@@ -756,13 +758,13 @@ db.separationTrail.hasOne(db.separationMaster, {
 db.separationTrail.hasOne(db.employeeMaster, {
   foreignKey: "id",
   sourceKey: "createdBy",
-  as: "createdBySeparationTrail"
+  as: "createdBySeparationTrail",
 });
 
 db.separationTrail.hasOne(db.employeeMaster, {
   foreignKey: "id",
   sourceKey: "updatedBy",
-  as: "updatedBySeparationTrail"
+  as: "updatedBySeparationTrail",
 });
 db.separationMaster.hasMany(db.separationTrail, {
   foreignKey: "separationAutoId",
@@ -930,19 +932,45 @@ db.EmployeeLeaveHeader.hasOne(db.employeeMaster, {
 
 db.separationInitiatedTask.hasMany(db.separationFieldValues, {
   foreignKey: "initiatedTaskAutoId",
-})
+});
 
 db.separationFieldValues.hasOne(db.separationTaskFields, {
   foreignKey: "taskFieldsAutoId",
-  sourceKey: 'fields'
-})
+  sourceKey: "fields",
+});
+db.jobDetails.hasOne(db.probationMaster, {
+  foreignKey: "probationId",
+  sourceKey: "probationId",
+});
+db.employeeMaster.hasOne(db.degreeMaster, {
+  foreignKey: "degreeId",
+  sourceKey: "highestQualification",
+});
 
-db.paymentDetails.hasOne(db.BankMaster, {
+db.employeeStagingMaster.hasOne(db.employeeMaster, {
+  foreignKey: "id",
+  sourceKey: "buHRId",
+  as: "buhrData",
+});
+
+db.employeeStagingMaster.hasOne(db.employeeMaster, {
+  foreignKey: "id",
+  sourceKey: "buHeadId",
+  as: "buHeadData",
+});
+
+db.employeeStagingMaster.hasOne(db.degreeMaster, {
+  foreignKey: "degreeId",
+  sourceKey: "highestQualification",
+});
+
+
+db.paymentDetails.hasOne(db.bankMaster, {
   foreignKey: "bankId",
   sourceKey: "bankId",
 });
 
-db.paymentDetails.hasOne(db.BankMaster, {
+db.paymentDetails.hasOne(db.bankMaster, {
   foreignKey: "bankId",
   sourceKey: "newBankId",
   as:"newBankName"

@@ -93,6 +93,4 @@ export default Express.Router()
   .get("/noticePeriod", masterController.noticePeriod)
   .get("/degree", masterController.degree)
   .get("/bank", masterController.bank)
-  .get("/ifsc", masterController.ifsc)
-
-
+  .get("/ifsc/:bankName", masterController.ifsc)
