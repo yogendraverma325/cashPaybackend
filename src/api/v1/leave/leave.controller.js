@@ -73,7 +73,8 @@ class LeaveController {
               employeeId: req.userId,
               status: "pending"
             }
-            : { pendingAt: req.userId, 
+            : {
+              pendingAt: req.userId,
               status: "pending",
               ...(user && { employeeId: user }),
             }
@@ -624,10 +625,10 @@ class LeaveController {
             leaveAttachment:
               result.attachment != ""
                 ? await helper.fileUpload(
-                    result.attachment,
-                    `leaveAttachment_${uuid}`,
-                    `uploads/${EMP_DATA.empCode}`
-                  )
+                  result.attachment,
+                  `leaveAttachment_${uuid}`,
+                  `uploads/${EMP_DATA.empCode}`
+                )
                 : null,
             pendingAt: EMP_DATA.managerData.id, // Replace with actual pending at value
             createdBy: req.userId, // Replace with actual creator user ID
@@ -691,7 +692,7 @@ class LeaveController {
           leaveType: leaveType.dataValues.leaveName,
           managerName: employeeData.dataValues.managerData.name,
           managerEmail: employeeData.dataValues.managerData.email,
-          cc: recipientsEmail.map((user) => user.email),
+          cc: recipientsEmail.map((user) => user.email).join(","),
         })
       );
 
