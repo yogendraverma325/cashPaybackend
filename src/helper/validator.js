@@ -167,7 +167,7 @@ const updateBiographicalDetailsSchema = Joi.object({
   offRoleCTC: Joi.number().allow(null).label("Off Role CTC"),
   highestQualification: Joi.number().allow(null).label("Highest Qualification"),
   ESICPFDeduction: Joi.string().allow(null).label("ESIC/PF Deduction"),
-  fatherName: Joi.string().trim().allow(null).label("Father Name")
+  fatherName: Joi.string().trim().allow(null).label("Father Name"),
 });
 
 const addFamilyDetailsSchema = Joi.object({
@@ -260,12 +260,12 @@ const updatePaymentDetailsSchema = Joi.object({
 
 const requestForPaymentApprovalSchema = Joi.object({
   userId: Joi.number().label("User ID"),
-  bankId:Joi.number().label("Bank Name").optional(),
+  bankId: Joi.number().label("Bank Name").optional(),
   paymentAccountNumber: Joi.string().trim().required().label("Account Number"),
   paymentBankName: Joi.string().trim().required().label("Bank Name"),
   paymentAttachment: Joi.string().allow("").optional(),
   supportingDocument: Joi.string().allow("").optional(),
-  comment:Joi.string().optional(),
+  comment: Joi.string().optional(),
   paymentBankIfsc: Joi.string()
     .trim()
     .required()
@@ -274,8 +274,7 @@ const requestForPaymentApprovalSchema = Joi.object({
   paymentHolderName: Joi.string()
     .trim()
     .required()
-    .label("Account Holder Name")
-    
+    .label("Account Holder Name"),
 });
 
 const actionPaymentSchema = Joi.object({
@@ -289,14 +288,15 @@ const actionPaymentSchema = Joi.object({
     .trim()
     .required()
     .max(20)
-    .label("Bank Ifsc Code").optional(),
+    .label("Bank Ifsc Code")
+    .optional(),
   paymentHolderName: Joi.string()
     .trim()
-    .label("Account Holder Name").optional(),
-    status:Joi.number(),
-    comment:Joi.string().allow("").optional(),
+    .label("Account Holder Name")
+    .optional(),
+  status: Joi.number(),
+  comment: Joi.string().allow("").optional(),
 });
-
 
 const addPaymentDetailsSchema = Joi.object({
   userId: Joi.number().label("User ID"),
@@ -428,7 +428,10 @@ const addJobDetailsSchema = Joi.object({
   restrictCompanyPf: Joi.boolean().allow(null).label("Restrict Company PF"),
   pranNumber: Joi.string().allow(null).label("PRAN Number").optional(),
   npsNumber: Joi.string().allow(null).label("NPS Number").optional(),
-  companyLocationId: Joi.number().allow(null).label("Company Location").optional(),
+  companyLocationId: Joi.number()
+    .allow(null)
+    .label("Company Location")
+    .optional(),
   unionId: Joi.number().allow(null).label("Union Code").optional(),
   bandId: Joi.number().allow(null).label("Band").optional(),
   gradeId: Joi.number().allow(null).label("Grade").optional(),
@@ -573,7 +576,10 @@ const updateContactInfo = Joi.object({
     .email({ tlds: { allow: ["com", "in"] } })
     .label("Personal Email")
     .required(),
-  //personalEmail: Joi.string().pattern(new RegExp('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.(com|in)$')).label("Personal Email").required(),
+  email: Joi.string()
+    .email({ tlds: { allow: ["com", "in"] } })
+    .label("Official Email")
+    .allow(null),
   officeMobileNumber: Joi.string()
     .label("Office Mobile Number")
     .allow(null)
@@ -658,7 +664,9 @@ const buhrInputOnSeparation = Joi.object({
   l2CustomerName: Joi.string().trim().max(100).allow("").label("Customer Name"),
   shortFallPayoutBasis: Joi.string().trim().allow("").label("Payout Basis"),
   shortFallPayoutDays: Joi.number().allow("").label("Payout Days"),
-  shortfallPayoutRequired: Joi.boolean().valid(true, false).label("Short Fall Payout"),
+  shortfallPayoutRequired: Joi.boolean()
+    .valid(true, false)
+    .label("Short Fall Payout"),
   ndaConfirmation: Joi.boolean().valid(0, 1).label("NDA Confirmation"),
   holdFnf: Joi.boolean().valid(0, 1).label("Hold FNF"),
   holdFnfTillDate: Joi.string().trim().allow("").label("FNF Till Date"),
@@ -912,7 +920,9 @@ const onBehalfSeperationByBUHr = Joi.object({
     .label("Customer Name"),
   shortFallPayoutBasis: Joi.string().trim().allow("").label("Payout Basis"),
   shortFallPayoutDays: Joi.number().allow("").label("Payout Days"),
-  shortfallPayoutRequired: Joi.boolean().valid(true, false).label("Short Fall Payout"),
+  shortfallPayoutRequired: Joi.boolean()
+    .valid(true, false)
+    .label("Short Fall Payout"),
   ndaConfirmation: Joi.boolean().valid(0, 1).label("NDA Confirmation"),
   holdFnf: Joi.boolean().valid(0, 1).label("Hold FNF"),
   holdFnfTillDate: Joi.string().trim().allow("").label("FNF Till Date"),
@@ -1077,9 +1087,7 @@ const importOnboardEmployeeSchema = Joi.object({
       then: Joi.required().label("off Role CTC"),
       otherwise: Joi.optional(),
     }),
-  highestQualification: Joi.string()
-    .required()
-    .label("Highest Qualification"),
+  highestQualification: Joi.string().required().label("Highest Qualification"),
   // ESICPFDeduction: Joi.string().valid('Yes', 'No', 'Only PF', 'Only ESIC').optional().label("ESIC/PF Deduction"),
   // fatherName: Joi.string().allow("").label("Father Name"),
   // paymentAccountNumber: Joi.string().allow('').default('NA').trim().max(20).label("Account Number"),
@@ -1151,7 +1159,6 @@ const updatePolicyOfEMP = Joi.array()
     "array.base": "Please Select Atleaset One User",
   });
 
-
 const updateIQDetailsSchema = Joi.object({
   userId: Joi.number().label("User ID"),
   abstractReasoning: Joi.string().optional().label("Abstract Reasoning"),
@@ -1219,5 +1226,5 @@ export default {
   revokeSeparationBUHR,
   requestForPaymentApprovalSchema,
   actionPaymentSchema,
-  blockLoginSchema
+  blockLoginSchema,
 };
