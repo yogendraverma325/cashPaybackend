@@ -3600,14 +3600,14 @@ const newJoinEmployeeMail = async (data) => {
             <tr style="min-height:300px;background:#fff">
                 <td colspan="2" style="padding:20px" valign="top">
                     <p>Hi <b>IT - TARA AUTO REPORT</b>,</p><br><br><b>New Join Employees</b><b>10 AM - 12 PM</b><b><a
-                            href="${process.env.PROXY_URL}/api/uploads/temp/newJoinEmployee.xlsx" target="_blank" data-saferedirecturl="https://www.google.com/url?q=${process.env.PROXY_URL}/api/export/newJoinEmployee/&amp;source=gmail&amp;ust=1727407654468000&amp;usg=AOvVaw0u4ezRJDHPE2alMMkynFks">link</a></b><br><br><br><br><br><br>
+                            href="${process.env.PROXY_URL}/api/uploads/temp/NewJoinEmployee_${data.today}.xlsx" target="_blank" data-saferedirecturl="https://www.google.com/url?q=${process.env.PROXY_URL}/api/export/newJoinEmployee/&amp;source=gmail&amp;ust=1727407654468000&amp;usg=AOvVaw0u4ezRJDHPE2alMMkynFks">link</a></b><br><br><br><br><br><br>
                     <table
                         style="width:100%;font-size:12px;font-family:Century Gothic,CenturyGothic,AppleGothic,sans-serif">
                         <tbody>
                             <tr>
                                 <td> The report - - that is scheduled to be delivered to you in the slot IST has been
                                     successfully generated.You can download the report from this . The link will remain
-                                    valid till 13-Dec-2024 10:21 AM .Data updates after 12-Nov-2024 08:16 AM may not be
+                                    valid till ${data.current} AM .Data updates ${data.yesterday} AM may not be
                                     fully reflected in the report. Regards, Team Computers Pvt Ltd
                                 </td>
                             </tr>

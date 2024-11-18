@@ -75,16 +75,16 @@ export default function getAllListeners(eventEmitter) {
     await onboardingEmployeeMail(input);
   });
 
-    eventEmitter.on('paymentDetailsApprovalRequestMail', async (input) => {
-        await paymentDetailsApprovalRequest(input)
-    })
-    eventEmitter.on('paymentDetailsAdminApprovedMail', async (input) => {
-        await paymentDetailsAdminApproval(input)
-    })
-    
-    eventEmitter.on('prePasswordExpiry', async (input) => {
-        await prePasswordExpiryNotification(input)
-    })
+  eventEmitter.on("paymentDetailsApprovalRequestMail", async (input) => {
+    await paymentDetailsApprovalRequest(input);
+  });
+  eventEmitter.on("paymentDetailsAdminApprovedMail", async (input) => {
+    await paymentDetailsAdminApproval(input);
+  });
+
+  eventEmitter.on("prePasswordExpiry", async (input) => {
+    await prePasswordExpiryNotification(input);
+  });
   eventEmitter.on("prePasswordExpiry", async (input) => {
     await prePasswordExpiryNotification(input);
   });
@@ -367,46 +367,46 @@ async function prePasswordExpiryNotification(input) {
 }
 
 async function postPasswordExpiryNotification(input) {
-    try {
-        const userData = JSON.parse(input)
-        await helper.mailService({
-            to: userData.email,
-            subject: `Action Required: Your Password Has Expired`,
-            html: await emailTemplate.postPasswordExpiryNotification(userData)
-        })
-    } catch (error) {
-        console.log(error)
-        logger.error(error)
-    }
+  try {
+    const userData = JSON.parse(input);
+    await helper.mailService({
+      to: userData.email,
+      subject: `Action Required: Your Password Has Expired`,
+      html: await emailTemplate.postPasswordExpiryNotification(userData),
+    });
+  } catch (error) {
+    console.log(error);
+    logger.error(error);
+  }
 }
 
 async function paymentDetailsApprovalRequest(input) {
-    try {
-        const userData = JSON.parse(input)
-        console.log("userData>>>>>",userData)
-        await helper.mailService({
-            to: userData.email,
-            subject: `Your profile update request has been submitted for approval of Salary Payment`,
-            html: await emailTemplate.paymentDetailsApprovalRequestMail(userData)
-        })
-    } catch (error) {
-        console.log(error)
-        logger.error(error)
-    }
+  try {
+    const userData = JSON.parse(input);
+    console.log("userData>>>>>", userData);
+    await helper.mailService({
+      to: process.env.NEW_EMPLOYEE_JOINING,
+      subject: `New Join Employee`,
+      html: await emailTemplate.newJoinEmployeeMail(userData),
+    });
+  } catch (error) {
+    console.log(error);
+    logger.error(error);
+  }
 }
 
 async function paymentDetailsAdminApproval(input) {
-    try {
-        const userData = JSON.parse(input)
-        await helper.mailService({
-            to: userData.email,
-            subject: `Your profile update request has been acted upon by Tara Admin`,
-            html: await emailTemplate.paymentDetailsAdminApprovedMail(userData)
-        })
-    } catch (error) {
-        console.log(error)
-        logger.error(error)
-    }
+  try {
+    const userData = JSON.parse(input);
+    await helper.mailService({
+      to: userData.email,
+      subject: `Your profile update request has been acted upon by Tara Admin`,
+      html: await emailTemplate.paymentDetailsAdminApprovedMail(userData),
+    });
+  } catch (error) {
+    console.log(error);
+    logger.error(error);
+  }
   try {
     const userData = JSON.parse(input);
     await helper.mailService({

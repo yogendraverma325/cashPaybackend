@@ -24,9 +24,9 @@ cron.schedule("0 0 * * *", async () => {
   await cronController.blockAccess()
 });
 
-// cron.schedule("* * * * *", async () => {
-//   cronController.newJoinEmployee();
-// });
+cron.schedule("* 10,11 * * *", async () => {
+  cronController.newJoinEmployee();
+});
 
 cron.schedule("0 7 * * *", async () => {
   await cronController.prePasswordExpiryNotification()

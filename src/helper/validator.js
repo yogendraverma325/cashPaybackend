@@ -164,6 +164,10 @@ const updateBiographicalDetailsSchema = Joi.object({
     .allow(null)
     .max(30)
     .optional(),
+  offRoleCTC: Joi.number().allow(null).label("Off Role CTC"),
+  highestQualification: Joi.number().allow(null).label("Highest Qualification"),
+  ESICPFDeduction: Joi.string().allow(null).label("ESIC/PF Deduction"),
+  fatherName: Joi.string().trim().allow(null).label("Father Name")
 });
 
 const addFamilyDetailsSchema = Joi.object({

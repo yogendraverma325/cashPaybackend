@@ -111,6 +111,11 @@ class UserController {
                   "iqTestApplicable",
                   "mobileAdmin",
                   "recruiterName",
+                  "employeeType",
+                  "offRoleCTC",
+                  "highestQualification",
+                  "ESICPFDeduction",
+                  "fatherName"
                 ],
                 include: [
                   {
