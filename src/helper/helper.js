@@ -5,7 +5,7 @@ import moment from "moment";
 import db from "../config/db.config.js";
 import sendGrid from "@sendgrid/mail";
 import bcrypt from "bcrypt";
-import pepipost from 'pepipost'
+import pepipost from "pepipost";
 import { Op } from "sequelize";
 import eventEmitter from "../services/eventService.js";
 
@@ -73,7 +73,7 @@ const checkActiveUser = async (data) => {
     where: {
       id: data,
       isActive: 1,
-      isLoginActive: 1
+      isLoginActive: 1,
     },
   });
   return existUser;
@@ -104,7 +104,6 @@ const checkActiveUser = async (data) => {
 // };
 
 const mailService = async (data) => {
-
   try {
     const testMail = parseInt(process.env.TEST_MAIL);
     const testMailIDs = process.env.TEST_MAIL_ID.split(",");
@@ -115,8 +114,8 @@ const mailService = async (data) => {
     let body = new pepipost.Send();
     body.from = new pepipost.From();
 
-    body.from.email = process.env.SENDER_MAIL
-    body.from.name = process.env.SENDER_NAME
+    body.from.email = process.env.SENDER_MAIL;
+    body.from.name = process.env.SENDER_NAME;
     body.subject = data.subject;
 
     body.content = [];
@@ -127,7 +126,11 @@ const mailService = async (data) => {
     body.personalizations[0] = new pepipost.Personalizations();
 
     console.log("Mail is Sending On --->>", data.to);
-    if (data.attachments && data.attachments.length >= 1 && data.attachments != undefined) {
+    if (
+      data.attachments &&
+      data.attachments.length >= 1 &&
+      data.attachments != undefined
+    ) {
       let attach = Buffer.from(data.attachments, "binary").toString("base64");
       body.personalizations[0].attachments = [];
       let attachment = data.attachments.map((attc) => {
@@ -141,42 +144,42 @@ const mailService = async (data) => {
     }
     body.personalizations[0].To = [];
     body.personalizations[0].To = new pepipost.EmailStruct();
-    body.personalizations[0].To = mergeEmail(testMail ? testMailIDs : data.to.split(","));
-
+    body.personalizations[0].To = mergeEmail(
+      testMail ? testMailIDs : data.to.split(",")
+    );
 
     body.personalizations[0].cc = [];
     body.personalizations[0].cc = new pepipost.EmailStruct();
-    body.personalizations[0].cc = mergeEmail((data.cc) ? data.cc.split(",") : []);
-
+    body.personalizations[0].cc = mergeEmail(data.cc ? data.cc.split(",") : []);
 
     body.personalizations[0].bcc = [];
     body.personalizations[0].bcc = new pepipost.EmailStruct();
-    body.personalizations[0].bcc = mergeEmail((data.bcc) ? data.bcc.split(",") : []);
+    body.personalizations[0].bcc = mergeEmail(
+      data.bcc ? data.bcc.split(",") : []
+    );
     body.settings = {};
     body.settings.open_track = true;
     body.settings.click_track = true;
     body.settings.unsubscribe_track = false;
 
-
     const promise = await controller.createGeneratethemailsendrequest(body);
 
-    console.log(promise)
+    console.log(promise);
     return promise;
   } catch (error) {
-    console.log(error)
+    console.log(error);
   }
-}
+};
 
 const mergeEmail = (email) => {
   let emails =
     typeof email === "string"
       ? [{ email }]
       : email.map((email) => {
-        return { email };
-      });
+          return { email };
+        });
   return emails;
-}
-
+};
 
 const timeDifference = async (start, end) => {
   let startTime = moment(start, "YYYY-MM-DD HH:mm:ss");
@@ -551,14 +554,14 @@ const empLeaveDetails = async function (userId, type) {
       raw: true,
     });
 
-     let countPendingLeave = await db.EmployeeLeaveHeader.count({
-        where: {
-          status: "pending",
-          employeeId: userId
-        },
-        raw:true
-      });
-  
+    let countPendingLeave = await db.EmployeeLeaveHeader.count({
+      where: {
+        status: "pending",
+        employeeId: userId,
+      },
+      raw: true,
+    });
+
     let totalLeaveCountApproved = countApproved
       ? countApproved[0].totalLeaveCount || "0"
       : 0;
@@ -593,21 +596,20 @@ const empLeaveDetails = async function (userId, type) {
       if (item.leaveAutoId === 6 && item.leavemaster) {
         item.leavemaster.dataValues.countApproved = totalLeaveCountApproved;
         item.leavemaster.dataValues.countPending = totalLeaveCountPending;
-        item.leavemaster.dataValues.countSystemDeducting = totalLeaveCountSystemDeducting;
+        item.leavemaster.dataValues.countSystemDeducting =
+          totalLeaveCountSystemDeducting;
         item.dataValues.totalPendingLeaveCount = countPendingLeave;
-      }
-      else {
+      } else {
         item.dataValues.totalPendingLeaveCount = countPendingLeave;
       }
     });
   } else {
-
     let countPendingLeave = await db.EmployeeLeaveHeader.count({
       where: {
         status: "pending",
-        employeeId: userId
+        employeeId: userId,
       },
-      raw:true
+      raw: true,
     });
 
     leaveData = await db.leaveMapping.findOne({
@@ -673,9 +675,10 @@ const empLeaveDetails = async function (userId, type) {
 
       leaveData.leavemaster.dataValues.countApproved = totalLeaveCountApproved;
       leaveData.leavemaster.dataValues.countPending = totalLeaveCountPending;
-      leaveData.leavemaster.dataValues.countSystemDeducting = totalLeaveCountSystemDeducting;
-      leaveData.leavemaster.dataValues.totalPendingLeaveCount = countPendingLeave; // Add totalPendingLeaveCount here
-
+      leaveData.leavemaster.dataValues.countSystemDeducting =
+        totalLeaveCountSystemDeducting;
+      leaveData.leavemaster.dataValues.totalPendingLeaveCount =
+        countPendingLeave; // Add totalPendingLeaveCount here
     }
   }
 
@@ -797,9 +800,9 @@ ${moment(inputData.fromDate).format("DD-MM-YYYY")} to ${moment(
   inputData.batch_id = batch;
   inputData.message = leaveText;
 
-  // let headerInsert = await db.EmployeeLeaveHeader.create(inputData);
+  let headerInsert = await db.EmployeeLeaveHeader.create(inputData);
 
-  // inputData.employeeleaveheaderID = headerInsert.employeeleaveheaderID;
+  inputData.employeeleaveheaderID = headerInsert.employeeleaveheaderID;
   await db.employeeLeaveTransactions.create(inputData); // Push data to leave transaction table for that employee
 
   //start code :leave deducation code if auto approve only
